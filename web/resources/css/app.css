@@ -1,0 +1,43 @@
+@import 'quill/dist/quill.core.css';
+@import "quill/dist/quill.snow.css";
+
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[x-cloak] {
+    display: none;
+}
+
+/* TODO: find a way to make this local */
+.pre-like {
+    white-space: pre;
+    unicode-bidi: embed;
+}
+
+
+/* Tailwind font family for quill classes */
+.ql-font-monospace{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+.ql-font-serif{
+
+    font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+
+}
+
+.ql-font-sans-serif{
+
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+.post-it {
+    background-color: #f4e842;
+    border: 1px solid #d4b834;
+    padding: 10px;
+    font-family: "Courier New", Courier, monospace;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 1; /* To make sure it appears above other elements */
+}

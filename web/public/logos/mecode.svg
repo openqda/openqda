@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="166"
+   height="50"
+   viewBox="0 0 43.920832 13.229167"
+   version="1.1"
+   id="svg5"
+   inkscape:export-filename="/home/jankapunkt/Desktop/mecode.png"
+   inkscape:export-xdpi="300"
+   inkscape:export-ydpi="300"
+   inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)"
+   sodipodi:docname="mecode.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="mm"
+     showgrid="false"
+     units="px"
+     inkscape:zoom="5.6568543"
+     inkscape:cx="101.29305"
+     inkscape:cy="86.001862"
+     inkscape:window-width="2560"
+     inkscape:window-height="1391"
+     inkscape:window-x="1280"
+     inkscape:window-y="25"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g38300" />
+  <defs
+     id="defs2" />
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g38300"
+       transform="translate(-4.7360102,-18.09015)">
+      <g
+         id="g52479"
+         transform="matrix(1.5117772,0,0,1.5117772,-4.8114075,-12.842025)"
+         style="stroke-width:0.661474">
+        <rect
+           style="fill:#3b82f6;fill-opacity:1;stroke-width:0.661474"
+           id="rect27369"
+           width="18.751238"
+           height="8.7507381"
+           x="16.657019"
+           y="20.460802"
+           rx="0.55803454"
+           ry="0.55803454" />
+        <text
+           xml:space="preserve"
+           style="font-size:7.05556px;line-height:1.25;font-family:'Open Sans';-inkscape-font-specification:'Open Sans';stroke-width:0.175014"
+           x="5.7710347"
+           y="27.334425"
+           id="text32635"><tspan
+             sodipodi:role="line"
+             id="tspan32633"
+             style="font-style:normal;font-variant:normal;font-weight:800;font-stretch:normal;font-size:7.05556px;font-family:'Open Sans';-inkscape-font-specification:'Open Sans Ultra-Bold';stroke-width:0.175014"
+             x="5.7710347"
+             y="27.334425"><tspan
+               style="fill:#3b82f6;fill-opacity:1;stroke-width:0.175014"
+               id="tspan51454">Me</tspan><tspan
+               style="fill:#ffffff;stroke-width:0.175014"
+               id="tspan41618">Code</tspan></tspan></text>
+      </g>
+    </g>
+  </g>
+</svg>
