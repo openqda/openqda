@@ -1,0 +1,60 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: OpenQDA
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Alessandro
+    family-names: Belli
+    email: belli@uni-bremen.de
+    affiliation: 'ZeMKI, University of Bremen'
+    orcid: 'https://orcid.org/0000-0002-7292-8321'
+  - given-names: Jan
+    family-names: Küster
+    email: jkuester@uni-bremen.de
+    affiliation: 'ZeMKI, University of Bremen'
+    orcid: 'https://orcid.org/0009-0008-8088-9837'
+  - given-names: Florian
+    family-names: Hohmann
+    email: fhohmann@uni-bremen.de
+    affiliation: 'ZeMKI, University of Bremen'
+    orcid: 'https://orcid.org/0000-0003-2637-0600'
+  - given-names: Philip
+    family-names: Sinner
+    email: sinner@uni-bremen.de
+    affiliation: 'ZeMKI, University of Bremen'
+    orcid: 'https://orcid.org/0000-0001-8273-1664'
+  - given-names: Gino
+    family-names: Krüger
+    email: gikrueger@uni-bremen.de
+    affiliation: 'ZeMKI, University of Bremen'
+    orcid: 'https://orcid.org/0000-0001-7150-6963'
+  - given-names: Karsten
+    family-names: Wolf
+    name-particle: D.
+    orcid: 'https://orcid.org/0000-0002-4151-840X'
+    affiliation: 'ZeMKI, University of Bremen'
+    email: wolf@uni-bremen.de
+  - given-names: Andreas
+    family-names: Hepp
+    affiliation: 'ZeMKI, University of Bremen'
+    email: ahepp@uni-bremen.de
+    orcid: 'https://orcid.org/0000-0001-7292-4147'
+repository-code: 'https://github.com/openqda/openqda'
+url: 'https://openqda.org'
+abstract: >-
+  An open, web-based, collaborative and extensible software
+  for qualitative data analysis.
+keywords:
+  - qda
+  - caqdas
+  - qualitative
+  - quali
+license: AGPL-3.0
+commit: TBD
+version: TBD
+date-released: '2099-01-01'
