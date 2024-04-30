@@ -1,0 +1,3 @@
+# OpenQDA Core Architecture
+ TBD
+ 
