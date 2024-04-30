@@ -7,11 +7,19 @@
 
 ## About
 
+TBD
+
 ## Documentation
+
+TBD
 
 ## Installation
 
+TBD
+
 ## Development
+
+TBD
 
 ### Core
 
@@ -19,7 +27,11 @@
 
 ## Deployment
 
+TBD
+
 ## Credits
+
+TBD
 
 ## License
 
