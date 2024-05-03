@@ -1,3 +1,4 @@
+# OpenQDA installation
 Install a web server using our [Tech Stack](TECH-STACK.md).
 
 ## Initial setup
