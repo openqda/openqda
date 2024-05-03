@@ -1,7 +1,23 @@
-# OpenQDA
+<div align="center">
+    <h2>OpenQDA</h2>
+    <p>Collaborative Qualitative Research</p>
 
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 ![This is a research software](https://img.shields.io/badge/research-software-blue?style=plastic)
+
+</div>
+
+
+<p align="center">
+
+<img src="https://raw.githubusercontent.com/openqda/.github/main/profile/bg_top_left_512x512_96dpi.PNG" alt="img data collection" width="200"/>
+<img src="https://raw.githubusercontent.com/openqda/.github/main/profile/bg_bottom_left_512x512_96dpi.PNG" alt="img data preparation" width="200" />
+<img src="https://raw.githubusercontent.com/openqda/.github/main/profile/bg_top_right_512x512_96dpi.PNG" alt="img coding" width="200"/>
+<img src="https://raw.githubusercontent.com/openqda/.github/main/profile/bg_bottom_right_512x512_96dpi.PNG" alt="img analysis" width="200"/>
+</p>
+<p align="center">
+    <img src="https://github.com/openqda/.github/blob/main/profile/zemki-und-uni-logo-weiss-1x.png?raw=true" alt="img ZeMKI" width="200"/>
+</p>
 
 > **Important note**
 >
@@ -11,19 +27,28 @@
 > See our [development roadmap](https://github.com/openqda/openqda/milestones)
 > for ongoing and upcoming features and fixes.
 
-## About
+## What is OpenQDA?
+OpenQDA is a sustainable, free/libre Open Source Software for collaborative qualitative data analysis.
 
-OpenQDA is a sustainable, free/libre Open Source Software for collaborative qualitative research.
-OpenQDA is developed by the ZeMKI (Centre for Media, Communication and Information Research) at the
-University of Bremen, and it's main instance (https://openqda.org)
-is hosted on servers integrated in the university's infrastructure.
+It's developed by the [ZeMKI (Centre for Media, Communication and Information Research)](https://zemki.uni-bremen.de/)
+at the [University of Bremen](https://www.uni-bremen.de/).
 
-If you are a user and want to learn OpenQDA, then we advise you to read
+It's publicly available under https://openqda.org and is hosted on servers,
+integrated in the university's infrastructure.
+
+> If you are a user and want to learn OpenQDA, then we advise you to read
 the [user documentation](https://openqda.github.io/user-docs/).
 
 If you are still unsure about what OpenQDA is or does, then please [consult our FAQ](https://openqda.org/faq).
 
-## Roadmap
+### Quick links
+
+- 🚀 Register and test it now (early access): https://openqda.org
+- 📔 Read the user-docs: https://openqda.github.io/user-docs/
+- 📢 Give feedback and join the discussion: https://github.com/openqda/feedback
+- 📧 Contact us: [openqda@uni-bremen.de](mailto:openqda@uni-bremen.de)
+
+### Roadmap
 
 We are constantly updating our [development roadmap](https://github.com/openqda/openqda/milestones)
 in regard to the upcoming releases.
@@ -37,33 +62,18 @@ If you have reached this section, chances are high your either want one of the f
 - improve OpenQDA
 - learn research software engineering with OpenQDA as an example project
 
-### Architecture overview
 
-In terms of software architecture OpenQDA is a pluggable monolith. That means,
-there is a core application that can be extended by internal or external programs
-that follow a certain interface definition.
+### Developer Documentation
 
-A plugin can therefore be a php module (backend), a JavaScript module or Vue component (frontend)
-or an external service (both).
+We provide an extensive developer documentation in the `/docs` folder.
+Here are the quick links to the guides:
 
-One of the main goals of this architecture is to make it easy for you to extend OpenQDA
-without the need to know its exact internals but by following only a few rules that
-a plugin must comply with.
-
-### Core
-
-If you are interested in working on the OpenQDA core then please consult our
-[core development guide](./docs/CORE.md).
-
-### Plugins
-
-If you are interested in developing your own plugin then please consult our
-[plugin development guide](./docs/PLUGINS.md).
-
-### Deployment
-
-We cover aspects of deployment (installing/updating OpenQDA on your staging or production servers)
-in a separate [deployment guide](./docs/DEPLOYMENT.md).
+- [tech stack](./docs/TECH-STACK.md)
+- [architecture overview](./docs/ARCHITECTURE.md)
+- [installation guide](./docs/INSTALLATION.md)
+- [core development](./docs/CORE.md)
+- [plugin development](./docs/PLUGINS.md)
+- [deployment guide](./docs/DEPLOYMENT.md)
 
 ## Publications
 
