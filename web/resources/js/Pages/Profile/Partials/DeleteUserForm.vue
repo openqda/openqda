@@ -1,127 +1,136 @@
 <script setup>
-import {ref} from 'vue';
-import {useForm, usePage} from '@inertiajs/vue3';
-import ActionSection from '@/Components/ActionSection.vue';
-import DangerButton from '@/Components/DangerButton.vue';
-import DialogModal from '@/Components/DialogModal.vue';
-import InputError from '@/Components/InputError.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import { ref } from 'vue'
+import { useForm, usePage } from '@inertiajs/vue3'
+import ActionSection from '@/Components/ActionSection.vue'
+import DangerButton from '@/Components/DangerButton.vue'
+import DialogModal from '@/Components/DialogModal.vue'
+import InputError from '@/Components/InputError.vue'
+import SecondaryButton from '@/Components/SecondaryButton.vue'
+import TextInput from '@/Components/TextInput.vue'
 
-const confirmingUserDeletion = ref(false);
-const passwordInput = ref(null);
+const confirmingUserDeletion = ref(false)
+const passwordInput = ref(null)
 
 const form = useForm({
-    password: '',
-});
+  password: '',
+})
 
 const confirmUserDeletion = () => {
-    confirmingUserDeletion.value = true;
+  confirmingUserDeletion.value = true
 
-    setTimeout(() => passwordInput.value.focus(), 250);
-};
+  setTimeout(() => passwordInput.value.focus(), 250)
+}
 
 const deleteUser = () => {
-    form.delete(route('current-user.destroy'), {
-        preserveScroll: true,
-        onSuccess: () => closeModal(),
-        onError: () => passwordInput.value.focus(),
-        onFinish: () => form.reset(),
-    });
-};
+  form.delete(route('current-user.destroy'), {
+    preserveScroll: true,
+    onSuccess: () => closeModal(),
+    onError: () => passwordInput.value.focus(),
+    onFinish: () => form.reset(),
+  })
+}
 
 const closeModal = () => {
-    confirmingUserDeletion.value = false;
+  confirmingUserDeletion.value = false
 
-    form.reset();
-};
+  form.reset()
+}
 </script>
 
 <template>
-    <ActionSection>
-        <template #title>
-            Delete Account
-        </template>
+  <ActionSection>
+    <template #title> Delete Account </template>
 
-        <template #description>
-            Permanently delete your account.
-        </template>
+    <template #description> Permanently delete your account. </template>
+
+    <template #content>
+      <div class="max-w-xl text-sm text-gray-600">
+        Once your account is deleted, all of its resources and data will be
+        permanently deleted. Before deleting your account, please download any
+        data or information that you wish to retain.
+        <div
+          class="text-red-900 font-bold bg-red-300 p-2 border-l-red-600 border-l-8"
+          v-if="usePage().props.ownTeams.length > 0"
+        >
+          If you are the owner of any teams, you can either make someone else
+          the owner or delete the team.
+        </div>
+      </div>
+
+      <!-- List of projects -->
+      <div v-if="usePage().props.ownTeams.length > 0" class="mt-5">
+        <div class="font-bold text-gray-700 mb-2">
+          Projects with your teams:
+        </div>
+        <ul>
+          <li
+            v-for="team in usePage().props.ownTeams"
+            :key="team.id"
+            class="mb-2"
+          >
+            <a
+              target="_blank"
+              v-if="team.projects.length > 0"
+              :href="'/projects/' + team.projects[0].id + '/overview#collab'"
+              class="text-blue-600 hover:underline"
+            >
+              {{ team.projects[0].name }} -
+              {{ team.projects[0].description }}
+            </a>
+            <span v-else class="text-gray-600"
+              >Please contact us to delete your account</span
+            >
+          </li>
+        </ul>
+      </div>
+
+      <div class="mt-5">
+        <DangerButton
+          @click="confirmUserDeletion"
+          :disabled="usePage().props.ownTeams.length > 0"
+        >
+          Delete Account
+        </DangerButton>
+      </div>
+
+      <!-- Delete Account Confirmation Modal -->
+      <DialogModal :show="confirmingUserDeletion" @close="closeModal">
+        <template #title> Delete Account </template>
 
         <template #content>
-            <div class="max-w-xl text-sm text-gray-600">
-                Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting
-                your account, please download any data or information that you wish to retain.
-                <div class="text-red-900 font-bold bg-red-300 p-2 border-l-red-600 border-l-8"
-                     v-if="usePage().props.ownTeams.length > 0">
-                    If you are the owner of any teams, you can either make someone else the owner or delete the team.
-                </div>
-            </div>
+          Are you sure you want to delete your account? Once your account is
+          deleted, all of its resources and data will be permanently deleted.
+          Please enter your password to confirm you would like to permanently
+          delete your account.
 
-            <!-- List of projects -->
-            <div v-if="usePage().props.ownTeams.length > 0" class="mt-5">
-                <div class="font-bold text-gray-700 mb-2">Projects with your teams:</div>
-                <ul>
-                    <li v-for="team in usePage().props.ownTeams" :key="team.id" class="mb-2">
-                        <a target="_blank"
-                           v-if="team.projects.length > 0"
-                            :href="'/projects/' + team.projects[0].id+'/overview#collab'"
-                           class="text-blue-600 hover:underline">
-                            {{ team.projects[0].name }} - {{ team.projects[0].description }}
-                        </a>
-                        <span v-else class="text-gray-600">Please contact us to delete your account</span>
+          <div class="mt-4">
+            <TextInput
+              ref="passwordInput"
+              v-model="form.password"
+              type="password"
+              class="mt-1 block w-3/4"
+              placeholder="Password"
+              autocomplete="current-password"
+              @keyup.enter="deleteUser"
+            />
 
-                    </li>
-                </ul>
-            </div>
-
-
-            <div class="mt-5">
-                <DangerButton @click="confirmUserDeletion" :disabled="usePage().props.ownTeams.length > 0">
-                    Delete Account
-                </DangerButton>
-            </div>
-
-            <!-- Delete Account Confirmation Modal -->
-            <DialogModal :show="confirmingUserDeletion" @close="closeModal">
-                <template #title>
-                    Delete Account
-                </template>
-
-                <template #content>
-                    Are you sure you want to delete your account? Once your account is deleted, all of its resources and
-                    data will be permanently deleted. Please enter your password to confirm you would like to
-                    permanently delete your account.
-
-                    <div class="mt-4">
-                        <TextInput
-                            ref="passwordInput"
-                            v-model="form.password"
-                            type="password"
-                            class="mt-1 block w-3/4"
-                            placeholder="Password"
-                            autocomplete="current-password"
-                            @keyup.enter="deleteUser"
-                        />
-
-                        <InputError :message="form.errors.password" class="mt-2"/>
-                    </div>
-                </template>
-
-                <template #footer>
-                    <SecondaryButton @click="closeModal">
-                        Cancel
-                    </SecondaryButton>
-
-                    <DangerButton
-                        class="ml-3"
-                        :class="{ 'opacity-25': form.processing }"
-                        :disabled="form.processing"
-                        @click="deleteUser"
-                    >
-                        Delete Account
-                    </DangerButton>
-                </template>
-            </DialogModal>
+            <InputError :message="form.errors.password" class="mt-2" />
+          </div>
         </template>
-    </ActionSection>
+
+        <template #footer>
+          <SecondaryButton @click="closeModal"> Cancel </SecondaryButton>
+
+          <DangerButton
+            class="ml-3"
+            :class="{ 'opacity-25': form.processing }"
+            :disabled="form.processing"
+            @click="deleteUser"
+          >
+            Delete Account
+          </DangerButton>
+        </template>
+      </DialogModal>
+    </template>
+  </ActionSection>
 </template>

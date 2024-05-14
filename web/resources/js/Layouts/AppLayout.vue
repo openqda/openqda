@@ -1,135 +1,144 @@
 <script setup>
-import {computed, onMounted, onUnmounted, provide, ref, watch} from "vue";
-import {router, usePage} from "@inertiajs/vue3";
-import Navigation from "../Components/Navigation.vue";
-import FlashMessage from "../Components/FlashMessage.vue";
-import {setupEcho, useSharedState} from '../state/sharedState.js';
+import { computed, onMounted, onUnmounted, provide, ref, watch } from 'vue'
+import { router, usePage } from '@inertiajs/vue3'
+import Navigation from '../Components/Navigation.vue'
+import FlashMessage from '../Components/FlashMessage.vue'
+import { setupEcho, useSharedState } from '../state/sharedState.js'
 import Footer from './Footer.vue'
 
 defineProps({
-    title: String,
-});
-let pingIntervalId;
-let userInAteam = false;
-const sharedState = useSharedState();
-provide('sharedState', sharedState);
+  title: String,
+})
+let pingIntervalId
+let userInAteam = false
+const sharedState = useSharedState()
+provide('sharedState', sharedState)
 
-const usersInChannel = ref([]);
-provide('usersInChannel', usersInChannel);
+const usersInChannel = ref([])
+provide('usersInChannel', usersInChannel)
 // Computed property to get the list of users
 // Function to save to local storage
 function saveUsersToStorage(users) {
-    sessionStorage.setItem('usersInChannel', JSON.stringify(users));
+  sessionStorage.setItem('usersInChannel', JSON.stringify(users))
 }
 
 // Function to load from local storage
 function loadUsersFromStorage() {
-    const users = sessionStorage.getItem('usersInChannel');
-    return users ? JSON.parse(users) : [];
+  const users = sessionStorage.getItem('usersInChannel')
+  return users ? JSON.parse(users) : []
 }
 
 function setPresence() {
-    // Load the users from local storage when the component is mounted
-    const savedUsers = loadUsersFromStorage();
-    if (savedUsers.length > 0) {
-        usersInChannel.value = savedUsers;
-    }
+  // Load the users from local storage when the component is mounted
+  const savedUsers = loadUsersFromStorage()
+  if (savedUsers.length > 0) {
+    usersInChannel.value = savedUsers
+  }
 
-    // Set up Echo presence channel subscription
-    const url = window.location.href;
+  // Set up Echo presence channel subscription
+  const url = window.location.href
 
-    axios.post('/user/navigation', {url: url, team: usePage().props.sharedTeam.id})
-        .then(response => {
+  axios
+    .post('/user/navigation', {
+      url: url,
+      team: usePage().props.sharedTeam.id,
+    })
+    .then((response) => {})
+    .catch((error) => {
+      console.error('Error sending navigation update:', error)
+    })
 
-        })
-        .catch(error => {
-            console.error('Error sending navigation update:', error);
-        });
+  setupEcho(usePage().props.sharedTeam.id, usersInChannel)
 
-    setupEcho(usePage().props.sharedTeam.id, usersInChannel);
-
-    pingIntervalId = setInterval(() => {
-        // Dispatch an event to the server to indicate that the user is still on the page
-        // This could be done via an Axios call to a specific endpoint that handles this logic
-        axios.post('/user/navigation', {url: url, team: usePage().props.sharedTeam.id})
-            .then(response => {
-
-            });
-    }, 5000); // Every 5 seconds
+  pingIntervalId = setInterval(() => {
+    // Dispatch an event to the server to indicate that the user is still on the page
+    // This could be done via an Axios call to a specific endpoint that handles this logic
+    axios
+      .post('/user/navigation', {
+        url: url,
+        team: usePage().props.sharedTeam.id,
+      })
+      .then((response) => {})
+  }, 5000) // Every 5 seconds
 }
 
 function cleanup() {
-    // Leave the channel when the component is unmounted
-    if (userInAteam) {
-        clearInterval(pingIntervalId);
-        window.Echo.leave('team' + usePage().props.sharedTeam.id);
-    }
+  // Leave the channel when the component is unmounted
+  if (userInAteam) {
+    clearInterval(pingIntervalId)
+    window.Echo.leave('team' + usePage().props.sharedTeam.id)
+  }
 }
 
 onMounted(() => {
-    if (usePage().props.sharedTeam) {
-        userInAteam = true
-        setPresence();
-        document.addEventListener('beforeunload', cleanup);
-    }
-});
+  if (usePage().props.sharedTeam) {
+    userInAteam = true
+    setPresence()
+    document.addEventListener('beforeunload', cleanup)
+  }
+})
 
 // Watch for changes in usersInChannel and save them to local storage
-watch(usersInChannel, (newUsers) => {
-    saveUsersToStorage(newUsers);
-}, {deep: true});
+watch(
+  usersInChannel,
+  (newUsers) => {
+    saveUsersToStorage(newUsers)
+  },
+  { deep: true }
+)
 
 onUnmounted(() => {
-    // Leave the channel when the component is unmounted
-    if (userInAteam) {
-        document.removeEventListener('beforeunload', cleanup);
-        clearInterval(pingIntervalId);
-        window.Echo.leave('team' + usePage().props.sharedTeam.id);
-    }
-});
+  // Leave the channel when the component is unmounted
+  if (userInAteam) {
+    document.removeEventListener('beforeunload', cleanup)
+    clearInterval(pingIntervalId)
+    window.Echo.leave('team' + usePage().props.sharedTeam.id)
+  }
+})
 
-const showingNavigationDropdown = ref(false);
+const showingNavigationDropdown = ref(false)
 
 const switchToTeam = (team) => {
-    router.put(
-        route("current-team.update"),
-        {
-            team_id: team.id,
-        },
-        {
-            preserveState: false,
-        }
-    );
-};
+  router.put(
+    route('current-team.update'),
+    {
+      team_id: team.id,
+    },
+    {
+      preserveState: false,
+    }
+  )
+}
 
 const logout = () => {
-    sessionStorage.clear()
-    router.post(route("logout"));
-};
-
+  sessionStorage.clear()
+  router.post(route('logout'))
+}
 
 const shouldShowFooter = computed(() => {
-    // Extract the path and hash from the URL
-    const path = route().current();
-    const hash = window.location.hash;
+  // Extract the path and hash from the URL
+  const path = route().current()
+  const hash = window.location.hash
 
-    // Define conditions based on the path and hash
-    const isNotCodingShowAndProjectShow = (path !== 'coding.show' && path !== 'project.show');
+  // Define conditions based on the path and hash
+  const isNotCodingShowAndProjectShow =
+    path !== 'coding.show' && path !== 'project.show'
 
-    return isNotCodingShowAndProjectShow ;
-});
+  return isNotCodingShowAndProjectShow
+})
 </script>
 
 <template>
-
-    <div class="min-h-screen bg-light-100">
-        <!-- Page Content -->
-        <main>
-            <Navigation :active="route().current()"></Navigation>
-            <FlashMessage v-if="$page.props.flash.message" :flash="$page.props.flash"/>
-            <slot/>
-        </main>
-        <Footer v-if="shouldShowFooter"/>
-    </div>
-
+  <div class="min-h-screen bg-light-100">
+    <!-- Page Content -->
+    <main>
+      <Navigation :active="route().current()"></Navigation>
+      <FlashMessage
+        v-if="$page.props.flash.message"
+        :flash="$page.props.flash"
+      />
+      <slot />
+    </main>
+    <Footer v-if="shouldShowFooter" />
+  </div>
 </template>

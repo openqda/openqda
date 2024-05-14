@@ -1,9 +1,14 @@
 <template>
-	<div :data-active="active"
-         @dragenter.prevent="setActive" @dragover.prevent="setActive" @dragleave.prevent="setInactive" @drop.prevent="onDrop"
-         :class="[active ? 'bg-gray-100' : 'bg-transparent']">
-		<slot :dropZoneActive="active"></slot>
-	</div>
+  <div
+    :data-active="active"
+    @dragenter.prevent="setActive"
+    @dragover.prevent="setActive"
+    @dragleave.prevent="setInactive"
+    @drop.prevent="onDrop"
+    :class="[active ? 'bg-gray-100' : 'bg-transparent']"
+  >
+    <slot :dropZoneActive="active"></slot>
+  </div>
 </template>
 
 <script setup>
@@ -17,35 +22,35 @@ let inActiveTimeout = null
 // the dragleave event that is fired won't cause a flicker. A few ms should be plenty of
 // time to wait for the next dragenter event to clear the timeout and set it back to active.
 function setActive() {
-	active.value = true
-	clearTimeout(inActiveTimeout)
+  active.value = true
+  clearTimeout(inActiveTimeout)
 }
 function setInactive() {
-	inActiveTimeout = setTimeout(() => {
-		active.value = false
-	}, 50)
+  inActiveTimeout = setTimeout(() => {
+    active.value = false
+  }, 50)
 }
 
 function onDrop(e) {
-	setInactive()
-	emit('files-dropped', [...e.dataTransfer.files])
+  setInactive()
+  emit('files-dropped', [...e.dataTransfer.files])
 }
 
 function preventDefaults(e) {
-	e.preventDefault()
+  e.preventDefault()
 }
 
 const events = ['dragenter', 'dragover', 'dragleave', 'drop']
 
 onMounted(() => {
-	events.forEach((eventName) => {
-		document.body.addEventListener(eventName, preventDefaults)
-	})
+  events.forEach((eventName) => {
+    document.body.addEventListener(eventName, preventDefaults)
+  })
 })
 
 onUnmounted(() => {
-	events.forEach((eventName) => {
-		document.body.removeEventListener(eventName, preventDefaults)
-	})
+  events.forEach((eventName) => {
+    document.body.removeEventListener(eventName, preventDefaults)
+  })
 })
 </script>

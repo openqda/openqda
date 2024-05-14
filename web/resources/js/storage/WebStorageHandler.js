@@ -1,25 +1,25 @@
 import { randomHex } from './utils.js'
 
 export class WebStorageHandler {
-  constructor (webStorage, options = {}) {
+  constructor(webStorage, options = {}) {
     this.storage = webStorage
     this.idGen = options.idGen || randomHex
   }
 
-  async fetch (query, options) {
+  async fetch(query, options) {
     // we ignore query in these tests
     const { name, primary } = options
     const docs = fromStorage({ name, storage: this.storage })
-    return docs.filter(doc => primary in doc)
+    return docs.filter((doc) => primary in doc)
   }
 
-  async insert (documents, options) {
+  async insert(documents, options) {
     const { name, primary } = options
     const { storage } = this
     const docs = fromStorage({ name, storage })
     const primaries = []
 
-    documents.forEach(doc => {
+    documents.forEach((doc) => {
       const key = this.idGen(8)
       doc[primary] = key
       docs.push(doc)
@@ -30,13 +30,13 @@ export class WebStorageHandler {
     return primaries
   }
 
-  async update (documents, modifier, options, updated) {
+  async update(documents, modifier, options, updated) {
     const { name, primary } = options
     const { storage } = this
     const docs = fromStorage({ name, storage })
 
-    updated.forEach(doc => {
-      const target = docs.findIndex(d => d[primary] === doc[primary])
+    updated.forEach((doc) => {
+      const target = docs.findIndex((d) => d[primary] === doc[primary])
       if (target > -1) {
         docs[target] = doc
       }
@@ -46,12 +46,12 @@ export class WebStorageHandler {
     return updated
   }
 
-  async remove (documents, options, removed) {
+  async remove(documents, options, removed) {
     const { name, primary } = options
     const { storage } = this
     const docs = fromStorage({ name, storage })
 
-    documents.forEach(doc => {
+    documents.forEach((doc) => {
       // iterate from end to start
       // to avoid index-issues after splice
       for (let i = docs.length - 1; i >= 0; i--) {
