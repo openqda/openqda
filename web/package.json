@@ -5,15 +5,21 @@
         "dev": "vite",
         "build": "vite build",
         "format:write": "prettier ./resources/js --write",
-        "format:check": "prettier ./resources/js --check"
+        "format:check": "prettier ./resources/js --check",
+        "lint:check": "eslint ./resources/js",
+        "lint:write": "eslint ./resources/js --fix"
     },
     "devDependencies": {
+        "@eslint/js": "^9.2.0",
         "@inertiajs/vue3": "^1.0.0",
         "@tailwindcss/forms": "^0.5.7",
         "@tailwindcss/typography": "^0.5.10",
         "@vitejs/plugin-vue": "^4.0.0",
         "autoprefixer": "^10.4.17",
         "axios": "^1.6.4",
+        "eslint": "^9.2.0",
+        "eslint-plugin-vue": "^9.26.0",
+        "globals": "^15.2.0",
         "laravel-echo": "^1.16.0",
         "laravel-vite-plugin": "^1.0",
         "postcss": "^8.4.33",
