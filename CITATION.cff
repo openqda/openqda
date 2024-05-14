@@ -52,9 +52,12 @@ abstract: >-
 keywords:
   - qda
   - caqdas
-  - qualitative
+  - qualitative data
   - quali
+  - data analysis
+  - qualitative analysis
+  - qualitative research
+  - ZeMKI
+  - University of Bremen
 license: AGPL-3.0
-commit: TBD
-version: TBD
-date-released: '2099-01-01'
+date-released: '2024-05-01'
