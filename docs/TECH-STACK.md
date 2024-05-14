@@ -31,3 +31,8 @@
 - Laravel Audit
   *Audits for the history of changes*
 
+## Code Quality Tools
+
+### Client
+- prettier for code formatting
+- eslint for linting
