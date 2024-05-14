@@ -50,8 +50,10 @@ If you are still unsure about what OpenQDA is or does, then please [consult our 
 
 ### Roadmap
 
-We are constantly updating our [development roadmap](https://github.com/openqda/openqda/milestones)
-in regard to the upcoming releases.
+We are constantly updating our development roadmap in regard to the upcoming releases:
+
+- [pre-release (31.05.2024)](https://github.com/openqda/openqda/milestone/1)
+- [release 1.0 (to be announced)](https://github.com/openqda/openqda/milestone/2)
 
 ## Development
 
