@@ -183,7 +183,24 @@
 
             <div v-show="currentSubView === 'codebooks'" class="space-y-4">
                 <div class="w-1/2">
-                    <NewCodebookForm :project="projectId" @codebookCreated="onCodebookCreated" />
+                    <NewCodebookForm :project="projectId" @codebookCreated="onCodebookCreated"/>
+                </div>
+                <div>
+                    <Headline2>Import Codebook XML</Headline2>
+                    <form @submit.prevent="importXmlFile" enctype="multipart/form-data">
+                        <input
+                            type="file"
+                            @change="handleFileUpload"
+                            accept=".qde,.xml"
+                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
+                        />
+                        <button
+                            type="submit"
+                            class="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                        >
+                            Import
+                        </button>
+                    </form>
                 </div>
                 <div>
                     <Headline2>Codebooks of current Project</Headline2>
@@ -342,6 +359,9 @@ const localAudits = ref([]);
 const searchQuery = ref("");
 const sharedOption = ref("");
 
+// File handling for importing XML
+const selectedFile = ref(null);
+
 const filteredPublicCodebooks = computed(() => {
     return props.publicCodebooks.filter(codebook =>
         codebook.name.toLowerCase().includes(searchQueryPublicCodebooks.value.toLowerCase())
@@ -476,7 +496,6 @@ const importCodebook = async (codebook) => {
 };
 
 
-
 const currentSubView = ref("overview");
 const tabs = ref([
     {
@@ -517,6 +536,37 @@ onBeforeUnmount(() => {
 function toggleSubView(key, event) {
     currentSubView.value = key;
 }
+const handleFileUpload = (event) => {
+    selectedFile.value = event.target.files[0];
+};
+
+const importXmlFile = async () => {
+    if (!selectedFile.value) {
+        alert("Please select a file first.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", selectedFile.value);
+    formData.append("project_id", projectId);
+
+    try {
+        const response = await axios.post("/codebook-codes/import", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data"
+            }
+        });
+
+        alert(response.data.message);
+        // Refresh the page or update the relevant data
+        router.get(route("project.show", { project: projectId, codebookstab: true }));
+    } catch (error) {
+        console.error("Failed to import XML:", error);
+        alert("Failed to import XML. Please try again.");
+    }
+};
+
+
 </script>
 <style scoped>
 span[contenteditable="true"]:focus {
