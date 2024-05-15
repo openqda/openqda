@@ -4,6 +4,7 @@
 
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 ![This is a research software](https://img.shields.io/badge/research-software-blue?style=plastic)
+[![DOI](https://zenodo.org/badge/793524421.svg)](https://zenodo.org/doi/10.5281/zenodo.11195871)
 
 </div>
 
