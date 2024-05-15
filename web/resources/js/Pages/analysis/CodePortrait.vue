@@ -11,7 +11,11 @@
     />
   </div>
   <div :class="`grid grid-cols-${gridSize} gap-3 my-5`">
-    <div v-for="file in currentFiles" class="border border-silver-300 p-2 col-span-1" :key="file.id">
+    <div
+      v-for="file in currentFiles"
+      class="border border-silver-300 p-2 col-span-1"
+      :key="file.id"
+    >
       <h3 class="font-semibold tracking-wide flex">
         <span class="truncate flex-grow">
           {{ file.name }}
@@ -47,7 +51,10 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue';
 import { debounce } from '../../utils/debounce.js';
-import { XMarkIcon, EllipsisHorizontalCircleIcon } from '@heroicons/vue/24/solid';
+import {
+  XMarkIcon,
+  EllipsisHorizontalCircleIcon,
+} from '@heroicons/vue/24/solid';
 
 defineEmits(['remove']);
 const props = defineProps([

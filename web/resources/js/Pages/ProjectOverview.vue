@@ -405,9 +405,7 @@ const deleteProject = async () => {
 };
 
 const deleteCodebookFromArray = (codebook) => {
-  const index = codebooks.value.findIndex(
-    (cb) => cb.id === codebook.id
-  );
+  const index = codebooks.value.findIndex((cb) => cb.id === codebook.id);
   if (index !== -1) {
     codebooks.value.splice(index, 1);
   }

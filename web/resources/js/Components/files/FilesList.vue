@@ -204,7 +204,7 @@
             class="absolute right-0 mt-2 py-2 w-60 center bg-white rounded-md border border-silver-300 shadow-xl z-20"
           >
             <span
-              v-for="(action) in $props.actions"
+              v-for="action in $props.actions"
               :key="action.id"
               :title="action.title"
               class="items-center"
@@ -246,7 +246,7 @@ import {
   ExclamationTriangleIcon,
   DocumentTextIcon,
 } from '@heroicons/vue/24/outline/index.js';
-import { onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue';
 import { vClickOutside } from '../coding/clickOutsideDirective.js';
 
 const docs = ref([]);
@@ -312,8 +312,8 @@ function sort(name) {
 }
 
 onMounted(() => {
-    docs.value = [].concat(props.documents);
-})
+  docs.value = [].concat(props.documents);
+});
 </script>
 <style scoped>
 @keyframes spin {

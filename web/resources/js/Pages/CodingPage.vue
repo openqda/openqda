@@ -2225,12 +2225,9 @@ const updateCodeColorFromId = async (codeId, newColor) => {
 
   // Axios call to update the color in the DB
   try {
-    await axios.post(
-      `/projects/${projectId}/codes/${codeId}/update-color`,
-      {
-        color: newColor,
-      }
-    );
+    await axios.post(`/projects/${projectId}/codes/${codeId}/update-color`, {
+      color: newColor,
+    });
     // Handle the response as needed. For example, show a success message or update the UI.
   } catch (error) {
     console.error('Error updating color in the database', error);
@@ -2316,7 +2313,7 @@ watch(
     });
   },
   { immediate: true }
-)
+);
 
 function highlightStoredTextsFromDB(editorElement) {
   clearHighlights(editorElement);
