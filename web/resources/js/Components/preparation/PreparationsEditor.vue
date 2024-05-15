@@ -3,14 +3,14 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref, watch } from 'vue'
-import Quill from 'quill'
-import QuillCursors from 'quill-cursors'
+import { onMounted, onUnmounted, ref, watch } from 'vue';
+import Quill from 'quill';
+import QuillCursors from 'quill-cursors';
 
-let quillInstance
-const editorContent = ref('')
+let quillInstance;
+const editorContent = ref('');
 
-Quill.register('modules/cursors', QuillCursors)
+Quill.register('modules/cursors', QuillCursors);
 
 onMounted(() => {
   quillInstance = new Quill('#editor', {
@@ -44,51 +44,51 @@ onMounted(() => {
         ],
       },
     },
-  })
+  });
 
   quillInstance.on('text-change', function (delta, oldDelta, source) {
     if (source === 'user') {
       // Add custom logic here
     }
-  })
+  });
 
-  quillInstance.on('editor-change', function (eventName, ...args) {
-    editorContent.value = quillInstance.root.innerHTML
-  })
+  quillInstance.on('editor-change', function (/* eventName, ...args */) {
+    editorContent.value = quillInstance.root.innerHTML;
+  });
 
-  quillInstance.enable(!props.locked)
-})
+  quillInstance.enable(!props.locked);
+});
 
 onUnmounted(() => {
   if (quillInstance) {
-    quillInstance = null
+    quillInstance = null;
   }
-})
+});
 
 const props = defineProps({
   source: String,
   locked: Boolean,
   CanUnlock: Boolean,
-})
+});
 
 watch(
   () => props.source,
-  (newValue, oldValue) => {
+  (newValue /*, oldValue*/) => {
     //quillInstance.setText(newValue)
-    quillInstance.clipboard.dangerouslyPasteHTML(newValue)
+    quillInstance.clipboard.dangerouslyPasteHTML(newValue);
   }
-)
+);
 
 watch(
   () => props.locked,
-  (newValue, oldValue) => {
+  (newValue /*, oldValue*/) => {
     //quillInstance.setText(newValue)
 
-    quillInstance.enable(!newValue)
+    quillInstance.enable(!newValue);
   }
-)
+);
 
-defineExpose(editorContent)
+defineExpose(editorContent);
 </script>
 
 <style scoped>

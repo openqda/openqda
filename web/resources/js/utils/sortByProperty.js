@@ -8,7 +8,7 @@
 export const createByPropertySorter =
   (prop, descending = false) =>
   (a, b) => {
-    const propA = a?.[prop] ?? ''
-    const propB = b?.[prop] ?? ''
-    return descending ? propB.localeCompare(propA) : propA.localeCompare(propB)
-  }
+    const propA = a?.[prop] ?? '';
+    const propB = b?.[prop] ?? '';
+    return descending ? propB.localeCompare(propA) : propA.localeCompare(propB);
+  };

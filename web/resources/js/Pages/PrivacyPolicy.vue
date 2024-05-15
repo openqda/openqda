@@ -1,11 +1,11 @@
 <script setup>
-import { Head } from '@inertiajs/vue3'
-import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue'
-import Footer from '../Layouts/Footer.vue'
+import { Head } from '@inertiajs/vue3';
+import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
+import Footer from '../Layouts/Footer.vue';
 
 defineProps({
   policy: String,
-})
+});
 </script>
 
 <template>

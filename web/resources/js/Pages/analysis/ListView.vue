@@ -13,7 +13,7 @@
         />
       </h3>
       <div
-        v-for="(code) in codesList.get(file.id)"
+        v-for="code in codesList.get(file.id)"
         :key="code.id"
         :style="{ borderColor: code.color }"
         class="border-l border-r ml-2 mt-3"
@@ -51,11 +51,11 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue'
-import { debounce } from '../../utils/debounce.js'
-import { XMarkIcon } from '@heroicons/vue/24/solid'
+import { onMounted, ref, watch } from 'vue';
+import { debounce } from '../../utils/debounce.js';
+import { XMarkIcon } from '@heroicons/vue/24/solid';
 
-defineEmits(['remove'])
+defineEmits(['remove']);
 const props = defineProps([
   'files',
   'codes',
@@ -63,26 +63,26 @@ const props = defineProps([
   'checkedCodes',
   'hasSelections',
   'api',
-])
-const codesList = ref(new Map())
-const API = props.api
+]);
+const codesList = ref(new Map());
+const API = props.api;
 
 const rebuildList = () => {
   props.files.forEach((file) => {
-    const c = API.getCodesForFile(file)
+    const c = API.getCodesForFile(file);
     if (c.length) {
-      codesList.value.set(file.id, c)
+      codesList.value.set(file.id, c);
     } else {
-      codesList.value.delete(file.id)
+      codesList.value.delete(file.id);
     }
-  })
-}
+  });
+};
 
-watch(props, debounce(rebuildList, 100))
+watch(props, debounce(rebuildList, 100));
 
 onMounted(() => {
-  rebuildList()
-})
+  rebuildList();
+});
 </script>
 
 <style scoped></style>

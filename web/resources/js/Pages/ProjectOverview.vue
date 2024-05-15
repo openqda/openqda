@@ -1,6 +1,6 @@
 <template>
   <AppLayout>
-    <Head :title="project.name" />
+    <Head :title="name" />
     <div>
       <div class="sm:hidden">
         <label for="tabs" class="sr-only">Select a tab</label>
@@ -94,7 +94,7 @@
                   contenteditable="true"
                   @keydown.enter="updateProject('description', $event)"
                 >
-                  {{ project.description }}
+                  {{ description }}
                 </span>
                 <button
                   type="button"
@@ -160,12 +160,12 @@
         <div>
           <Headline2>Codebooks of current Project</Headline2>
           <ul
-            v-if="project.codebooks.length > 0"
+            v-if="codebooks.length > 0"
             role="list"
             class="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4"
           >
             <li
-              v-for="codebook in project.codebooks"
+              v-for="codebook in codebooks"
               :key="codebook.name"
               class="col-span-1 flex flex-col relative"
             >
@@ -277,30 +277,36 @@
 </template>
 
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import AppLayout from '../Layouts/AppLayout.vue'
-import Button from '../Components/interactive/Button.vue'
-// icons
+/*
+ |--------------------------------------------------------------------------
+ | Project Overview
+ |--------------------------------------------------------------------------
+ | Page-level component, that represents the current project and allows
+ | to manage settings, teams, codebooks and audits.
+ */
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import AppLayout from '../Layouts/AppLayout.vue';
 import {
   ClockIcon,
   ExclamationTriangleIcon,
   PresentationChartLineIcon,
   RectangleStackIcon,
-} from '@heroicons/vue/20/solid'
-import { UsersIcon } from '@heroicons/vue/24/outline'
-import { Head, router, usePage } from '@inertiajs/vue3'
-import CreateTeamForm from './Teams/Partials/CreateTeamForm.vue'
-import UpdateTeamNameForm from './Teams/Partials/UpdateTeamNameForm.vue'
-import TeamMemberManager from './Teams/Partials/TeamMemberManager.vue'
-import SectionBorder from '../Components/SectionBorder.vue'
-import DeleteTeamForm from './Teams/Partials/DeleteTeamForm.vue'
-import Audit from '../Components/global/Audit.vue'
+} from '@heroicons/vue/20/solid';
+import { UsersIcon } from '@heroicons/vue/24/outline';
+import { Head, router, usePage } from '@inertiajs/vue3';
+import CreateTeamForm from './Teams/Partials/CreateTeamForm.vue';
+import UpdateTeamNameForm from './Teams/Partials/UpdateTeamNameForm.vue';
+import TeamMemberManager from './Teams/Partials/TeamMemberManager.vue';
+import SectionBorder from '../Components/SectionBorder.vue';
+import DeleteTeamForm from './Teams/Partials/DeleteTeamForm.vue';
+import Audit from '../Components/global/Audit.vue';
 
-import Codebook from '../Components/project/Codebook.vue'
-import NewCodebookForm from '../Components/project/NewCodebookForm.vue'
-import Headline2 from '../Components/layout/Headline2.vue'
+import Codebook from '../Components/project/Codebook.vue';
+import NewCodebookForm from '../Components/project/NewCodebookForm.vue';
+import Headline2 from '../Components/layout/Headline2.vue';
 
-const searchQueryPublicCodebooks = ref('')
+const searchQueryPublicCodebooks = ref('');
+const codebooks = ref([]);
 
 const props = defineProps([
   'project',
@@ -314,60 +320,60 @@ const props = defineProps([
   'publicCodebooks',
   'hasCodebooksTab',
   'teamOwner',
-])
-const isEditable = ref({ title: false, description: false })
-const projectName = ref('')
-const projectDescription = ref('')
+]);
+const isEditable = ref({ title: false, description: false });
+const projectName = ref('');
+const projectDescription = ref('');
+const name = ref(props.project.name);
+const description = ref(props.project.description);
+const url = window.location.pathname;
+const segments = url.split('/');
+let projectId = segments[2]; // Assuming project id is the third segment in URL path
 
-const url = window.location.pathname
-const segments = url.split('/')
-let projectId = segments[2] // Assuming project id is the third segment in URL path
-
-const currentPage = ref(1)
-const localAudits = ref([])
-const searchQuery = ref('')
-const sharedOption = ref('')
+const localAudits = ref([]);
 
 const filteredPublicCodebooks = computed(() => {
   return props.publicCodebooks.filter((codebook) =>
     codebook.name
       .toLowerCase()
       .includes(searchQueryPublicCodebooks.value.toLowerCase())
-  )
-})
+  );
+});
 onMounted(() => {
-  localAudits.value = props.audits
+  localAudits.value = props.audits;
   if (props.hasCodebooksTab) {
-    window.location.hash = '#codebooks'
+    window.location.hash = '#codebooks';
   }
-  const hash = window.location.hash
+  const hash = window.location.hash;
   if (hash) {
     // Find the tab that corresponds to the URL hash
-    const matchedTab = tabs.value.find((tab) => `#${tab.key}` === hash)
+    const matchedTab = tabs.value.find((tab) => `#${tab.key}` === hash);
     if (matchedTab) {
-      currentSubView.value = matchedTab.key
+      currentSubView.value = matchedTab.key;
       // Update the 'current' property of all tabs
       tabs.value.forEach((tab) => {
-        tab.current = tab.key === matchedTab.key
-      })
+        tab.current = tab.key === matchedTab.key;
+      });
     }
   }
 
-  if (typeof projectId === 'undefined') projectId = props.project.id
-})
+  if (typeof projectId === 'undefined') projectId = props.project.id;
+
+  codebooks.value = props.project.codebooks;
+});
 
 // Watch for changes in props.audits and update localAudits accordingly
 watch(
   () => props.audits,
   (newVal) => {
-    localAudits.value = newVal
+    localAudits.value = newVal;
   }
-)
+);
 
 const onCodebookCreated = (newCodebook) => {
   // Add the new codebook to the project's codebooks array
-  props.project.codebooks.push(newCodebook)
-}
+  codebooks.value.push(newCodebook);
+};
 
 const deleteProject = async () => {
   if (
@@ -375,12 +381,12 @@ const deleteProject = async () => {
       'Are you sure you want to delete this project? This cannot be undone.'
     )
   ) {
-    return
+    return;
   }
-  localStorage.removeItem('text')
+  localStorage.removeItem('text');
 
   // try {
-  router.delete(route('project.destroy', { project: projectId }))
+  router.delete(route('project.destroy', { project: projectId }));
 
   //     if (response.data.success) {
   //         usePage().props.flash.message = response.data.message;
@@ -396,41 +402,46 @@ const deleteProject = async () => {
   //     console.error('An error occurred:', error);
   //     usePage().props.flash.message = 'An error occurred while deleting the project.';
   // }
-}
+};
 
 const deleteCodebookFromArray = (codebook) => {
-  const index = props.project.codebooks.findIndex((cb) => cb.id === codebook.id)
+  const index = codebooks.value.findIndex(
+    (cb) => cb.id === codebook.id
+  );
   if (index !== -1) {
-    props.project.codebooks.splice(index, 1)
+    codebooks.value.splice(index, 1);
   }
-}
+};
 
 const updateProject = async (field, event = null) => {
   if (event) {
-    event.preventDefault() // Prevent default Enter key behavior
+    event.preventDefault(); // Prevent default Enter key behavior
   }
-  let payload = { value: '', type: field }
+  let payload = { value: '', type: field };
   if (field === 'name') {
-    payload.value = projectName.value.innerText
+    payload.value = projectName.value.innerText;
   } else if (field === 'description') {
-    payload.value = projectDescription.value.innerText
+    payload.value = projectDescription.value.innerText;
   }
+
+  let response;
+
   try {
-    const response = await axios.post('/projects/update/' + projectId, payload)
+    response = await axios.post('/projects/update/' + projectId, payload);
     if (response.data.success) {
-      usePage().props.flash.message = response.data.message
+      usePage().props.flash.message = response.data.message;
       if (field === 'name') {
-        props.project.name = payload.value
+        name.value = payload.value;
       } else if (field === 'description') {
-        props.project.description = payload.value
+        description.value = payload.value;
       }
-      isEditable.value[field] = false
+      isEditable.value[field] = false;
     }
   } catch (error) {
-    usePage().props.flash.message = response.data.message
-    console.error('Failed to update project:', error)
+    usePage().props.flash.message = response?.data?.message;
+    console.error('Failed to update project:', error);
   }
-}
+};
 
 const importCodebook = async (codebook) => {
   try {
@@ -441,18 +452,18 @@ const importCodebook = async (codebook) => {
       sharedWithTeams: false,
       import: true,
       id: codebook.id,
-    })
+    });
 
-    usePage().props.flash.message = response.data.message
+    usePage().props.flash.message = response.data.message;
     router.get(
       route('project.show', { project: projectId, codebookstab: true })
-    )
+    );
   } catch (error) {
-    console.error('Failed to import codebook:', error)
+    console.error('Failed to import codebook:', error);
   }
-}
+};
 
-const currentSubView = ref('overview')
+const currentSubView = ref('overview');
 const tabs = ref([
   {
     key: 'overview',
@@ -483,14 +494,14 @@ const tabs = ref([
     icon: ClockIcon,
     current: false,
   },
-])
+]);
 
 onBeforeUnmount(() => {
-  localStorage.clear()
-})
+  localStorage.clear();
+});
 
-function toggleSubView(key, event) {
-  currentSubView.value = key
+function toggleSubView(key) {
+  currentSubView.value = key;
 }
 </script>
 <style scoped>

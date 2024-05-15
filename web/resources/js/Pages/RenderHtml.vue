@@ -1,7 +1,7 @@
-<script setup xmlns="http://www.w3.org/1999/html">
-import Footer from '../Layouts/Footer.vue'
+<script setup>
+import Footer from '../Layouts/Footer.vue';
 
-const props = defineProps(['html', 'background', 'canLogin', 'canRegister'])
+defineProps(['html', 'background', 'canLogin', 'canRegister']);
 </script>
 
 <template>

@@ -266,15 +266,13 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue'
-import { ChevronDownIcon, UserCircleIcon } from '@heroicons/vue/20/solid'
-import Button from '../interactive/Button.vue'
-import Checkbox from '../Checkbox.vue'
+import { computed, onMounted, ref, watch } from 'vue';
+import { ChevronDownIcon, UserCircleIcon } from '@heroicons/vue/20/solid';
+import Button from '../interactive/Button.vue';
+import Checkbox from '../Checkbox.vue';
 
-const currentPage = ref(1)
-const localAudits = ref({ data: [] })
-
-const searchQuery = ref('')
+const localAudits = ref({ data: [] });
+const searchQuery = ref('');
 
 const props = defineProps({
   audits: Object,
@@ -283,67 +281,68 @@ const props = defineProps({
     default: null, // or an empty string '' if you prefer
   },
   context: String,
-})
+});
 
-const beforeDate = ref(null)
-const afterDate = ref(null)
-const startDate = ref(null)
-const endDate = ref(null)
+const beforeDate = ref(null);
+const afterDate = ref(null);
+const startDate = ref(null);
+const endDate = ref(null);
 
-const filterDocuments = ref(true) // 'sources'
-const filterSelections = ref(true) // 'Selection'
-const filterCodes = ref(true) // 'Code'
-const filterProjects = ref(true) // 'Project'
-const filterCodebooks = ref(true) // 'Codebooks'
+const filterDocuments = ref(true); // 'sources'
+const filterSelections = ref(true); // 'Selection'
+const filterCodes = ref(true); // 'Code'
+const filterProjects = ref(true); // 'Project'
+const filterCodebooks = ref(true); // 'Codebooks'
 
 const documentCount = computed(() => {
   return localAudits.value.data.filter((audit) => audit.model === 'Source')
-    .length
-})
+    .length;
+});
 const selectionCount = computed(() => {
   return localAudits.value.data.filter((audit) => audit.model === 'Selection')
-    .length
-})
+    .length;
+});
 const codeCount = computed(() => {
-  return localAudits.value.data.filter((audit) => audit.model === 'Code').length
-})
+  return localAudits.value.data.filter((audit) => audit.model === 'Code')
+    .length;
+});
 const projectCount = computed(() => {
   return localAudits.value.data.filter((audit) => audit.model === 'Project')
-    .length
-})
+    .length;
+});
 
 const codebookCount = computed(() => {
   return localAudits.value.data.filter((audit) => audit.model === 'Codebook')
-    .length
-})
+    .length;
+});
 
 function parseCustomDate(dateString) {
-  const parts = dateString.split(' ')
-  const dateParts = parts[0].split('.')
-  const timeParts = parts[1].split(':')
-  const year = dateParts[2]
-  const month = dateParts[1] - 1 // Month is 0-indexed in JavaScript Date
-  const day = dateParts[0]
-  const hours = timeParts[0]
-  const minutes = timeParts[1]
+  const parts = dateString.split(' ');
+  const dateParts = parts[0].split('.');
+  const timeParts = parts[1].split(':');
+  const year = dateParts[2];
+  const month = dateParts[1] - 1; // Month is 0-indexed in JavaScript Date
+  const day = dateParts[0];
+  const hours = timeParts[0];
+  const minutes = timeParts[1];
 
-  return new Date(year, month, day, hours, minutes)
+  return new Date(year, month, day, hours, minutes);
 }
 
 function isJSON(str) {
   try {
-    JSON.parse(str)
-    return true
-  } catch (e) {
-    return false
+    JSON.parse(str);
+    return true;
+  } catch {
+    return false;
   }
 }
 
 const filteredAudits = computed(() => {
-  const query = searchQuery.value.toLowerCase()
+  const query = searchQuery.value.toLowerCase();
 
   // Make a shallow copy of the original object
-  const auditCopy = { ...localAudits.value }
+  const auditCopy = { ...localAudits.value };
 
   // Filter only the data array based on model type filters and date filters
   auditCopy.data = auditCopy.data.filter((audit) => {
@@ -355,39 +354,39 @@ const filteredAudits = computed(() => {
       (audit.model === 'Project' && !filterProjects.value) ||
       (audit.model === 'Codebook' && !filterProjects.value)
     ) {
-      return false
+      return false;
     }
 
     // Apply date filtering logic
-    const auditTimestamp = parseCustomDate(audit.created_at).getTime()
-    let dateFilterPass = true
+    const auditTimestamp = parseCustomDate(audit.created_at).getTime();
+    let dateFilterPass = true;
 
     if (beforeDate.value) {
-      const beforeTimestamp = new Date(beforeDate.value).getTime()
-      dateFilterPass = dateFilterPass && auditTimestamp <= beforeTimestamp
+      const beforeTimestamp = new Date(beforeDate.value).getTime();
+      dateFilterPass = dateFilterPass && auditTimestamp <= beforeTimestamp;
     }
 
     if (afterDate.value) {
-      const afterTimestamp = new Date(afterDate.value).getTime()
-      dateFilterPass = dateFilterPass && auditTimestamp >= afterTimestamp
+      const afterTimestamp = new Date(afterDate.value).getTime();
+      dateFilterPass = dateFilterPass && auditTimestamp >= afterTimestamp;
     }
 
     if (startDate.value && endDate.value) {
-      const startTimestamp = new Date(startDate.value).getTime()
-      const endTimestamp = new Date(endDate.value).getTime()
+      const startTimestamp = new Date(startDate.value).getTime();
+      const endTimestamp = new Date(endDate.value).getTime();
       dateFilterPass =
         dateFilterPass &&
         auditTimestamp >= startTimestamp &&
-        auditTimestamp <= endTimestamp
+        auditTimestamp <= endTimestamp;
     }
 
-    return dateFilterPass
-  })
+    return dateFilterPass;
+  });
 
   // Apply text search query filter
   auditCopy.data = auditCopy.data.filter((audit) => {
-    const newValuesStr = audit.new_values?.message || ''
-    const oldValuesStr = audit.old_values?.message || ''
+    const newValuesStr = audit.new_values?.message || '';
+    const oldValuesStr = audit.old_values?.message || '';
 
     return (
       audit.created_at.toLowerCase().includes(query) ||
@@ -396,58 +395,58 @@ const filteredAudits = computed(() => {
       audit.event.toLowerCase().includes(query) ||
       audit.model.toLowerCase().includes(query) ||
       audit.user_id.toLowerCase().includes(query)
-    )
-  })
+    );
+  });
 
-  return auditCopy
-})
+  return auditCopy;
+});
 
 // Watch for changes in props.audits and update localAudits accordingly
 watch(
   () => props.audits,
   (newVal) => {
-    localAudits.value = newVal
+    localAudits.value = newVal;
   }
-)
+);
 
 const loadMore = async () => {
-  localAudits.value.current_page += 1
+  localAudits.value.current_page += 1;
 
-  let apiUrl = `projects/load-more-audits?page=${localAudits.value.current_page}` // default for homepage
+  let apiUrl = `projects/load-more-audits?page=${localAudits.value.current_page}`; // default for homepage
 
   // If the context is projectPage, adjust the apiUrl
   if (props.context === 'projectPage') {
-    apiUrl = `/projects/${props.projectId}/load-more-audits?page=${localAudits.value.current_page}`
+    apiUrl = `/projects/${props.projectId}/load-more-audits?page=${localAudits.value.current_page}`;
   }
 
   try {
-    const response = await axios.get(apiUrl)
-    console.log(response)
-    const newAudits = response.data.audits.data
+    const response = await axios.get(apiUrl);
+    console.log(response);
+    const newAudits = response.data.audits.data;
     // Convert object to array
-    const newAuditsArray = Object.values(newAudits)
+    const newAuditsArray = Object.values(newAudits);
 
     // Merge arrays
     if (localAudits.value && Array.isArray(localAudits.value.data)) {
-      localAudits.value.data = [...localAudits.value.data, ...newAuditsArray]
+      localAudits.value.data = [...localAudits.value.data, ...newAuditsArray];
     } else {
       if (localAudits.value) {
-        localAudits.value.data = newAudits
+        localAudits.value.data = newAudits;
       } else {
-        localAudits.value = { data: newAudits }
+        localAudits.value = { data: newAudits };
       }
     }
 
     // If you need to notify the parent component, you can emit an event
     // $emit('update:audits', localAudits.value);
   } catch (error) {
-    console.error('An error occurred:', error)
+    console.error('An error occurred:', error);
   }
-}
+};
 
 onMounted(() => {
-  localAudits.value = props.audits
-})
+  localAudits.value = props.audits;
+});
 </script>
 
 <style scoped></style>

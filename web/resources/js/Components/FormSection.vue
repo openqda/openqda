@@ -1,10 +1,10 @@
 <script setup>
-import { computed, useSlots } from 'vue'
-import SectionTitle from './SectionTitle.vue'
+import { computed, useSlots } from 'vue';
+import SectionTitle from './SectionTitle.vue';
 
-defineEmits(['submitted'])
+defineEmits(['submitted']);
 
-const hasActions = computed(() => !!useSlots().actions)
+const hasActions = computed(() => !!useSlots().actions);
 </script>
 
 <template>

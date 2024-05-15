@@ -92,26 +92,26 @@
   </div>
 </template>
 <script setup>
-import InputLabel from '../InputLabel.vue'
-import { onMounted, ref } from 'vue'
+import InputLabel from '../InputLabel.vue';
+import { onMounted, ref } from 'vue';
 
-const props = defineProps(['project'])
-const createSharedOption = ref('create-not-shared')
-const isAccordionOpen = ref(true)
-const codebookName = ref('')
-const codebookDesc = ref('')
-const emits = defineEmits(['codebookCreated'])
-let errors = ref([])
+const props = defineProps(['project']);
+const createSharedOption = ref('create-not-shared');
+const isAccordionOpen = ref(true);
+const codebookName = ref('');
+const codebookDesc = ref('');
+const emits = defineEmits(['codebookCreated']);
+let errors = ref([]);
 const toggleAccordion = () => {
-  isAccordionOpen.value = !isAccordionOpen.value
-}
+  isAccordionOpen.value = !isAccordionOpen.value;
+};
 
 async function createCodebook() {
-  errors.value = []
+  errors.value = [];
   if (codebookName.value === '') {
-    errors.value['name'] = 'Please enter a name for the codebook'
-    console.log(errors.value['name'])
-    return
+    errors.value['name'] = 'Please enter a name for the codebook';
+    console.log(errors.value['name']);
+    return;
   }
 
   try {
@@ -123,26 +123,26 @@ async function createCodebook() {
         sharedWithPublic: createSharedOption.value === 'public',
         sharedWithTeams: createSharedOption.value === 'teams',
       }
-    )
-    let codebook = response.data.codebook
-    codebook.codes = []
+    );
+    let codebook = response.data.codebook;
+    codebook.codes = [];
 
     // Emit event to parent component on success
-    emits('codebookCreated', codebook)
+    emits('codebookCreated', codebook);
 
     // Reset form fields
-    codebookName.value = ''
-    codebookDesc.value = ''
-    createSharedOption.value = ''
+    codebookName.value = '';
+    codebookDesc.value = '';
+    createSharedOption.value = '';
   } catch (error) {
-    console.error('Error creating codebook:', error)
+    console.error('Error creating codebook:', error);
     // Handle error response...
   }
 }
 
 onMounted(() => {
-  errors.value['name'] = ''
-})
+  errors.value['name'] = '';
+});
 </script>
 <style scoped>
 .rotate-90 {

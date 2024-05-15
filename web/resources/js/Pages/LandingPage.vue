@@ -1,6 +1,13 @@
 <script setup>
-import { Head, router } from '@inertiajs/vue3'
-import Footer from '../Layouts/Footer.vue'
+/*
+ |--------------------------------------------------------------------------
+ | Landing Page
+ |--------------------------------------------------------------------------
+ | This is where users are supposed to land,
+ | when not logged in or registered
+ */
+import { Head, router } from '@inertiajs/vue3';
+import Footer from '../Layouts/Footer.vue';
 
 defineProps({
   background: String,
@@ -8,10 +15,10 @@ defineProps({
   canRegister: Boolean,
   laravelVersion: String,
   phpVersion: String,
-})
+});
 
 function onLogout() {
-  router.post(route('logout'))
+  router.post(route('logout'));
 }
 </script>
 

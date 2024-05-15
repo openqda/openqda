@@ -34,10 +34,10 @@
 </template>
 
 <script setup>
-import { defineComponent, h, ref } from 'vue'
-import Anchor from '../Components/layout/Anchor.vue'
+import { ref } from 'vue';
+import Anchor from '../Components/layout/Anchor.vue';
 
-const currentYear = ref(new Date().getFullYear())
+const currentYear = ref(new Date().getFullYear());
 const navigation = {
   main: [
     { name: 'Imprint', href: '/imprint' },
@@ -117,5 +117,5 @@ const navigation = {
         },
          */
   ],
-}
+};
 </script>

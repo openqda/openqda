@@ -76,5 +76,5 @@ export default {
       default: 'sm:max-w-lg sm:w-full',
     },
   },
-}
+};
 </script>

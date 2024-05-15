@@ -1,21 +1,21 @@
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue';
 
 defineProps({
   modelValue: String,
-})
+});
 
-defineEmits(['update:modelValue'])
+defineEmits(['update:modelValue']);
 
-const input = ref(null)
+const input = ref(null);
 
 onMounted(() => {
   if (input.value.hasAttribute('autofocus')) {
-    input.value.focus()
+    input.value.focus();
   }
-})
+});
 
-defineExpose({ focus: () => input.value.focus() })
+defineExpose({ focus: () => input.value.focus() });
 </script>
 
 <template>

@@ -3,8 +3,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watchEffect } from 'vue'
-import * as Plotly from 'plotly.js-dist'
+import { ref, onMounted, watchEffect } from 'vue';
+import * as Plotly from 'plotly.js-dist';
 
 const props = defineProps({
   data: {
@@ -20,26 +20,26 @@ const props = defineProps({
     required: false,
     default: () => ({ responsive: true }),
   },
-})
+});
 
-const plotlyId = ref(null)
-const ready = ref(false)
+const plotlyId = ref(null);
+const ready = ref(false);
 
 function setGraph() {
   if (!ready.value || !plotlyId.value || !props.data || !props.layout) {
-    return
+    return;
   }
-  Plotly.newPlot(plotlyId.value, props.data, props.layout, props.config)
+  Plotly.newPlot(plotlyId.value, props.data, props.layout, props.config);
 }
 
 onMounted(() => {
-  ready.value = true
-  setGraph()
-})
+  ready.value = true;
+  setGraph();
+});
 
 watchEffect(() => {
-  setGraph()
-})
+  setGraph();
+});
 </script>
 
 <style scoped></style>

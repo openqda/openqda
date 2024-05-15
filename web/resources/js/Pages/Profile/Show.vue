@@ -1,17 +1,17 @@
 <script setup>
-import AppLayout from '@/Layouts/AppLayout.vue'
-import DeleteUserForm from '@/Pages/Profile/Partials/DeleteUserForm.vue'
-import LogoutOtherBrowserSessionsForm from '@/Pages/Profile/Partials/LogoutOtherBrowserSessionsForm.vue'
-import SectionBorder from '@/Components/SectionBorder.vue'
-import TwoFactorAuthenticationForm from '@/Pages/Profile/Partials/TwoFactorAuthenticationForm.vue'
-import UpdatePasswordForm from '@/Pages/Profile/Partials/UpdatePasswordForm.vue'
-import UpdateProfileInformationForm from '@/Pages/Profile/Partials/UpdateProfileInformationForm.vue'
-import Headline2 from '../../Components/layout/Headline2.vue'
+import AppLayout from '@/Layouts/AppLayout.vue';
+import DeleteUserForm from '@/Pages/Profile/Partials/DeleteUserForm.vue';
+import LogoutOtherBrowserSessionsForm from '@/Pages/Profile/Partials/LogoutOtherBrowserSessionsForm.vue';
+import SectionBorder from '@/Components/SectionBorder.vue';
+import '@/Pages/Profile/Partials/TwoFactorAuthenticationForm.vue'; // TODO do we still need this?
+import UpdatePasswordForm from '@/Pages/Profile/Partials/UpdatePasswordForm.vue';
+import UpdateProfileInformationForm from '@/Pages/Profile/Partials/UpdateProfileInformationForm.vue';
+import Headline2 from '../../Components/layout/Headline2.vue';
 
 defineProps({
   confirmsTwoFactorAuthentication: Boolean,
   sessions: Array,
-})
+});
 </script>
 
 <template>

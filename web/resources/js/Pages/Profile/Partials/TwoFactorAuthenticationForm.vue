@@ -1,43 +1,43 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
-import { router, useForm, usePage } from '@inertiajs/vue3'
-import ActionSection from '@/Components/ActionSection.vue'
-import ConfirmsPassword from '@/Components/ConfirmsPassword.vue'
-import DangerButton from '@/Components/DangerButton.vue'
-import InputError from '@/Components/InputError.vue'
-import InputLabel from '@/Components/InputLabel.vue'
-import PrimaryButton from '@/Components/PrimaryButton.vue'
-import SecondaryButton from '@/Components/SecondaryButton.vue'
-import TextInput from '@/Components/TextInput.vue'
+import { ref, computed, watch } from 'vue';
+import { router, useForm, usePage } from '@inertiajs/vue3';
+import ActionSection from '@/Components/ActionSection.vue';
+import ConfirmsPassword from '@/Components/ConfirmsPassword.vue';
+import DangerButton from '@/Components/DangerButton.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
 
 const props = defineProps({
   requiresConfirmation: Boolean,
-})
+});
 
-const enabling = ref(false)
-const confirming = ref(false)
-const disabling = ref(false)
-const qrCode = ref(null)
-const setupKey = ref(null)
-const recoveryCodes = ref([])
+const enabling = ref(false);
+const confirming = ref(false);
+const disabling = ref(false);
+const qrCode = ref(null);
+const setupKey = ref(null);
+const recoveryCodes = ref([]);
 
 const confirmationForm = useForm({
   code: '',
-})
+});
 
 const twoFactorEnabled = computed(
   () => !enabling.value && usePage().props.auth.user?.two_factor_enabled
-)
+);
 
 watch(twoFactorEnabled, () => {
   if (!twoFactorEnabled.value) {
-    confirmationForm.reset()
-    confirmationForm.clearErrors()
+    confirmationForm.reset();
+    confirmationForm.clearErrors();
   }
-})
+});
 
 const enableTwoFactorAuthentication = () => {
-  enabling.value = true
+  enabling.value = true;
 
   router.post(
     route('two-factor.enable'),
@@ -47,30 +47,30 @@ const enableTwoFactorAuthentication = () => {
       onSuccess: () =>
         Promise.all([showQrCode(), showSetupKey(), showRecoveryCodes()]),
       onFinish: () => {
-        enabling.value = false
-        confirming.value = props.requiresConfirmation
+        enabling.value = false;
+        confirming.value = props.requiresConfirmation;
       },
     }
-  )
-}
+  );
+};
 
 const showQrCode = () => {
   return axios.get(route('two-factor.qr-code')).then((response) => {
-    qrCode.value = response.data.svg
-  })
-}
+    qrCode.value = response.data.svg;
+  });
+};
 
 const showSetupKey = () => {
   return axios.get(route('two-factor.secret-key')).then((response) => {
-    setupKey.value = response.data.secretKey
-  })
-}
+    setupKey.value = response.data.secretKey;
+  });
+};
 
 const showRecoveryCodes = () => {
   return axios.get(route('two-factor.recovery-codes')).then((response) => {
-    recoveryCodes.value = response.data
-  })
-}
+    recoveryCodes.value = response.data;
+  });
+};
 
 const confirmTwoFactorAuthentication = () => {
   confirmationForm.post(route('two-factor.confirm'), {
@@ -78,28 +78,30 @@ const confirmTwoFactorAuthentication = () => {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
-      confirming.value = false
-      qrCode.value = null
-      setupKey.value = null
+      confirming.value = false;
+      qrCode.value = null;
+      setupKey.value = null;
     },
-  })
-}
+  });
+};
 
 const regenerateRecoveryCodes = () => {
-  axios.post(route('two-factor.recovery-codes')).then(() => showRecoveryCodes())
-}
+  axios
+    .post(route('two-factor.recovery-codes'))
+    .then(() => showRecoveryCodes());
+};
 
 const disableTwoFactorAuthentication = () => {
-  disabling.value = true
+  disabling.value = true;
 
   router.delete(route('two-factor.disable'), {
     preserveScroll: true,
     onSuccess: () => {
-      disabling.value = false
-      confirming.value = false
+      disabling.value = false;
+      confirming.value = false;
     },
-  })
-}
+  });
+};
 </script>
 
 <template>

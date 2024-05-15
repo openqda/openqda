@@ -115,24 +115,17 @@
 </template>
 
 <script>
-import SwatchIcon from '@heroicons/vue/24/outline/SwatchIcon'
+import SwatchIcon from '@heroicons/vue/24/outline/SwatchIcon';
 import {
   ArrowDownIcon,
-  ArrowsPointingInIcon,
-  ArrowsPointingOutIcon,
   ArrowUpIcon,
   BookOpenIcon,
-  ChevronDownIcon,
-  ChevronUpIcon,
-  CloudArrowUpIcon,
-  EllipsisVerticalIcon,
-  EyeSlashIcon,
   MagnifyingGlassIcon,
   PlusIcon,
   RectangleStackIcon,
   XCircleIcon,
-} from '@heroicons/vue/24/outline'
-import InputLabel from '../InputLabel.vue'
+} from '@heroicons/vue/24/outline';
+import InputLabel from '../InputLabel.vue';
 
 export default {
   inject: [
@@ -154,14 +147,7 @@ export default {
   components: {
     InputLabel,
     SwatchIcon,
-    ArrowsPointingInIcon,
-    ArrowsPointingOutIcon,
     BookOpenIcon,
-    ChevronDownIcon,
-    ChevronUpIcon,
-    CloudArrowUpIcon,
-    EllipsisVerticalIcon,
-    EyeSlashIcon,
     PlusIcon,
     RectangleStackIcon,
     ArrowUpIcon,
@@ -191,5 +177,5 @@ export default {
       default: false,
     },
   },
-}
+};
 </script>

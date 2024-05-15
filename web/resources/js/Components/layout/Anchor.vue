@@ -13,9 +13,9 @@
 </template>
 
 <script setup>
-import { ArrowTopRightOnSquareIcon } from '@heroicons/vue/24/solid'
+import { ArrowTopRightOnSquareIcon } from '@heroicons/vue/24/solid';
 
-const props = defineProps(['href', 'label', 'external'])
+const props = defineProps(['href', 'label', 'external']);
 </script>
 
 <style scoped></style>

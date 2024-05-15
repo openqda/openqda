@@ -96,16 +96,16 @@
  * https://dev.to/muratkemaldar/using-vue-3-with-d3-composition-api-3h1g
  * https://github.com/jasondavies/d3-cloud
  *-----------------------------------------------------------------------*/
-import { onMounted, ref, watch, watchEffect } from 'vue'
-import { debounce } from '../../utils/debounce.js'
-import * as d3Module from 'd3'
-import * as cloudModule from 'd3-cloud'
-import { useResizeObserver } from './resizeObserver.js'
-import Button from '../../Components/interactive/Button.vue'
-import { Cog6ToothIcon } from '@heroicons/vue/20/solid'
+import { onMounted, ref, watch, watchEffect } from 'vue';
+import { debounce } from '../../utils/debounce.js';
+import * as d3Module from 'd3';
+import * as cloudModule from 'd3-cloud';
+import { useResizeObserver } from './resizeObserver.js';
+import Button from '../../Components/interactive/Button.vue';
+import { Cog6ToothIcon } from '@heroicons/vue/20/solid';
 
-const d3 = d3Module.default ?? d3Module
-const cloud = cloudModule.default ?? cloudModule
+const d3 = d3Module.default ?? d3Module;
+const cloud = cloudModule.default ?? cloudModule;
 const props = defineProps([
   'files',
   'codes',
@@ -113,42 +113,42 @@ const props = defineProps([
   'checkedCodes',
   'hasSelections',
   'api',
-])
+]);
 
-const svgRef = ref(null)
-const gRef = ref(null)
-const { resizeRef, resizeState } = useResizeObserver()
-const words = ref(new Map())
+const svgRef = ref(null);
+const gRef = ref(null);
+const { resizeRef, resizeState } = useResizeObserver();
+const words = ref(new Map());
 
 // options
-const minWords = ref(4)
-const underThresholdTransparency = ref(1.0)
-const scaleFactor = ref(12)
-const scaleAdd = ref(3)
-const seed = ref(Math.random())
-const generating = ref(false)
-const minHeight = ref(500)
-const windowHeight = ref(500)
+const minWords = ref(4);
+const underThresholdTransparency = ref(1.0);
+const scaleFactor = ref(12);
+const scaleAdd = ref(3);
+const seed = ref(Math.random());
+const generating = ref(false);
+const minHeight = ref(500);
+const windowHeight = ref(500);
 
 function rebuild() {
-  seed.value = Math.random()
+  seed.value = Math.random();
 }
 
 watch(
   minHeight,
   debounce((val) => {
-    windowHeight.value = val
+    windowHeight.value = val;
   }, 500)
-)
+);
 
 onMounted(() => {
-  const svg = d3.select(svgRef.value)
-  const g = d3.select(gRef.value)
-  const layout = cloud()
+  const svg = d3.select(svgRef.value);
+  const g = d3.select(gRef.value);
+  const layout = cloud();
 
   function draw(words, layout) {
-    svg.attr('width', layout.size()[0]).attr('height', layout.size()[1])
-    g.selectAll('*').remove()
+    svg.attr('width', layout.size()[0]).attr('height', layout.size()[1]);
+    g.selectAll('*').remove();
     g.attr(
       'transform',
       'translate(' + layout.size()[0] / 2 + ',' + layout.size()[1] / 2 + ')'
@@ -158,21 +158,21 @@ onMounted(() => {
       .enter()
       .append('text')
       .style('font-size', function (d) {
-        return d.size + 'px'
+        return d.size + 'px';
       })
       .style('fill', function (d) {
-        return randomColor(d.text)
+        return randomColor(d.text);
       })
       .style('font-family', 'Impact')
       .attr('text-anchor', 'middle')
       .attr('transform', function (d) {
-        return 'translate(' + [d.x, d.y] + ')rotate(' + d.rotate + ')'
+        return 'translate(' + [d.x, d.y] + ')rotate(' + d.rotate + ')';
       })
       .text(function (d) {
-        return d.text
-      })
+        return d.text;
+      });
 
-    generating.value = false
+    generating.value = false;
   }
 
   const _setupDebounced = debounce(({ width, height, wordsList, scale }) => {
@@ -183,45 +183,45 @@ onMounted(() => {
           return {
             text: d,
             size: count * scale.factor + scale.addition,
-          }
+          };
         })
       )
       .padding(5)
       .rotate(function () {
-        return ~~(Math.random() * 2) * 90
+        return ~~(Math.random() * 2) * 90;
       })
       .font('Impact')
       .fontSize(function (d) {
-        return d.size
+        return d.size;
       })
-      .on('end', (words) => draw(words, layout))
+      .on('end', (words) => draw(words, layout));
 
-    layout.start()
-  }, 500)
+    layout.start();
+  }, 500);
 
   const setup = (options) => {
     // always keep the loading icon active
     // but run the actual updated in a debounced mode
     // to support fast changes with few renders
     if (words.value.size > 0) {
-      generating.value = true
+      generating.value = true;
     }
-    _setupDebounced(options)
-  }
+    _setupDebounced(options);
+  };
 
   watchEffect(() => {
-    const { width, height } = resizeState.dimensions
-    const wordsList = [...words.value.entries()]
+    const { width, height } = resizeState.dimensions;
+    const wordsList = [...words.value.entries()];
     const scale = {
       factor: Number(scaleFactor.value),
       addition: Number(scaleAdd.value),
-    }
-    setup({ width, height, wordsList, scale, seed: seed.value })
-  })
+    };
+    setup({ width, height, wordsList, scale, seed: seed.value });
+  });
 
   watchEffect(() => {
-    const { files, codes, checkedFiles, checkedCodes } = props
-    words.value.clear()
+    const { files, codes, checkedFiles, checkedCodes } = props;
+    words.value.clear();
 
     for (const file of files) {
       if (checkedFiles.get(file.id)) {
@@ -237,28 +237,28 @@ onMounted(() => {
                   .split(/\s+/g)
                   .forEach((word) => {
                     if (word.length < minWords.value) {
-                      return
+                      return;
                     }
-                    const map = words.value
+                    const map = words.value;
                     if (!map.has(word)) {
-                      map.set(word, 0)
+                      map.set(word, 0);
                     }
-                    map.set(word, map.get(word) + 1)
-                  })
+                    map.set(word, map.get(word) + 1);
+                  });
               }
             }
           }
         }
       }
     }
-  })
-})
+  });
+});
 
 const randomColor = (word) => {
   return word.length > minWords.value
     ? `hsla(${Math.random() * 360}, 75%, 50%, 1)`
-    : `hsla(${Math.random() * 360}, 75%, 85%, ${underThresholdTransparency.value})`
-}
+    : `hsla(${Math.random() * 360}, 75%, 85%, ${underThresholdTransparency.value})`;
+};
 </script>
 
 <style scoped>

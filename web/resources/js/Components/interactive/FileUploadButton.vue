@@ -17,10 +17,10 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const emit = defineEmits(['fileAdded'])
-const fileInput = ref(null)
+const emit = defineEmits(['fileAdded']);
+const fileInput = ref(null);
 const props = defineProps([
   'multiple',
   'title',
@@ -29,20 +29,20 @@ const props = defineProps([
   'color',
   'fileSizeLimit',
   'icon',
-])
+]);
 
 function onFileInputChanged() {
-  const files = fileInput.value?.files
+  const files = fileInput.value?.files;
 
   for (let i = 0; i < files.length; i++) {
-    const file = files[i]
-    const maxFileSize = props.fileSizeLimit * 1024 * 1024 // 30MB in bytes
+    const file = files[i];
+    const maxFileSize = props.fileSizeLimit * 1024 * 1024; // 30MB in bytes
 
     if (file.size > maxFileSize) {
-      alert(`File exceeds maximum size (${props.fileSizeLimit} MB)`)
-      return // Prevent further processing
+      alert(`File exceeds maximum size (${props.fileSizeLimit} MB)`);
+      return; // Prevent further processing
     }
   }
-  emit('fileAdded', { files: fileInput.value?.files })
+  emit('fileAdded', { files: fileInput.value?.files });
 }
 </script>

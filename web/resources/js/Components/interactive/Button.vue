@@ -13,5 +13,5 @@
 </template>
 
 <script setup>
-defineProps(['label', 'color', 'icon', 'disabled', 'iconSize'])
+defineProps(['label', 'color', 'icon', 'disabled', 'iconSize']);
 </script>

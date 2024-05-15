@@ -1,18 +1,18 @@
 <script setup>
-import { inject, onMounted, reactive, ref } from 'vue'
-import { router, useForm, usePage } from '@inertiajs/vue3'
-import ActionMessage from '@/Components/ActionMessage.vue'
-import ActionSection from '@/Components/ActionSection.vue'
-import ConfirmationModal from '@/Components/ConfirmationModal.vue'
-import DangerButton from '@/Components/DangerButton.vue'
-import DialogModal from '@/Components/DialogModal.vue'
-import FormSection from '@/Components/FormSection.vue'
-import InputError from '@/Components/InputError.vue'
-import InputLabel from '@/Components/InputLabel.vue'
-import PrimaryButton from '@/Components/PrimaryButton.vue'
-import SecondaryButton from '@/Components/SecondaryButton.vue'
-import SectionBorder from '@/Components/SectionBorder.vue'
-import TextInput from '@/Components/TextInput.vue'
+import { inject, onMounted, reactive, ref } from 'vue';
+import { router, useForm, usePage } from '@inertiajs/vue3';
+import ActionMessage from '@/Components/ActionMessage.vue';
+import ActionSection from '@/Components/ActionSection.vue';
+import ConfirmationModal from '@/Components/ConfirmationModal.vue';
+import DangerButton from '@/Components/DangerButton.vue';
+import DialogModal from '@/Components/DialogModal.vue';
+import FormSection from '@/Components/FormSection.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import SecondaryButton from '@/Components/SecondaryButton.vue';
+import SectionBorder from '@/Components/SectionBorder.vue';
+import TextInput from '@/Components/TextInput.vue';
 
 const props = defineProps({
   team: Object,
@@ -20,49 +20,49 @@ const props = defineProps({
   userPermissions: Object,
   teamOwner: Boolean,
   project: Object,
-})
+});
 
-inject('project')
+inject('project');
 
 const addTeamMemberForm = useForm({
   email: '',
   role: null,
-})
+});
 
 const updateRoleForm = useForm({
   role: null,
-})
+});
 
-const makeOwnerForm = useForm({})
+const makeOwnerForm = useForm({});
 
-const leaveTeamForm = useForm({})
-const removeTeamMemberForm = useForm({})
+const leaveTeamForm = useForm({});
+const removeTeamMemberForm = useForm({});
 
-const currentlyManagingRole = ref(false)
-const managingRoleFor = ref(null)
-const confirmingLeavingTeam = ref(false)
-const confirmingMakeOwner = ref(false)
-const teamMemberBeingRemoved = ref(null)
+const currentlyManagingRole = ref(false);
+const managingRoleFor = ref(null);
+const confirmingLeavingTeam = ref(false);
+const confirmingMakeOwner = ref(false);
+const teamMemberBeingRemoved = ref(null);
 
 const addTeamMember = () => {
   addTeamMemberForm.post(route('team-members.store', props.team), {
     errorBag: 'addTeamMember',
     preserveScroll: true,
     onSuccess: () => addTeamMemberForm.reset(),
-  })
-}
+  });
+};
 
 const cancelTeamInvitation = (invitation) => {
   router.delete(route('team-invitations.destroy', invitation), {
     preserveScroll: true,
-  })
-}
+  });
+};
 
 const manageRole = (teamMember) => {
-  managingRoleFor.value = teamMember
-  updateRoleForm.role = teamMember.membership.role
-  currentlyManagingRole.value = true
-}
+  managingRoleFor.value = teamMember;
+  updateRoleForm.role = teamMember.membership.role;
+  currentlyManagingRole.value = true;
+};
 
 const updateRole = () => {
   updateRoleForm.put(
@@ -71,18 +71,18 @@ const updateRole = () => {
       preserveScroll: true,
       onSuccess: () => (currentlyManagingRole.value = false),
     }
-  )
-}
+  );
+};
 
 const confirmLeavingTeam = () => {
-  confirmingLeavingTeam.value = true
-}
+  confirmingLeavingTeam.value = true;
+};
 
 const leaveTeam = () => {
   leaveTeamForm.delete(
     route('team-members.destroy', [props.team, usePage().props.auth.user])
-  )
-}
+  );
+};
 
 /**
  * Make the current user the owner of the team and project.
@@ -92,19 +92,19 @@ const makeOwner = () => {
     teamId: props.team.id,
     userId: makeOwnerForm.user.id,
     projectId: props.project.id,
-  })
+  });
   router.post(route('team-members.make-owner'), payload, {
     preserveScroll: true,
     reload: true,
     onSuccess: () => {
-      confirmingMakeOwner.value = false
+      confirmingMakeOwner.value = false;
     },
-  })
-}
+  });
+};
 
 const confirmTeamMemberRemoval = (teamMember) => {
-  teamMemberBeingRemoved.value = teamMember
-}
+  teamMemberBeingRemoved.value = teamMember;
+};
 
 const removeTeamMember = () => {
   removeTeamMemberForm.delete(
@@ -115,18 +115,18 @@ const removeTeamMember = () => {
       preserveState: true,
       onSuccess: () => (teamMemberBeingRemoved.value = null),
     }
-  )
-}
+  );
+};
 
 const displayableRole = (role) => {
-  return props.availableRoles.find((r) => r.key === role).name
-}
+  return props.availableRoles.find((r) => r.key === role).name;
+};
 
 onMounted(() => {
   if (props.availableRoles.length === 1) {
-    addTeamMemberForm.role = props.availableRoles[0].key
+    addTeamMemberForm.role = props.availableRoles[0].key;
   }
-})
+});
 </script>
 
 <template>
@@ -334,8 +334,8 @@ onMounted(() => {
                   v-if="teamOwner"
                   class="ml-2 text-sm text-gray-400 underline"
                   @click="
-                    confirmingMakeOwner = true
-                    makeOwnerForm.user = user
+                    confirmingMakeOwner = true;
+                    makeOwnerForm.user = user;
                   "
                 >
                   Make Owner of Team and Project

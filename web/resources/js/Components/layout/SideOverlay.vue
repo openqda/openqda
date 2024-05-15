@@ -4,8 +4,8 @@
       as="div"
       class="relative z-10"
       @close="
-        open = false
-        emit('close')
+        open = false;
+        emit('close');
       "
     >
       <div class="fixed inset-0" />
@@ -84,30 +84,30 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch } from 'vue';
 import {
   Dialog,
   DialogPanel,
   DialogTitle,
   TransitionChild,
   TransitionRoot,
-} from '@headlessui/vue'
-import { XMarkIcon } from '@heroicons/vue/24/outline'
+} from '@headlessui/vue';
+import { XMarkIcon } from '@heroicons/vue/24/outline';
 
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close']);
 const props = defineProps([
   'title',
   'description',
   'show',
   'position',
   'transparency',
-])
-const open = ref(false)
+]);
+const open = ref(false);
 
 watch(
   () => props.show,
   (first, second) => {
-    open.value = second
+    open.value = second;
   }
-)
+);
 </script>

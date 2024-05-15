@@ -1,12 +1,12 @@
 <script setup>
-import { ref, reactive, nextTick } from 'vue'
-import DialogModal from './DialogModal.vue'
-import InputError from './InputError.vue'
-import PrimaryButton from './PrimaryButton.vue'
-import SecondaryButton from './SecondaryButton.vue'
-import TextInput from './TextInput.vue'
+import { ref, reactive, nextTick } from 'vue';
+import DialogModal from './DialogModal.vue';
+import InputError from './InputError.vue';
+import PrimaryButton from './PrimaryButton.vue';
+import SecondaryButton from './SecondaryButton.vue';
+import TextInput from './TextInput.vue';
 
-const emit = defineEmits(['confirmed'])
+const emit = defineEmits(['confirmed']);
 
 defineProps({
   title: {
@@ -21,55 +21,55 @@ defineProps({
     type: String,
     default: 'Confirm',
   },
-})
+});
 
-const confirmingPassword = ref(false)
+const confirmingPassword = ref(false);
 
 const form = reactive({
   password: '',
   error: '',
   processing: false,
-})
+});
 
-const passwordInput = ref(null)
+const passwordInput = ref(null);
 
 const startConfirmingPassword = () => {
   axios.get(route('password.confirmation')).then((response) => {
     if (response.data.confirmed) {
-      emit('confirmed')
+      emit('confirmed');
     } else {
-      confirmingPassword.value = true
+      confirmingPassword.value = true;
 
-      setTimeout(() => passwordInput.value.focus(), 250)
+      setTimeout(() => passwordInput.value.focus(), 250);
     }
-  })
-}
+  });
+};
 
 const confirmPassword = () => {
-  form.processing = true
+  form.processing = true;
 
   axios
     .post(route('password.confirm'), {
       password: form.password,
     })
     .then(() => {
-      form.processing = false
+      form.processing = false;
 
-      closeModal()
-      nextTick().then(() => emit('confirmed'))
+      closeModal();
+      nextTick().then(() => emit('confirmed'));
     })
     .catch((error) => {
-      form.processing = false
-      form.error = error.response.data.errors.password[0]
-      passwordInput.value.focus()
-    })
-}
+      form.processing = false;
+      form.error = error.response.data.errors.password[0];
+      passwordInput.value.focus();
+    });
+};
 
 const closeModal = () => {
-  confirmingPassword.value = false
-  form.password = ''
-  form.error = ''
-}
+  confirmingPassword.value = false;
+  form.password = '';
+  form.error = '';
+};
 </script>
 
 <template>

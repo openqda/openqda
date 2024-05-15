@@ -7,9 +7,8 @@
 </template>
 
 <script setup>
-import { VuePlotly } from 'vue3-plotly'
-import { randomString } from '../../utils/randomString.js'
-import { onMounted, ref, watchEffect } from 'vue'
+import { VuePlotly } from 'vue3-plotly';
+import { ref, watchEffect } from 'vue';
 
 const props = defineProps([
   'files',
@@ -18,18 +17,18 @@ const props = defineProps([
   'checkedCodes',
   'hasSelections',
   'api',
-])
-const data = ref(null)
+]);
+const data = ref(null);
 const layout = {
   title: 'My graph',
   height: 800,
-}
+};
 
 // options / config
-const minWords = ref(1)
+const minWords = ref(1);
 
 watchEffect(() => {
-  const { files, codes, checkedFiles, checkedCodes } = props
+  const { files, codes, checkedFiles, checkedCodes } = props;
   const newData = {
     x: [],
     y: [],
@@ -39,8 +38,8 @@ watchEffect(() => {
       height: 5,
       width: 5,
     },
-  }
-  const map = new Map()
+  };
+  const map = new Map();
   for (const file of files) {
     if (checkedFiles.get(file.id)) {
       for (const code of codes) {
@@ -55,13 +54,13 @@ watchEffect(() => {
                 .split(/\s+/g)
                 .forEach((word) => {
                   if (word.length < minWords.value) {
-                    return
+                    return;
                   }
                   if (!map.has(word)) {
-                    map.set(word, 0)
+                    map.set(word, 0);
                   }
-                  map.set(word, map.get(word) + 1)
-                })
+                  map.set(word, map.get(word) + 1);
+                });
             }
           }
         }
@@ -69,15 +68,15 @@ watchEffect(() => {
     }
   }
 
-  const entries = [...map.entries()]
-  entries.sort((a, b) => a[1] - b[1])
+  const entries = [...map.entries()];
+  entries.sort((a, b) => a[1] - b[1]);
 
   for (const [word, count] of entries) {
-    newData.y.push(word)
-    newData.x.push(count)
+    newData.y.push(word);
+    newData.x.push(count);
   }
-  data.value = [newData]
-})
+  data.value = [newData];
+});
 </script>
 
 <style scoped></style>

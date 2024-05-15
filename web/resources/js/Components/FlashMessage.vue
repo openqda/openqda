@@ -16,31 +16,31 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { usePage } from '@inertiajs/vue3'
+import { ref, onMounted } from 'vue';
+import { usePage } from '@inertiajs/vue3';
 
 // Initialize flash as an empty object
-defineProps(['message', 'flash'])
+defineProps(['message', 'flash']);
 
-const widthPercentage = ref(100)
+const widthPercentage = ref(100);
 
 const startTimer = () => {
-  let counter = 0
+  let counter = 0;
   const intervalId = setInterval(() => {
-    counter += 0.1 // Smaller step to make it smoother
-    const percentage = (counter / 50) * 100
-    widthPercentage.value = 100 - percentage
+    counter += 0.1; // Smaller step to make it smoother
+    const percentage = (counter / 50) * 100;
+    widthPercentage.value = 100 - percentage;
 
     if (counter >= 50) {
-      usePage().props.flash.message = ''
-      clearInterval(intervalId)
+      usePage().props.flash.message = '';
+      clearInterval(intervalId);
     }
-  }, 10) // Smaller interval to make it smoother
-}
+  }, 10); // Smaller interval to make it smoother
+};
 
 onMounted(() => {
-  startTimer()
-})
+  startTimer();
+});
 </script>
 
 <style scoped>

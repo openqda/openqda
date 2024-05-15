@@ -1,24 +1,24 @@
 <script setup>
-import { computed } from 'vue'
-import { Head, Link, useForm } from '@inertiajs/vue3'
-import AuthenticationCard from '@/Components/AuthenticationCard.vue'
-import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue'
-import PrimaryButton from '@/Components/PrimaryButton.vue'
-import Footer from '../../Layouts/Footer.vue'
+import { computed } from 'vue';
+import { Head, Link, useForm } from '@inertiajs/vue3';
+import AuthenticationCard from '@/Components/AuthenticationCard.vue';
+import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import Footer from '../../Layouts/Footer.vue';
 
 const props = defineProps({
   status: String,
-})
+});
 
-const form = useForm({})
+const form = useForm({});
 
 const submit = () => {
-  form.post(route('verification.send'))
-}
+  form.post(route('verification.send'));
+};
 
 const verificationLinkSent = computed(
   () => props.status === 'verification-link-sent'
-)
+);
 </script>
 
 <template>

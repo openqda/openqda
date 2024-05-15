@@ -107,7 +107,7 @@
     </thead>
     <tbody>
       <tr
-        v-for="(document, index) in $props.documents"
+        v-for="(document, index) in docs"
         :key="document.id"
         class="text-sm border-b border-gray-200 text-ellipsis overflow-hidden justify-center items-center align-middle hover:bg-silver-50"
         :class="[
@@ -204,7 +204,7 @@
             class="absolute right-0 mt-2 py-2 w-60 center bg-white rounded-md border border-silver-300 shadow-xl z-20"
           >
             <span
-              v-for="(action, actionIndex) in $props.actions"
+              v-for="(action) in $props.actions"
               :key="action.id"
               :title="action.title"
               class="items-center"
@@ -241,74 +241,79 @@ import {
   ChevronUpIcon,
   EllipsisVerticalIcon,
   LockClosedIcon,
-} from '@heroicons/vue/20/solid/index.js'
+} from '@heroicons/vue/20/solid/index.js';
 import {
   ExclamationTriangleIcon,
   DocumentTextIcon,
-} from '@heroicons/vue/24/outline/index.js'
-import { ref } from 'vue'
-import { vClickOutside } from '../coding/clickOutsideDirective.js'
+} from '@heroicons/vue/24/outline/index.js';
+import { onMounted, ref } from 'vue'
+import { vClickOutside } from '../coding/clickOutsideDirective.js';
 
-const emit = defineEmits(['select', 'delete'])
-const props = defineProps(['documents', 'actions', 'rowClass'])
-const sorter = ref({ key: null, ascending: false })
-const openMenuId = ref(null)
+const docs = ref([]);
+const emit = defineEmits(['select', 'delete']);
+const props = defineProps(['documents', 'actions', 'rowClass']);
+const sorter = ref({ key: null, ascending: false });
+const openMenuId = ref(null);
 
 function toggleMenu(id) {
   // Check if the clicked menu is already open
   if (openMenuId.value === id) {
     // If the same menu is clicked, close it
-    openMenuId.value = null
+    openMenuId.value = null;
   } else {
     // Otherwise, open the clicked menu
-    openMenuId.value = id
+    openMenuId.value = id;
   }
 }
 
 function closeMenu() {
-  openMenuId.value = null
+  openMenuId.value = null;
 }
 
 const handleOutsideClick = () => {
-  let isMenuToggle = event.target.classList.contains('menu-toggle')
+  let isMenuToggle = event.target.classList.contains('menu-toggle');
 
   // Check for parent elements with the class 'menu-toggle'
-  let element = event.target
+  let element = event.target;
   while (element) {
     if (element.classList && element.classList.contains('menu-toggle')) {
-      isMenuToggle = true
-      break
+      isMenuToggle = true;
+      break;
     }
-    element = element.parentElement
+    element = element.parentElement;
   }
 
   if (!isMenuToggle) {
-    closeMenu()
+    closeMenu();
   }
-}
+};
 
 function dataTypeTitle(type) {
   switch (type) {
     default:
-      return 'Text-based Document'
+      return 'Text-based Document';
   }
 }
 
 function isMenuOpen(id) {
-  return openMenuId.value === id
+  return openMenuId.value === id;
 }
 
 function sort(name) {
   // new keys always sort ascending,
   // existing keys will toggle
   sorter.value.ascending =
-    sorter.value.key === name ? !sorter.value.ascending : true
-  sorter.value.key = name
-  props.documents.sort((a, b) => {
-    const value = String(a[name]).localeCompare(String(b[name]))
-    return sorter.value.ascending ? value : value * -1
-  })
+    sorter.value.key === name ? !sorter.value.ascending : true;
+  sorter.value.key = name;
+  docs.value.sort((a, b) => {
+    const value = String(a[name]).localeCompare(String(b[name]));
+    return sorter.value.ascending ? value : value * -1;
+  });
 }
+
+onMounted(() => {
+    docs.value = [].concat(props.documents);
+})
 </script>
 <style scoped>
 @keyframes spin {

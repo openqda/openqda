@@ -1,19 +1,19 @@
 <script setup>
-import Dropdown from '@/Components/Dropdown.vue'
-import DropdownLink from '@/Components/DropdownLink.vue'
-import { router } from '@inertiajs/vue3'
-import { Project } from '../state/Project.js'
-import ProfileImage from './user/ProfileImage.vue'
+import Dropdown from '@/Components/Dropdown.vue';
+import DropdownLink from '@/Components/DropdownLink.vue';
+import { router } from '@inertiajs/vue3';
+import { Project } from '../state/Project.js';
+import ProfileImage from './user/ProfileImage.vue';
 
 function onLogout() {
-  router.post(route('logout'))
+  router.post(route('logout'));
 }
 
 function getprofileLink(profileUrl) {
-  const projectId = Project.getId()
+  const projectId = Project.getId();
   return Project.isValidId(projectId)
     ? `${profileUrl}?projectId=${projectId}`
-    : profileUrl
+    : profileUrl;
 }
 </script>
 

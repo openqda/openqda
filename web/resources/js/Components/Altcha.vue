@@ -7,12 +7,12 @@
 </template>
 
 <script setup>
-import 'altcha'
+import 'altcha';
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue']);
 const stateChanged = (ev) => {
   if (ev.detail.state === 'verified') {
-    emit('update:modelValue', ev.detail.payload)
+    emit('update:modelValue', ev.detail.payload);
   }
-}
+};
 </script>

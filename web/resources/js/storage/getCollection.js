@@ -1,3 +1,3 @@
-import { Collections } from './Collections.js'
+import { Collections } from './Collections.js';
 
-export const getCollection = (name) => Collections.get(name)
+export const getCollection = (name) => Collections.get(name);

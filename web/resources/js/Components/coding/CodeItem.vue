@@ -8,8 +8,8 @@
     @mouseout="resetOpacityOfOthers(code.id)"
     @blur="
       (event) => {
-        event.stopPropagation()
-        r
+        event.stopPropagation();
+        r;
       }
     "
     :draggable="!code.editable"
@@ -86,8 +86,8 @@
         <button class="z-0 ml-2">
           <EllipsisVerticalIcon
             @click="
-              code.dropdownOpen = !code.dropdownOpen
-              code.justOpened = true
+              code.dropdownOpen = !code.dropdownOpen;
+              code.justOpened = true;
             "
             class="w-5 h-5 text-black"
           />
@@ -150,7 +150,7 @@
     </transition>
   </li>
 
-  <template v-if="code.children.length > 0" class="pl-6">
+  <template v-if="code.children.length > 0">
     <CodeItem
       ref="codeItemComponents"
       v-for="(childCode, childIndex) in code.children"
@@ -165,89 +165,83 @@
 </template>
 
 <script setup>
-import { inject, onMounted, ref, watchEffect } from 'vue'
+import { inject, onMounted, ref, watchEffect } from 'vue';
 import {
   ChevronDownIcon,
   ChevronUpIcon,
   EllipsisVerticalIcon,
   PencilSquareIcon,
-} from '@heroicons/vue/24/outline'
-import { XCircleIcon as XCircleSolidIcon } from '@heroicons/vue/24/solid'
-import DropdownMenu from './DropdownMenu.vue'
-import { vClickOutside } from './clickOutsideDirective.js'
-import CodeLabel from './CodeLabel.vue'
+} from '@heroicons/vue/24/outline';
+import { XCircleIcon as XCircleSolidIcon } from '@heroicons/vue/24/solid';
+import DropdownMenu from './DropdownMenu.vue';
+import { vClickOutside } from './clickOutsideDirective.js';
+import CodeLabel from './CodeLabel.vue';
 
-const props = defineProps(['code', 'index', 'level', 'parentId'])
-const emit = defineEmits(['child-drag'])
+const props = defineProps(['code', 'index', 'level', 'parentId']);
+defineEmits(['child-drag']);
 
-const editableSpan = ref()
-const childCodeItems = ref(null)
-const codeItemComponents = ref([]) // Initialize an empty array
-const handleDropdownClickOutside = inject('handleDropdownClickOutside')
-const handleDragCodeStart = inject('handleDragCodeStart')
-const codes = inject('codes')
-const deleteTextFromCode = inject('deleteTextFromCode')
-const handleDrag = inject('handleDrag')
+const code = ref(props.code);
+const childCodeItems = ref(null);
+const codeItemComponents = ref([]); // Initialize an empty array
+const handleDropdownClickOutside = inject('handleDropdownClickOutside');
+const handleDragCodeStart = inject('handleDragCodeStart');
+const codes = inject('codes');
+const deleteTextFromCode = inject('deleteTextFromCode');
+const handleDrag = inject('handleDrag');
 
-const lowerOpacityOfOthers = inject('lowerOpacityOfOthers')
-const resetOpacityOfOthers = inject('resetOpacityOfOthers')
-const saveCodeTitle = inject('saveCodeTitle')
-const saveDescription = inject('saveDescription')
-const toggleCodeText = inject('toggleCodeText')
-const scrollToTextPosition = inject('scrollToTextPosition')
+const lowerOpacityOfOthers = inject('lowerOpacityOfOthers');
+const resetOpacityOfOthers = inject('resetOpacityOfOthers');
+const saveCodeTitle = inject('saveCodeTitle');
+const saveDescription = inject('saveDescription');
+const toggleCodeText = inject('toggleCodeText');
+const scrollToTextPosition = inject('scrollToTextPosition');
 const handleCodeDescriptionClickOutside = inject(
   'handleCodeDescriptionClickOutside'
-)
-const openDescription = inject('openDescription')
+);
+const openDescription = inject('openDescription');
 
 const handleChildDrag = (event, index, parentId, codeId) => {
-  handleDrag(event, index, parentId, codeId)
-}
+  handleDrag(event, index, parentId, codeId);
+};
 
 // Function to collect all child components
 const collectChildren = () => {
   // Clean the array first
-  codeItemComponents.value = []
+  codeItemComponents.value = [];
 
   // Use whatever logic you have to find your child components.
   // For this example, let's say we find them and put them in a variable called 'foundChildren'.
-  const foundChildren = document.querySelectorAll('.grandchild')
+  const foundChildren = document.querySelectorAll('.grandchild');
 
   // Add them to codeItemComponents
-  codeItemComponents.value.push(...foundChildren)
+  codeItemComponents.value.push(...foundChildren);
 
   // Ask each child to collect its own children
   codeItemComponents.value.forEach((childComponent) => {
     if (typeof childComponent.collectChildren === 'function') {
-      childComponent.collectChildren()
+      childComponent.collectChildren();
     }
-  })
-}
+  });
+};
 
 defineExpose({
   childCodeItems,
   codeItemComponents,
   collectChildren, // expose this function
-})
-
-const doesItSave = () => {
-  props.code.editable = false
-  let spanElement = editableSpan.value
-  props.code.title = spanElement.textContent
-}
+});
 
 onMounted(async () => {
-  collectChildren()
-})
+  collectChildren();
+});
 
 watchEffect(() => {
   // Go through all children and ask them to refresh their children
   codeItemComponents.value.forEach((childComponent) => {
     if (typeof childComponent.collectChildren === 'function') {
-      childComponent.collectChildren()
+      childComponent.collectChildren();
     }
-  })
-})
+  });
+});
 </script>
 <style scoped>
 [contenteditable]:focus {

@@ -1,5 +1,6 @@
 <script setup>
-import AppLayout from '@/Layouts/AppLayout.vue'
+// TODO can this page be removed?
+import AppLayout from '@/Layouts/AppLayout.vue';
 </script>
 
 <template>

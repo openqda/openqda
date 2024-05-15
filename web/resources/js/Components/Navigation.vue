@@ -1,38 +1,41 @@
 <script setup>
-import { Link } from '@inertiajs/vue3'
+import { Link } from '@inertiajs/vue3';
 
-import { computed, inject, onMounted, ref, watch } from 'vue'
-import SettingsDropdown from '../Components/SettingsDropdown.vue'
+import { computed, inject, onMounted, ref, watch } from 'vue';
+import SettingsDropdown from '../Components/SettingsDropdown.vue';
 import {
   ChartPieIcon,
   DocumentTextIcon,
   Square3Stack3DIcon,
   SquaresPlusIcon,
-} from '@heroicons/vue/20/solid'
-import { Project } from '../state/Project.js'
+} from '@heroicons/vue/20/solid';
+import { Project } from '../state/Project.js';
 
-const props = defineProps({ active: String })
-const usersInChannel = inject('usersInChannel')
-let usersInPages = ref([])
+const props = defineProps({ active: String });
+const usersInChannel = inject('usersInChannel');
+let usersInPages = ref([]);
 
-const usersInChannelComputed = computed(() => usersInChannel)
+// TODO is this necessary
+//   y: document
+//   n: remove
+computed(() => usersInChannel);
 
 watch(
   usersInChannel,
-  (newValue, oldValue) => {
-    usersInPages.value = newValue // Correctly update the ref's value
+  (newValue /*, oldValue */) => {
+    usersInPages.value = newValue; // Correctly update the ref's value
   },
   { deep: true }
-) // Use deep watch to react to nested changes
+); // Use deep watch to react to nested changes
 
 onMounted(() => {
-  const projectId = Project.getId()
+  const projectId = Project.getId();
 
   if (!projectId) {
-    return
+    return;
   }
 
-  sessionStorage.setItem('projectId', projectId)
+  sessionStorage.setItem('projectId', projectId);
 
   const routes = [
     {
@@ -70,20 +73,20 @@ onMounted(() => {
     //     count: 0,
     //     current: props.active === "export"
     // },
-  ]
+  ];
 
-  tabs.value.push(...routes)
-})
+  tabs.value.push(...routes);
+});
 
-const tabs = ref([])
+const tabs = ref([]);
 
 const selectTab = (selectedTab) => {
   tabs.value.forEach((tab) => {
     tab.current = tab.name
       .toLowerCase()
-      .includes(selectedTab.name.toLowerCase())
-  })
-}
+      .includes(selectedTab.name.toLowerCase());
+  });
+};
 </script>
 <style scoped>
 .nav-logo {

@@ -1,7 +1,7 @@
 export class LoggingHandler {
   async fetch(query, options, documents) {
-    console.debug(`[Storage:${options.name}]: fetch`, query, '=>', documents)
-    return documents
+    console.debug(`[Storage:${options.name}]: fetch`, query, '=>', documents);
+    return documents;
   }
 
   async insert(documents, options, primaries) {
@@ -10,8 +10,8 @@ export class LoggingHandler {
       documents,
       '=>',
       primaries
-    )
-    return primaries
+    );
+    return primaries;
   }
 
   async update(documents, modifier, options, updated) {
@@ -21,12 +21,17 @@ export class LoggingHandler {
       documents,
       '=>',
       updated
-    )
-    return updated
+    );
+    return updated;
   }
 
   async remove(documents, options, removed) {
-    console.debug(`[Storage:${options.name}]: update`, documents, '=>', removed)
-    return removed
+    console.debug(
+      `[Storage:${options.name}]: update`,
+      documents,
+      '=>',
+      removed
+    );
+    return removed;
   }
 }

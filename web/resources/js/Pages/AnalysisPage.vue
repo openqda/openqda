@@ -9,7 +9,7 @@
           :is="visualizerComponent"
           :files="files"
           :api="VisualizationPluginAPI"
-          :codes="codes"
+          :codes="allCodes"
           :hasSelections="hasSelections"
           :checkedCodes="checkedCodes"
           :checkedFiles="checkedFiles"
@@ -41,7 +41,7 @@
             @change="selectVisualizerPlugin($event.target)"
             class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
           >
-            <option v-for="plugin in availablePlugins" :value="plugin.name">
+            <option v-for="(plugin, pluginIndex) in availablePlugins" :value="plugin.name" :key="pluginIndex">
               {{ plugin.title }}
             </option>
           </select>
@@ -128,7 +128,7 @@
               </td>
             </tr>
             <tr
-              v-for="(code, index) in codes"
+              v-for="(code) in allCodes"
               :key="code.id"
               class="text-sm border-0 hover:bg-silver-300"
             >
@@ -158,69 +158,69 @@
 </template>
 
 <script setup>
-import { onMounted, ref, defineAsyncComponent, markRaw } from 'vue'
-import AppLayout from '@/Layouts/AppLayout.vue'
-import Button from '../Components/interactive/Button.vue'
-import { ArrowDownTrayIcon } from '@heroicons/vue/24/solid'
-import { createCSV } from '../files/createCSV.js'
-import { saveTextFile } from '../files/saveTextFile.js'
-import { debounce } from '../utils/debounce.js'
-import { unfoldCodes } from './analysis/unfoldCodes.js'
-import Headline2 from '../Components/layout/Headline2.vue'
-import { createByPropertySorter } from '../utils/sortByProperty.js'
+import { onMounted, ref, defineAsyncComponent, markRaw } from 'vue';
+import AppLayout from '@/Layouts/AppLayout.vue';
+import Button from '../Components/interactive/Button.vue';
+import { ArrowDownTrayIcon } from '@heroicons/vue/24/solid';
+import { createCSV } from '../files/createCSV.js';
+import { saveTextFile } from '../files/saveTextFile.js';
+import { debounce } from '../utils/debounce.js';
+import { unfoldCodes } from './analysis/unfoldCodes.js';
+import Headline2 from '../Components/layout/Headline2.vue';
+import { createByPropertySorter } from '../utils/sortByProperty.js';
 
 // TODO: https://www.npmjs.com/package/html-to-rtf
-const hasSelections = ref(false)
-const props = defineProps(['sources', 'codes', 'codeBooks'])
+const hasSelections = ref(false);
+const props = defineProps(['sources', 'codes', 'codeBooks']);
 
-const byName = createByPropertySorter('name')
+const byName = createByPropertySorter('name');
 
-const files = ref(props.sources.sort(byName))
-const codes = ref([])
-const checkedFiles = ref(new Map())
-const checkedCodes = ref(new Map())
-const selection = ref([])
+const files = ref([]);
+const allCodes = ref([]);
+const checkedFiles = ref(new Map());
+const checkedCodes = ref(new Map());
+const selection = ref([]);
 
-const getAllFiles = () => props.sources
-const getAllCodes = () => codes.value
+const getAllFiles = () => props.sources;
+const getAllCodes = () => allCodes.value;
 
 const eachCheckedFiles = (callback) => {
   for (const file of files.value) {
     if (checkedFiles.value.get(file.id)) {
-      callback()
+      callback();
     }
   }
-}
+};
 
 const eachCheckedCodes = (callback) => {
-  for (const code of codes.value) {
+  for (const code of allCodes.value) {
     if (checkedCodes.value.get(code.id)) {
-      callback(code)
+      callback(code);
     }
   }
-}
+};
 
 const getAllSelections = () => {
-  const out = []
+  const out = [];
   eachCheckedFiles((file) => {
     eachCheckedCodes((code) => {
       for (const selection of code.text) {
         if (file.id === selection.source_id) {
-          out.push(selection)
+          out.push(selection);
         }
       }
-    })
-  })
-  return out
-}
+    });
+  });
+  return out;
+};
 
 const getCodesForFile = (file) => {
-  return codes.value.filter(
+  return allCodes.value.filter(
     (code) =>
       !!checkedCodes.value.get(code.id) &&
       code.text.some((t) => t.source_id === file.id)
-  )
-}
+  );
+};
 
 // TODO move to external module, make functions "pure" and injectable etc.
 const VisualizationPluginAPI = {
@@ -230,9 +230,9 @@ const VisualizationPluginAPI = {
   eachCheckedCodes,
   getAllSelections,
   getCodesForFile,
-}
+};
 
-let visualizerComponent = ref(null)
+let visualizerComponent = ref(null);
 const plugins = {
   list: {
     title: 'List',
@@ -246,103 +246,103 @@ const plugins = {
     title: 'Word Cloud',
     load: () => import('./analysis/WordCloudView.vue'),
   },
-}
+};
 const availablePlugins = ref(
   Object.entries(plugins).map(([name, val]) => {
-    return { name, title: val.title }
+    return { name, title: val.title };
   })
-)
+);
 const selectVisualizerPlugin = ({ value }) => {
-  const loader = plugins[value].load
+  const loader = plugins[value].load;
   visualizerComponent.value =
-    loader === null ? loader : markRaw(defineAsyncComponent(loader))
-}
+    loader === null ? loader : markRaw(defineAsyncComponent(loader));
+};
 
 const checkFile = (event, id) => {
-  const isAllFiles = id === 'all_files'
-  const isChecked = !!checkedFiles.value.get(id)
+  const isAllFiles = id === 'all_files';
+  const isChecked = !!checkedFiles.value.get(id);
 
   if (isAllFiles) {
     getAllFiles().forEach((file) => {
-      checkedFiles.value.set(file.id, !isChecked)
-    })
+      checkedFiles.value.set(file.id, !isChecked);
+    });
   } else {
-    checkedFiles.value.set('all_files', false)
+    checkedFiles.value.set('all_files', false);
   }
 
-  checkedFiles.value.set(id, !isChecked)
-  updateHasSelection()
-}
+  checkedFiles.value.set(id, !isChecked);
+  updateHasSelection();
+};
 const checkCode = (event, id) => {
-  const isAllCodes = id === 'all_codes'
-  const isChecked = !!checkedCodes.value.get(id)
+  const isAllCodes = id === 'all_codes';
+  const isChecked = !!checkedCodes.value.get(id);
 
   if (isAllCodes) {
     getAllCodes().forEach((code) => {
-      checkedCodes.value.set(code.id, !isChecked)
-    })
+      checkedCodes.value.set(code.id, !isChecked);
+    });
   } else {
-    checkedCodes.value.set('all_codes', false)
+    checkedCodes.value.set('all_codes', false);
   }
 
-  checkedCodes.value.set(id, !isChecked)
-  updateHasSelection()
-}
+  checkedCodes.value.set(id, !isChecked);
+  updateHasSelection();
+};
 
 const updateHasSelection = debounce(() => {
   // TODO debounce or throttle?
-  const values = []
+  const values = [];
 
   props.sources.forEach((file) => {
     if (!checkedFiles.value.get(file.id)) {
-      return
+      return;
     }
 
     const entry = {
       name: file.name,
       codes: [],
-    }
+    };
 
-    const iterateCodes = (codes) => {
-      codes.forEach((code) => {
+    const iterateCodes = (list) => {
+      list.forEach((code) => {
         if (checkedCodes.value.get(code.id) && code.text) {
           const current = {
             name: code.name,
             segments: [],
-          }
+          };
 
           code.text.forEach((t) => {
             if (t.source_id === file.id) {
-              current.segments.push(t)
+              current.segments.push(t);
             }
-          })
+          });
 
           if (current.segments.length > 0) {
-            entry.codes.push(current)
+            entry.codes.push(current);
           }
         }
 
         if (code.children) {
-          iterateCodes(code.children)
+          iterateCodes(code.children);
         }
-      })
-    }
+      });
+    };
 
-    iterateCodes(props.codes)
+    iterateCodes(allCodes);
 
     if (entry.codes.length > 0) {
-      values.push(entry)
+      values.push(entry);
     }
-  })
+  });
 
-  selection.value = values
-  hasSelections.value = values.length > 0
-}, 500)
+  selection.value = values;
+  hasSelections.value = values.length > 0;
+}, 500);
 
 const saveCSV = () => {
-  const doubleQuote = /"/g
-  const quote = "'"
-  const whitespace = /\s+/g
+  const doubleQuote = /"/g;
+  const quote = "'";
+  const whitespace = /\s+/g;
   const csv = createCSV({
     header: [
       'file',
@@ -354,7 +354,7 @@ const saveCSV = () => {
       'end pos',
       'selection',
     ],
-  })
+  });
   selection.value.forEach((entry) => {
     entry.codes.forEach((code) => {
       code.segments.forEach((segment) => {
@@ -367,23 +367,25 @@ const saveCSV = () => {
           segment.start,
           segment.end,
           `"${segment.text.replace(doubleQuote, quote).replace(whitespace, ' ')}"`,
-        ])
-      })
-    })
-  })
+        ]);
+      });
+    });
+  });
 
-  const out = csv.build()
-  const date = new Date().toLocaleDateString().replace(/[_.:,\s]+/g, '-')
+  const out = csv.build();
+  const date = new Date().toLocaleDateString().replace(/[_.:,\s]+/g, '-');
 
   saveTextFile({
     text: out,
     name: `codes-${date}.csv`,
     type: 'text/csv',
-  })
-}
+  });
+};
 
 onMounted(async () => {
-  codes.value = unfoldCodes(props.codes).sort(byName)
-  selectVisualizerPlugin({ value: 'list' })
-})
+  allCodes.value = unfoldCodes(props.codes).sort(byName);
+  selectVisualizerPlugin({ value: 'list' });
+  files.value = props.sources;
+  files.value.sort(byName);
+});
 </script>

@@ -4,7 +4,7 @@ defineProps({
     type: String,
     default: 'submit',
   },
-})
+});
 </script>
 
 <template>

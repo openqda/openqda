@@ -73,7 +73,7 @@
         icon: CloudArrowUpIcon,
         class: 'text-black-500 hover:text-cerulean-700',
         onClick({ action, document, index }) {
-          retryConvert(document)
+          retryConvert(document);
         },
       },
       {
@@ -82,7 +82,7 @@
         icon: PencilSquareIcon,
         class: ' text-black hover:text-gray-600',
         onClick({ action, document, index }) {
-          renameDocument(document, index)
+          renameDocument(document, index);
         },
       },
       {
@@ -91,7 +91,7 @@
         icon: XCircleIcon,
         class: ' text-red-700 hover:text-red-600',
         onClick({ action, document, index }) {
-          deleteDocument(document, index)
+          deleteDocument(document, index);
         },
       },
     ]"
@@ -105,192 +105,192 @@ import {
   DocumentPlusIcon,
   PencilSquareIcon,
   XCircleIcon,
-} from '@heroicons/vue/20/solid'
-import FileUploadButton from '../interactive/FileUploadButton.vue'
-import { inject, onBeforeUnmount, onMounted, onUnmounted, ref } from 'vue'
-import { useForm, usePage } from '@inertiajs/vue3'
-import axios from 'axios'
-import FilesList from './FilesList.vue'
+} from '@heroicons/vue/20/solid';
+import FileUploadButton from '../interactive/FileUploadButton.vue';
+import { inject, onBeforeUnmount, onMounted, ref } from 'vue';
+import { useForm, usePage } from '@inertiajs/vue3';
+import axios from 'axios';
+import FilesList from './FilesList.vue';
 
-const form = useForm({ file: null })
-const emit = defineEmits(['fileSelected'])
-const documents = inject('sources')
-const isUploading = ref(false)
-const isRenaming = ref(false)
-const newName = ref('')
-let renamingDocumentId = null
-const renameError = ref('')
-const url = window.location.pathname
-const segments = url.split('/')
-const projectId = segments[2] // Assuming project id is the third segment in URL path
+useForm({ file: null });
+const emit = defineEmits(['fileSelected']);
+const documents = inject('sources');
+const isUploading = ref(false);
+const isRenaming = ref(false);
+const newName = ref('');
+let renamingDocumentId = null;
+const renameError = ref('');
+const url = window.location.pathname;
+const segments = url.split('/');
+const projectId = segments[2]; // Assuming project id is the third segment in URL path
 
-function renameDocument(document, index) {
-  isRenaming.value = true
-  renamingDocumentId = document.id
-  newName.value = document.name
+function renameDocument(document /*, index */) {
+  isRenaming.value = true;
+  renamingDocumentId = document.id;
+  newName.value = document.name;
 }
 
 async function retryConvert(document) {
   try {
     const response = await axios.post(
       `/projects/${projectId}/sources/${document.id}/gethtmlcontent`
-    )
+    );
 
-    document.isConverting = !response.data.success
-    document.converted = true
+    document.isConverting = !response.data.success;
+    document.converted = true;
   } catch (error) {
-    console.error('Error renaming document:', error)
+    console.error('Error renaming document:', error);
     renameError.value =
       error.response.data.message ||
-      'An error occurred while converting the document.'
+      'An error occurred while converting the document.';
   }
 }
 
 async function submitRename() {
   if (renamingDocumentId && newName.value) {
     try {
-      const response = await axios.post(`/sources/${renamingDocumentId}`, {
+      await axios.post(`/sources/${renamingDocumentId}`, {
         name: newName.value,
-      })
+      });
 
       // Update the document's name in the documents array
       const documentIndex = documents.findIndex(
         (doc) => doc.id === renamingDocumentId
-      )
+      );
       if (documentIndex !== -1) {
-        documents[documentIndex].name = newName.value
+        documents[documentIndex].name = newName.value;
       }
 
-      isRenaming.value = false
-      renameError.value = '' // Clear any previous error
+      isRenaming.value = false;
+      renameError.value = ''; // Clear any previous error
     } catch (error) {
-      console.error('Error renaming document:', error)
+      console.error('Error renaming document:', error);
       renameError.value =
         error.response.data.message ||
-        'An error occurred while renaming the document.'
+        'An error occurred while renaming the document.';
     }
   } else {
     if (newName.value.length === 0) {
-      renameError.value = 'Please enter a name for the document.'
+      renameError.value = 'Please enter a name for the document.';
     }
   }
 }
 
 function cancelRename() {
-  isRenaming.value = false
-  renameError.value = '' // Clear any previous error
+  isRenaming.value = false;
+  renameError.value = ''; // Clear any previous error
 }
 
 async function deleteDocument(document, index) {
   // Confirmation dialogue
   if (!confirm('Are you sure you want to delete this document?')) {
-    return
+    return;
   }
 
   try {
-    const response = await axios.delete(`/files/${document.id}`)
+    const response = await axios.delete(`/files/${document.id}`);
 
     if (response.data.success) {
       // Emit an event to inform the parent that a document has been deleted
-      emit('documentDeleted', document.id)
+      emit('documentDeleted', document.id);
 
       // Remove the document from the local state
-      documents.splice(index, 1)
+      documents.splice(index, 1);
 
       // Set the flash message
-      usePage().props.flash.message = response.data.message
+      usePage().props.flash.message = response.data.message;
     } else {
-      console.error('Failed to delete the document:', response.data.message)
-      usePage().props.flash.message = response.data.message
+      console.error('Failed to delete the document:', response.data.message);
+      usePage().props.flash.message = response.data.message;
     }
   } catch (error) {
-    console.error('An error occurred while deleting the document:', error)
+    console.error('An error occurred while deleting the document:', error);
     usePage().props.flash.message =
-      'An error occurred while deleting the document.'
+      'An error occurred while deleting the document.';
   }
 }
 
 async function fileAdded({ files }) {
-  const file = files[0]
+  const file = files[0];
   if (!file) {
-    return
+    return;
   }
 
   const isRtf =
-    file.type === 'text/rtf' || (file.name && file.name.endsWith('.rtf'))
-  isUploading.value = true // Start loading indicator
+    file.type === 'text/rtf' || (file.name && file.name.endsWith('.rtf'));
+  isUploading.value = true; // Start loading indicator
 
-  const formData = new FormData()
-  formData.append('file', file)
-  formData.append('projectId', usePage().props.projectId ?? 0)
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('projectId', usePage().props.projectId ?? 0);
 
   try {
     const response = await axios.post('/files/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
-    })
+    });
 
     if (response.data.newDocument) {
       if (isRtf) {
-        response.data.newDocument.isConverting = true
+        response.data.newDocument.isConverting = true;
       }
       response.data.newDocument.userPicture =
-        usePage().props.auth.user.profile_photo_url
-      documents.push(response.data.newDocument)
-      fileSelected(response.data.newDocument)
+        usePage().props.auth.user.profile_photo_url;
+      documents.push(response.data.newDocument);
+      fileSelected(response.data.newDocument);
     }
   } catch (error) {
-    console.error('File upload failed:', error)
+    console.error('File upload failed:', error);
     if (error.response.status === 429) {
       usePage().props.flash.message =
         error.response.data.message +
-        ' Please wait a few minutes and try again.'
+        ' Please wait a few minutes and try again.';
     }
   } finally {
-    isUploading.value = false // Stop loading indicator
+    isUploading.value = false; // Stop loading indicator
   }
 }
 
 async function createNewFile() {
   // Generate a casual name for the file
-  const fileName = `NewDocument_${new Date().getTime()}.txt`
+  const fileName = `NewDocument_${new Date().getTime()}.txt`;
 
   const keyword =
-    'Llanfair­pwllgwyngyll­gogery­chwyrn­drobwll­llan­tysilio­gogo­goch'
+    'Llanfair­pwllgwyngyll­gogery­chwyrn­drobwll­llan­tysilio­gogo­goch';
   // Create a Blob representing an empty file
-  const emptyFileContent = new Blob([keyword], { type: 'text/plain' })
+  const emptyFileContent = new Blob([keyword], { type: 'text/plain' });
   const emptyFile = new File([emptyFileContent], fileName, {
     type: 'text/plain',
-  })
+  });
 
   // Start the upload process
-  isUploading.value = true
+  isUploading.value = true;
 
-  const formData = new FormData()
-  formData.append('file', emptyFile)
-  formData.append('projectId', usePage().props.projectId ?? 0)
+  const formData = new FormData();
+  formData.append('file', emptyFile);
+  formData.append('projectId', usePage().props.projectId ?? 0);
 
   try {
     const response = await axios.post('/files/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
-    })
+    });
 
     if (response.data.newDocument) {
-      documents.push(response.data.newDocument)
-      fileSelected(response.data.newDocument)
+      documents.push(response.data.newDocument);
+      fileSelected(response.data.newDocument);
     }
   } catch (error) {
-    console.error('File creation and upload failed:', error)
+    console.error('File creation and upload failed:', error);
     if (error.response.status === 429) {
       usePage().props.flash.message =
         error.response.data.message +
-        ' Please wait a few minutes and try again.'
+        ' Please wait a few minutes and try again.';
     }
   } finally {
-    isUploading.value = false
+    isUploading.value = false;
   }
 }
 
@@ -302,57 +302,57 @@ onMounted(() => {
   window.Echo.private('conversion.' + projectId).listen(
     'ConversionCompleted',
     (e) => {
-      let documentIndex = -1
+      let documentIndex = -1;
       documents.forEach((doc, index) => {
-        console.log(doc.id)
+        console.log(doc.id);
         if (doc.id === e.sourceId) {
-          documentIndex = index
+          documentIndex = index;
         }
-      })
+      });
 
       if (documentIndex !== -1) {
-        documents[documentIndex].isConverting = false
-        documents[documentIndex].converted = true
+        documents[documentIndex].isConverting = false;
+        documents[documentIndex].converted = true;
       }
     }
-  )
+  );
   window.addEventListener('beforeunload', (event) => {
     if (documents.some((document) => document.isConverting)) {
       // Custom confirmation message (return a string to modify the default)
       event.returnValue =
-        'Are you sure you want to reload? A document is elaborating.'
+        'Are you sure you want to reload? A document is elaborating.';
     }
-  })
-})
+  });
+});
 
 onBeforeUnmount(() => {
   window.removeEventListener('beforeunload', (event) => {
     if (documents.some((document) => document.isConverting)) {
       // Custom confirmation message (return a string to modify the default)
       event.returnValue =
-        'Are you sure you want to reload? A document is elaborating.'
+        'Are you sure you want to reload? A document is elaborating.';
     }
-  })
-})
+  });
+});
 
 function fileSelected(file) {
   // Update 'selected' property for all documents
   for (let doc of documents) {
-    doc.selected = doc.id === file.id
+    doc.selected = doc.id === file.id;
   }
 
-  const locked = file.isLocked
+  const locked = file.isLocked;
 
-  const hasSelections = file.selections && file.selections.length > 0
-  const CanUnlock = file.CanUnlock
-  const id = file.id
-  const name = file.name
-  const content = file.content
-  const date = file.date
-  const user = file.user
-  const type = file.type
+  const hasSelections = file.selections && file.selections.length > 0;
+  const CanUnlock = file.CanUnlock;
+  const id = file.id;
+  const name = file.name;
+  const content = file.content;
+  const date = file.date;
+  const user = file.user;
+  const type = file.type;
 
-  file.selected = true
+  file.selected = true;
   emit('fileSelected', {
     id,
     name,
@@ -363,19 +363,19 @@ function fileSelected(file) {
     locked,
     CanUnlock,
     hasSelections,
-  })
+  });
 }
 
 async function fetchAndRenderDocument(document) {
-  if (document.isConverting || !document.converted) return
+  if (document.isConverting || !document.converted) return;
   try {
-    const response = await axios.get(`/files/${document.id}`)
-    const fetchedDocument = response.data
+    const response = await axios.get(`/files/${document.id}`);
+    const fetchedDocument = response.data;
 
     // Call fileSelected with the fetched document
-    fileSelected(fetchedDocument)
+    fileSelected(fetchedDocument);
   } catch (error) {
-    console.error('Failed to fetch document:', error)
+    console.error('Failed to fetch document:', error);
   }
 }
 </script>

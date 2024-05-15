@@ -1,30 +1,30 @@
 <script setup>
-import { Head, useForm } from '@inertiajs/vue3'
-import AuthenticationCard from '@/Components/AuthenticationCard.vue'
-import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue'
-import InputError from '@/Components/InputError.vue'
-import InputLabel from '@/Components/InputLabel.vue'
-import PrimaryButton from '@/Components/PrimaryButton.vue'
-import TextInput from '@/Components/TextInput.vue'
-import Footer from '../../Layouts/Footer.vue'
+import { Head, useForm } from '@inertiajs/vue3';
+import AuthenticationCard from '@/Components/AuthenticationCard.vue';
+import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
+import InputError from '@/Components/InputError.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
+import TextInput from '@/Components/TextInput.vue';
+import Footer from '../../Layouts/Footer.vue';
 
 const props = defineProps({
   email: String,
   token: String,
-})
+});
 
 const form = useForm({
   token: props.token,
   email: props.email,
   password: '',
   password_confirmation: '',
-})
+});
 
 const submit = () => {
   form.post(route('password.update'), {
     onFinish: () => form.reset('password', 'password_confirmation'),
-  })
-}
+  });
+};
 </script>
 
 <template>

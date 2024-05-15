@@ -6,7 +6,7 @@
 
 <script setup>
 // created with https://vuejs.org/guide/built-ins/transition.html#reusable-transitions
-const props = defineProps(['open'])
+defineProps(['open']);
 </script>
 
 <style>
