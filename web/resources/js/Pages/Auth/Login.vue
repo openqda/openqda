@@ -7,36 +7,38 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import Footer from '../../Layouts/Footer.vue'
+import Footer from '../../Layouts/Footer.vue';
 
 defineProps({
-    canResetPassword: Boolean,
-    status: String,
+  canResetPassword: Boolean,
+  status: String,
 });
 
 const form = useForm({
-    email: '',
-    password: '',
-    remember: false,
+  email: '',
+  password: '',
+  remember: false,
 });
 
 const submit = () => {
-    form.transform(data => ({
-        ...data,
-        remember: form.remember ? 'on' : '',
-    })).post(route('login'), {
-        onFinish: () => form.reset('password'),
+  form
+    .transform((data) => ({
+      ...data,
+      remember: form.remember ? 'on' : '',
+    }))
+    .post(route('login'), {
+      onFinish: () => form.reset('password'),
     });
 };
 </script>
 
 <template>
-    <Head title="Log in" />
+  <Head title="Log in" />
 
-    <AuthenticationCard>
-        <template #logo>
-            <AuthenticationCardLogo />
-        </template>
+  <AuthenticationCard>
+    <template #logo>
+      <AuthenticationCardLogo />
+    </template>
 
         <div v-if="status" class="status-message mb-4 font-medium text-sm text-green-600">
             {{ status }}
@@ -69,24 +71,31 @@ const submit = () => {
                 />
                 <InputError class="password-error mt-2" :message="form.errors.password" />
             </div>
+      <div class="block mt-4">
+        <label class="flex items-center">
+          <Checkbox v-model:checked="form.remember" name="remember" />
+          <span class="ml-2 text-sm text-gray-600">Remember me</span>
+        </label>
+      </div>
 
-            <div class="block mt-4">
-                <label class="flex items-center">
-                    <Checkbox v-model:checked="form.remember" name="remember" />
-                    <span class="ml-2 text-sm text-gray-600">Remember me</span>
-                </label>
-            </div>
+      <div class="flex items-center justify-end mt-4">
+        <Link
+          v-if="canResetPassword"
+          :href="route('password.request')"
+          class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cerulean-700"
+        >
+          Forgot your password?
+        </Link>
 
-            <div class="flex items-center justify-end mt-4">
-                <Link v-if="canResetPassword" :href="route('password.request')" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cerulean-700">
-                    Forgot your password?
-                </Link>
-
-                <PrimaryButton class="ml-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                    Log in
-                </PrimaryButton>
-            </div>
-        </form>
-    </AuthenticationCard>
-    <Footer />
+        <PrimaryButton
+          class="ml-4"
+          :class="{ 'opacity-25': form.processing }"
+          :disabled="form.processing"
+        >
+          Log in
+        </PrimaryButton>
+      </div>
+    </form>
+  </AuthenticationCard>
+  <Footer />
 </template>

@@ -1,0 +1,49 @@
+name: Client Test Suite
+
+# This workflow contains all tests for the openqda core-client
+# which includes for now:
+# - check code-format using code-formatter
+# - check code-style using linter
+#
+# In the future we also want to have:
+# - style lint
+# - unit-tests
+# - vue component tests
+# - e2e tests
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node20-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node20-
+
+      - name: install node modules
+        run: | 
+          cd web
+          npm ci
+      - name: check format
+        run: |
+          cd web
+          npm run format:check
+      - name: check code style
+        run: |
+          cd web
+          npm run lint:check

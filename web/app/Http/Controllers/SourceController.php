@@ -39,7 +39,7 @@ class SourceController extends Controller
             return response()->json(['success' => false, 'message' => 'Not allowed'], 403);
         }
 
-        return Inertia::render('Preparation', [
+        return Inertia::render('PreparationPage', [
             'sources' => $this->fetchAndTransformSources($projectId),
             'projectId' => $projectId
         ]);

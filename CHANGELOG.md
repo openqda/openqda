@@ -3,8 +3,9 @@
 > This changelog is ordered ascending, newest additions are always on top.
 
 ## Pre-Release
-- milestone created
+- code quality tools for client added ([#20](https://github.com/openqda/openqda/pull/20))
 - readme/docs added
+- milestone created
 
 ## Before Pre-release
 
