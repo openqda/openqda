@@ -1,4 +1,3 @@
 <template>
-    <img :src="$page.props.logo" alt="mecode"/>
+  <img :src="$page.props.logo" alt="mecode" />
 </template>
-
