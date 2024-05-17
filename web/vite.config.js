@@ -27,6 +27,10 @@ export default defineConfig({
         // enable jest-like global test APIs
         globals: true,
         // simulate DOM with happy-dom
-        environment: 'happy-dom'
+        environment: 'happy-dom',
+        coverage: {
+            provider: 'v8',
+            reporter: ['text', 'json', 'html']
+        },
     }
 });
