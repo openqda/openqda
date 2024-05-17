@@ -46,19 +46,19 @@ function onLogout() {
                                     Collaborative Qualitative Research
                                 </p>
                                 <img :src="$page.props.logo"
-                                     class="w-full sm:w-3/4 md:w-1/2 lg:w-1/4 xl:w-1/5 ml-auto mr-auto">
+                                     class="w-full sm:w-3/4 md:w-1/2 lg:w-1/4 xl:w-1/5 ml-auto mr-auto oqda-owl-logo">
                                 <div
                                     v-if="!$page.props.auth.user"
                                     class="flex items-center justify-center mt-10 gap-x-6"
                                 >
                                     <a
                                         :href="route('login')"
-                                        class="rounded-md bg-cerulean-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-cerulean-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-500"
+                                        class="rounded-md bg-cerulean-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-cerulean-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-500 sign-in-btn"
                                     >Sign in</a
                                     >
                                     <a
                                         :href="route('register')"
-                                        class="rounded-md bg-porsche-400 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-porsche-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-porsche-400"
+                                        class="rounded-md bg-porsche-400 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-porsche-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-porsche-400 register-btn"
                                     >Register</a
                                     >
                                 </div>

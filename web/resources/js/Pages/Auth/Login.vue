@@ -38,7 +38,7 @@ const submit = () => {
             <AuthenticationCardLogo />
         </template>
 
-        <div v-if="status" class="mb-4 font-medium text-sm text-green-600">
+        <div v-if="status" class="status-message mb-4 font-medium text-sm text-green-600">
             {{ status }}
         </div>
 
@@ -54,7 +54,7 @@ const submit = () => {
                     autofocus
                     autocomplete="username"
                 />
-                <InputError class="mt-2" :message="form.errors.email" />
+                <InputError class="email-error mt-2" :message="form.errors.email" />
             </div>
 
             <div class="mt-4">
@@ -67,7 +67,7 @@ const submit = () => {
                     required
                     autocomplete="current-password"
                 />
-                <InputError class="mt-2" :message="form.errors.password" />
+                <InputError class="password-error mt-2" :message="form.errors.password" />
             </div>
 
             <div class="block mt-4">
