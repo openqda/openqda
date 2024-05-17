@@ -22,5 +22,11 @@ export default defineConfig({
     ],
     build: {
         sourcemap: true
+    },
+    test: {
+        // enable jest-like global test APIs
+        globals: true,
+        // simulate DOM with happy-dom
+        environment: 'happy-dom'
     }
 });
