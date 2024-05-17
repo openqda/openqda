@@ -88,7 +88,7 @@ watch(
   }
 );
 
-defineExpose(editorContent);
+defineExpose({ editorContent });
 </script>
 
 <style scoped>

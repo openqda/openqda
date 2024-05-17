@@ -246,12 +246,12 @@ import {
   ExclamationTriangleIcon,
   DocumentTextIcon,
 } from '@heroicons/vue/24/outline/index.js';
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import { vClickOutside } from '../coding/clickOutsideDirective.js';
 
-const docs = ref([]);
 const emit = defineEmits(['select', 'delete']);
 const props = defineProps(['documents', 'actions', 'rowClass']);
+const docs = ref(props.documents);
 const sorter = ref({ key: null, ascending: false });
 const openMenuId = ref(null);
 
@@ -310,10 +310,6 @@ function sort(name) {
     return sorter.value.ascending ? value : value * -1;
   });
 }
-
-onMounted(() => {
-  docs.value = [].concat(props.documents);
-});
 </script>
 <style scoped>
 @keyframes spin {

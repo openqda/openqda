@@ -113,7 +113,7 @@ import axios from 'axios';
 import FilesList from './FilesList.vue';
 
 useForm({ file: null });
-const emit = defineEmits(['fileSelected']);
+const emit = defineEmits(['fileSelected', 'documentDeleted']);
 const documents = inject('sources');
 const isUploading = ref(false);
 const isRenaming = ref(false);

@@ -13,7 +13,6 @@
         <FilesImporter
           @fileSelected="onFileSelected($event)"
           @documentDeleted="onDocumentDeleted"
-          class="border-b h-1/2"
         />
       </div>
       <!-- Separator -->
@@ -117,7 +116,6 @@
 <script setup>
 import {
   defineProps,
-  inject,
   onBeforeUnmount,
   onMounted,
   provide,
@@ -154,10 +152,10 @@ const editorSourceRef = ref({
 });
 
 const focus = ref(false);
-let documents = ref([]);
 let editorComponent = ref();
 const props = defineProps(['sources', 'newDocument']);
-inject('editorContent');
+const documents = ref([]);
+
 const initialWidth = Math.round(
   Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0) /
     2
@@ -214,12 +212,15 @@ const onMouseUp = () => {
   document.removeEventListener('mouseup', onMouseUp);
 };
 
-watch((newValue) => {
-  if (newValue !== null) {
-    documents.value.push(newValue);
-    onFileSelected(newValue);
+watch(
+  () => props.newDocument,
+  (newValue) => {
+    if (newValue !== null) {
+      documents.value.push(newValue);
+      onFileSelected(newValue);
+    }
   }
-}, props.newDocument);
+);
 
 const lockAndCode = async () => {
   if (
