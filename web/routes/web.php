@@ -63,6 +63,20 @@ Route::get('/imprint', function () {
     ]);
 })->name('imprint');
 
+Route::get('/license', function () {
+    return Inertia::render('RenderHtml', [
+        'background' => asset(config('app.background')),
+        'html' => Str::of(file_get_contents(resource_path('markdown/license.md')))->markdown(),
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'bgtl' => config('app.bgtl'),
+        'bgtr' => config('app.bgtr'),
+        'bgbr' => config('app.bgbr'),
+        'bgbl' => config('app.bgbl'),
+
+    ]);
+})->name('license');
+
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
