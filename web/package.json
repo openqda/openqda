@@ -4,8 +4,9 @@
     "scripts": {
         "dev": "vite",
         "build": "vite build",
-        "test:unit": "vitest --run",
+        "test:unit": "vitest",
         "test:e2e": "cypress run",
+        "ci:unit": "LARAVEL_BYPASS_ENV_CHECK=1 CI=1 vitest --run --watch=false",
         "format:write": "prettier ./resources/js --write",
         "format:check": "prettier ./resources/js --check",
         "lint:check": "eslint ./resources/js",
