@@ -17,6 +17,8 @@ return [
     */
 
     'name' => env('APP_NAME', 'Laravel'),
+    'description' => env('APP_DESCRIPTION', null),
+    'slogan' => env('APP_SLOGAN', null),
     'admins' => explode(',', env('ADMINS', null)),
     'logo' => 'logos/logo_512x512_96dpi.PNG',
     'background' => 'logos/openQDA_Background_diverser.PNG',

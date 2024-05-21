@@ -9,6 +9,8 @@
 import { Head, router } from '@inertiajs/vue3';
 import Footer from '../Layouts/Footer.vue';
 
+
+console.debug(import.meta.env)
 defineProps({
   background: String,
   canLogin: Boolean,
@@ -44,15 +46,15 @@ function onLogout() {
                 <div
                   class="relative px-3 py-1 text-sm leading-6 text-gray-500 rounded-full ring-1 ring-gray-900/10 hover:ring-gray-900/20"
                 >
-                  A Sustainable Free/Libre Open Source Research Software
+                  {{$page.props.description}}
                 </div>
                 <h1
                   class="text-4xl font-bold tracking-tight sm:text-6xl text-cerulean-700"
                 >
-                  OpenQDA
+                  {{$page.props.title}}
                 </h1>
                 <p class="mt-6 text-lg leading-8 text-black">
-                  Collaborative Qualitative Research
+                  {{$page.props.slogan}}
                 </p>
                 <img
                   :src="$page.props.logo"

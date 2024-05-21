@@ -25,9 +25,12 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('LandingPage', [
+        'title' => config('app.name'),
         'background' => asset(config('app.background')),
+        'slogan' => config('app.slogan'),
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
+        'description' => config('app.description'),
         'bgtl' => config('app.bgtl'),
         'bgtr' => config('app.bgtr'),
         'bgbr' => config('app.bgbr'),
