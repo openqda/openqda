@@ -71,4 +71,4 @@ jobs:
       - name: run unit tests
         run: |
           cd web
-          npm run test:unit
+          npm run ci:unit
