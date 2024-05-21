@@ -9,7 +9,6 @@
 import { Head, router } from '@inertiajs/vue3';
 import Footer from '../Layouts/Footer.vue';
 
-console.debug(import.meta.env);
 defineProps({
   background: String,
   canLogin: Boolean,
