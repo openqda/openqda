@@ -54,7 +54,7 @@ class ProjectController extends Controller
 
         $paginator = app(AuditService::class)->paginateAudit($allAudits, $request);
 
-        return Inertia::render('Projects', [
+        return Inertia::render('ProjectsList', [
             'projects' => $visibleProjects,
             'audits' => $paginator,
             'bgtl' => config('app.bgtl'),
@@ -236,7 +236,7 @@ class ProjectController extends Controller
 
 
         // Render the Inertia view with the compiled data
-        return Inertia::render('Project', $inertiaData);
+        return Inertia::render('ProjectOverview', $inertiaData);
     }
 
     public function loadMoreAudits(Request $request, Project $project)

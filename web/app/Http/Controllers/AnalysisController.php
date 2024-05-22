@@ -32,7 +32,7 @@ class AnalysisController extends Controller
             return $this->buildNestedCode($rootCode);
         });
 
-        return Inertia::render('Analysis', [
+        return Inertia::render('AnalysisPage', [
             'sources' => $sources,
             'codes' => $allCodes,
             'codebooks' => $codebooks

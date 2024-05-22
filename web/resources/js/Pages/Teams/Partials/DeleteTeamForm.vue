@@ -7,69 +7,66 @@ import DangerButton from '@/Components/DangerButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 
 const props = defineProps({
-    team: Object,
+  team: Object,
 });
 
 const confirmingTeamDeletion = ref(false);
 const form = useForm({});
 
 const confirmTeamDeletion = () => {
-    confirmingTeamDeletion.value = true;
+  confirmingTeamDeletion.value = true;
 };
 
 const deleteTeam = () => {
-    form.delete(route('teams.destroy', props.team), {
-        errorBag: 'deleteTeam',
-    });
+  form.delete(route('teams.destroy', props.team), {
+    errorBag: 'deleteTeam',
+  });
 };
 </script>
 
 <template>
-    <ActionSection>
-        <template #title>
-            Delete Team
-        </template>
+  <ActionSection>
+    <template #title> Delete Team </template>
 
-        <template #description>
-            Permanently delete this team.
-        </template>
+    <template #description> Permanently delete this team. </template>
+
+    <template #content>
+      <div class="max-w-xl text-sm text-gray-600">
+        Once a team is deleted, all of its resources and data will be available
+        only to the team owner.
+      </div>
+
+      <div class="mt-5">
+        <DangerButton @click="confirmTeamDeletion"> Delete Team </DangerButton>
+      </div>
+
+      <!-- Delete Team Confirmation Modal -->
+      <ConfirmationModal
+        :show="confirmingTeamDeletion"
+        @close="confirmingTeamDeletion = false"
+      >
+        <template #title> Delete Team </template>
 
         <template #content>
-            <div class="max-w-xl text-sm text-gray-600">
-                Once a team is deleted, all of its resources and data will be available only to the team owner.
-            </div>
-
-            <div class="mt-5">
-                <DangerButton @click="confirmTeamDeletion">
-                    Delete Team
-                </DangerButton>
-            </div>
-
-            <!-- Delete Team Confirmation Modal -->
-            <ConfirmationModal :show="confirmingTeamDeletion" @close="confirmingTeamDeletion = false">
-                <template #title>
-                    Delete Team
-                </template>
-
-                <template #content>
-                    Are you sure you want to delete this team? Once a team is deleted, all of its resources and data will be available only to the team owner.
-                </template>
-
-                <template #footer>
-                    <SecondaryButton @click="confirmingTeamDeletion = false">
-                        Cancel
-                    </SecondaryButton>
-
-                    <DangerButton
-                        class="ml-3"
-                        :class="{ 'opacity-25': form.processing }"
-                        :disabled="form.processing"
-                        @click="deleteTeam"
-                    >
-                        Delete Team
-                    </DangerButton>
-                </template>
-            </ConfirmationModal>
+          Are you sure you want to delete this team? Once a team is deleted, all
+          of its resources and data will be available only to the team owner.
         </template>
-    </ActionSection>
+
+        <template #footer>
+          <SecondaryButton @click="confirmingTeamDeletion = false">
+            Cancel
+          </SecondaryButton>
+
+          <DangerButton
+            class="ml-3"
+            :class="{ 'opacity-25': form.processing }"
+            :disabled="form.processing"
+            @click="deleteTeam"
+          >
+            Delete Team
+          </DangerButton>
+        </template>
+      </ConfirmationModal>
+    </template>
+  </ActionSection>
 </template>

@@ -108,7 +108,7 @@ class CodingController extends Controller
         });
 
 
-        return Inertia::render('Coding', [
+        return Inertia::render('CodingPage', [
             'source' => $source,
             'sources' => $allSources,
             'codebooks' => $codebooks,
