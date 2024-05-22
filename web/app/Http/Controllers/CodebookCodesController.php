@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Models\Code;
 use App\Models\Codebook;
 use Exception;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use SimpleXMLElement;
+
 
 class CodebookCodesController extends Controller
 {
@@ -17,7 +19,7 @@ class CodebookCodesController extends Controller
     {
         // Validate and retrieve the uploaded file
         $validator = Validator::make($request->all(), [
-            'file' => 'required|file|mimes:qde,xml',
+            'file' => 'required|file|mimes:qde,xml,qdc',
             'project_id' => 'required|exists:projects,id'
         ]);
 
@@ -84,6 +86,41 @@ class CodebookCodesController extends Controller
         } catch (Exception $e) {
             DB::rollBack();
             return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+     public function export($id)
+    {
+        $codebook = Codebook::with('codes')->findOrFail($id);
+
+        $xml = new SimpleXMLElement('<CodeBook xmlns="urn:QDA-XML:codebook:1.0"/>');
+        $xml->addAttribute('origin', config('app.name')); // Set the origin attribute
+        $codesXml = $xml->addChild('Codes');
+
+        $this->addCodesToXml($codesXml, $codebook->codes);
+
+        $xmlContent = $xml->asXML();
+
+        return Response::make($xmlContent, 200, [
+            'Content-Type' => 'application/xml',
+            'Content-Disposition' => 'attachment; filename="codebook.xml"',
+        ]);
+    }
+
+    private function addCodesToXml($codesXml, $codes, $parentId = null)
+    {
+        foreach ($codes as $code) {
+            if ($code->parent_id == $parentId) {
+                $codeXml = $codesXml->addChild('Code');
+                $codeXml->addAttribute('guid', $code->id);
+                $codeXml->addAttribute('name', $code->name);
+                $codeXml->addAttribute('isCodable', 'true'); // Assuming all codes are codable
+                $codeXml->addAttribute('color', $code->color ?: '#000000'); // Default color if not set
+                if (!empty($code->description)) {
+                    $codeXml->addChild('Description', $code->description);
+                }
+                $this->addCodesToXml($codeXml, $codes, $code->id);
+            }
         }
     }
 }
