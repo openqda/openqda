@@ -159,16 +159,19 @@
                 </div>
                 <div>
                     <Headline2>Import Codebook XML</Headline2>
-                    <form @submit.prevent="importXmlFile" enctype="multipart/form-data">
-                        <input
-                            type="file"
-                            @change="handleFileUpload"
-                            accept=".qde,.xml,.qdc"
-                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"
-                        />
+                    <form @submit.prevent="importXmlFile" enctype="multipart/form-data" class="space-y-4">
+                        <label class="block">
+                            <span class="sr-only">Choose file</span>
+                            <input
+                                type="file"
+                                @change="handleFileUpload"
+                                accept=".qde,.xml,.qdc"
+                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                            />
+                        </label>
                         <button
                             type="submit"
-                            class="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                            class="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                         >
                             Import
                         </button>

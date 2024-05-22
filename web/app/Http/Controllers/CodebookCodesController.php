@@ -5,9 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Code;
 use App\Models\Codebook;
 use Exception;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use SimpleXMLElement;
@@ -15,6 +15,11 @@ use SimpleXMLElement;
 
 class CodebookCodesController extends Controller
 {
+    /**
+     * Imports a codebook and its codes from an XML file.
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function import(Request $request)
     {
         // Validate and retrieve the uploaded file
@@ -24,6 +29,7 @@ class CodebookCodesController extends Controller
         ]);
 
         if ($validator->fails()) {
+
             return response()->json(['error' => $validator->errors()], 422);
         }
 
@@ -33,25 +39,41 @@ class CodebookCodesController extends Controller
             $xmlContent = file_get_contents($file->getRealPath());
             $xml = new SimpleXMLElement($xmlContent);
 
-            // Ensure the CodeBook element is present
-            if (!isset($xml->CodeBook) || !isset($xml->CodeBook->Codes)) {
+            // Register the default namespace if present
+            $xml->registerXPathNamespace('ns', 'urn:QDA-XML:codebook:0:4');
+            $xml->registerXPathNamespace('proj', 'urn:QDA-XML:project:1.0');
+
+            // Ensure the CodeBook element is present (handle both namespaced and non-namespaced)
+            $codeBookElements = $xml->xpath('//ns:CodeBook');
+            if (empty($codeBookElements)) {
+                $codeBookElements = $xml->xpath('//CodeBook');
+            }
+            if (empty($codeBookElements)) {
+                $codeBookElements = $xml->xpath('//proj:CodeBook');
+            }
+            if (empty($codeBookElements)) {
+                $codeBookElements = $xml->xpath('//Project/CodeBook');
+            }
+
+            if (empty($codeBookElements) || empty($codeBookElements[0]->Codes)) {
+
                 throw new Exception('Invalid XML format: CodeBook or Codes element missing.');
             }
+
+            $codeBookElement = $codeBookElements[0];
 
             DB::beginTransaction();
 
             // Create the codebook with auto-incrementing ID
             $codebook = new Codebook();
             $codebook->project_id = $request->project_id;
-            ray($xml->CodeBook['name']);
-            $codebook->name = (string)$xml->CodeBook['name'] ?: 'Unnamed Codebook'; // Ensure name is not empty
-            $codebook->description = (string)$xml->CodeBook->Description ?: ''; // Ensure description is not null
+            $codebook->name = (string)$codeBookElement['name'] ?: 'Unnamed Codebook'; // Ensure name is not empty
+            $codebook->description = (string)$codeBookElement->Description ?: ''; // Ensure description is not null
             $codebook->properties = [
                 'sharedWithPublic' => false,
                 'sharedWithTeams' => false
             ];
             $codebook->creating_user_id = auth()->id();
-            ray($xml->CodeBook->Description);
             $codebook->save();
 
             // Helper function to recursively process codes
@@ -74,7 +96,7 @@ class CodebookCodesController extends Controller
             };
 
             // Process all codes in the codebook
-            $processCodes($xml->CodeBook->Codes->children(), $codebook->id);
+            $processCodes($codeBookElement->Codes->children(), $codebook->id);
 
             DB::commit();
 
@@ -89,7 +111,12 @@ class CodebookCodesController extends Controller
         }
     }
 
-     public function export($id)
+    /**
+     * Exports a codebook and its codes to an XML file.
+     * @param $id
+     * @return \Illuminate\Http\Response
+     */
+    public function export($id)
     {
         $codebook = Codebook::with('codes')->findOrFail($id);
 
@@ -107,6 +134,13 @@ class CodebookCodesController extends Controller
         ]);
     }
 
+    /**
+     * Helper function to recursively add codes to an XML element.
+     * @param $codesXml
+     * @param $codes
+     * @param $parentId
+     * @return void
+     */
     private function addCodesToXml($codesXml, $codes, $parentId = null)
     {
         foreach ($codes as $code) {
