@@ -1,4 +1,4 @@
-name: Fix Code Style for backend files
+name: Check Code Style for backend files
 
 on:
   push:
@@ -29,9 +29,4 @@ jobs:
         run: composer global require laravel/pint
 
       - name: Run Pint
-        run: pint
-
-      - name: Commit linted files
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "Fixes coding style"
+        run: pint --test
