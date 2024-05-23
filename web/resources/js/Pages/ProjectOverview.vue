@@ -549,7 +549,7 @@ const importXmlFile = async () => {
         router.get(route("project.show", {project: projectId, codebookstab: true}));
     } catch (error) {
         console.error("Failed to import XML:", error);
-        alert("Failed to import XML. Please try again.");
+        alert("Failed to import XML. "+ error);
     }
 };
 </script>

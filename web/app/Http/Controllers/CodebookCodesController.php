@@ -12,12 +12,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use SimpleXMLElement;
 
-
 class CodebookCodesController extends Controller
 {
     /**
      * Imports a codebook and its codes from an XML file.
-     * @param Request $request
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function import(Request $request)
@@ -25,11 +24,10 @@ class CodebookCodesController extends Controller
         // Validate and retrieve the uploaded file
         $validator = Validator::make($request->all(), [
             'file' => 'required|file|mimes:qde,xml,qdc',
-            'project_id' => 'required|exists:projects,id'
+            'project_id' => 'required|exists:projects,id',
         ]);
 
         if ($validator->fails()) {
-
             return response()->json(['error' => $validator->errors()], 422);
         }
 
@@ -37,6 +35,12 @@ class CodebookCodesController extends Controller
             // Load the XML content from the .qde file
             $file = $request->file('file');
             $xmlContent = file_get_contents($file->getRealPath());
+
+            // Check for invalid XML characters
+            if (! $this->isValidXmlContent($xmlContent)) {
+                throw new Exception('Invalid XML format: Contains illegal characters.');
+            }
+
             $xml = new SimpleXMLElement($xmlContent);
 
             // Register the default namespace if present
@@ -52,11 +56,10 @@ class CodebookCodesController extends Controller
                 $codeBookElements = $xml->xpath('//proj:CodeBook');
             }
             if (empty($codeBookElements)) {
-                $codeBookElements = $xml->xpath('//Project/CodeBook');
+                $codeBookElements = $xml->xpath('//proj:Project/ns:CodeBook');
             }
 
             if (empty($codeBookElements) || empty($codeBookElements[0]->Codes)) {
-
                 throw new Exception('Invalid XML format: CodeBook or Codes element missing.');
             }
 
@@ -67,11 +70,11 @@ class CodebookCodesController extends Controller
             // Create the codebook with auto-incrementing ID
             $codebook = new Codebook();
             $codebook->project_id = $request->project_id;
-            $codebook->name = (string)$codeBookElement['name'] ?: 'Unnamed Codebook'; // Ensure name is not empty
-            $codebook->description = (string)$codeBookElement->Description ?: ''; // Ensure description is not null
+            $codebook->name = (string) $codeBookElement['name'] ?: 'Unnamed Codebook'; // Ensure name is not empty
+            $codebook->description = (string) $codeBookElement->Description ?: ''; // Ensure description is not null
             $codebook->properties = [
                 'sharedWithPublic' => false,
-                'sharedWithTeams' => false
+                'sharedWithTeams' => false,
             ];
             $codebook->creating_user_id = auth()->id();
             $codebook->save();
@@ -80,11 +83,11 @@ class CodebookCodesController extends Controller
             $processCodes = function ($xmlCodes, $codebookId, $parentId = null) use (&$processCodes) {
                 foreach ($xmlCodes as $xmlCode) {
                     $code = new Code();
-                    $code->id = (string)Str::uuid(); // Generate a new UUID
-                    $code->name = (string)$xmlCode['name'] ?: 'Unnamed Code'; // Ensure name is not empty
-                    $code->color = (string)$xmlCode['color'] ?: ''; // Ensure color is not null
+                    $code->id = (string) Str::uuid(); // Generate a new UUID
+                    $code->name = (string) $xmlCode['name'] ?: 'Unnamed Code'; // Ensure name is not empty
+                    $code->color = (string) $xmlCode['color'] ?: ''; // Ensure color is not null
                     $code->codebook_id = $codebookId;
-                    $code->description = (string)$xmlCode->Description ?: ''; // Ensure description is not null
+                    $code->description = (string) $xmlCode->Description ?: ''; // Ensure description is not null
                     $code->parent_id = $parentId;
                     $code->save();
 
@@ -103,17 +106,18 @@ class CodebookCodesController extends Controller
             // Return a response
             return response()->json([
                 'message' => 'Codebook and codes imported successfully',
-                'codebook' => $codebook
+                'codebook' => $codebook,
             ]);
         } catch (Exception $e) {
             DB::rollBack();
+
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
     /**
      * Exports a codebook and its codes to an XML file.
-     * @param $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function export($id)
@@ -136,9 +140,7 @@ class CodebookCodesController extends Controller
 
     /**
      * Helper function to recursively add codes to an XML element.
-     * @param $codesXml
-     * @param $codes
-     * @param $parentId
+     *
      * @return void
      */
     private function addCodesToXml($codesXml, $codes, $parentId = null)
@@ -150,11 +152,27 @@ class CodebookCodesController extends Controller
                 $codeXml->addAttribute('name', $code->name);
                 $codeXml->addAttribute('isCodable', 'true'); // Assuming all codes are codable
                 $codeXml->addAttribute('color', $code->color ?: '#000000'); // Default color if not set
-                if (!empty($code->description)) {
+                if (! empty($code->description)) {
                     $codeXml->addChild('Description', $code->description);
                 }
                 $this->addCodesToXml($codeXml, $codes, $code->id);
             }
         }
+    }
+
+    /**
+     * Validates XML content for illegal characters.
+     *
+     *
+     * @param  string  $xmlContent
+     * @return bool
+     */
+    private function isValidXmlContent($xmlContent)
+    {
+        // Define a regex pattern for detecting illegal XML characters, excluding valid escaped '&' characters
+        $pattern = '/&(?!amp;|lt;|gt;|quot;|apos;)/u';
+
+        // Return false if illegal characters are found, true otherwise
+        return ! preg_match($pattern, $xmlContent);
     }
 }
