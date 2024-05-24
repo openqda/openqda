@@ -176,7 +176,7 @@ class CodebookCodesController extends Controller
 
         return Response::make($xmlContent, 200, [
             'Content-Type' => 'application/xml',
-            'Content-Disposition' => 'attachment; filename="codebook.xml"',
+            'Content-Disposition' => 'attachment; filename="'.$codebook->name.'.qdc"',
         ]);
     }
 
