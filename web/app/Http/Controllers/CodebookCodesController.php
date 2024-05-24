@@ -36,11 +36,6 @@ class CodebookCodesController extends Controller
             $file = $request->file('file');
             $xmlContent = file_get_contents($file->getRealPath());
 
-            // Check for invalid XML characters
-            if (! $this->isValidXmlContent($xmlContent)) {
-                throw new Exception('Invalid XML format: Contains illegal characters.');
-            }
-
             $xml = new SimpleXMLElement($xmlContent);
 
             // Register the default namespace if present
@@ -50,13 +45,16 @@ class CodebookCodesController extends Controller
             // Ensure the CodeBook element is present (handle both namespaced and non-namespaced)
             $codeBookElements = $xml->xpath('//ns:CodeBook');
             if (empty($codeBookElements)) {
-                $codeBookElements = $xml->xpath('//CodeBook');
-            }
-            if (empty($codeBookElements)) {
                 $codeBookElements = $xml->xpath('//proj:CodeBook');
             }
             if (empty($codeBookElements)) {
-                $codeBookElements = $xml->xpath('//proj:Project/ns:CodeBook');
+                $codeBookElements = $xml->xpath('//CodeBook');
+            }
+            if (empty($codeBookElements)) {
+                $codeBookElements = $xml->xpath('//Project/CodeBook');
+            }
+            if (empty($codeBookElements)) {
+                $codeBookElements = $xml->xpath('//*[local-name()="CodeBook"]');
             }
 
             if (empty($codeBookElements) || empty($codeBookElements[0]->Codes)) {
@@ -65,12 +63,16 @@ class CodebookCodesController extends Controller
 
             $codeBookElement = $codeBookElements[0];
 
+            // Filter codes based on the origin of the software
+            $origin = (string) $codeBookElement['origin'];
+            $codesToProcess = $this->checkForUniqueProblemsInsideSoftwares($origin, $codeBookElement->Codes->children());
+
             DB::beginTransaction();
 
             // Create the codebook with auto-incrementing ID
             $codebook = new Codebook();
             $codebook->project_id = $request->project_id;
-            $codebook->name = (string) $codeBookElement['name'] ?: 'Unnamed Codebook'; // Ensure name is not empty
+            $codebook->name = (string) $origin ? 'Codebook from'.$origin : 'Unnamed Codebook'; // Ensure name is not empty
             $codebook->description = (string) $codeBookElement->Description ?: ''; // Ensure description is not null
             $codebook->properties = [
                 'sharedWithPublic' => false,
@@ -99,7 +101,7 @@ class CodebookCodesController extends Controller
             };
 
             // Process all codes in the codebook
-            $processCodes($codeBookElement->Codes->children(), $codebook->id);
+            $processCodes($codesToProcess, $codebook->id);
 
             DB::commit();
 
@@ -113,6 +115,46 @@ class CodebookCodesController extends Controller
 
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Checks for unique problems inside different software and handles them.
+     *
+     * @param  string  $origin
+     * @param  SimpleXMLElement[]  $codesToProcess
+     * @return SimpleXMLElement[]
+     */
+    private function checkForUniqueProblemsInsideSoftwares($origin, $codesToProcess)
+    {
+        if (stripos($origin, 'NVivo') !== false) {
+            return $this->handleNvivoSpecificIssues($codesToProcess);
+        }
+        // Add more conditions here for other software in the future...
+
+        return $codesToProcess;
+    }
+
+    /**
+     * Handles NVivo-specific issues in the XML import process.
+     *
+     * @param  SimpleXMLElement[]  $codesToProcess
+     * @return SimpleXMLElement[]
+     */
+    private function handleNvivoSpecificIssues($codesToProcess)
+    {
+        $filteredCodes = [];
+        foreach ($codesToProcess as $code) {
+            if ((string) $code['name'] === 'Nodes' && (string) $code['isCodable'] === 'false') {
+                // Add child codes to the list to be processed
+                foreach ($code->Code as $childCode) {
+                    $filteredCodes[] = $childCode;
+                }
+            } else {
+                $filteredCodes[] = $code;
+            }
+        }
+
+        return $filteredCodes;
     }
 
     /**
