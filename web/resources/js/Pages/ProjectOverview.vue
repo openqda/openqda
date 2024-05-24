@@ -151,31 +151,33 @@
             </div>
 
             <div v-show="currentSubView === 'codebooks'" class="space-y-4">
-                <div class="w-1/2">
-                    <NewCodebookForm
-                        :project="projectId"
-                        @codebookCreated="onCodebookCreated"
-                    />
-                </div>
-                <div>
-                    <Headline2>Import Codebook XML</Headline2>
-                    <form @submit.prevent="importXmlFile" enctype="multipart/form-data" class="space-y-4">
-                        <label class="block">
-                            <span class="sr-only">Choose file</span>
-                            <input
-                                type="file"
-                                @change="handleFileUpload"
-                                accept=".qde,.xml,.qdc"
-                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                            />
-                        </label>
-                        <button
-                            type="submit"
-                            class="mt-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                        >
-                            Import
-                        </button>
-                    </form>
+                <div class="flex space-x-4">
+                    <div class="w-1/2 my-2">
+                        <NewCodebookForm
+                            :project="projectId"
+                            @codebookCreated="onCodebookCreated"
+                        />
+                    </div>
+                    <div class="w-1/2 my-2">
+                        <Headline2>Import Codebook from</Headline2>
+                        <form @submit.prevent="importXmlFile" enctype="multipart/form-data" class="space-y-4">
+                            <label class="font-medium text-sm text-gray-700 my-4 flex items-center">
+                                <span class="sr-only">Choose file</span>
+                                <input
+                                    type="file"
+                                    @change="handleFileUpload"
+                                    accept=".qde,.xml,.qdc"
+                                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                />
+                            </label>
+                            <button
+                                type="submit"
+                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                            >
+                                Import
+                            </button>
+                        </form>
+                    </div>
                 </div>
                 <div>
                     <Headline2>Codebooks of current Project</Headline2>
@@ -549,7 +551,7 @@ const importXmlFile = async () => {
         router.get(route("project.show", {project: projectId, codebookstab: true}));
     } catch (error) {
         console.error("Failed to import XML:", error);
-        alert("Failed to import XML. "+ error);
+        alert("Failed to import XML. " + error);
     }
 };
 </script>
