@@ -13,10 +13,12 @@ class UserNavigated implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $userId;
-    public $url;
-    public $teamId;
-    public $userProfilePhoto;
 
+    public $url;
+
+    public $teamId;
+
+    public $userProfilePhoto;
 
     public function __construct($userId, $url, $teamId, $userProfilePhoto)
     {
@@ -28,7 +30,7 @@ class UserNavigated implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new PresenceChannel('team.' . $this->teamId);
+        return new PresenceChannel('team.'.$this->teamId);
     }
 
     public function broadcastWith(): array

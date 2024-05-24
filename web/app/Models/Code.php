@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Traits\UUID;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,12 +10,11 @@ use OwenIt\Auditing\Contracts\Auditable;
 
 /**
  * Class Code
- *
  */
 class Code extends Model implements Auditable
 {
-    use \OwenIt\Auditing\Auditable;
     use HasUuids;
+    use \OwenIt\Auditing\Auditable;
 
     public $timestamps = false;
 
@@ -25,14 +23,16 @@ class Code extends Model implements Auditable
         'name',
         'color',
         'description',
-        'parent_id'
+        'parent_id',
     ];
 
     protected $primaryKey = 'id';
+
     public $incrementing = false;
 
     /**
      * get the codebook from which the code is created
+     *
      * @return BelongsTo
      */
     public function codebook()
@@ -40,9 +40,9 @@ class Code extends Model implements Auditable
         return $this->belongsTo(Codebook::class);
     }
 
-
     /**
      * get all the selected text inside this code <- all of them among different documents
+     *
      * @return HasMany
      */
     public function selections()
@@ -52,7 +52,6 @@ class Code extends Model implements Auditable
 
     /**
      * This will give model's Parent
-     * @return BelongsTo
      */
     public function parent(): BelongsTo
     {
@@ -61,7 +60,6 @@ class Code extends Model implements Auditable
 
     /**
      * This will give model's Parent, Parent's parent, and so on until root.
-     * @return BelongsTo
      */
     public function parentRecursive(): BelongsTo
     {
@@ -79,12 +77,12 @@ class Code extends Model implements Auditable
             $result->push($item);
             $result = $result->merge($item->parentRecursiveFlatten());
         }
+
         return $result;
     }
 
     /**
      * This will give model's Children
-     * @return HasMany
      */
     public function children(): HasMany
     {
@@ -93,7 +91,6 @@ class Code extends Model implements Auditable
 
     /**
      * This will give model's Children, Children's Children and so on until last node.
-     * @return HasMany
      */
     public function childrenRecursive(): HasMany
     {
@@ -102,8 +99,6 @@ class Code extends Model implements Auditable
 
     /**
      * Get all the selected text inside this code for a specific source.
-     * @param $sourceId
-     * @return HasMany
      */
     public function selectionsForSource($sourceId): HasMany
     {
@@ -112,7 +107,6 @@ class Code extends Model implements Auditable
 
     /**
      * Add a nested representation of the code to the array.
-     * @return array
      */
     public function toArrayWithNesting(): array
     {
@@ -122,7 +116,7 @@ class Code extends Model implements Auditable
             'color' => $this->color,
             'codebook' => $this->codebook->id,
             'description' => $this->description ?? '',
-            'children' => []
+            'children' => [],
         ];
 
         foreach ($this->children as $child) {
@@ -134,7 +128,6 @@ class Code extends Model implements Auditable
 
     /**
      * Remove the parent of a code
-     * @return void
      */
     public function removeParent(): void
     {
@@ -145,13 +138,10 @@ class Code extends Model implements Auditable
     /**
      * Move the code up in the hierarchy by one level
      * there's no control over the parent_id because the call is made only from a child code
-     * @return void
      */
-    public function moveUpHierarchy() : void
+    public function moveUpHierarchy(): void
     {
         $this->parent_id = $this->parent->parent_id;
         $this->save();
     }
-
-
 }

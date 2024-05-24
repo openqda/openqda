@@ -18,7 +18,7 @@ class AuditService
         $projectIds = ($project) ? [$project->id] : Auth::user()->projects()->withTrashed()->pluck('id');
 
         // Fetch Project Audits
-        if ($project && !$project->exists) {
+        if ($project && ! $project->exists) {
             $projectAuditsData = $project->audits()->with('user')->get();
         } else {
 
@@ -42,7 +42,6 @@ class AuditService
 
         $codeAuditsData = $codebooks->pluck('codes')->flatten(1);
 
-
         // Transform project audits
         $projectAudits = $this->transformAudits($projectAuditsData, 'Project', ['id', 'project_id', 'creating_user_id']);
 
@@ -64,13 +63,13 @@ class AuditService
                     if (isset($audit['new_values']['code_id'])) {
                         $audit['new_values']['code_id'] = $selection->code->name ?? $audit['new_values']['code_id'];
                     }
+
                     return $audit;
                 });
 
                 return $audits;
             });
         });
-
 
         // Transform code audits
         $codeAudits = $codeAuditsData->flatMap(function ($code) {
@@ -79,9 +78,8 @@ class AuditService
 
         // Transform code audits
         $codebookAudits = $codebooks->flatMap(function ($codebook) {
-            return $this->transformAudits($codebook->audits, 'Codebook',['id', 'creating_user_id', 'project_id']);
+            return $this->transformAudits($codebook->audits, 'Codebook', ['id', 'creating_user_id', 'project_id']);
         });
-
 
         // Concatenate, sort, and format
         return $projectAudits->concat($sourceAudits)->concat($selectionAudits)->concat($codeAudits)->concat($codebookAudits)
@@ -92,9 +90,10 @@ class AuditService
 
     /**
      * convert audits to a more readable format
-     * @param mixed $auditData
-     * @param mixed $model
-     * @param mixed $exceptFields
+     *
+     * @param  mixed  $auditData
+     * @param  mixed  $model
+     * @param  mixed  $exceptFields
      * @return mixed
      */
     public function transformAudits($auditData, $model, $exceptFields)
@@ -125,9 +124,7 @@ class AuditService
     }
 
     /**
-     * @param $allAudits
-     * @param Illuminate\Http\Request $request
-     * @return LengthAwarePaginator|null
+     * @param  Illuminate\Http\Request  $request
      */
     public function paginateAudit($allAudits, Request $request): ?LengthAwarePaginator
     {
@@ -146,6 +143,7 @@ class AuditService
                 'query' => $request->query(),
             ]);
         }
+
         return $paginator;
     }
 }

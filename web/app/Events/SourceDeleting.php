@@ -16,7 +16,6 @@ class SourceDeleting
     /**
      * Create a new event instance.
      *
-     * @param Source $source
      * @return void
      */
     public function __construct(Source $source)
@@ -24,4 +23,3 @@ class SourceDeleting
         $this->source = $source;
     }
 }
-

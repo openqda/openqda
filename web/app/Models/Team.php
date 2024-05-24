@@ -30,7 +30,7 @@ class Team extends JetstreamTeam
     protected $fillable = [
         'name',
         'personal_team',
-        'user_id'
+        'user_id',
     ];
 
     /**
@@ -46,12 +46,11 @@ class Team extends JetstreamTeam
 
     /**
      * get related projects
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function projects()
     {
         return $this->hasMany(Project::class);
     }
-
-
 }

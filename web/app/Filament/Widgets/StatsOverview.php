@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Cache;
 class StatsOverview extends BaseWidget
 {
     protected static ?string $pollingInterval = '15s';
+
     protected static bool $isLazy = true;
 
     protected function getStats(): array
@@ -21,18 +22,20 @@ class StatsOverview extends BaseWidget
         $totalUploadedFileSizeInMb = Cache::remember('total_uploaded_file_size', now()->addMinutes(30), function () {
             $totalUploadedFileSize = Source::lazy()->reduce(function ($carry, $source) {
                 $path = $source->upload_path;
+
                 return $carry + (file_exists($path) ? filesize($path) : 0);
             }, 0);
 
-            return number_format($totalUploadedFileSize / 1048576, 2) . ' MB';
+            return number_format($totalUploadedFileSize / 1048576, 2).' MB';
         });
         $totalConvertedFileSizeInMb = Cache::remember('total_converted_file_size', now()->addMinutes(30), function () {
             $totalUploadedFileSize = Source::lazy()->reduce(function ($carry, $source) {
                 $path = $source->converted->path;
+
                 return $carry + (file_exists($path) ? filesize($path) : 0);
             }, 0);
 
-            return number_format($totalUploadedFileSize / 1048576, 2) . ' MB';
+            return number_format($totalUploadedFileSize / 1048576, 2).' MB';
         });
 
         return [

@@ -10,7 +10,6 @@ class SourcePolicy extends BasePolicy
 {
     use HandlesAuthorization;
 
-
     /**
      * Determine whether the user can view any models.
      */
@@ -66,6 +65,4 @@ class SourcePolicy extends BasePolicy
     {
         return $this->isUserInProjectOrTeam($user, $source);
     }
-
-
 }

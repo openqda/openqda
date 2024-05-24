@@ -28,10 +28,8 @@ class DeleteRelatedSources
 
             $projectId = $event->project->id;
 
-
             // Get the project's codebook
             $codebooks = Codebook::where('project_id', $projectId)->get();
-
 
             // Deleted codebooks and codes
             if ($codebooks->count() > 0) {
@@ -59,7 +57,9 @@ class DeleteRelatedSources
                 app('App\Services\SourceService')->destroySource($source->id);
             }
 
-            if($event->project->team) $event->project->team->delete();
+            if ($event->project->team) {
+                $event->project->team->delete();
+            }
         });
     }
 }

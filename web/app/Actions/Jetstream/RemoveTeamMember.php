@@ -6,12 +6,12 @@ use App\Models\Project;
 use App\Models\Team;
 use App\Models\User;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 use Laravel\Jetstream\Contracts\RemovesTeamMembers;
 use Laravel\Jetstream\Events\TeamMemberRemoved;
 use OwenIt\Auditing\Models\Audit;
-use Illuminate\Database\Eloquent\Builder;
 
 class RemoveTeamMember implements RemovesTeamMembers
 {
@@ -32,7 +32,7 @@ class RemoveTeamMember implements RemovesTeamMembers
             'event' => 'team updated',
             'auditable_id' => $team->id,
             'auditable_type' => get_class($team),
-            'new_values' => ['message' => $teamMember->name . ' was removed from ' . $team->name],
+            'new_values' => ['message' => $teamMember->name.' was removed from '.$team->name],
         ]);
 
         $audit->save();
@@ -45,7 +45,7 @@ class RemoveTeamMember implements RemovesTeamMembers
      */
     protected function authorize(User $user, Team $team, User $teamMember): void
     {
-        if (!Gate::forUser($user)->check('removeTeamMember', $team) &&
+        if (! Gate::forUser($user)->check('removeTeamMember', $team) &&
             $user->id !== $teamMember->id) {
             throw new AuthorizationException;
         }
@@ -63,23 +63,21 @@ class RemoveTeamMember implements RemovesTeamMembers
         }
     }
 
-
     /**
      * Handle the user's data.
      */
     protected function handleUserData(User $user, Team $team): void
     {
 
-
         // Use whereHas to filter projects where the user is part of the team
         // or where the user is the creator
-        $projects = Project::whereHas('team', function (Builder $query) use ($user, $team) {
+        $projects = Project::whereHas('team', function (Builder $query) use ($team) {
             $query->where('id', $team->id);
         })->get();
 
         foreach ($projects as $project) {
             if ($project->team_id) {
-                ray('Project is going to be reassigned to the team owner. Project: ' . $project->id);
+                ray('Project is going to be reassigned to the team owner. Project: '.$project->id);
                 $team = $project->team;
                 $userIsNotOwner = $team->user_id !== $user->id;
 
