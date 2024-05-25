@@ -26,7 +26,7 @@
               color="cerulean"
               :disabled="!hasSelections"
               :icon="ArrowDownTrayIcon"
-              label="CSV"
+              :label="hasSelections"
             />
           </span>
         </Headline2>
@@ -332,7 +332,7 @@ const updateHasSelection = debounce(() => {
       });
     };
 
-    iterateCodes(allCodes);
+    iterateCodes(allCodes.value);
 
     if (entry.codes.length > 0) {
       values.push(entry);
