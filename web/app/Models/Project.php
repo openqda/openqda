@@ -24,12 +24,13 @@ class Project extends Model implements Auditable
         'creating_user_id',
         'modifying_user_id',
         'base_path',
-        'team_id'
+        'team_id',
     ];
 
     /**
      * Used to prevent the delete event of project from being dispatched
-     * @var bool $conditionallyPreventEvent
+     *
+     * @var bool
      */
     public $conditionallyPreventEvent = false;
 
@@ -66,6 +67,7 @@ class Project extends Model implements Auditable
 
     /**
      * get the team that has this project shared with
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function team()
@@ -75,6 +77,7 @@ class Project extends Model implements Auditable
 
     /**
      * get documents that are related to this project
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function sources()
@@ -82,9 +85,9 @@ class Project extends Model implements Auditable
         return $this->hasMany(Source::class, 'project_id');
     }
 
-
     /**
      * get all codebooks related to this project
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function codebooks()
@@ -94,6 +97,7 @@ class Project extends Model implements Auditable
 
     /**
      * get all selections related to this project
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function selections()
@@ -103,13 +107,13 @@ class Project extends Model implements Auditable
 
     /**
      * Get all the project, including the deleted ones
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany|\LaravelIdea\Helper\App\Models\_IH_Source_QB
      */
     public function trashedSources()
     {
         return $this->sources()->withTrashed();
     }
-
 
     public function getAllCodesAttribute()
     {
@@ -121,5 +125,4 @@ class Project extends Model implements Auditable
 
         return $codes;
     }
-
 }

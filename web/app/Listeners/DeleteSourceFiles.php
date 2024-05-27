@@ -16,11 +16,9 @@ class DeleteSourceFiles
         //
     }
 
-
     public function handle(SourceDeleting $event)
     {
         $source = $event->source;
-
 
         $codes = Code::where('project_id', $source->project_id)->get();
 
@@ -28,7 +26,6 @@ class DeleteSourceFiles
             // Delete all associated selections from that code
             $code->selectionsForSource($source->id)->delete();
         }
-
 
         if ($source->plain_text_path) {
             Storage::delete($source->plain_text_path);
@@ -38,5 +35,4 @@ class DeleteSourceFiles
             Storage::delete($source->rich_text_path);
         }
     }
-
 }

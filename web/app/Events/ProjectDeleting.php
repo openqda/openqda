@@ -13,15 +13,16 @@ class ProjectDeleting
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-
     public $project;
+
     public $user;
 
-    public function __construct(Project $project,  ?User $user = null)
+    public function __construct(Project $project, ?User $user = null)
     {
         $this->project = $project;
         $this->user = $user;
     }
+
     /**
      * Get the channels the event should broadcast on.
      *

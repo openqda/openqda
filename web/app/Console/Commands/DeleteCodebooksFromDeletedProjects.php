@@ -34,6 +34,7 @@ class DeleteCodebooksFromDeletedProjects extends Command
             ->get();
         if ($codebooks->isEmpty()) {
             $this->info('No codebooks found');
+
             return;
         }
         // print the result in a table
@@ -43,7 +44,6 @@ class DeleteCodebooksFromDeletedProjects extends Command
                 return [$codebook->id, $codebook->name, $codebook->project()->withTrashed()->first()->name, $codebook->project()->withTrashed()->first()->deleted_at];
             })
         );
-
 
         // ask the user if they want to delete the codebooks
         $deleteCodebooks = $this->confirm('Do you want to delete the codebooks?');
@@ -57,7 +57,6 @@ class DeleteCodebooksFromDeletedProjects extends Command
         } else {
             $this->info('Codebooks not deleted');
         }
-
 
     }
 }

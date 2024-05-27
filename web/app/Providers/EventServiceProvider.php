@@ -27,17 +27,17 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         ProjectDeleting::class => [
-            DeleteRelatedSources::class
+            DeleteRelatedSources::class,
         ],
         SourceDeleting::class => [
-            DeleteSourceFiles::class
+            DeleteSourceFiles::class,
         ],
         CodebookDeleting::class => [
-            DeleteRelatedCodes::class
+            DeleteRelatedCodes::class,
         ],
         UserDeletingItself::class => [
-            ListenUserDeletingItself::class
-        ]
+            ListenUserDeletingItself::class,
+        ],
     ];
 
     /**

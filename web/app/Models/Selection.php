@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 
@@ -11,7 +10,9 @@ class Selection extends Model implements Auditable
     use \OwenIt\Auditing\Auditable;
 
     protected $primaryKey = 'id';
+
     public $incrementing = false;
+
     protected $fillable = [
         'id',
         'text',
@@ -22,7 +23,7 @@ class Selection extends Model implements Auditable
         'source_id',
         'project_id',
         'start_position',
-        'end_position'
+        'end_position',
     ];
 
     // remove values when saving audits
@@ -73,6 +74,4 @@ class Selection extends Model implements Auditable
     {
         return $this->belongsTo(User::class, 'modifying_user_id');
     }
-
-
 }

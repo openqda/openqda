@@ -3,12 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Code;
-use App\Models\Codebook;
 use App\Models\Project;
 use App\Models\Source;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use \App\Models\User;
 
 class AnalysisController extends Controller
 {
@@ -35,12 +34,11 @@ class AnalysisController extends Controller
         return Inertia::render('AnalysisPage', [
             'sources' => $sources,
             'codes' => $allCodes,
-            'codebooks' => $codebooks
+            'codebooks' => $codebooks,
         ]);
     }
 
     /**
-     * @param $code
      * @return array
      */
     private function buildNestedCode($code)
@@ -61,9 +59,9 @@ class AnalysisController extends Controller
                     'createdBy' => $s->creating_user_id, // resolve: User::find($s->creating_user_id)->name,
                     'createdAt' => $s->created_at,
                     'updatedAt' => $s->updated_at,
-                    'source_id' => $s->source_id // Assuming you have a source_id field
+                    'source_id' => $s->source_id, // Assuming you have a source_id field
                 ];
-            })->toArray()
+            })->toArray(),
         ];
 
         foreach ($code->children as $child) {

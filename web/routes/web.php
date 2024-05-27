@@ -100,7 +100,6 @@ Route::middleware([
     Route::get('/projects/{project}/load-more-audits', [ProjectController::class, 'loadMoreAudits']);
     Route::get('/projects/load-more-audits', [ProjectController::class, 'loadAllProjectsAudits']);
 
-
     /**
      * Coding
      */
@@ -156,6 +155,5 @@ Route::middleware([
      * Teams
      */
     Route::post('/teams/change-owner', [AdditionalTeamController::class, 'makeOwner'])->name('team-members.make-owner');
-
 
 });

@@ -34,11 +34,11 @@ class SetDeletedAtInDeletedTeam extends Command
             ->having('projects_count', '==', 0)
             ->get();
 
-        if($teams->isEmpty()) {
+        if ($teams->isEmpty()) {
             $this->info('No teams found');
+
             return;
         }
-
 
         // show all the teams in a table
         $this->table(
@@ -54,6 +54,7 @@ class SetDeletedAtInDeletedTeam extends Command
         // if the user enters abort, stop the command
         if ($teamIds === 'abort') {
             $this->info('Aborted');
+
             return;
         }
 
@@ -61,7 +62,6 @@ class SetDeletedAtInDeletedTeam extends Command
         if ($teamIds === 'all') {
             $teamIds = $teams->pluck('id')->join(',');
         }
-
 
         // convert the comma-separated string to an array
         $teamIds = explode(',', $teamIds);
@@ -72,14 +72,16 @@ class SetDeletedAtInDeletedTeam extends Command
             $team = Team::find($teamId);
 
             // if the team is not found, skip to the next iteration
-            if (!$team) {
+            if (! $team) {
                 $this->error("Team with ID $teamId not found");
+
                 continue;
             }
 
             // if the team has projects, skip to the next iteration
-            if (!$team->projects->isEmpty()) {
+            if (! $team->projects->isEmpty()) {
                 $this->error("Team with ID $teamId has projects");
+
                 continue;
             }
 
@@ -91,11 +93,11 @@ class SetDeletedAtInDeletedTeam extends Command
             $this->info("Team with ID $teamId set deleted at now");
         }
 
-//        foreach ($teams as $team) {
-//            if ($team->projects->isEmpty()) {
-//                $team->deleted_at = now();
-//                $team->save();
-//            }
-//        }
+        //        foreach ($teams as $team) {
+        //            if ($team->projects->isEmpty()) {
+        //                $team->deleted_at = now();
+        //                $team->save();
+        //            }
+        //        }
     }
 }

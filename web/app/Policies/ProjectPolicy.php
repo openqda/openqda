@@ -59,5 +59,4 @@ class ProjectPolicy extends BasePolicy
     {
         //
     }
-
 }

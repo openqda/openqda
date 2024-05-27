@@ -23,7 +23,7 @@ class TeamPolicy
      */
     public function view(User $user, Team $team): bool
     {
-        return $user->hasTeamRole($team,'admin');
+        return $user->hasTeamRole($team, 'admin');
     }
 
     /**
@@ -39,7 +39,7 @@ class TeamPolicy
      */
     public function update(User $user, Team $team): bool
     {
-        return $user->hasTeamRole($team,'admin');
+        return $user->hasTeamRole($team, 'admin');
     }
 
     /**
@@ -47,7 +47,7 @@ class TeamPolicy
      */
     public function addTeamMember(User $user, Team $team): bool
     {
-        return $user->hasTeamRole($team,'admin');
+        return $user->hasTeamRole($team, 'admin');
     }
 
     /**
@@ -55,7 +55,7 @@ class TeamPolicy
      */
     public function updateTeamMember(User $user, Team $team): bool
     {
-        return $user->hasTeamRole($team,'admin');
+        return $user->hasTeamRole($team, 'admin');
     }
 
     /**
@@ -63,7 +63,7 @@ class TeamPolicy
      */
     public function removeTeamMember(User $user, Team $team): bool
     {
-        return $user->hasTeamRole($team,'admin');
+        return $user->hasTeamRole($team, 'admin');
     }
 
     public function changeOwner(User $user, Team $team): bool
@@ -76,6 +76,6 @@ class TeamPolicy
      */
     public function delete(User $user, Team $team): bool
     {
-        return $user->hasTeamRole($team,'admin');
+        return $user->hasTeamRole($team, 'admin');
     }
 }
