@@ -26,7 +26,7 @@
               color="cerulean"
               :disabled="!hasSelections"
               :icon="ArrowDownTrayIcon"
-              :label="hasSelections"
+              :label="'CSV'"
             />
           </span>
         </Headline2>
