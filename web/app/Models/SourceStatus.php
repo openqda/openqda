@@ -11,10 +11,13 @@ class SourceStatus extends Model
     use HasUuids;
 
     protected $fillable = ['source_id', 'status', 'path'];
+
     protected $primaryKey = 'id';
+
     public $incrementing = false; // Ensure the UUID id is not auto-incrementing
+
     protected $casts = [
-        'id' => 'string' // Ensure the UUID id is treated as a string
+        'id' => 'string', // Ensure the UUID id is treated as a string
     ];
 
     /**

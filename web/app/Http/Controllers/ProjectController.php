@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Models\Codebook;
 use App\Models\Project;
 use App\Services\AuditService;
@@ -15,10 +14,9 @@ use Laravel\Jetstream\Jetstream;
 
 class ProjectController extends Controller
 {
-
     public function index(Request $request)
     {
-        if (!Gate::allows('viewAny', Project::class)) {
+        if (! Gate::allows('viewAny', Project::class)) {
             return abort(403, 'Unauthorized action.');
         }
 
@@ -42,15 +40,14 @@ class ProjectController extends Controller
                 'id' => $project->id,
                 'isOwner' => $project->creating_user_id == $user->id,
                 'isCollaborative' => ($project->team_id !== null),
-                'isTrashed' => $project->trashed()
+                'isTrashed' => $project->trashed(),
             ];
         })->filter(function ($project) {
-            return !$project['isTrashed'];
+            return ! $project['isTrashed'];
         })->toArray();
 
         // Fetch all related audits using the User model's method
         $allAudits = $user->getAllAudits()->values();
-
 
         $paginator = app(AuditService::class)->paginateAudit($allAudits, $request);
 
@@ -64,11 +61,7 @@ class ProjectController extends Controller
         ]);
     }
 
-
     /**
-     *
-     * @param Request $request
-     * @param Project $project
      * @return \Illuminate\Http\JsonResponse
      */
     public function updateProjectAttributes(Request $request, Project $project)
@@ -97,14 +90,13 @@ class ProjectController extends Controller
             return response()->json(['success' => true, 'message' => 'Project updated successfully']);
         } catch (\Exception $e) {
             // Handle exception
-            return response()->json(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()]);
         }
     }
 
-
     public function store(Request $request)
     {
-        if (!Gate::allows('create', Project::class)) {
+        if (! Gate::allows('create', Project::class)) {
             abort(403, 'Unauthorized action.');
         }
         try {
@@ -125,23 +117,20 @@ class ProjectController extends Controller
 
             return response()->json(['success' => true, 'message' => 'Project created successfully', 'project' => ['name' => $project->name, 'description' => $project->description, 'created_at' => $project->created_at, 'id' => $project->id, 'isOwner' => true]]);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()]);
         }
     }
 
-
     public function show(Request $request, Project $project)
     {
-        if (!Gate::allows('view', $project)) {
+        if (! Gate::allows('view', $project)) {
             return abort(403, 'Unauthorized action.');
         }
-
 
         $user = Auth::user();
 
         // Retrieve audits related to the project
         $allAudits = app(AuditService::class)->getAudits($project);
-
 
         $paginator = app(AuditService::class)->paginateAudit($allAudits, $request);
         $publicCodebooks = Codebook::where('properties->sharedWithPublic', true)
@@ -160,7 +149,7 @@ class ProjectController extends Controller
                 'codes' => $codebook->codes,
                 'project_id' => $codebook->project_id,
                 // Include other codebook attributes as needed
-                'creatingUserEmail' => $codebook->creatingUser->email ?? "", // Include the creating user's email
+                'creatingUserEmail' => $codebook->creatingUser->email ?? '', // Include the creating user's email
             ];
         });
 
@@ -172,7 +161,7 @@ class ProjectController extends Controller
                 'codes' => $codebook->codes,
                 'project_id' => $codebook->project_id,
                 // Include other codebook attributes as needed
-                'creatingUserEmail' => $codebook->creatingUser->email ?? "", // Include the creating user's email
+                'creatingUserEmail' => $codebook->creatingUser->email ?? '', // Include the creating user's email
             ];
         });
 
@@ -184,7 +173,7 @@ class ProjectController extends Controller
                 'created_at' => $project->created_at,
                 'id' => $project->id,
                 'projectId' => $project->id,
-                'codebooks' => $formattedCodebooks
+                'codebooks' => $formattedCodebooks,
             ],
             'userCodebooks' => auth()->user()->getCodebooksAsCreator($project->id),
             'publicCodebooks' => $formattedPublicCodebooks,
@@ -192,9 +181,8 @@ class ProjectController extends Controller
             'availableRoles' => array_values(Jetstream::$roles),
             'availablePermissions' => Jetstream::$permissions,
             'defaultPermissions' => Jetstream::$defaultPermissions,
-            'hasTeam' => !!$project->team_id,  // Flag to indicate if a team exists for this project
+            'hasTeam' => (bool) $project->team_id,  // Flag to indicate if a team exists for this project
         ];
-
 
         // Initialize empty teamMembers array
         $teamMembers = [];
@@ -233,7 +221,6 @@ class ProjectController extends Controller
 
         // Add the flag to the Inertia data
         $inertiaData['hasCodebooksTab'] = $hasCodebooksTab;
-
 
         // Render the Inertia view with the compiled data
         return Inertia::render('ProjectOverview', $inertiaData);
@@ -286,7 +273,7 @@ class ProjectController extends Controller
         try {
             // Authorization checks
             $project = Project::findOrFail($projectId);
-            if (!Gate::allows('delete', $project)) {
+            if (! Gate::allows('delete', $project)) {
                 return response()->json(['success' => false, 'message' => 'Not authorized to delete this project']);
             }
 
@@ -296,9 +283,7 @@ class ProjectController extends Controller
 
             return to_route('projects.index')->with('message', 'Project Delete Successfully');
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()]);
         }
     }
-
-
 }

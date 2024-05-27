@@ -31,34 +31,30 @@ class SelectionController extends Controller
         $data['creating_user_id'] = Auth::id();
         $data['project_id'] = $project->id;
 
-
         $selection = Selection::create($data);
 
         return response()->json(['message' => 'Selection saved successfully!', 'selection' => $selection]);
     }
 
-
     public function changeCode(Request $request, Project $project, Source $source, Code $code, Selection $selection)
     {
         // Validate the request data
         $validatedData = $request->validate([
-            'newCodeId' => 'required|exists:codes,id' // Assuming "codes" is the table name for the codes.
+            'newCodeId' => 'required|exists:codes,id', // Assuming "codes" is the table name for the codes.
         ]);
 
         // Update the selection's code_id with the newCodeId from the request
         $selection->code_id = $validatedData['newCodeId'];
         $selection->modifying_user_id = auth()->id();
-        $selection->updated_at = now();;
+        $selection->updated_at = now();
         $selection->save();
 
         // Return a response
         return response()->json(['success' => true, 'message' => 'Code updated successfully']);
     }
 
-
     public function destroy(Request $request, Project $project, Source $source, Code $code, Selection $selection)
     {
-
 
         /*
         I need source id - code id - and selection id
@@ -77,9 +73,8 @@ class SelectionController extends Controller
 
             return response()->json(['success' => true, 'message' => 'Text deleted successfully from code']);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()]);
         }
-
 
     }
 }

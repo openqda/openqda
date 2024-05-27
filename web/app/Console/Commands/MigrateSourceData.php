@@ -8,8 +8,8 @@ use Illuminate\Console\Command;
 
 class MigrateSourceData extends Command
 {
-
     protected $signature = 'sources:rich-text-migration';
+
     protected $description = 'Migrates rich text data to SourceStatus.';
 
     public function handle()
@@ -19,7 +19,7 @@ class MigrateSourceData extends Command
                 SourceStatus::create([
                     'source_id' => $source->id,
                     'status' => 'converted:html',
-                    'path' => $source->rich_text_path
+                    'path' => $source->rich_text_path,
                 ]);
 
                 // Optional: Clear the rich_text_path on the source
@@ -30,5 +30,4 @@ class MigrateSourceData extends Command
         $this->info('Rich text migrated successfully!');
 
     }
-
 }

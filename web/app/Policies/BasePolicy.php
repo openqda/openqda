@@ -8,7 +8,6 @@ use App\Models\User;
 
 class BasePolicy
 {
-
     // Array of allowed "admin" emails
     protected array $allowedEmails;
 
@@ -20,9 +19,11 @@ class BasePolicy
     /**
      * Helper function to check if the user is part of the project's team.
      */
-    public function isUserInProjectOrTeam(User $user, Source $source = null, Project $project = null): bool
+    public function isUserInProjectOrTeam(User $user, ?Source $source = null, ?Project $project = null): bool
     {
-        if($project === null && $source !== null) $project = $source->project;
+        if ($project === null && $source !== null) {
+            $project = $source->project;
+        }
         $teamId = $project->team_id;
 
         // Check if user is the project creator
@@ -37,5 +38,4 @@ class BasePolicy
 
         return false;
     }
-
 }

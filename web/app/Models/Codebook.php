@@ -7,7 +7,6 @@ use OwenIt\Auditing\Contracts\Auditable;
 
 class Codebook extends Model implements Auditable
 {
-
     use \OwenIt\Auditing\Auditable;
 
     protected $fillable = [
@@ -18,7 +17,7 @@ class Codebook extends Model implements Auditable
         'creating_user_id',
     ];
 
-      protected $auditExclude = [
+    protected $auditExclude = [
         'plain_text_path',
         'rich_text_path',
         'path',
@@ -26,16 +25,15 @@ class Codebook extends Model implements Auditable
         '™plain_text_content',
     ];
 
-
     protected $casts = [
         'properties' => 'array',
     ];
+
     protected $withCount = ['codes'];
 
     protected $dispatchesEvents = [
         'deleting' => \App\Events\CodebookDeleting::class,
     ];
-
 
     /**
      * Get the project to which the source belongs.
@@ -73,6 +71,4 @@ class Codebook extends Model implements Auditable
     {
         return $this->properties['sharedWithTeams'] ?? false;
     }
-
-
 }

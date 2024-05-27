@@ -44,7 +44,7 @@ class LatestUsersWidget extends BaseWidget
                 TextColumn::make('created_at')
                     ->label('Created At')
                     ->sortable()
-                    ->date('d.m.Y') // Format the date as DD.MM.YYYY
+                    ->date('d.m.Y'), // Format the date as DD.MM.YYYY
 
             ])->filters([
                 QueryBuilder::make('created_at')
@@ -54,5 +54,4 @@ class LatestUsersWidget extends BaseWidget
                     ]),
             ], layout: FiltersLayout::AboveContent)->defaultSort('created_at', 'desc');
     }
-
 }

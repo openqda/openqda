@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::table('codes', function (Blueprint $table) {
 
-        $table->foreignUuid('parent_id')->nullable()
-              ->references('id')->on('codes')
-              ->cascadeOnUpdate()->cascadeOnDelete();
-    });
+            $table->foreignUuid('parent_id')->nullable()
+                ->references('id')->on('codes')
+                ->cascadeOnUpdate()->cascadeOnDelete();
+        });
     }
 
     /**
@@ -25,8 +25,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('codes', function (Blueprint $table) {
-       $table->dropForeign(['parent_id']);
-       $table->dropColumn(['parent_id']);
-    });
+            $table->dropForeign(['parent_id']);
+            $table->dropColumn(['parent_id']);
+        });
     }
 };

@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-use App\Traits\UUID;
 use Illuminate\Database\Eloquent\Model;
 
 class Variable extends Model
 {
-
-
     protected $primaryKey = 'id';
+
     public $incrementing = false;
 
     protected $fillable = [

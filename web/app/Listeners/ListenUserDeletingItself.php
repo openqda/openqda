@@ -49,7 +49,6 @@ class ListenUserDeletingItself
                 } else {
                     $projectId = $project->id;
 
-
                     // Get the project's codebook
                     $codebooks = Codebook::where('project_id', $projectId)->get();
 
@@ -78,7 +77,6 @@ class ListenUserDeletingItself
                         app('App\Services\SourceService')->destroySource($source->id);
                     }
                     $project->forceDelete();
-
 
                 }
             }

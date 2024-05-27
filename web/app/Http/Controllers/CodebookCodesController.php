@@ -17,7 +17,6 @@ class CodebookCodesController extends Controller
     /**
      * Imports a codebook and its codes from an XML file.
      *
-     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function import(Request $request)
@@ -65,6 +64,7 @@ class CodebookCodesController extends Controller
             ]);
         } catch (Exception $e) {
             DB::rollBack();
+
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
@@ -72,7 +72,6 @@ class CodebookCodesController extends Controller
     /**
      * Registers necessary XML namespaces.
      *
-     * @param SimpleXMLElement $xml
      * @return void
      */
     private function registerNamespaces(SimpleXMLElement $xml)
@@ -84,7 +83,6 @@ class CodebookCodesController extends Controller
     /**
      * Retrieves the CodeBook element from the XML.
      *
-     * @param SimpleXMLElement $xml
      * @return SimpleXMLElement|null
      */
     private function getCodeBookElement(SimpleXMLElement $xml)
@@ -92,26 +90,25 @@ class CodebookCodesController extends Controller
         $paths = ['//ns:CodeBook', '//proj:CodeBook', '//CodeBook', '//Project/CodeBook', '//*[local-name()="CodeBook"]'];
         foreach ($paths as $path) {
             $elements = $xml->xpath($path);
-            if (!empty($elements)) {
+            if (! empty($elements)) {
                 return $elements[0];
             }
         }
+
         return null;
     }
 
     /**
      * Creates a new Codebook model instance.
      *
-     * @param Request $request
-     * @param SimpleXMLElement $codeBookElement
-     * @param string $origin
+     * @param  string  $origin
      * @return Codebook
      */
     private function createCodebook(Request $request, SimpleXMLElement $codeBookElement, $origin)
     {
         $codebook = new Codebook();
         $codebook->project_id = $request->project_id;
-        $codebook->name = (string) $origin ? 'Codebook from ' . $origin : 'Unnamed Codebook';
+        $codebook->name = (string) $origin ? 'Codebook from '.$origin : 'Unnamed Codebook';
         $codebook->description = (string) $codeBookElement->Description ?: '';
         $codebook->properties = [
             'sharedWithPublic' => false,
@@ -126,9 +123,9 @@ class CodebookCodesController extends Controller
     /**
      * Recursively processes and saves codes.
      *
-     * @param SimpleXMLElement[] $xmlCodes
-     * @param int $codebookId
-     * @param string|null $parentId
+     * @param  SimpleXMLElement[]  $xmlCodes
+     * @param  int  $codebookId
+     * @param  string|null  $parentId
      * @return void
      */
     private function processCodes($xmlCodes, $codebookId, $parentId = null)
@@ -152,8 +149,8 @@ class CodebookCodesController extends Controller
     /**
      * Checks for unique problems inside different software and handles them.
      *
-     * @param string $origin
-     * @param SimpleXMLElement[] $codesToProcess
+     * @param  string  $origin
+     * @param  SimpleXMLElement[]  $codesToProcess
      * @return SimpleXMLElement[]
      */
     private function checkForUniqueProblemsInsideSoftwares($origin, $codesToProcess)
@@ -169,7 +166,7 @@ class CodebookCodesController extends Controller
     /**
      * Handles NVivo-specific issues in the XML import process.
      *
-     * @param SimpleXMLElement[] $codesToProcess
+     * @param  SimpleXMLElement[]  $codesToProcess
      * @return SimpleXMLElement[]
      */
     private function handleNvivoSpecificIssues($codesToProcess)
@@ -184,13 +181,14 @@ class CodebookCodesController extends Controller
                 $filteredCodes[] = $code;
             }
         }
+
         return $filteredCodes;
     }
 
     /**
      * Exports a codebook and its codes to an XML file.
      *
-     * @param int $id
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function export($id)
@@ -207,16 +205,16 @@ class CodebookCodesController extends Controller
 
         return Response::make($xmlContent, 200, [
             'Content-Type' => 'application/xml',
-            'Content-Disposition' => 'attachment; filename="' . $codebook->name . '.qdc"',
+            'Content-Disposition' => 'attachment; filename="'.$codebook->name.'.qdc"',
         ]);
     }
 
     /**
      * Helper function to recursively add codes to an XML element.
      *
-     * @param SimpleXMLElement $codesXml
-     * @param \Illuminate\Database\Eloquent\Collection $codes
-     * @param string|null $parentId
+     * @param  SimpleXMLElement  $codesXml
+     * @param  \Illuminate\Database\Eloquent\Collection  $codes
+     * @param  string|null  $parentId
      * @return void
      */
     private function addCodesToXml($codesXml, $codes, $parentId = null)
@@ -239,7 +237,7 @@ class CodebookCodesController extends Controller
     /**
      * Validates XML content for illegal characters.
      *
-     * @param string $xmlContent
+     * @param  string  $xmlContent
      * @return bool
      */
     private function isValidXmlContent($xmlContent)

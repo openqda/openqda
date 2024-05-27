@@ -19,7 +19,7 @@ class AddTeamMember implements AddsTeamMembers
     /**
      * Add a new team member to the given team.
      */
-    public function add(User $user, Team $team, string $email, string $role = null): void
+    public function add(User $user, Team $team, string $email, ?string $role = null): void
     {
         Gate::forUser($user)->authorize('addTeamMember', $team);
 
@@ -39,7 +39,7 @@ class AddTeamMember implements AddsTeamMembers
             'event' => 'team updated',
             'auditable_id' => $team->id,
             'auditable_type' => get_class($team),
-            'new_values' => ['message' => $newTeamMember->name . ' has been invited to '.$team->name],
+            'new_values' => ['message' => $newTeamMember->name.' has been invited to '.$team->name],
         ]);
 
         $audit->save();

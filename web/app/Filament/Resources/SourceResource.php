@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SourceResource\Pages;
-use App\Filament\Resources\SourceResource\RelationManagers;
 use App\Http\Controllers\SourceController;
 use App\Models\Source;
 use Filament\Forms;
@@ -60,10 +59,9 @@ class SourceResource extends Resource
                         })
                         ->icon('heroicon-o-document-text')
                         ->requiresConfirmation()
-                        ->modalDescription('convert this will overwrite the current html content, if exists')
-                    ,
+                        ->modalDescription('convert this will overwrite the current html content, if exists'),
                     Action::make('coding page')
-                        ->url(fn(Source $record): string => route('coding.show', ['project' => $record->project_id, 'source' => $record->id]))
+                        ->url(fn (Source $record): string => route('coding.show', ['project' => $record->project_id, 'source' => $record->id]))
                         ->icon('heroicon-o-document-text')
                         ->openUrlInNewTab(),
                     Action::make('downloadRichText')
@@ -71,21 +69,23 @@ class SourceResource extends Resource
                         ->action(function ($record): StreamedResponse {
                             $fullPath = $record->converted->path; // Assuming this contains the full path
                             $relevantPath = substr($fullPath, strpos($fullPath, 'app/') + 4); // Extracts everything after 'app/'
+
                             return Storage::download($relevantPath);
                         })
                         ->icon('heroicon-o-arrow-down')
-                        ->disabled(fn($record) => empty($record->converted->path)),
+                        ->disabled(fn ($record) => empty($record->converted->path)),
                     Action::make('downloadPlainText')
                         ->label('Download Plain Text')
                         ->action(function ($record): StreamedResponse {
                             $fullPath = $record->upload_path; // Assuming this contains the full path
                             $relevantPath = substr($fullPath, strpos($fullPath, 'app/') + 4); // Extracts everything after 'app/'
+
                             return Storage::download($relevantPath);
 
                         })
                         ->icon('heroicon-o-arrow-down')
-                        ->disabled(fn($record) => empty($record->upload_path)),
-                ])
+                        ->disabled(fn ($record) => empty($record->upload_path)),
+                ]),
 
             ]);
     }
@@ -166,7 +166,7 @@ class SourceResource extends Resource
                     ->modalDescription('convert this will overwrite the current html content, if exists')
                     ->icon('heroicon-o-document-text'),
                 Tables\Actions\Action::make('coding page')
-                    ->url(fn(Source $record): string => route('coding.show', ['project' => $record->project_id, 'source' => $record->id]))
+                    ->url(fn (Source $record): string => route('coding.show', ['project' => $record->project_id, 'source' => $record->id]))
                     ->icon('heroicon-o-document-text')
                     ->openUrlInNewTab(),
                 Tables\Actions\Action::make('downloadRichText')
@@ -174,20 +174,22 @@ class SourceResource extends Resource
                     ->action(function ($record): StreamedResponse {
                         $fullPath = $record->converted->path; // Assuming this contains the full path
                         $relevantPath = substr($fullPath, strpos($fullPath, 'app/') + 4); // Extracts everything after 'app/'
+
                         return Storage::download($relevantPath);
                     })
                     ->icon('heroicon-o-arrow-down')
-                    ->disabled(fn($record) => empty($record->converted->path)),
+                    ->disabled(fn ($record) => empty($record->converted->path)),
                 Tables\Actions\Action::make('downloadPlainText')
                     ->label('Download Plain Text')
                     ->action(function ($record): StreamedResponse {
                         $fullPath = $record->upload_path; // Assuming this contains the full path
                         $relevantPath = substr($fullPath, strpos($fullPath, 'app/') + 4); // Extracts everything after 'app/'
+
                         return Storage::download($relevantPath);
 
                     })
                     ->icon('heroicon-o-arrow-down')
-                    ->disabled(fn($record) => empty($record->upload_path)),
+                    ->disabled(fn ($record) => empty($record->upload_path)),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
