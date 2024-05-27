@@ -17,11 +17,11 @@ class CodebookCodesController extends Controller
     /**
      * Imports a codebook and its codes from an XML file.
      *
+     * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function import(Request $request)
     {
-        // Validate and retrieve the uploaded file
         $validator = Validator::make($request->all(), [
             'file' => 'required|file|mimes:qde,xml,qdc',
             'project_id' => 'required|exists:projects,id',
@@ -32,96 +32,128 @@ class CodebookCodesController extends Controller
         }
 
         try {
-            // Load the XML content from the .qde file
             $file = $request->file('file');
             $xmlContent = file_get_contents($file->getRealPath());
 
+            // Validate XML content for illegal characters
+            if (! $this->isValidXmlContent($xmlContent)) {
+                throw new Exception('Invalid XML format: Contains illegal characters.');
+            }
+
             $xml = new SimpleXMLElement($xmlContent);
+            // Register necessary XML namespaces
+            $this->registerNamespaces($xml);
 
-            // Register the default namespace if present
-            $xml->registerXPathNamespace('ns', 'urn:QDA-XML:codebook:0:4');
-            $xml->registerXPathNamespace('proj', 'urn:QDA-XML:project:1.0');
-
-            // Ensure the CodeBook element is present (handle both namespaced and non-namespaced)
-            $codeBookElements = $xml->xpath('//ns:CodeBook');
-            if (empty($codeBookElements)) {
-                $codeBookElements = $xml->xpath('//proj:CodeBook');
-            }
-            if (empty($codeBookElements)) {
-                $codeBookElements = $xml->xpath('//CodeBook');
-            }
-            if (empty($codeBookElements)) {
-                $codeBookElements = $xml->xpath('//Project/CodeBook');
-            }
-            if (empty($codeBookElements)) {
-                $codeBookElements = $xml->xpath('//*[local-name()="CodeBook"]');
-            }
-
-            if (empty($codeBookElements) || empty($codeBookElements[0]->Codes)) {
+            $codeBookElement = $this->getCodeBookElement($xml);
+            if (empty($codeBookElement) || empty($codeBookElement->Codes)) {
                 throw new Exception('Invalid XML format: CodeBook or Codes element missing.');
             }
 
-            $codeBookElement = $codeBookElements[0];
-
-            // Filter codes based on the origin of the software
             $origin = (string) $codeBookElement['origin'];
             $codesToProcess = $this->checkForUniqueProblemsInsideSoftwares($origin, $codeBookElement->Codes->children());
 
             DB::beginTransaction();
 
-            // Create the codebook with auto-incrementing ID
-            $codebook = new Codebook();
-            $codebook->project_id = $request->project_id;
-            $codebook->name = (string) $origin ? 'Codebook from'.$origin : 'Unnamed Codebook'; // Ensure name is not empty
-            $codebook->description = (string) $codeBookElement->Description ?: ''; // Ensure description is not null
-            $codebook->properties = [
-                'sharedWithPublic' => false,
-                'sharedWithTeams' => false,
-            ];
-            $codebook->creating_user_id = auth()->id();
-            $codebook->save();
-
-            // Helper function to recursively process codes
-            $processCodes = function ($xmlCodes, $codebookId, $parentId = null) use (&$processCodes) {
-                foreach ($xmlCodes as $xmlCode) {
-                    $code = new Code();
-                    $code->id = (string) Str::uuid(); // Generate a new UUID
-                    $code->name = (string) $xmlCode['name'] ?: 'Unnamed Code'; // Ensure name is not empty
-                    $code->color = (string) $xmlCode['color'] ?: ''; // Ensure color is not null
-                    $code->codebook_id = $codebookId;
-                    $code->description = (string) $xmlCode->Description ?: ''; // Ensure description is not null
-                    $code->parent_id = $parentId;
-                    $code->save();
-
-                    // Recursively process sub-codes
-                    if ($xmlCode->Code) {
-                        $processCodes($xmlCode->Code, $codebookId, $code->id);
-                    }
-                }
-            };
-
-            // Process all codes in the codebook
-            $processCodes($codesToProcess, $codebook->id);
+            $codebook = $this->createCodebook($request, $codeBookElement, $origin);
+            $this->processCodes($codesToProcess, $codebook->id);
 
             DB::commit();
 
-            // Return a response
             return response()->json([
                 'message' => 'Codebook and codes imported successfully',
                 'codebook' => $codebook,
             ]);
         } catch (Exception $e) {
             DB::rollBack();
-
             return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Registers necessary XML namespaces.
+     *
+     * @param SimpleXMLElement $xml
+     * @return void
+     */
+    private function registerNamespaces(SimpleXMLElement $xml)
+    {
+        $xml->registerXPathNamespace('ns', 'urn:QDA-XML:codebook:0:4');
+        $xml->registerXPathNamespace('proj', 'urn:QDA-XML:project:1.0');
+    }
+
+    /**
+     * Retrieves the CodeBook element from the XML.
+     *
+     * @param SimpleXMLElement $xml
+     * @return SimpleXMLElement|null
+     */
+    private function getCodeBookElement(SimpleXMLElement $xml)
+    {
+        $paths = ['//ns:CodeBook', '//proj:CodeBook', '//CodeBook', '//Project/CodeBook', '//*[local-name()="CodeBook"]'];
+        foreach ($paths as $path) {
+            $elements = $xml->xpath($path);
+            if (!empty($elements)) {
+                return $elements[0];
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Creates a new Codebook model instance.
+     *
+     * @param Request $request
+     * @param SimpleXMLElement $codeBookElement
+     * @param string $origin
+     * @return Codebook
+     */
+    private function createCodebook(Request $request, SimpleXMLElement $codeBookElement, $origin)
+    {
+        $codebook = new Codebook();
+        $codebook->project_id = $request->project_id;
+        $codebook->name = (string) $origin ? 'Codebook from ' . $origin : 'Unnamed Codebook';
+        $codebook->description = (string) $codeBookElement->Description ?: '';
+        $codebook->properties = [
+            'sharedWithPublic' => false,
+            'sharedWithTeams' => false,
+        ];
+        $codebook->creating_user_id = auth()->id();
+        $codebook->save();
+
+        return $codebook;
+    }
+
+    /**
+     * Recursively processes and saves codes.
+     *
+     * @param SimpleXMLElement[] $xmlCodes
+     * @param int $codebookId
+     * @param string|null $parentId
+     * @return void
+     */
+    private function processCodes($xmlCodes, $codebookId, $parentId = null)
+    {
+        foreach ($xmlCodes as $xmlCode) {
+            $code = new Code();
+            $code->id = (string) Str::uuid();
+            $code->name = (string) $xmlCode['name'] ?: 'Unnamed Code';
+            $code->color = (string) $xmlCode['color'] ?: '';
+            $code->codebook_id = $codebookId;
+            $code->description = (string) $xmlCode->Description ?: '';
+            $code->parent_id = $parentId;
+            $code->save();
+
+            if ($xmlCode->Code) {
+                $this->processCodes($xmlCode->Code, $codebookId, $code->id);
+            }
         }
     }
 
     /**
      * Checks for unique problems inside different software and handles them.
      *
-     * @param  string  $origin
-     * @param  SimpleXMLElement[]  $codesToProcess
+     * @param string $origin
+     * @param SimpleXMLElement[] $codesToProcess
      * @return SimpleXMLElement[]
      */
     private function checkForUniqueProblemsInsideSoftwares($origin, $codesToProcess)
@@ -137,7 +169,7 @@ class CodebookCodesController extends Controller
     /**
      * Handles NVivo-specific issues in the XML import process.
      *
-     * @param  SimpleXMLElement[]  $codesToProcess
+     * @param SimpleXMLElement[] $codesToProcess
      * @return SimpleXMLElement[]
      */
     private function handleNvivoSpecificIssues($codesToProcess)
@@ -145,7 +177,6 @@ class CodebookCodesController extends Controller
         $filteredCodes = [];
         foreach ($codesToProcess as $code) {
             if ((string) $code['name'] === 'Nodes' && (string) $code['isCodable'] === 'false') {
-                // Add child codes to the list to be processed
                 foreach ($code->Code as $childCode) {
                     $filteredCodes[] = $childCode;
                 }
@@ -153,13 +184,13 @@ class CodebookCodesController extends Controller
                 $filteredCodes[] = $code;
             }
         }
-
         return $filteredCodes;
     }
 
     /**
      * Exports a codebook and its codes to an XML file.
      *
+     * @param int $id
      * @return \Illuminate\Http\Response
      */
     public function export($id)
@@ -176,13 +207,16 @@ class CodebookCodesController extends Controller
 
         return Response::make($xmlContent, 200, [
             'Content-Type' => 'application/xml',
-            'Content-Disposition' => 'attachment; filename="'.$codebook->name.'.qdc"',
+            'Content-Disposition' => 'attachment; filename="' . $codebook->name . '.qdc"',
         ]);
     }
 
     /**
      * Helper function to recursively add codes to an XML element.
      *
+     * @param SimpleXMLElement $codesXml
+     * @param \Illuminate\Database\Eloquent\Collection $codes
+     * @param string|null $parentId
      * @return void
      */
     private function addCodesToXml($codesXml, $codes, $parentId = null)
@@ -205,8 +239,7 @@ class CodebookCodesController extends Controller
     /**
      * Validates XML content for illegal characters.
      *
-     *
-     * @param  string  $xmlContent
+     * @param string $xmlContent
      * @return bool
      */
     private function isValidXmlContent($xmlContent)
