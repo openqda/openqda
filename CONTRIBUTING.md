@@ -17,7 +17,19 @@ Other contributions can be done here:
 - [report bugs and issues](https://github.com/openqda/openqda/issues)
 - [discuss new features, ideas or questions](https://github.com/orgs/openqda/discussions)
 
-## Before contributing
+## Why is this guide so important?
+
+There are a few conventions and pattern, for which we will take
+a closer look at during our reviews.
+These conventions are fundamental to the quality of the code and
+the project's overall sustainability but also intend to prevent
+common issues that arise during contributions.
+
+Please be aware of the following:
+
+
+
+## How to prepare your contribution
 
 If you are not member of the organization then you need to fork the repository.
 The GitHub help explains this in much detail: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo
@@ -87,9 +99,63 @@ $ git checkout -b feature-1
 $ git checkout -b feature/my-cool-feature
 ```
 
-## During Contribution
 
-You are now on the right branch and start to work.
+## Before committing your work
 
-### Committing your work
+> Before you commit you should ensure, the code passes
+> code quality checks and tests!
 
+### Code quality checks
+
+Make sure your **server code** is well formatted by running
+
+```shell
+$ ./vendor/bin/pint --test
+```
+
+Make sure the **client code** is well formatted and is passing the lint and formatter by running
+
+```shell
+$ npm run lint:check
+$ npm run format:check
+```
+
+You can use `lint:write` and `format:write` to autofix trivial issues.
+Other issues may require manual adjustments.
+
+### Tests
+
+Currently, you can run the following types of tests:
+
+- client-side unit tests
+- full application end-to-end (e2e) tests
+
+You can run them via
+
+```shell
+$ npm run test:unit
+$ npm run test:e2e
+```
+
+> Make sure your contribution does not break any existing tests!
+
+
+### Conventions for programming
+
+- If you work on the backend, you should follow [Laravel best practices](https://github.com/alexeymezenin/laravel-best-practices)
+- If you work on the frontend, you should follow
+  - [Vue best practices](https://learnvue.co/articles/vue-best-practices)
+  - [Idiomatic js](https://github.com/rwaldron/idiomatic.js)
+- If a contribution involves changes to `.env` then this change must be reflected in `.env.example`
+- Do not hard-code URLs, keys, secrets or other environment-specific settings and names in the code but use `.env`
+  - read the [dotenv guide](https://github.com/motdotla/dotenv) on what it is and how to works
+- Never `git add` any file that contains secrets, such as `.env`! **NEVER**
+- If you add a new feature, then you should add tests
+- If you change existing code, then make sure tests don't break or add missing tests or update tests accordingly
+
+## Committing your contribution
+
+Once your contribution is ready to be committed you should make
+the commit as understandable as possible.
+
+We aim to use [conventional commits](https://www.conventionalcommits.org) where possible.
