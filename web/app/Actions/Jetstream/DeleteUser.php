@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Laravel\Jetstream\Contracts\DeletesTeams;
 use Laravel\Jetstream\Contracts\DeletesUsers;
+use Illuminate\Http\Request;
 
 class DeleteUser implements DeletesUsers
 {
@@ -36,8 +37,15 @@ class DeleteUser implements DeletesUsers
      *
      * @throws Exception
      */
-    public function delete(User $user): void
+    public function delete(User $user, Request $request): void
     {
+        // Check if the provided password is correct
+        if (!Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'password' => __('The password is incorrect.'),
+            ]);
+        }
+
 
         // Check if the user owns any non-personal teams that have users
         if ($user->ownedTeams()->where('id', '!=', $user->personalTeam()->id)->has('users')->exists()) {
@@ -54,6 +62,7 @@ class DeleteUser implements DeletesUsers
 
             $user->delete();
         });
+
     }
 
     /**
@@ -178,8 +187,7 @@ class DeleteUser implements DeletesUsers
                     $code->delete();
                 }
                 $codebook->delete();
-                ray($codebook);
-                ray('Codebook deleted');
+
             }
 
         }
