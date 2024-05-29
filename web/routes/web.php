@@ -138,6 +138,7 @@ Route::middleware([
     Route::get('/projects/{project}/preparation', [SourceController::class, 'index'])->name('source.index');
     Route::delete('/files/{id}', [SourceController::class, 'destroy']);
     Route::post('/files/upload', [SourceController::class, 'store'])->name('source.store');
+    Route::post('/files/transcribe', [SourceController::class, 'transcribe'])->name('source.transcribe');
     Route::get('/files/{id}', [SourceController::class, 'fetchDocument']);
     Route::post('/source/update', [SourceController::class, 'update'])->name('source.update');
     Route::post('/sources/{source}', [SourceController::class, 'rename'])->name('source.rename');
