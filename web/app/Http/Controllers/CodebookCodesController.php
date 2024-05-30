@@ -34,9 +34,10 @@ class CodebookCodesController extends Controller
             $file = $request->file('file');
             $xmlContent = file_get_contents($file->getRealPath());
 
-            // Validate XML content for illegal characters
-            if (! $this->isValidXmlContent($xmlContent)) {
-                throw new Exception('Invalid XML format: Contains illegal characters.');
+            // Validate XML content with DOMDocument
+            $dom = new \DOMDocument();
+            if (! @$dom->loadXML($xmlContent)) {
+                throw new Exception('Invalid XML format: Not well-formed.');
             }
 
             $xml = new SimpleXMLElement($xmlContent);
@@ -232,20 +233,5 @@ class CodebookCodesController extends Controller
                 $this->addCodesToXml($codeXml, $codes, $code->id);
             }
         }
-    }
-
-    /**
-     * Validates XML content for illegal characters.
-     *
-     * @param  string  $xmlContent
-     * @return bool
-     */
-    private function isValidXmlContent($xmlContent)
-    {
-        // Define a regex pattern for detecting illegal XML characters, excluding valid escaped '&' characters
-        $pattern = '/&(?!amp;|lt;|gt;|quot;|apos;)/u';
-
-        // Return false if illegal characters are found, true otherwise
-        return ! preg_match($pattern, $xmlContent);
     }
 }

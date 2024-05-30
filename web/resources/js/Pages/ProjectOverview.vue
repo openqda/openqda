@@ -559,7 +559,11 @@ const importXmlFile = async () => {
     );
   } catch (error) {
     console.error('Failed to import XML:', error);
-    alert('Failed to import XML. ' + error);
+    if (error.response && error.response.data && error.response.data.error) {
+      alert(error.response.data.error);
+    } else {
+      alert('Failed to import XML. An unexpected error occurred.');
+    }
   }
 };
 </script>
