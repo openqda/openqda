@@ -145,6 +145,7 @@ class ProjectController extends Controller
             return [
                 'id' => $codebook->id,
                 'name' => $codebook->name,
+                'description' => $codebook->description,
                 'properties' => $codebook->properties,
                 'codes' => $codebook->codes,
                 'project_id' => $codebook->project_id,
@@ -157,6 +158,7 @@ class ProjectController extends Controller
             return [
                 'id' => $codebook->id,
                 'name' => $codebook->name,
+                'description' => $codebook->description,
                 'properties' => $codebook->properties,
                 'codes' => $codebook->codes,
                 'project_id' => $codebook->project_id,
