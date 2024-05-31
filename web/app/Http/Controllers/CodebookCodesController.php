@@ -122,6 +122,20 @@ class CodebookCodesController extends Controller
     }
 
     /**
+     * Generates a random color for new codes.
+     * @param $opacityForNewColors
+     * @return string
+     */
+    private function getRandomColor($opacityForNewColors)
+    {
+        $red = rand(128, 255);
+        $green = rand(128, 255);
+        $blue = rand(128, 255);
+
+        return "rgba($red, $green, $blue, $opacityForNewColors)";
+    }
+
+    /**
      * Recursively processes and saves codes.
      *
      * @param  SimpleXMLElement[]  $xmlCodes
@@ -135,7 +149,7 @@ class CodebookCodesController extends Controller
             $code = new Code();
             $code->id = (string) Str::uuid();
             $code->name = (string) $xmlCode['name'] ?: 'Unnamed Code';
-            $code->color = (string) $xmlCode['color'] ?: '';
+            $code->color = (string) $xmlCode['color'] ?: $this->getRandomColor(0.5);
             $code->codebook_id = $codebookId;
             $code->description = (string) $xmlCode->Description ?: '';
             $code->parent_id = $parentId;
