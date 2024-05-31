@@ -1,10 +1,26 @@
 name: Run Tests
 
-on: [ 'push', 'pull_request' ]
+on: ['push', 'pull_request']
 
 jobs:
   ci:
     runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_db
+          MYSQL_USER: test_user
+          MYSQL_PASSWORD: test_password
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
 
     steps:
       - name: Checkout
@@ -19,6 +35,28 @@ jobs:
 
       - name: Install Dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
+        working-directory: ./web
+
+      - name: Copy .env file
+        run: cp .env.example .env
+        working-directory: ./web
+
+      - name: Set Environment Variables
+        run: php artisan key:generate
+        working-directory: ./web
+
+      - name: Set up .env file for database
+        run: |
+          echo "DB_CONNECTION=mysql" >> .env
+          echo "DB_HOST=127.0.0.1" >> .env
+          echo "DB_PORT=3306" >> .env
+          echo "DB_DATABASE=test_db" >> .env
+          echo "DB_USERNAME=test_user" >> .env
+          echo "DB_PASSWORD=test_password" >> .env
+        working-directory: ./web
+
+      - name: Run Migrations
+        run: php artisan migrate --no-interaction --force
         working-directory: ./web
 
       - name: Tests
