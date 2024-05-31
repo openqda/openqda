@@ -1,6 +1,6 @@
 name: Run Tests
 
-on: ['push', 'pull_request']
+on: [ 'push', 'pull_request' ]
 
 jobs:
   ci:
@@ -58,6 +58,11 @@ jobs:
       - name: Run Migrations
         run: php artisan migrate --no-interaction --force
         working-directory: ./web
+
+      - name: Install front-end dependencies
+        run: |
+          npm install
+          npm run dev
 
       - name: Tests
         run: ./vendor/bin/pest
