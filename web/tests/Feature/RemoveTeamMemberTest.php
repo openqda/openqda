@@ -38,7 +38,7 @@ class RemoveTeamMemberTest extends TestCase
         $response->assertStatus(403);
     }
 
-        public function test_admin_can_remove_other_team_members(): void
+    public function test_admin_can_remove_other_team_members(): void
     {
         $user = User::factory()->withPersonalTeam()->create();
 
@@ -53,5 +53,4 @@ class RemoveTeamMemberTest extends TestCase
 
         $this->assertCount(1, $user->currentTeam->fresh()->users);
     }
-
 }

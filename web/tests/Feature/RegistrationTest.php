@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use App;
 use App\Providers\RouteServiceProvider;
 use GrantHolle\Altcha\Altcha;
 use GrantHolle\Altcha\Exceptions\InvalidAlgorithmException;
@@ -16,7 +15,7 @@ class RegistrationTest extends TestCase
 
     public function test_registration_screen_can_be_rendered(): void
     {
-        if (!Features::enabled(Features::registration())) {
+        if (! Features::enabled(Features::registration())) {
             $this->markTestSkipped('Registration support is not enabled.');
 
             return;
@@ -26,7 +25,6 @@ class RegistrationTest extends TestCase
 
         $response->assertStatus(200);
     }
-
 
     /**
      * @throws InvalidAlgorithmException
@@ -38,8 +36,6 @@ class RegistrationTest extends TestCase
         $altchaService = app(Altcha::class);
         $challenge = $altchaService->createChallenge();
 
-
-
         $response = $this->post('/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
@@ -48,10 +44,7 @@ class RegistrationTest extends TestCase
             'altcha' => $challenge['signature'],  // Use the valid altcha challenge
         ]);
 
-
         $this->assertAuthenticated();
         $response->assertRedirect(RouteServiceProvider::HOME);
     }
-
-
 }

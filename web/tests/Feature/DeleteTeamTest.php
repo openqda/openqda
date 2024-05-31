@@ -35,7 +35,7 @@ class DeleteTeamTest extends TestCase
         self::refreshDatabase();
         $this->actingAs($user = User::factory()->withPersonalTeam()->create());
 
-    // Create a project associated with the user
+        // Create a project associated with the user
         $project = Project::factory()->create([
             'creating_user_id' => $user->id,
         ]);
