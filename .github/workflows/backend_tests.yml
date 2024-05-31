@@ -63,6 +63,7 @@ jobs:
         run: |
           npm install
           npm run dev
+        working-directory: ./web
 
       - name: Tests
         run: ./vendor/bin/pest
