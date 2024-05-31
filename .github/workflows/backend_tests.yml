@@ -17,6 +17,9 @@ jobs:
           tools: composer:v2
           coverage: xdebug
 
+      - name: go into the backend folder
+        run: cd web
+
       - name: Install Dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
