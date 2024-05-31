@@ -62,7 +62,7 @@ jobs:
       - name: Install front-end dependencies
         run: |
           npm install
-          npm run dev
+          npm run build
         working-directory: ./web
 
       - name: Tests
