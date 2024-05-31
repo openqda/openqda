@@ -6,7 +6,6 @@ use App\Filament\Resources\SourceResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
-
 class EditSource extends EditRecord
 {
     protected static string $resource = SourceResource::class;
@@ -17,6 +16,4 @@ class EditSource extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
-
-
 }

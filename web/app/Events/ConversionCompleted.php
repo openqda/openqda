@@ -13,6 +13,7 @@ class ConversionCompleted implements ShouldBroadcast
     use Dispatchable,InteractsWithSockets, SerializesModels;
 
     public $projectId;
+
     public $sourceId;
 
     public function __construct($projectId, $sourceId)
@@ -23,14 +24,14 @@ class ConversionCompleted implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new PrivateChannel('conversion.' . $this->projectId);
+        return new PrivateChannel('conversion.'.$this->projectId);
     }
 
     public function broadcastWith(): array
     {
         return [
             'projectId' => $this->projectId,
-            'sourceId' => $this->sourceId
+            'sourceId' => $this->sourceId,
         ];
     }
 }

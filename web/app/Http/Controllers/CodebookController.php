@@ -17,8 +17,6 @@ class CodebookController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @param Project $project
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request, Project $project)
@@ -32,10 +30,9 @@ class CodebookController extends Controller
         /**
          * Check if the user is authorized to create a codebook for the project
          */
-        if (!Gate::allows('create', [Codebook::class, $project])) {
+        if (! Gate::allows('create', [Codebook::class, $project])) {
             abort(403, 'Unauthorized action.');
         }
-
 
         // If validation fails, return a response with errors
         if ($validator->fails()) {
@@ -56,7 +53,6 @@ class CodebookController extends Controller
                 ],
             ]);
 
-
             // Save the codebook
             $codebook->save();
 
@@ -66,7 +62,6 @@ class CodebookController extends Controller
                 $originalCodebook = Codebook::with('codes', 'codes.childrenRecursive')->findOrFail($originalCodebookId);
                 $codesToImport = $originalCodebook->codes;
 
-
                 foreach ($codesToImport as $code) {
                     $newCode = new Code();
                     $newCode->name = $code->name;
@@ -74,7 +69,7 @@ class CodebookController extends Controller
                     $newCode->codebook_id = $codebook->id;
                     $newCode->description = $code->description;
                     // Save the parent-child relationship for this code
-                    if (!empty($code['parent_id'])) {
+                    if (! empty($code['parent_id'])) {
                         $newCode->parent_id = $code->parent_id;
                     } else {
                         $newCode->parent_id = null;
@@ -88,14 +83,11 @@ class CodebookController extends Controller
         } catch (\Throwable $th) {
 
             // Handle any exceptions that occur during the creation process
-            return response()->json(['error' => 'An error occurred while creating the codebook ' . $th], 500);
+            return response()->json(['error' => 'An error occurred while creating the codebook '.$th], 500);
         }
     }
 
     /**
-     * @param Request $request
-     * @param $project
-     * @param $codebook
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, $project, $codebook)
@@ -113,7 +105,6 @@ class CodebookController extends Controller
         try {
             $codebook = Codebook::find($codebook);
 
-
             // Get 'sharedWithPublic' and 'sharedWithTeams' from the request, default to false if not present
             $sharedWithPublic = $request->get('sharedWithPublic', false);
             $sharedWithTeams = $request->get('sharedWithTeams', false);
@@ -123,7 +114,6 @@ class CodebookController extends Controller
                 'sharedWithPublic' => $sharedWithPublic,
                 'sharedWithTeams' => $sharedWithTeams,
             ];
-
 
             // Update the codebook with validated data
             $codebook->update([
@@ -142,26 +132,24 @@ class CodebookController extends Controller
     }
 
     /**
-     * @param $project
-     * @param $codebook
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($project, $codebook)
     {
         $codebook = Codebook::findOrFail($codebook);
-        if (!Gate::allows('delete', [Codebook::class, $codebook])) {
+        if (! Gate::allows('delete', [Codebook::class, $codebook])) {
             abort(403, 'Unauthorized action.');
         }
 
         try {
             $codebook = Codebook::findOrFail($codebook);
             $codebook->delete();
+
             return response()->json(['success' => true, 'message' => 'Codebook deleted']);
 
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()]);
         }
-
 
     }
 }

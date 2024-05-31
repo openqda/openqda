@@ -12,14 +12,19 @@ use Illuminate\Support\Str;
 class EditImprint extends Page
 {
     protected static ?string $title = 'Edit Imprint';
+
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
+
     protected static ?string $slug = 'edit-imprint-file';
+
     protected static string $view = 'filament.pages.edit-imprint'; // Correctly define the view
+
     protected static ?string $navigationGroup = 'Files';
 
-
     public $content; // This property will bind to your form input
+
     public $html;
+
     public $liveLink;
 
     public function mount(): void
@@ -39,7 +44,6 @@ class EditImprint extends Page
         ]);
     }
 
-
     public function loadContent()
     {
         // Adjust the path as necessary
@@ -55,7 +59,6 @@ class EditImprint extends Page
 
         File::put(resource_path('markdown/imprint.md'), $this->content);
 
-
     }
 
     protected function getActions(): array
@@ -64,7 +67,7 @@ class EditImprint extends Page
             // Add a button to save the form content
             Action::make('save')
                 ->label('Save')
-                ->action(fn() => $this->saveContent()),
+                ->action(fn () => $this->saveContent()),
         ];
     }
 }

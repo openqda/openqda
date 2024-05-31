@@ -41,14 +41,14 @@ function setPresence() {
   axios
     .post('/user/navigation', {
       url: url,
-      team: usePage().props.sharedTeam.id,
+      team: getSharedTeam().id,
     })
     .then((/* response */) => {})
     .catch((error) => {
       console.error('Error sending navigation update:', error);
     });
 
-  setupEcho(usePage().props.sharedTeam.id, usersInChannel);
+  setupEcho(getSharedTeam().id, usersInChannel);
 
   pingIntervalId = setInterval(() => {
     // Dispatch an event to the server to indicate that the user is still on the page
@@ -56,7 +56,7 @@ function setPresence() {
     axios
       .post('/user/navigation', {
         url: url,
-        team: usePage().props.sharedTeam.id,
+        team: getSharedTeam().id,
       })
       .then((/* response */) => {});
   }, 5000); // Every 5 seconds
@@ -66,12 +66,12 @@ function cleanup() {
   // Leave the channel when the component is unmounted
   if (userInAteam) {
     clearInterval(pingIntervalId);
-    window.Echo.leave('team' + usePage().props.sharedTeam.id);
+    window.Echo.leave('team' + getSharedTeam().id);
   }
 }
 
 onMounted(() => {
-  if (usePage().props.sharedTeam) {
+  if (getSharedTeam()) {
     userInAteam = true;
     setPresence();
     document.addEventListener('beforeunload', cleanup);
@@ -92,9 +92,13 @@ onUnmounted(() => {
   if (userInAteam) {
     document.removeEventListener('beforeunload', cleanup);
     clearInterval(pingIntervalId);
-    window.Echo.leave('team' + usePage().props.sharedTeam.id);
+    window.Echo.leave('team' + getSharedTeam().id);
   }
 });
+
+const getSharedTeam = () => {
+  return usePage().props.sharedTeam || {};
+};
 
 const shouldShowFooter = computed(() => {
   // Extract the path and hash from the URL

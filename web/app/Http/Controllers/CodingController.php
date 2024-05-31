@@ -20,8 +20,6 @@ class CodingController extends Controller
     /**
      * Store a newly created code.
      *
-     * @param Request $request
-     * @param Project $project
      * @return JsonResponse
      */
     public function store(Request $request, Project $project)
@@ -33,8 +31,9 @@ class CodingController extends Controller
         $code->name = $request->input('title');
         $code->color = $request->input('color');
         $code->codebook_id = $request->input('codebook');
-        if ($request->input('parent_id')) $code->parent_id = $request->input('parent_id');
-
+        if ($request->input('parent_id')) {
+            $code->parent_id = $request->input('parent_id');
+        }
 
         $code->save();
 
@@ -43,8 +42,7 @@ class CodingController extends Controller
 
     /**
      * going into coding page
-     * @param Request $request
-     * @param Project $project
+     *
      * @return \Illuminate\Http\RedirectResponse|\Inertia\Response
      */
     public function show(Request $request, Project $project)
@@ -55,7 +53,6 @@ class CodingController extends Controller
                     ->where('boolean_value', true);
             })
             ->get();
-
 
         // Check if source is defined in the request
         if ($request->has('source') && $request->source) {
@@ -84,11 +81,10 @@ class CodingController extends Controller
         // Check if a codebook exists for this project
         $codebook = $project->codebooks()->first();
 
-
         // Create a codebook if none exists
         if (is_null($codebook)) {
             $codebook = new Codebook();
-            $codebook->name = "Default Codebook";
+            $codebook->name = 'Default Codebook';
             $codebook->project_id = $project->id;
             $codebook->creating_user_id = $request->user()->id;
             $codebook->save();
@@ -107,22 +103,17 @@ class CodingController extends Controller
             return $this->buildNestedCode($rootCode, $source->id);
         });
 
-
         return Inertia::render('CodingPage', [
             'source' => $source,
             'sources' => $allSources,
             'codebooks' => $codebooks,
-            'allCodes' => $allCodes
+            'allCodes' => $allCodes,
         ]);
     }
 
     /**
      * Remove the specified code and its selections from storage.
      *
-     * @param Request $request
-     * @param Project $project
-     * @param Source $source
-     * @param Code $code
      * @return JsonResponse
      */
     public function destroy(Request $request, Project $project, Source $source, Code $code)
@@ -142,11 +133,8 @@ class CodingController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @param Project $project
-     * @param Code $code
      * @return JsonResponse
-     * Update the color of a code
+     *                      Update the color of a code
      */
     public function updateColor(Request $request, Project $project, Code $code)
     {
@@ -164,11 +152,8 @@ class CodingController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @param Project $project
-     * @param Code $code
      * @return JsonResponse
-     * Update the name of a code
+     *                      Update the name of a code
      */
     public function updateTitle(Request $request, Project $project, Code $code)
     {
@@ -185,14 +170,9 @@ class CodingController extends Controller
         return response()->json(['message' => 'Color title successfully changed']);
     }
 
-
     /**
-     * @param Project $project
-     * @param Source $source
-     * @param Code $code
-     * @param Request $request
      * @return JsonResponse
-     * Update the description of a code
+     *                      Update the description of a code
      */
     public function updateDescription(Project $project, Source $source, Code $code, Request $request)
     {
@@ -213,17 +193,15 @@ class CodingController extends Controller
     }
 
     /**
-     * @param $codes
-     * @param $sourceId
      * @return array
-     * format the codes for the front end
+     *               format the codes for the front end
      */
     private function nestCodes($codes, $sourceId)
     {
         $nested = [];
 
         foreach ($codes as $code) {
-            if (!$code->parent_id) {  // This means it's a root code without a parent
+            if (! $code->parent_id) {  // This means it's a root code without a parent
                 $nestedCode = $this->buildNestedCode($code, $sourceId);
                 $nested[] = $nestedCode;
             }
@@ -233,8 +211,6 @@ class CodingController extends Controller
     }
 
     /**
-     * @param $code
-     * @param $sourceId
      * @return array
      */
     private function buildNestedCode($code, $sourceId)
@@ -251,10 +227,10 @@ class CodingController extends Controller
                     'id' => $s->id,
                     'text' => $s->text,
                     'start' => $s->start_position,
-                    'end' => $s->end_position
+                    'end' => $s->end_position,
                 ];
             })->toArray(),
-            'children' => []
+            'children' => [],
         ];
 
         foreach ($code->children as $child) {
@@ -265,12 +241,8 @@ class CodingController extends Controller
     }
 
     /**
-     * @param Request $request
-     * @param Project $project
-     * @param Source $source
-     * @param Code $code
      * @return JsonResponse
-     * Remove the parent of a code
+     *                      Remove the parent of a code
      */
     public function removeParent(Request $request, Project $project, Source $source, Code $code)
     {
@@ -281,12 +253,7 @@ class CodingController extends Controller
         return response()->json(['message' => 'Parent removed successfully']);
     }
 
-
     /**
-     * @param Request $request
-     * @param Project $project
-     * @param Source $source
-     * @param Code $code
      * @return JsonResponse
      */
     public function upHierarchy(Request $request, Project $project, Source $source, Code $code)
@@ -294,10 +261,8 @@ class CodingController extends Controller
 
         // Update the parent_id from the code's parent
         $code->moveUpHierarchy();
+
         // Return a success response
         return response()->json(['message' => 'Change successfully made']);
     }
-
-
-
 }

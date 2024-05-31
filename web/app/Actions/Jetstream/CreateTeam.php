@@ -13,13 +13,12 @@ use Laravel\Jetstream\Jetstream;
 
 class CreateTeam implements CreatesTeams
 {
-
     protected $projectId;
 
     /**
      * Validate and create a new team for the given user.
      *
-     * @param array<string, string> $input
+     * @param  array<string, string>  $input
      */
     public function create(User $user, array $input): Team
     {
@@ -35,7 +34,7 @@ class CreateTeam implements CreatesTeams
         $user->switchTeam($team = $user->ownedTeams()->create([
             'name' => $input['name'],
             'personal_team' => false,
-            'project_id' => $input['projectId']
+            'project_id' => $input['projectId'],
         ]));
 
         $project = Project::findOrFail($input['projectId']);
@@ -43,6 +42,7 @@ class CreateTeam implements CreatesTeams
         $project->team()->associate($team)->save();
 
         $this->projectId = $input['projectId'];
+
         return $team;
     }
 
@@ -50,6 +50,4 @@ class CreateTeam implements CreatesTeams
     {
         return route('project.show', ['project' => $this->projectId]);
     }
-
-
 }

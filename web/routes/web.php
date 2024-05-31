@@ -25,9 +25,12 @@ use Inertia\Inertia;
 
 Route::get('/', function () {
     return Inertia::render('LandingPage', [
+        'title' => config('app.name'),
         'background' => asset(config('app.background')),
+        'slogan' => config('app.slogan'),
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
+        'description' => config('app.description'),
         'bgtl' => config('app.bgtl'),
         'bgtr' => config('app.bgtr'),
         'bgbr' => config('app.bgbr'),
@@ -63,6 +66,20 @@ Route::get('/imprint', function () {
     ]);
 })->name('imprint');
 
+Route::get('/license', function () {
+    return Inertia::render('RenderHtml', [
+        'background' => asset(config('app.background')),
+        'html' => Str::of(file_get_contents(resource_path('markdown/license.md')))->markdown(),
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'bgtl' => config('app.bgtl'),
+        'bgtr' => config('app.bgtr'),
+        'bgbr' => config('app.bgbr'),
+        'bgbl' => config('app.bgbl'),
+
+    ]);
+})->name('license');
+
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
@@ -82,7 +99,6 @@ Route::middleware([
     Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('project.destroy');
     Route::get('/projects/{project}/load-more-audits', [ProjectController::class, 'loadMoreAudits']);
     Route::get('/projects/load-more-audits', [ProjectController::class, 'loadAllProjectsAudits']);
-
 
     /**
      * Coding
@@ -139,6 +155,5 @@ Route::middleware([
      * Teams
      */
     Route::post('/teams/change-owner', [AdditionalTeamController::class, 'makeOwner'])->name('team-members.make-owner');
-
 
 });

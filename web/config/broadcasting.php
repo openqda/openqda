@@ -55,8 +55,7 @@ return [
                 'useTlS' => true,
                 'encrypted' => true,
                 'port' => 6001,
-                'scheme' => 'https'
-
+                'scheme' => 'https',
 
             ],
         ],
@@ -82,4 +81,3 @@ return [
     ],
 
 ];
-

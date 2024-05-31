@@ -33,11 +33,11 @@ class DeleteUser implements DeletesUsers
 
     /**
      * Delete the given user.
+     *
      * @throws Exception
      */
     public function delete(User $user): void
     {
-
 
         // Check if the user owns any non-personal teams that have users
         if ($user->ownedTeams()->where('id', '!=', $user->personalTeam()->id)->has('users')->exists()) {
@@ -49,7 +49,6 @@ class DeleteUser implements DeletesUsers
 
             $this->deleteTeams($user);
             $user->deleteProfilePhoto();
-
 
             $user->tokens->each->delete();
 
@@ -135,8 +134,6 @@ class DeleteUser implements DeletesUsers
                 $this->deleteProject($project);
             }
 
-
-
         }
         /**
          * I placed this here because before it would trigger a foreign key constraint error
@@ -161,18 +158,12 @@ class DeleteUser implements DeletesUsers
         });
     }
 
-    /**
-     * @param mixed $project
-     * @return void
-     */
     private function deleteProject(mixed $project): void
     {
         $projectId = $project->id;
 
-
         // Get the project's codebook
         $codebooks = Codebook::where('project_id', $projectId)->get();
-
 
         // Deleted codebooks and codes
         if ($codebooks->count() > 0) {

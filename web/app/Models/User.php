@@ -19,12 +19,12 @@ use OwenIt\Auditing\Contracts\Auditable;
 
 class User extends Authenticatable implements Auditable, FilamentUser, MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, HasProfilePhoto, HasTeams, Notifiable, TwoFactorAuthenticatable, AuditableTrait;
-
+    use AuditableTrait, HasApiTokens, HasFactory, HasProfilePhoto, HasTeams, Notifiable, TwoFactorAuthenticatable;
 
     public function canAccessPanel(Panel|\Filament\Panel $panel): bool
     {
         $allowedEmails = config('filament.admin_panel.allowed_emails');
+
         return in_array($this->email, $allowedEmails);
     }
 
@@ -73,9 +73,8 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
      * @var array<int, string>
      */
     protected $auditExclude = [
-        'remember_token'
+        'remember_token',
     ];
-
 
     public function projects(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
@@ -92,7 +91,6 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
             });
         })->withTrashed()->get();
     }
-
 
     /**
      * Get all projects where the user is part of the team or the creator.
@@ -112,11 +110,10 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
                 'audits',
                 'sources.audits',
                 'sources.selections.audits',
-                'codebooks.codes.audits'
+                'codebooks.codes.audits',
             ])
             ->get();
     }
-
 
     public function getAllAudits()
     {
@@ -124,7 +121,6 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
 
         // Eager load audits for all related models
         $projects = $this->allRelatedProjects();
-
 
         $allAudits = collect();
 
@@ -153,6 +149,7 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
                         if (isset($audit['new_values']['code_id'])) {
                             $audit['new_values']['code_id'] = $selection->code->name ?? $audit['new_values']['code_id'];
                         }
+
                         return $audit;
                     });
 
@@ -187,7 +184,7 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
      * Get all codebooks where the user is the creator of the project.
      * Optionally exclude codebooks from a specific project.
      *
-     * @param int|null $excludeProjectId Project ID to exclude codebooks from, if provided.
+     * @param  int|null  $excludeProjectId  Project ID to exclude codebooks from, if provided.
      * @return Builder[]|Collection
      */
     public function getCodebooksAsCreator($excludeProjectId = null)
@@ -195,11 +192,11 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
         $query = Codebook::with('codes')
             ->where('creating_user_id', '=', $this->id)
             ->whereHas('project', function ($query) use ($excludeProjectId) {
-            // Exclude codebooks from the specified project if an ID is provided
-            if (!is_null($excludeProjectId)) {
-                $query->where('id', '!=', $excludeProjectId);
-            }
-        });
+                // Exclude codebooks from the specified project if an ID is provided
+                if (! is_null($excludeProjectId)) {
+                    $query->where('id', '!=', $excludeProjectId);
+                }
+            });
 
         return $query->get()->map(function ($codebook) {
             return [
@@ -209,7 +206,7 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
                 'codes' => $codebook->codes,
                 'project_id' => $codebook->project_id,
                 // Include other codebook attributes as needed
-                'creatingUserEmail' => $codebook->creatingUser->email ?? "", // Include the creating user's email
+                'creatingUserEmail' => $codebook->creatingUser->email ?? '', // Include the creating user's email
             ];
         });
     }

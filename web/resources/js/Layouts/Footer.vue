@@ -42,6 +42,7 @@ const navigation = {
   main: [
     { name: 'Imprint', href: '/imprint' },
     { name: 'FAQ', href: '/faq' },
+    { name: 'License', href: '/license' },
     //{ name: 'Documentation', href: 'https://openqda.github.io/user-docs/', external: true },
     { name: 'GitHub', href: 'https://github.com/openqda', external: true },
   ],
