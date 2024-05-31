@@ -23,12 +23,12 @@ class RemoveTeamMemberTest extends TestCase
         $this->assertCount(0, $user->currentTeam->fresh()->users);
     }
 
-    public function test_only_team_owner_can_remove_team_members(): void
+    public function test_team_owner_cannot_be_removed_by_team_members(): void
     {
         $user = User::factory()->withPersonalTeam()->create();
 
         $user->currentTeam->users()->attach(
-            $otherUser = User::factory()->create(), ['role' => 'admin']
+            $otherUser = User::factory()->create(), ['role' => 'not_admin']
         );
 
         $this->actingAs($otherUser);
@@ -37,4 +37,21 @@ class RemoveTeamMemberTest extends TestCase
 
         $response->assertStatus(403);
     }
+
+        public function test_admin_can_remove_other_team_members(): void
+    {
+        $user = User::factory()->withPersonalTeam()->create();
+
+        $user->currentTeam->users()->attach(
+            $otherUser = User::factory()->create(), ['role' => 'admin'],
+            $thirdUser = User::factory()->create(), ['role' => 'not_admin']
+        );
+
+        $this->actingAs($otherUser);
+
+        $response = $this->delete('/teams/'.$user->currentTeam->id.'/members/'.$thirdUser->id);
+
+        $this->assertCount(1, $user->currentTeam->fresh()->users);
+    }
+
 }
