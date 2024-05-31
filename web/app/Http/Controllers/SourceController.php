@@ -490,12 +490,16 @@ class SourceController extends Controller
         return response()->json(['message' => 'Conversion in progress']);
     }
 
+    /**
+     * XXX: This is a proof of concept! It will be removed, once we have our full plugin spec!
+     * Requests a transcription from the external example service.
+     */
     public function transcribe(Request $request)
     {
         ray('Transcription request received')->green();
 
         $request->validate([
-            'file' => 'required|file|mimes:audio/mpeg,mpga,mp3,wav,aac,ogg',
+            'file' => 'required|file|mimes:audio/mpeg,mpga,mp3,wav,aac,ogg,m4a',
             'model' => 'required|string',
             'language' => 'required|string',
         ]);
@@ -526,7 +530,7 @@ class SourceController extends Controller
 
             // Send the file to the aTrain service
             $response = Http::attach('file', file_get_contents(storage_path('app/' . $path)), $filename)
-                ->post('http://134.102.22.171:8080/upload', [
+                ->post(config('app.atrain'), [
                     'model' => $model,
                     'language' => $language,
                     'speaker_detection' => $request->input('speaker_detection', false),
