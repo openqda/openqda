@@ -38,17 +38,18 @@ client-side dependencies installed:
 ```shell
 $ cd web
 $ npm install
+$ npm run build
 ```
 
 Still being in the `web` folder and once dependencies are installed,
 you can run unit tests via
 
 ```shell
-$ npm run test:e2e
+$  npm run test:e2e -- host=localhost # or use any other host
 ```
 
 If you want to extend the e2e testsuite, then instead you need to run
 
 ```shell
-$ npx cypress open
+$ npx cypress open --env host=localhost
 ```

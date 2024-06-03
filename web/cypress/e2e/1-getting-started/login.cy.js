@@ -18,12 +18,12 @@ describe('open qda welcome page', () => {
         // so we must tell it to visit our website with the `cy.visit()` command.
         // Since we want to visit the same URL at the start of all our tests,
         // we include it in our beforeEach function so that it runs before each test
-        cy.visit('http://localhost')
+        cy.visit(Cypress.env('host'))
     })
 
     it('displays the welcome screen by default', () => {
-        cy.get('.oqda-owl-logo').should('have.length', 1)
-        cy.get('.register-btn').should('have.length', 1)
+        cy.get('.oqda-owl-logo', { timeout: 3000 }).should('have.length', 1)
+        cy.get('.register-btn', { timeout: 3000 }).should('have.length', 1)
     })
 
     context('signing in', () => {
