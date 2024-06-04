@@ -54,7 +54,6 @@ class DeleteUser implements DeletesUsers
 
             $user->delete();
         });
-
     }
 
     /**
@@ -179,7 +178,6 @@ class DeleteUser implements DeletesUsers
                     $code->delete();
                 }
                 $codebook->delete();
-
             }
 
         }
