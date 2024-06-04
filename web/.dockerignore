@@ -1,9 +1,12 @@
 #vendor
 test
-../docker-compose.yml
+docker-compose.yml
 Dockerfile
 .env.example
 .dockerignore
 .gitignore
 .gitattributes
-
+**/.devcontainer
+**/.git
+**/.vscode
+**/docker
