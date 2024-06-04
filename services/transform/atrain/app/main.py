@@ -35,7 +35,7 @@ def run(uploaded: UploadFile) -> FileStatus:
 
     # step 3: run transcription
     timestamp = datetime.now().strftime(globals.TIMESTAMP_FORMAT)
-    model = 'base'
+    model = 'tiny'
     language = 'auto-detect'
     device = 'CPU'
     speaker_detection = False

@@ -145,13 +145,20 @@ async function transcribeFile() {
     formData.append('language', 'en'); // Replace with the desired language code
 
     try {
-        await axios.post('/files/transcribe', formData, {
+        const response = await axios.post('/files/transcribe', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
         });
 
-        alert('File uploaded successfully! It will appear when the file is ready.');
+        if (response.data.newDocument) {
+            response.data.newDocument.isConverting = true;
+            response.data.newDocument.userPicture = usePage().props.auth.user.profile_photo_url;
+            documents.push(response.data.newDocument);
+            fileSelected(response.data.newDocument);
+        }
+        // alert('File uploaded successfully! It will appear when the file is ready.');
+
     } catch (error) {
         console.error('Error transcribing file:', error);
         alert('An error occurred while transcribing the file.');

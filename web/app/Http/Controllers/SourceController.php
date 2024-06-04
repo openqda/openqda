@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Events\ConversionCompleted;
 use App\Jobs\ConvertFileToHtmlJob;
+use App\Jobs\TranscriptionJob;
 use App\Models\Project;
 use App\Models\Source;
 use App\Models\SourceStatus;
@@ -499,7 +500,7 @@ class SourceController extends Controller
         ray('Transcription request received')->green();
 
         $request->validate([
-            'file' => 'required|file|mimes:audio/mpeg,mpga,mp3,wav,aac,ogg,m4a',
+            'file' => 'required|file|extensions:mpeg,mpga,mp3,wav,aac,ogg,m4a,flac',
             'model' => 'required|string',
             'language' => 'required|string',
         ]);
@@ -514,6 +515,7 @@ class SourceController extends Controller
         try {
             // Generate a unique filename and store the file
             $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $projectId = $request->input('project_id');
             $path = $file->storeAs('uploads/audio', $filename);
             ray($filename)->label('Stored File Name');
             ray($path)->label('Stored File Path');
@@ -522,20 +524,23 @@ class SourceController extends Controller
             $source = Source::create([
                 'name' => $file->getClientOriginalName(),
                 'creating_user_id' => $user->id,
-                'project_id' => $request->input('project_id'),
-                'type' => 'audio',
+                'project_id' => $projectId,
+                'type' => 'text',
                 'upload_path' => $path,
             ]);
             ray($source)->label('Source Record Created');
 
             // Send the file to the aTrain service
-            $response = Http::attach('file', file_get_contents(storage_path('app/' . $path)), $filename)
-                ->post(config('app.atrain'), [
+            $response = Http::attach('uploaded', file_get_contents(storage_path('app/' . $path)), $filename)
+                ->post(config('app.atrain'));
+                /*
+                [
                     'model' => $model,
                     'language' => $language,
                     'speaker_detection' => $request->input('speaker_detection', false),
                     'num_speakers' => $request->input('num_speakers'),
-                ]);
+                ]
+                */
             ray($response)->label('aTrain Service Response');
 
             if ($response->successful()) {
@@ -559,6 +564,8 @@ class SourceController extends Controller
                 ray('Source Status Set to Converting')->label('Source Status');
 
                 DB::commit();
+
+                TranscriptionJob::dispatch($fileId, $projectId, $source->id)->delay(now()->addSeconds(10))->onQueue('conversion');
 
                 return response()->json(['message' => 'File uploaded and processing started', 'file_id' => $fileId], 200);
             } else {

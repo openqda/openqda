@@ -2,44 +2,37 @@
 
 namespace App\Jobs;
 
-use App\Events\ConversionCompleted;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
-class ConvertFileToHtmlJob implements ShouldQueue
+class TranscriptionJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $filePath;
-
+    protected $fileId;
     protected $projectId;
-
     protected $sourceId;
 
-    public $tries = 3; // Number of times the job may be attempted
-
-    public $timeout = 120; // Number of seconds the job can run before timing out
-
-    public function __construct($filePath, $projectId, $sourceId)
+    /**
+     * Create a new job instance.
+     */
+    public function __construct($fileId, $projectId, $sourceId)
     {
         $this->filePath = $filePath;
         $this->projectId = $projectId;
         $this->sourceId = $sourceId;
-
     }
 
+    /**
+     * Execute the job.
+     */
     public function handle(): void
     {
-        $flaskServerUrl = config('internalPlugins.rtf.endpoint');
-        $secretPassword = config('internalPlugins.rtf.pwd');
 
-        if (! $flaskServerUrl || ! $secretPassword) {
+        if (! $atrainUrl) {
             Log::error('Conversion failed: Missing configuration.');
             $this->fail();
 
@@ -54,36 +47,28 @@ class ConvertFileToHtmlJob implements ShouldQueue
         // Replace spaces with underscores in the filename
         $filenameWithoutExt = str_replace(' ', '_', $filenameWithoutExt);
 
-        // Construct the new output HTML path
-        $outputHtmlPath = $outputDirectory.'/'.$filenameWithoutExt.'.html';
-
-        // Remove single quotes from the path
-        if (str_starts_with($outputHtmlPath, "'")) {
-            $outputHtmlPath = substr($outputHtmlPath, 1);
-        }
-        if (str_ends_with($outputHtmlPath, "'")) {
-            $outputHtmlPath = substr($outputHtmlPath, 0, -1);
-        }
+        // Construct the new output path
+        $outputFilePath = $outputDirectory.'/'.$filenameWithoutExt.'.txt';
 
         try {
-            $response = $this->sendFileForConversion($outputHtmlPath);
+            $response = $this->downloadTranscribedFile($outputFilePath);
 
             if (! $response->successful()) {
                 $this->fail($response->status());
             } else {
-                $htmlContent = $response->body();
+                $text = $response->body();
+                file_put_contents($outputFilePath, $text);
 
-                // Remove <style></style> tags and their content
-                // this gave a weird layout on the whole coding page
-                $htmlContent = preg_replace('/<style[^>]*>.*?<\/style>/is', '', $htmlContent);
-
-                file_put_contents($outputHtmlPath, $htmlContent);
+                // also update source status and save output file path
+                $sourceStatus = SourceStatus::where($this->sourceId)->first();
+                $sourceStatus->status = 'converted';
+                $sourceStatus->path = $outputFilePath;
+                $sourceStatus->update();
                 event(new ConversionCompleted($this->projectId, $this->sourceId));
-
             }
 
         } catch (\Exception $e) {
-            File::delete($outputHtmlPath); // Cleanup
+            File::delete($outputFilePath); // Cleanup
             $this->fail($e);
             Log::error('Conversion or file operation failed: '.$e->getMessage());
         }
@@ -100,13 +85,9 @@ class ConvertFileToHtmlJob implements ShouldQueue
         return $outputDirectory;
     }
 
-    private function sendFileForConversion($outputHtmlPath)
+    private function downloadTranscribedFile($outputFilePath)
     {
-        return Http::timeout(120)->attach(
-            'file', file_get_contents($this->filePath), basename($this->filePath)
-        )->post(config('convertrtftohtml.endpoint'), [
-            'password' => config('convertrtftohtml.pwd'),
-        ]);
+        return Http::timeout(120)->get(config('internalPlugins.atrain.endpoint').$this->fileId);
     }
 
     public function failed($exception)
