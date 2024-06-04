@@ -77,7 +77,7 @@ class RemoveTeamMember implements RemovesTeamMembers
 
         foreach ($projects as $project) {
             if ($project->team_id) {
-                ray('Project is going to be reassigned to the team owner. Project: '.$project->id);
+
                 $team = $project->team;
                 $userIsNotOwner = $team->user_id !== $user->id;
 
