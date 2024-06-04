@@ -20,6 +20,12 @@ We use PEST to run server-side tests. These tests require the views to be render
 
 3. **Prepare Testing Environment**: Make sure to have a `.env.testing` file with the correct database settings. This file should include configurations similar to your main `.env` file but with a separate testing database to avoid data loss.
 
+To be sure you have the correct `.env.testing` file, you can copy the `.env.example` file and rename it to `.env.testing`:
+
+    ```shell
+    cp .env.example .env.testing
+    ```
+
 ### Running Tests
 
 To execute the tests, use the following command:
