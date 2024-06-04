@@ -217,5 +217,5 @@ return [
     ])->toArray(),
 
     /* XXX: this is to be replaced with generic solution once we have our plugin spec */
-    'atrain' => env('SERVICE_TRANSFORM_ATRAIN')
+    'atrain' => env('SERVICE_TRANSFORM_ATRAIN'),
 ];
