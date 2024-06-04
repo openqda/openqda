@@ -2,8 +2,8 @@ version: '3'
 services:
     laravel.test:
         build:
-            context: ./vendor/laravel/sail/runtimes/8.2
-            dockerfile: Dockerfile
+            context: web/vendor/laravel/sail/runtimes/8.2
+            dockerfile: web/vendor/laravel/sail/runtimes/8.2/Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
         image: sail-8.2/app
@@ -49,6 +49,13 @@ services:
                 - '-p${DB_PASSWORD}'
             retries: 3
             timeout: 5s
+    plugin.transform.atrain:
+        container_name: plugin-transform-aTrain
+        build:
+            context: services/transform/atrain
+            dockerfile: Dockerfile
+        ports:
+            - '80:80'
 networks:
     sail:
         driver: bridge
