@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [scripts]
-dev = "uvicorn app.main:app --reload --port 5000 --workers 4"
+dev = "uvicorn app.main:app --reload --port 4040 --workers 4"
 lint = "ruff check ./app"
 test = "pytest ./app"
 test-coverage = "pytest --cov=. ./app"
