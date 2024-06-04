@@ -178,8 +178,6 @@ class DeleteUser implements DeletesUsers
                     $code->delete();
                 }
                 $codebook->delete();
-                ray($codebook);
-                ray('Codebook deleted');
             }
 
         }
