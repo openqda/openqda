@@ -441,7 +441,7 @@ class SourceController extends Controller
             }
 
             // Delete the rich_text file
-            if ($source->converted->path) {
+            if (($source->converted && $source->converted->path)) {
                 // Assuming it's an absolute path from the system's root
                 if (File::exists($source->converted->path)) {
                     File::delete($source->converted->path);
