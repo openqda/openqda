@@ -496,7 +496,6 @@ class SourceController extends Controller
      */
     public function transcribe(Request $request)
     {
-        ray('Transcription request received')->green();
 
         $request->validate([
             'file' => 'required|file|extensions:mpeg,mpga,mp3,wav,aac,ogg,m4a,flac',
@@ -532,11 +531,18 @@ class SourceController extends Controller
 
             TranscriptionJob::dispatch($path, $projectId, $source->id)->onQueue('conversion');
 
-            return response()->json(['message' => 'File uploaded and processing started'], 200);
+            return response()->json(['message' => 'File uploaded and processing started', 'newDocument' => [
+                'id' => $source->id,
+                'name' => $source->name,
+                'type' => 'audio',
+                'user' => auth()->user()->name,
+                'content' => '',
+                'converted' => false,
+
+            ], ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            ray($e)->label('Error Occurred')->red();
 
             return response()->json(['message' => $e->getMessage()], 500);
         }

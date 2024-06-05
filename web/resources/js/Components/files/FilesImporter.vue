@@ -163,7 +163,6 @@ async function transcribeFile() {
       documents.push(response.data.newDocument);
       fileSelected(response.data.newDocument);
     }
-    // alert('File uploaded successfully! It will appear when the file is ready.');
   } catch (error) {
     console.error('Error transcribing file:', error);
     alert('An error occurred while transcribing the file.');
