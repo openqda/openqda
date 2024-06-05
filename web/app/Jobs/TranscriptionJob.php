@@ -65,7 +65,9 @@ class TranscriptionJob implements ShouldQueue
                 'uploaded',                             // field name
                 file_get_contents($this->filePath),     // file content
                 basename($this->filePath),              // file name
-            )->post($atrainUrl);
+            )
+            ->timeout(60 * 60)
+            ->post($atrainUrl);
 
             if ($response->successful()) {
                 $fileId = $response->json('file_id');
@@ -83,6 +85,10 @@ class TranscriptionJob implements ShouldQueue
                 throw new \Exception('Failed to upload file to aTrain service:');
             }
 
+            // XXX: this implementation assumes the upload request
+            // to respond, once the transcription has completed,
+            // which is not sustainable in the long run and will change
+            // with the upcoming plugin specs
             $response = $this->downloadTranscribedFile($fileId);
 
             if (! $response->successful()) {
@@ -92,7 +98,7 @@ class TranscriptionJob implements ShouldQueue
                 file_put_contents($outputFilePath, $text);
 
                 // create a new status for the same source.
-                $sourceStatus = SourceStatus::where($this->sourceId)->first();
+                $sourceStatus = SourceStatus::where('source_id', $this->sourceId)->first();
                 $sourceStatus->status = 'converted:txt';
                 $sourceStatus->path = $outputFilePath;
                 $sourceStatus->update();

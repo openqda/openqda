@@ -38,7 +38,7 @@ def run(uploaded: UploadFile) -> FileStatus:
     model = 'tiny'
     language = 'auto-detect'
     device = 'CPU'
-    speaker_detection = False
+    speaker_detection = True
     num_speakers = 'auto-detect'
     compute_type = 'int8'
     file_id = outputs.create_file_id(file_location, timestamp)

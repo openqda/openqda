@@ -43,7 +43,7 @@
         class="py-3"
         accept=".txt,.rtf"
         label="Import"
-        fileSizeLimit="20"
+        fileSizeLimit="200"
       />
     </form>
     <form @submit.prevent="transcribeFile">
@@ -53,7 +53,7 @@
         :icon="CloudArrowUpIcon"
         label="Transcribe"
         accept="audio/*"
-        fileSizeLimit="20"
+        fileSizeLimit="200"
       />
     </form>
     <label>
