@@ -66,8 +66,8 @@ class TranscriptionJob implements ShouldQueue
                 file_get_contents($this->filePath),     // file content
                 basename($this->filePath),              // file name
             )
-            ->timeout(60 * 60)
-            ->post($atrainUrl);
+                ->timeout(60 * 60)
+                ->post($atrainUrl);
 
             if ($response->successful()) {
                 $fileId = $response->json('file_id');
