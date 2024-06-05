@@ -1,6 +1,6 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue';
-
+import { computed, onMounted, onUnmounted, ref, defineEmits } from 'vue';
+const emit = defineEmits(['open', 'close']);
 const props = defineProps({
   align: {
     type: String,
@@ -14,13 +14,18 @@ const props = defineProps({
     type: Array,
     default: () => ['py-1', 'bg-white'],
   },
+  prevent: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 let open = ref(false);
 
 const closeOnEscape = (e) => {
-  if (open.value && e.key === 'Escape') {
+  if (!props.prevent && open.value && e.key === 'Escape') {
     open.value = false;
+    emit('close', this);
   }
 };
 
@@ -44,16 +49,31 @@ const alignmentClasses = computed(() => {
 
   return 'origin-top';
 });
+
+function handleClick() {
+  console.debug('drop down click event', props.prevent);
+  if (!props.prevent) {
+    open.value = !open.value;
+    const name = open.value ? 'open' : 'close';
+    emit(name, this);
+  }
+}
+
+function handleClose() {
+  if (!props.prevent) {
+    open.value = false;
+  }
+}
 </script>
 
 <template>
   <div class="relative">
-    <div @click="open = !open">
+    <div @click="handleClick">
       <slot name="trigger" />
     </div>
 
     <!-- Full Screen Dropdown Overlay -->
-    <div v-show="open" class="fixed inset-0 z-40" @click="open = false" />
+    <div v-show="open" class="fixed inset-0 z-40" @click="handleClose" />
 
     <transition
       enter-active-class="transition ease-out duration-200"
@@ -68,7 +88,7 @@ const alignmentClasses = computed(() => {
         class="absolute z-50 mt-2 rounded-md shadow-lg"
         :class="[widthClass, alignmentClasses]"
         style="display: none"
-        @click="open = false"
+        @click="handleClose"
       >
         <div
           class="rounded-md ring-1 ring-black ring-opacity-5"

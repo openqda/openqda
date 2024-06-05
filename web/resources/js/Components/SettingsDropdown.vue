@@ -1,9 +1,14 @@
 <script setup>
-import Dropdown from '@/Components/Dropdown.vue';
-import DropdownLink from '@/Components/DropdownLink.vue';
-import { router } from '@inertiajs/vue3';
+import { ref } from 'vue';
+import Dropdown from './Dropdown.vue';
+import DropdownLink from './DropdownLink.vue';
+import { router, useForm } from '@inertiajs/vue3';
 import { Project } from '../state/Project.js';
 import ProfileImage from './user/ProfileImage.vue';
+import Button from './interactive/Button.vue';
+import TextInput from './TextInput.vue';
+import TextArea from './TextArea.vue';
+import Checkbox from './Checkbox.vue';
 
 function onLogout() {
   router.post(route('logout'));
@@ -15,10 +20,39 @@ function getprofileLink(profileUrl) {
     ? `${profileUrl}?projectId=${projectId}`
     : profileUrl;
 }
+
+//-------------------------------------------------
+// Feedback form
+//-------------------------------------------------
+const feedbackFormIsActive = ref(false);
+const feedbackForm = useForm({
+  title: '',
+  problem: '',
+  contact: false,
+});
+
+function enableFeedback() {
+  if (!feedbackFormIsActive.value) {
+    console.debug('enable feedback');
+    feedbackFormIsActive.value = true;
+  }
+}
+
+function disableFeedback() {
+  if (feedbackFormIsActive.value) {
+    console.debug('disable feedback');
+    feedbackFormIsActive.value = false;
+  }
+}
+
+function submitFeedback(e) {
+  console.debug('submit', e);
+  console.debug(feedbackForm.data());
+}
 </script>
 
 <template>
-  <Dropdown align="right" width="48">
+  <Dropdown align="right" width="48" :prevent="feedbackFormIsActive">
     <template #trigger>
       <button
         class="flex text-sm relative transition w-16 h-16 border-2 border-transparent focus:outline-none focus:border-gray-300"
@@ -53,9 +87,15 @@ function getprofileLink(profileUrl) {
 
     <template #content>
       <!-- Account Management -->
-      <div class="block px-4 py-2 text-xs text-gray-400">Manage Account</div>
+      <div class="block px-4 py-2 text-xs text-gray-400">
+        <span v-if="feedbackFormIsActive">Provide feedback</span>
+        <span v-else>Manage Account</span>
+      </div>
 
-      <DropdownLink :href="getprofileLink(route('profile.show'))">
+      <DropdownLink
+        :href="getprofileLink(route('profile.show'))"
+        v-show="!feedbackFormIsActive"
+      >
         Profile
       </DropdownLink>
 
@@ -66,10 +106,52 @@ function getprofileLink(profileUrl) {
         API Tokens
       </DropdownLink>
 
-      <div class="border-t border-gray-200" />
+      <form @submit.prevent="submitFeedback" v-if="feedbackFormIsActive">
+        <TextInput
+          id="feedback-title"
+          v-model="feedbackForm.title"
+          type="text"
+          class="mt-1 block w-full"
+          placeholder="Title or summary"
+          required
+          autofocus
+        />
+        <TextArea
+          id="feedback-problem"
+          v-model="feedbackForm.problem"
+          class="mt-1 block w-full"
+          :rows="5"
+          placeholder="Precise description of the problem."
+          required
+        />
+
+        <label class="mt-1 px-1 block w-full">
+          <Checkbox
+            id="feedback-problem"
+            v-model="feedbackForm.contact"
+            :checked="feedbackForm.contact"
+          />
+          <span checked="text-gray-400"> Contact me </span>
+        </label>
+
+        <div checked="mt-2 px-1 block w-full">
+          <Button color="cerulean" label="Send" type="submit" />
+          <Button
+            color="silver"
+            label="Cancel"
+            class="float-end"
+            @click="disableFeedback"
+          />
+        </div>
+      </form>
+      <DropdownLink as="a" href="#" @click="enableFeedback" v-else>
+        Provide feedback
+      </DropdownLink>
+
+      <div class="border-t border-gray-200" v-show="!feedbackFormIsActive" />
 
       <!-- Authentication -->
-      <form @submit.prevent="logout">
+      <form @submit.prevent="logout" v-show="!feedbackFormIsActive">
         <DropdownLink @click="onLogout" href="#"> Log Out </DropdownLink>
       </form>
     </template>
