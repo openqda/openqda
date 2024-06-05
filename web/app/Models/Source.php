@@ -57,27 +57,28 @@ class Source extends Model implements Auditable
      */
     public function getIsLockedAttribute(): bool
     {
-        return isset($this->variables['isLocked']) && (bool) $this->variables['isLocked'];
+        return isset($this->variables['isLocked']) && (bool)$this->variables['isLocked'];
     }
 
     public function getCharsXLineAttribute(): int
     {
-        return isset($this->variables['lineNumbers_integer']) ? (int) $this->variables['lineNumbers_integer'] : 80;
+        return isset($this->variables['lineNumbers_integer']) ? (int)$this->variables['lineNumbers_integer'] : 80;
     }
 
     public function getShowLineNumbersAttribute(): bool
     {
-        return isset($this->variables['lineNumbers_boolean']) && (bool) $this->variables['lineNumbers_boolean'];
+        return isset($this->variables['lineNumbers_boolean']) && (bool)$this->variables['lineNumbers_boolean'];
     }
 
     /**
      * Determine if the source has the 'converted:html' status.
      *
-     * @return SourceStatus
+     * @return SourceStatus|bool
      */
-    public function getConvertedAttribute(): SourceStatus|HasMany
+    public function getConvertedAttribute(): SourceStatus|bool
     {
-        return $this->sourceStatuses()->where('status', 'like', 'converted:%')->first();
+        $status = $this->sourceStatuses()->where('status', 'like', 'converted:%')->first();
+        return $status ?: false;
     }
 
     /**
@@ -93,14 +94,14 @@ class Source extends Model implements Auditable
                 // Handle the case where 'type' is 'multiple'
                 // create a new key for each filled value such as 'name_text', 'name_boolean', etc.
                 foreach ($keys as $key) {
-                    if (! is_null($variable->$key)) {
-                        $result[$variable->name.'_'.str_replace('_value', '', $key)] = $variable->$key;
+                    if (!is_null($variable->$key)) {
+                        $result[$variable->name . '_' . str_replace('_value', '', $key)] = $variable->$key;
                     }
                 }
             } else {
                 // Handle the case where 'type' is not 'multiple'
                 $filledKey = collect($keys)->first(function ($key) use ($variable) {
-                    return ! is_null($variable->$key);
+                    return !is_null($variable->$key);
                 });
                 $result[$variable->name] = $variable->$filledKey;
             }
@@ -125,7 +126,7 @@ class Source extends Model implements Auditable
         $isLocked = $this->isLocked; // Make use of previously defined accessor
         $hasSelections = $this->selections->isNotEmpty();
 
-        return $isLocked && ! $hasSelections;
+        return $isLocked && !$hasSelections;
     }
 
     /**
