@@ -139,7 +139,7 @@ class SourceController extends Controller
                 'userPicture' => $source->creatingUser->profile_photo_url,
                 'date' => $source->created_at->toDateString(),
                 'variables' => $source->transformVariables(),
-                'converted' => File::exists($source->converted->path),
+                'converted' => $source->converted ? File::exists($source->converted->path) : false,
             ];
         });
     }
@@ -513,7 +513,8 @@ class SourceController extends Controller
             // Generate a unique filename and store the file
             $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
             $projectId = $request->input('project_id');
-            $path = $file->storeAs('uploads/audio', $filename);
+            $relativeFilePath = $file->storeAs('projects/'.$projectId.'/sources', $filename);
+            $path = storage_path("app/{$relativeFilePath}");
 
             // Create the source record for the audio
             $source = Source::create([
