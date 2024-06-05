@@ -39,7 +39,7 @@ class TranscriptionJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $atrainUrl = config('internalPlugins.atrain.endpoint');
+        $atrainUrl = config('internalPlugins.aTrainUpload');
 
         if (! $atrainUrl) {
             Log::error('Conversion failed: Missing configuration.');
@@ -61,7 +61,11 @@ class TranscriptionJob implements ShouldQueue
 
         try {
             // Send the file to the aTrain service
-            $response = Http::attach('upload', file_get_contents($this->filePath))->post(config('app.atrain'));
+            $response = Http::attach(
+                'uploaded',                             // field name
+                file_get_contents($this->filePath),     // file content
+                basename($this->filePath),              // file name
+            )->post($atrainUrl);
 
             if ($response->successful()) {
                 $fileId = $response->json('file_id');
@@ -75,7 +79,8 @@ class TranscriptionJob implements ShouldQueue
                 ]);
 
             } else {
-                throw new \Exception('Failed to upload file to aTrain service');
+                Log::error($response);
+                throw new \Exception('Failed to upload file to aTrain service:');
             }
 
             $response = $this->downloadTranscribedFile($fileId);
@@ -114,7 +119,7 @@ class TranscriptionJob implements ShouldQueue
 
     private function downloadTranscribedFile($fileId)
     {
-        return Http::timeout(120)->get(config('internalPlugins.atrain.endpoint').$fileId);
+        return Http::timeout(3)->get(config('internalPlugins.aTrainDownload').$fileId);
     }
 
     public function failed($exception)
