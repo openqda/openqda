@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import Dropdown from './Dropdown.vue';
 import DropdownLink from './DropdownLink.vue';
-import { router, useForm } from '@inertiajs/vue3';
+import { router, useForm, usePage } from '@inertiajs/vue3';
 import { Project } from '../state/Project.js';
 import ProfileImage from './user/ProfileImage.vue';
 import Button from './interactive/Button.vue';
@@ -45,9 +45,26 @@ function disableFeedback() {
   }
 }
 
-function submitFeedback(e) {
-  console.debug('submit', e);
-  console.debug(feedbackForm.data());
+async function submitFeedback(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  e.stopImmediatePropagation();
+  const projectId = Project.getId();
+  const formData = feedbackForm.data();
+  const location = window.location.href;
+  const payload = { projectId, location, ...formData };
+  try {
+    const response = await axios.post('/user/feedback/', payload);
+    if (response.data.sent) {
+      usePage().props.flash.message = 'Your feedback has been submitted';
+      feedbackFormIsActive.value = false;
+    }
+  } catch (error) {
+    console.error('Error during feedback submission:', error);
+    usePage().props.flash.message =
+      error.response.data.message ||
+      'Error while sending feedback, likely too many feedbacks in a short time.';
+  }
 }
 </script>
 
@@ -106,7 +123,11 @@ function submitFeedback(e) {
         API Tokens
       </DropdownLink>
 
-      <form @submit.prevent="submitFeedback" v-if="feedbackFormIsActive">
+      <form
+        @submit.prevent="submitFeedback"
+        v-if="feedbackFormIsActive"
+        class="m-2"
+      >
         <TextInput
           id="feedback-title"
           v-model="feedbackForm.title"
@@ -125,16 +146,16 @@ function submitFeedback(e) {
           required
         />
 
-        <label class="mt-1 px-1 block w-full">
+        <label class="mt-1 mb-3 px-1 block w-full">
           <Checkbox
             id="feedback-problem"
             v-model="feedbackForm.contact"
             :checked="feedbackForm.contact"
           />
-          <span checked="text-gray-400"> Contact me </span>
+          <span checked="text-gray-400"> Contact me</span>
         </label>
 
-        <div checked="mt-2 px-1 block w-full">
+        <div checked="px-1 block w-full">
           <Button color="cerulean" label="Send" type="submit" />
           <Button
             color="silver"
