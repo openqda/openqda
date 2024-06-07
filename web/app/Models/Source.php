@@ -72,12 +72,12 @@ class Source extends Model implements Auditable
 
     /**
      * Determine if the source has the 'converted:html' status.
-     *
-     * @return SourceStatus
      */
-    public function getConvertedAttribute(): SourceStatus|HasMany
+    public function getConvertedAttribute(): SourceStatus|bool
     {
-        return $this->sourceStatuses()->where('status', 'converted:html')->first();
+        $status = $this->sourceStatuses()->where('status', 'like', 'converted:%')->first();
+
+        return $status ?: false;
     }
 
     /**

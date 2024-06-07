@@ -43,7 +43,17 @@
         class="py-3"
         accept=".txt,.rtf"
         label="Import"
-        fileSizeLimit="20"
+        fileSizeLimit="200"
+      />
+    </form>
+    <form @submit.prevent="transcribeFile">
+      <FileUploadButton
+        color="cerulean"
+        @fileAdded="handleFileAdded"
+        :icon="CloudArrowUpIcon"
+        label="Transcribe audio"
+        accept="audio/*"
+        fileSizeLimit="100"
       />
     </form>
     <label>
@@ -56,13 +66,6 @@
       </span>
     </label>
   </div>
-  <div
-    v-if="isUploading"
-    class="h-1 w-full bg-cerulean-700 py-3 my-2 relative top-0 combined-effect flex items-center justify-center text-white text-sm"
-  >
-    Processing the file...
-    <!-- You can style this text further or add additional elements -->
-  </div>
   <FilesList
     rowClass="px-2"
     :documents="documents"
@@ -74,6 +77,15 @@
         class: 'text-black-500 hover:text-cerulean-700',
         onClick({ action, document, index }) {
           retryConvert(document);
+        },
+      },
+      {
+        id: 'download-source',
+        title: 'Download Source File',
+        icon: DocumentArrowDownIcon,
+        class: 'text-black-500 hover:text-cerulean-700',
+        onClick({ action, document, index }) {
+          downloadSource(document);
         },
       },
       {
@@ -102,6 +114,7 @@
 <script setup>
 import {
   CloudArrowUpIcon,
+  DocumentArrowDownIcon,
   DocumentPlusIcon,
   PencilSquareIcon,
   XCircleIcon,
@@ -123,6 +136,86 @@ const renameError = ref('');
 const url = window.location.pathname;
 const segments = url.split('/');
 const projectId = segments[2]; // Assuming project id is the third segment in URL path
+
+const audioFile = ref(null);
+const audioIsUploading = ref(false);
+
+function handleFileAdded({ files }) {
+  audioFile.value = files[0];
+  transcribeFile();
+}
+
+async function downloadSource(source) {
+  try {
+    // Perform the GET request to download the file
+    const response = await axios({
+      url: `/sources/${source.id}/download`,
+      method: 'POST',
+      responseType: 'blob', // Important to set response type to blob for binary data
+    });
+
+    // Extract the filename from the Content-Disposition header
+    const disposition = response.headers['content-disposition'];
+    let filename = source.name; // Fallback filename
+    if (disposition && disposition.includes('attachment')) {
+      const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+      const matches = filenameRegex.exec(disposition);
+      if (matches != null && matches[1]) {
+        filename = matches[1].replace(/['"]/g, ''); // Clean up the filename
+      }
+    }
+
+    // Create a URL for the blob response data
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename); // Set the download attribute with the filename
+    document.body.appendChild(link);
+    link.click(); // Trigger the download
+
+    // Clean up and remove the link from the DOM
+    link.parentNode.removeChild(link);
+  } catch (error) {
+    console.error('Error downloading source file:', error);
+    alert('An error occurred while downloading the source file.');
+  }
+}
+
+async function transcribeFile() {
+  if (!audioFile.value) {
+    alert('Please select an audio file to transcribe.');
+    return;
+  }
+
+  audioIsUploading.value = true;
+
+  const formData = new FormData();
+  formData.append('file', audioFile.value);
+  formData.append('project_id', projectId);
+  formData.append('model', 'default_model'); // Replace with your actual model name
+  formData.append('language', 'en'); // Replace with the desired language code
+
+  try {
+    const response = await axios.post('/files/transcribe', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (response.data.newDocument) {
+      response.data.newDocument.isConverting = true;
+      response.data.newDocument.userPicture =
+        usePage().props.auth.user.profile_photo_url;
+      documents.push(response.data.newDocument);
+      fileSelected(response.data.newDocument);
+    }
+  } catch (error) {
+    console.error('Error transcribing file:', error);
+    alert('An error occurred while transcribing the file.');
+  } finally {
+    audioIsUploading.value = false;
+  }
+}
 
 function renameDocument(document /*, index */) {
   isRenaming.value = true;

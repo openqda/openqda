@@ -1,9 +1,9 @@
-version: '3'
+version: '2'
 services:
     laravel.test:
         build:
             context: ./vendor/laravel/sail/runtimes/8.2
-            dockerfile: Dockerfile
+            dockerfile: ./Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
         image: sail-8.2/app
@@ -24,6 +24,7 @@ services:
             - sail
         depends_on:
             - mysql
+            - plugin.transform.atrain
     mysql:
         container_name: mysql
         image: 'mysql/mysql-server:8.0'
@@ -49,6 +50,15 @@ services:
                 - '-p${DB_PASSWORD}'
             retries: 3
             timeout: 5s
+    plugin.transform.atrain:
+        container_name: plugin-transform-aTrain
+        build:
+            context: ../services/transform/atrain
+            dockerfile: Dockerfile
+        ports:
+            - '4040:80'
+        networks:
+            - sail
 networks:
     sail:
         driver: bridge

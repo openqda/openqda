@@ -36,8 +36,8 @@ class ConvertFileToHtmlJob implements ShouldQueue
 
     public function handle(): void
     {
-        $flaskServerUrl = config('convertrtftohtml.endpoint');
-        $secretPassword = config('convertrtftohtml.pwd');
+        $flaskServerUrl = config('internalPlugins.rtf.endpoint');
+        $secretPassword = config('internalPlugins.rtf.pwd');
 
         if (! $flaskServerUrl || ! $secretPassword) {
             Log::error('Conversion failed: Missing configuration.');
@@ -104,8 +104,8 @@ class ConvertFileToHtmlJob implements ShouldQueue
     {
         return Http::timeout(120)->attach(
             'file', file_get_contents($this->filePath), basename($this->filePath)
-        )->post(config('convertrtftohtml.endpoint'), [
-            'password' => config('convertrtftohtml.pwd'),
+        )->post(config('internalPlugins.rtf.endpoint'), [
+            'password' => config('internalPlugins.rtf.pwd'),
         ]);
     }
 
