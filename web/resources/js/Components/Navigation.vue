@@ -66,13 +66,6 @@ onMounted(() => {
       count: 0,
       current: props.active === 'analysis.show',
     },
-    // {
-    //     name: "Export",
-    //     href: "/export",
-    //     icon: CloudArrowDownIcon,
-    //     count: 0,
-    //     current: props.active === "export"
-    // },
   ];
 
   tabs.value.push(...routes);

@@ -16,6 +16,8 @@ class CreateTeamTest extends TestCase
 
         $response = $this->post('/teams', [
             'name' => 'Test Team',
+            'personal_team' => false,
+            'projectId' => 1,
         ]);
 
         $this->assertCount(2, $user->fresh()->ownedTeams);
