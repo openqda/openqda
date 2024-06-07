@@ -20,6 +20,9 @@ class DeleteTeam implements DeletesTeams
             $project->team()->dissociate()->save();
         }
 
+        ray($team->id);
+        ray($team);
+
         // Then delete the team
         $team->purge();
     }

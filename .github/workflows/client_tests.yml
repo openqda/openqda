@@ -47,3 +47,28 @@ jobs:
         run: |
           cd web
           npm run lint:check
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node20-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node20-
+
+      - name: install node modules
+        run: |
+          cd web
+          npm ci
+      - name: run unit tests
+        run: |
+          cd web
+          npm run ci:unit
