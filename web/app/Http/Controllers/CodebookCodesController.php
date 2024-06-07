@@ -123,7 +123,7 @@ class CodebookCodesController extends Controller
 
     /**
      * Generates a random color for new codes.
-     * @param $opacityForNewColors
+     *
      * @return string
      */
     private function getRandomColor($opacityForNewColors)
