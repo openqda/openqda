@@ -103,6 +103,11 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    'feedback' => [
+        'address' => env('MAIL_FEEDBACK_ADDRESS', 'hello@example.com'),
+        'perMinute' => env('MAIL_FEEDBACK_PER_MINUTE', 1),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Markdown Mail Settings
