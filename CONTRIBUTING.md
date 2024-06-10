@@ -1,3 +1,4 @@
+
 # How to Contribute to OpenQDA
 
 First of all, thank you for contributing to this project and
@@ -5,19 +6,40 @@ helping us to make an impact in the realm of open qualitative data analysis.
 
 > Please read this guide to make it a valuable success!
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+## Table of Contents
+
+- [Who is this guide for?](#who-is-this-guide-for)
+- [Why is this guide important?](#why-is-this-guide-important)
+- [How to prepare your contribution](#how-to-prepare-your-contribution)
+  - [Create a new branch](#create-a-new-branch)
+  - [Examples](#examples)
+- [Before committing your work](#before-committing-your-work)
+  - [Code quality checks](#code-quality-checks)
+  - [Conventions for programming](#conventions-for-programming)
+  - [Tests](#tests)
+- [Committing your contribution](#committing-your-contribution)
+- [Pull request and review process](#pull-request-and-review-process)
+
+*generated with [DocToc](https://github.com/thlorenz/doctoc)*
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+
 ## Who is this guide for?
 
 This guide targets everyone who wants to contribute to 
-- code (features, fixes, dependency updates etc.)
-- technical documentation (for user documentation, please see [openqda/user-docs](https://github.com/openqda/user-docs))
-- CI/CD
-- any other form of automation
+- code (features, fixes, plugins, dependency updates etc.)
+- technical documentation (APIs, guides, tutorials, etc.) 
+- CI/CD and other forms of automation
+- translation (i18n), language, grammar and typos
 
 Other contributions can be done here:
+- [user documentation](https://github.com/openqda/user-docs))
 - [report bugs and issues](https://github.com/openqda/openqda/issues)
 - [discuss new features, ideas or questions](https://github.com/orgs/openqda/discussions)
 
-## Why is this guide so important?
+## Why is this guide important?
 
 There are a few conventions and pattern, for which we will take
 a closer look at during our reviews.
@@ -25,9 +47,9 @@ These conventions are fundamental to the quality of the code and
 the project's overall sustainability but also intend to prevent
 common issues that arise during contributions.
 
-Please be aware of the following:
-
-
+> If in doubt: ask for help! We aim to support you in the
+> process, especially if you have less to no experience in
+> contributing to open source projects.
 
 ## How to prepare your contribution
 
@@ -74,28 +96,24 @@ where `<type>` is one of the following:
 and where `short-summary` is a descriptive and understandable summary of what this
 branch is about. It should represent the feature, fix etc. you are about to do.
 
-### Example
+> There should never be `openqda` being part of the branch name.
+> This is useless information.
+
+### Examples
 
 Provide a new feature "Awesome Timemachine"
 
-> ✅ Right
 
 ```shell
+# ✅ Right
 $ git checkout -b feature/awesome-timemachine
 ```
 
-> ❌ Wrong
-
 ```shell
+# ❌ Wrong
 $ git checkout -b feature-awesome-timemachine
-```
-```shell
 $ git checkout -b awesome-timemachine
-```
-```shell
 $ git checkout -b feature-1
-```
-```shell
 $ git checkout -b feature/my-cool-feature
 ```
 
@@ -123,22 +141,6 @@ $ npm run format:check
 You can use `lint:write` and `format:write` to autofix trivial issues.
 Other issues may require manual adjustments.
 
-### Tests
-
-Currently, you can run the following types of tests:
-
-- client-side unit tests
-- full application end-to-end (e2e) tests
-
-You can run them via
-
-```shell
-$ npm run test:unit
-$ npm run test:e2e
-```
-
-> Make sure your contribution does not break any existing tests!
-
 
 ### Conventions for programming
 
@@ -153,9 +155,92 @@ $ npm run test:e2e
 - If you add a new feature, then you should add tests
 - If you change existing code, then make sure tests don't break or add missing tests or update tests accordingly
 
+### Tests
+
+Testing has two main objectives for OpenQDA:
+
+- ensure integrity (system behaves as expected)
+- prevent regression (changes/additions/deletions don't cause unintended breaks)
+
+There are a some conventions for testing when contributing:
+
+- make sure your contributions do not break any existing tests
+- make sure your changes and fixes are also reflected in new or updated tests
+- for new features there should also be respective tests added
+- pull requests with broken tests **will not be reviewed until the tests run properly**
+- please do not attempt to fix broken tests by using shortcuts, hacks or quirks,
+  rather please consult the OpenQDA team for help
+
+Our CI takes care of this check, however you should run tests locally
+to see if things break even before committing your changes.
+
+We therefore provide a comprehensive [testing guide](docs/TESTING.md) for you to
+run your tests locally.
+
 ## Committing your contribution
 
 Once your contribution is ready to be committed you should make
 the commit as understandable as possible.
 
 We aim to use [conventional commits](https://www.conventionalcommits.org) where possible.
+However, sometimes it's not useful to use them, just because we say so.
+
+Rather keep the following in mind, when writing a commit:
+
+> 1. Can I find my specific commit using `git log` in a year without
+> greater effort?
+> 2. Can I grasp what the commit is **specifically** about, just by reading the summary?
+
+The above link provides good examples for conventional commits.
+However, we also want to provide bad examples, too:
+
+```shell
+# ❌ Wrong
+$ git commit -a -m "patch-1" # no scope, no action specified
+$ git commit -a -m "updated" # no scope, action too generic
+$ git commit -a -m "added foobar today" # no scope, useless information
+$ git commit -a -m "openqda changed header in preparation page" # useless information, scope too broad
+```
+
+We will not fundamentally reject first contributors that violate
+the commit conventions, but we will address them in the reviews.
+
+## Pull request and review process
+
+Once all your work is committed you can finally push your branch
+to your repository. Using our awesome example branch name this would look
+like this:
+
+```shell
+$ git push origin feature/awesome-timemachine
+```
+
+Once the push was successful you can open a new pull request.
+If you have no experience with how pull requests work, you
+can read everything up in the 
+[GitHub documentation for pull requests](https://docs.github.com/en/pull-requests). 
+
+If the CI passes every workflow we will start a review.
+Otherwise, we will ask you to fix the errors from the workflows
+before starting any review.
+
+> Keep in mind the goal of the review is to ensure
+> quality of the code!
+
+We may or may not address one or more issues with your contribution,
+which are entirely related to ensure the quality of the software and
+are never intended to offend in any way.
+
+This may include:
+- multiple contributions in one pull requests (please avoid this at all costs!)
+  causing the pull request to bloat up beyond comprehension
+- convention violations
+- issues with the solution (for example unsustainable, unscalable etc.)
+- code style issues (variable and function names)
+- missing documentation and tests
+- unclear objectives
+
+If there are no issues or all issues are resolved,
+then we will approve the pull request and merge it asap.
+You will also be mentioned in the next upcoming release, unless
+you explicitly don't want to be named.
