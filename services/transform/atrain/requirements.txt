@@ -1,4 +1,3 @@
--i https://pypi.org/simple
 aiofiles==23.2.1
 anyio==4.4.0 ; python_version >= '3.8'
 certifi==2024.6.2 ; python_version >= '3.6'
