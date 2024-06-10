@@ -150,6 +150,7 @@ Route::middleware([
      * Others
      */
     Route::post('/user/navigation', [UserNavigationController::class, 'update']);
+    Route::post('/user/feedback', [UserNavigationController::class, 'feedback']);
 
     /**
      * Teams
