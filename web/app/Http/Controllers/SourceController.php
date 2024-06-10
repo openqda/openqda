@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use OwenIt\Auditing\Models\Audit;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * This controller handles the creation, updating, and deletion of sources.
@@ -546,5 +547,25 @@ class SourceController extends Controller
 
             return response()->json(['message' => $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Downloads the source file
+     *
+     * @param  $source
+     * @return BinaryFileResponse|JsonResponse
+     */
+    public function download($sourceId)
+    {
+        $source = Source::findOrFail($sourceId);
+        $project = $source->project;
+        // Use ProjectPolicy to authorize the action
+        if (! Gate::allows('view', $project)) {
+            return response()->json(['success' => false, 'message' => 'Not allowed'], 403);
+        }
+        $path = $source->upload_path;
+        $name = $source->name;
+
+        return response()->download($path, $name);
     }
 }

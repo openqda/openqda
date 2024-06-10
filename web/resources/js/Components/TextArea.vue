@@ -4,6 +4,10 @@ import { onMounted, ref } from 'vue';
 defineProps({
   modelValue: String,
   placeholder: String,
+  rows: {
+    type: Number,
+    defauktValue: 3,
+  },
 });
 
 defineEmits(['update:modelValue']);
@@ -20,11 +24,11 @@ defineExpose({ focus: () => input.value.focus() });
 </script>
 
 <template>
-  <input
+  <textarea
     ref="input"
     class="border-gray-300 focus:border-cerulean-700 focus:ring-cerulean-700 rounded-md shadow-sm"
-    :value="modelValue"
     :placeholder="placeholder"
+    :rows="rows"
     @input="$emit('update:modelValue', $event.target.value)"
-  />
+  ></textarea>
 </template>

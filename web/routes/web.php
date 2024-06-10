@@ -146,11 +146,13 @@ Route::middleware([
     Route::post('/sources/{sourceId}/unlock', [SourceController::class, 'unlock'])->name('source.unlock');
     Route::get('/sources/{source}/', [SourceController::class, 'goAndCode'])->name('source.go-and-code');
     Route::post('/sources/{sourceId}/linenumbers', [SourceController::class, 'saveLineNumbers'])->name('sources.linenumbers');
+    Route::post('/sources/{sourceId}/download', [SourceController::class, 'download'])->name('sources.download');
 
     /**
      * Others
      */
     Route::post('/user/navigation', [UserNavigationController::class, 'update']);
+    Route::post('/user/feedback', [UserNavigationController::class, 'feedback']);
 
     /**
      * Teams

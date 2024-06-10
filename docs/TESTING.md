@@ -1,6 +1,20 @@
-## OpenQDA Testing Guide
+# OpenQDA Testing Guide
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-### Server-Side Tests
+- [Server-Side Tests](#server-side-tests)
+  - [Prerequisites](#prerequisites)
+  - [Running Tests](#running-tests)
+  - [Important Notes](#important-notes)
+  - [Troubleshooting](#troubleshooting)
+  - [Additional Resources](#additional-resources)
+- [Client-Side Tests](#client-side-tests)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+
+## Server-Side Tests
 
 We use PEST to run server-side tests. These tests require the views to be rendered and the database to be seedable. Be aware that tests are **destructive** and will **delete all data from the database**.
 
@@ -34,7 +48,7 @@ To execute the tests, use the following command:
     ./vendor/bin/pest
     ```
 
-Some tests will be skipped because certain features are not yet implemented. However, all relevant features of the application will be tested. 
+Some tests will be skipped because certain features are not yet implemented. However, all relevant features of the application will be tested.
 
 ### Important Notes
 
@@ -50,3 +64,23 @@ Some tests will be skipped because certain features are not yet implemented. How
 ### Additional Resources
 
 For more information, refer to the [Pest documentation](https://pestphp.com/docs/installation).
+
+## Client-Side Tests
+
+We use vitest to run client-side tests.
+These unit- and component-tests do not require the server to run.
+
+To run the client tests you need to make sure, you have the
+client-side dependencies installed:
+
+```shell
+$ cd web
+$ npm install
+```
+
+Still being in the `web` folder and once dependencies are installed, 
+you can run unit tests via
+
+```shell
+$ npm run test:unit
+```
