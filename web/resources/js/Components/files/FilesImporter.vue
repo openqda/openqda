@@ -66,6 +66,7 @@
       </span>
     </label>
   </div>
+  <div class="text-xs text-silver-700 mx-2 my-1">File size limit: 100MB</div>
   <FilesList
     rowClass="px-2"
     :documents="documents"
