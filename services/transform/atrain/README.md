@@ -2,9 +2,9 @@
 
 ## Install and run
 
-There are multiple ways to install an run the service.
+There are multiple ways to install and run the service.
 
-> Expect ~10GB of data to be downloaded duing installation / build!
+> Expect ~10GB of being downloaded during installation / build!
 
 ### Using Pipenv
 
