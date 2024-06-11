@@ -72,6 +72,15 @@
     :documents="documents"
     :actions="[
       {
+        id: 'retry-atrain',
+        title: 'Retry transcription',
+        icon: ArrowPathRoundedSquareIcon,
+        class: 'text-black-500 hover:text-cerulean-700',
+        onClick({ action, document, index }) {
+          retryConvert(document);
+        },
+      },
+      {
         id: 'retry-conversion',
         title: 'Retry elaboration',
         icon: CloudArrowUpIcon,
@@ -114,6 +123,7 @@
 
 <script setup>
 import {
+  ArrowPathRoundedSquareIcon,
   CloudArrowUpIcon,
   DocumentArrowDownIcon,
   DocumentPlusIcon,

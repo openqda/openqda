@@ -165,6 +165,10 @@
               v-if="document.type === 'text'"
               class="h-4 w-4 gray-500 ml-auto mr-auto"
             />
+            <SpeakerWaveIcon
+              v-if="document.type === 'audio'"
+              class="h-4 w-4 gray-500 ml-auto mr-auto"
+            />
           </div>
         </td>
         <td class="py-2 text-center tracking-wider">
@@ -211,14 +215,15 @@
             >
               <button
                 v-if="
-                  !(
+                  (action.id === 'retry-atrain' && document.type === 'audio') ||
+                  (!(
                     document.type === 'audio' &&
                     action.id === 'retry-conversion'
                   ) &&
-                  !(
-                    action.id === 'retry-conversion' &&
-                    (document.isConverting || document.converted)
-                  )
+                    !(
+                      action.id === 'retry-conversion' &&
+                      (document.isConverting || document.converted)
+                    ))
                 "
                 class="flex items-center text-gray-700 hover:bg-silver-100 px-4 py-2 text-sm w-full text-left"
                 @click="action.onClick({ action, document, index })"
@@ -249,6 +254,7 @@ import {
 import {
   DocumentTextIcon,
   ExclamationTriangleIcon,
+  SpeakerWaveIcon,
 } from '@heroicons/vue/24/outline/index.js';
 import { ref } from 'vue';
 import { vClickOutside } from '../coding/clickOutsideDirective.js';

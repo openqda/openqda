@@ -102,6 +102,9 @@ class TranscriptionJob implements ShouldQueue
                 $sourceStatus->status = 'converted:txt';
                 $sourceStatus->path = $outputFilePath;
                 $sourceStatus->update();
+
+                // delete file on aTrain
+                Http::delete(config('internalPlugins.aTrainDelete').$fileId);
                 event(new ConversionCompleted($this->projectId, $this->sourceId));
             }
 
