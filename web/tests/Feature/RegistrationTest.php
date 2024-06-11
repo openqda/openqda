@@ -3,9 +3,10 @@
 namespace Tests\Feature;
 
 use App\Providers\RouteServiceProvider;
+use GrantHolle\Altcha\Altcha;
+use GrantHolle\Altcha\Exceptions\InvalidAlgorithmException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Fortify\Features;
-use Laravel\Jetstream\Jetstream;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
@@ -25,33 +26,22 @@ class RegistrationTest extends TestCase
         $response->assertStatus(200);
     }
 
-    public function test_registration_screen_cannot_be_rendered_if_support_is_disabled(): void
-    {
-        if (Features::enabled(Features::registration())) {
-            $this->markTestSkipped('Registration support is enabled.');
-
-            return;
-        }
-
-        $response = $this->get('/register');
-
-        $response->assertStatus(404);
-    }
-
+    /**
+     * @throws InvalidAlgorithmException
+     */
     public function test_new_users_can_register(): void
     {
-        if (! Features::enabled(Features::registration())) {
-            $this->markTestSkipped('Registration support is not enabled.');
 
-            return;
-        }
+        // Generate a valid altcha challenge
+        $altchaService = app(Altcha::class);
+        $challenge = $altchaService->createChallenge();
 
         $response = $this->post('/register', [
             'name' => 'Test User',
             'email' => 'test@example.com',
             'password' => 'password',
             'password_confirmation' => 'password',
-            'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature(),
+            'altcha' => $challenge['signature'],  // Use the valid altcha challenge
         ]);
 
         $this->assertAuthenticated();

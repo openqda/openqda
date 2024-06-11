@@ -5,7 +5,6 @@ namespace App\Providers;
 // use Illuminate\Support\Facades\Gate;
 
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
-use Illuminate\Support\Facades\Gate;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -25,14 +24,5 @@ class AuthServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->registerPolicies();
-
-        Gate::define('viewWebSocketsDashboard', function ($user = null) {
-            return in_array($user->email, [
-                'belli@uni-bremen.de',
-                'fhohmann@uni-bremen.de',
-                's_ufzdc2@uni-bremen.de',
-
-            ]);
-        });
     }
 }
