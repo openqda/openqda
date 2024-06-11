@@ -212,6 +212,10 @@
               <button
                 v-if="
                   !(
+                    document.type === 'audio' &&
+                    action.id === 'retry-conversion'
+                  ) &&
+                  !(
                     action.id === 'retry-conversion' &&
                     (document.isConverting || document.converted)
                   )
@@ -243,8 +247,8 @@ import {
   LockClosedIcon,
 } from '@heroicons/vue/20/solid/index.js';
 import {
-  ExclamationTriangleIcon,
   DocumentTextIcon,
+  ExclamationTriangleIcon,
 } from '@heroicons/vue/24/outline/index.js';
 import { ref } from 'vue';
 import { vClickOutside } from '../coding/clickOutsideDirective.js';
