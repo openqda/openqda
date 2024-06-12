@@ -1,9 +1,11 @@
 from aTrain_core import transcribe, check_inputs, outputs, globals, load_resources
+from dotenv import dotenv_values
 import os
 
-model = 'medium'
+config = dotenv_values('.env')
 
 def install():
+    model = config['WHISPER_MODEL']
     model_path = os.path.join(globals.ATRAIN_DIR, "models", model)
     print(f"Install: check if model exists in {model_path}")
 
