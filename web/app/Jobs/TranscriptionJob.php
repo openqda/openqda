@@ -109,7 +109,8 @@ class TranscriptionJob implements ShouldQueue
             // Step2: start processing here, because the transcription service
             // does not start it automatically
             Log::info("start processing at ".$processingUrl.$fileId);
-            $response = Http::timeout($length * 2)->post($processingUrl.$fileId);
+            $response = Http::timeout($length ? $length * 2 : 60 * 60)
+                ->post($processingUrl.$fileId);
 
             if (! $response->successful()) {
                 Log::error($response);
