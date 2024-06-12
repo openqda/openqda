@@ -84,7 +84,7 @@ class TranscriptionJob implements ShouldQueue
                 Log::info('Upload successful');
                 $fileId = $response->json('file_id');
                 $length = intval($response->json('length'));
-                Log::info('file_id='.$fileId." length=".$length);
+                Log::info('file_id='.$fileId.' length='.$length);
 
                 // Save the file_id in the variables table
                 Variable::create([
@@ -108,9 +108,8 @@ class TranscriptionJob implements ShouldQueue
 
             // Step2: start processing here, because the transcription service
             // does not start it automatically
-            Log::info("start processing at ".$processingUrl.$fileId);
-            $response = Http::timeout($length ? $length * 2 : 60 * 60)
-                ->post($processingUrl.$fileId);
+            Log::info('start processing at '.$processingUrl.$fileId);
+            $response = Http::timeout(60 * 60)->post($processingUrl.$fileId);
 
             if (! $response->successful()) {
                 Log::error($response);
@@ -123,7 +122,7 @@ class TranscriptionJob implements ShouldQueue
             if (! $response->successful()) {
                 $this->fail($response->status());
             } else {
-                Log::info("start saving downloaded file");
+                Log::info('start saving downloaded file');
                 $text = $response->body();
                 file_put_contents($outputFilePath, $text);
 
@@ -134,7 +133,7 @@ class TranscriptionJob implements ShouldQueue
                 $sourceStatus->update();
 
                 // delete file on aTrain
-                Log::info("delete files at ".$deleteUrl.$fileId);
+                Log::info('delete files at '.$deleteUrl.$fileId);
                 Http::timeout(30)->delete($deleteUrl.$fileId);
                 event(new ConversionCompleted($this->projectId, $this->sourceId));
             }
@@ -160,7 +159,8 @@ class TranscriptionJob implements ShouldQueue
 
     private function downloadTranscribedFile($url)
     {
-        Log::info("start download at ".$url);
+        Log::info('start download at '.$url);
+
         return Http::timeout(30)->get($url);
     }
 

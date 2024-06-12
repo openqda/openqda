@@ -20,7 +20,7 @@ class ConversionFailed implements ShouldBroadcast
     {
         $this->projectId = $projectId;
         $this->sourceId = $sourceId;
-        $this->$message = $message
+        $this->$message = $message;
     }
 
     public function broadcastOn()
