@@ -156,6 +156,13 @@
             </div>
             Converting
           </div>
+          <div
+            v-if="document.failed"
+            class="flex items-center bg-red-700 text-white text-xs font-semibold px-2 py-1 rounded-full"
+          >
+            <XMarkIcon class="text-white w-3 h-3"></XMarkIcon>
+            Failed
+          </div>
         </td>
 
         <td class="py-2">
@@ -250,6 +257,7 @@ import {
   ChevronUpIcon,
   EllipsisVerticalIcon,
   LockClosedIcon,
+  XMarkIcon,
 } from '@heroicons/vue/20/solid/index.js';
 import {
   DocumentTextIcon,

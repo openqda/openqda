@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Events\ConversionCompleted;
+use App\Events\ConversionFailed;
 use App\Models\SourceStatus;
 use App\Models\Variable;
 use File;
@@ -69,12 +70,14 @@ class TranscriptionJob implements ShouldQueue
         // estimated length of processing in seconds
         try {
             Log::info('Send the file to the aTrain service');
+            $fileSize = ceil(filesize($this->filePath) / 1000000);
+
             $response = Http::attach(
                 'uploaded',                             // field name
                 file_get_contents($this->filePath),     // file content
                 basename($this->filePath),              // file name
             )
-                ->timeout(30)
+                ->timeout($fileSize * 30)
                 ->post($uploadUrl);
 
             if ($response->successful()) {
@@ -139,6 +142,7 @@ class TranscriptionJob implements ShouldQueue
             File::delete($outputFilePath); // Cleanup
             $this->fail($e);
             Log::error('Conversion or file operation failed: '.$e->getMessage());
+            event(new ConversionFailed($this->projectId, $this->sourceId, $e->getMessage()));
         }
     }
 

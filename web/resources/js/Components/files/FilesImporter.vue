@@ -406,6 +406,7 @@ onMounted(() => {
   window.Echo.private('conversion.' + projectId).listen(
     'ConversionCompleted',
     (e) => {
+      console.debug('ConversionCompleted', e.sourceId);
       let documentIndex = -1;
       documents.forEach((doc, index) => {
         console.log(doc.id);
@@ -417,6 +418,26 @@ onMounted(() => {
       if (documentIndex !== -1) {
         documents[documentIndex].isConverting = false;
         documents[documentIndex].converted = true;
+        documents[documentIndex].failed = true;
+      }
+    }
+  );
+  window.Echo.private('conversion.' + projectId).listen(
+    'ConversionFailed',
+    (e) => {
+      console.debug('ConversionFailed', e.sourceId, e.message);
+      let documentIndex = -1;
+      documents.forEach((doc, index) => {
+        console.log(doc.id);
+        if (doc.id === e.sourceId) {
+          documentIndex = index;
+        }
+      });
+
+      if (documentIndex !== -1) {
+        documents[documentIndex].isConverting = false;
+        documents[documentIndex].converted = false;
+        documents[documentIndex].failed = true;
       }
     }
   );
