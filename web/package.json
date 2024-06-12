@@ -22,7 +22,6 @@
         "autoprefixer": "^10.4.17",
         "axios": "^1.6.4",
         "eslint": "^9.2.0",
-        "eslint-plugin-cypress": "^3.2.0",
         "eslint-plugin-vue": "^9.26.0",
         "globals": "^15.2.0",
         "happy-dom": "^14.11.0",
