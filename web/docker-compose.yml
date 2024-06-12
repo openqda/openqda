@@ -57,6 +57,11 @@ services:
             dockerfile: Dockerfile
         ports:
             - '4040:80'
+        volumes:
+            - ../services/transform/atrain/.volume/models:/root/Documents/aTrain/models
+            - ../services/transform/atrain/.volume/uploads:/uploads
+        environment:
+            MAX_WORKERS: 4
         networks:
             - sail
 networks:

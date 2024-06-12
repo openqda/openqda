@@ -39,9 +39,13 @@ class TranscriptionJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $atrainUrl = config('internalPlugins.aTrainUpload');
+        Log::info('START TranscriptionJob');
+        $uploadUrl = config('internalPlugins.aTrainUpload');
+        $processingUrl = config('internalPlugins.aTrainProcess');
+        $downloadUrl = config('internalPlugins.aTrainDownload');
+        $deleteUrl = config('internalPlugins.aTrainDelete');
 
-        if (! $atrainUrl) {
+        if (! $uploadUrl || ! $processingUrl || ! $downloadUrl || ! $deleteUrl) {
             Log::error('Conversion failed: Missing configuration.');
             $this->fail();
 
@@ -59,18 +63,25 @@ class TranscriptionJob implements ShouldQueue
         // Construct the new output path
         $outputFilePath = $outputDirectory.'/'.$filenameWithoutExt.'.txt';
 
+        $fileId = '';
+
+        // Step1: upload the file and retrieve a fileId and
+        // estimated length of processing in seconds
         try {
-            // Send the file to the aTrain service
+            Log::info('Send the file to the aTrain service');
             $response = Http::attach(
                 'uploaded',                             // field name
                 file_get_contents($this->filePath),     // file content
                 basename($this->filePath),              // file name
             )
-                ->timeout(60 * 60)
-                ->post($atrainUrl);
+                ->timeout(30)
+                ->post($uploadUrl);
 
             if ($response->successful()) {
+                Log::info('Upload successful');
                 $fileId = $response->json('file_id');
+                $length = intval($response->json('length'));
+                Log::info('file_id='.$fileId." length=".$length);
 
                 // Save the file_id in the variables table
                 Variable::create([
@@ -79,21 +90,36 @@ class TranscriptionJob implements ShouldQueue
                     'type_of_variable' => 'string',
                     'text_value' => $fileId,
                 ]);
+                // Save the length in the variables table, too
+                Variable::create([
+                    'source_id' => $this->sourceId,
+                    'name' => 'atrain_length',
+                    'type_of_variable' => 'int',
+                    'integer_value' => $length,
+                ]);
 
             } else {
                 Log::error($response);
                 throw new \Exception('Failed to upload file to aTrain service:');
             }
 
-            // XXX: this implementation assumes the upload request
-            // to respond, once the transcription has completed,
-            // which is not sustainable in the long run and will change
-            // with the upcoming plugin specs
-            $response = $this->downloadTranscribedFile($fileId);
+            // Step2: start processing here, because the transcription service
+            // does not start it automatically
+            Log::info("start processing at ".$processingUrl.$fileId);
+            $response = Http::timeout($length * 2)->post($processingUrl.$fileId);
+
+            if (! $response->successful()) {
+                Log::error($response);
+                throw new \Exception('Failed to upload file to aTrain service:');
+            }
+
+            // Step3: download the result
+            $response = $this->downloadTranscribedFile($downloadUrl.$fileId);
 
             if (! $response->successful()) {
                 $this->fail($response->status());
             } else {
+                Log::info("start saving downloaded file");
                 $text = $response->body();
                 file_put_contents($outputFilePath, $text);
 
@@ -104,7 +130,8 @@ class TranscriptionJob implements ShouldQueue
                 $sourceStatus->update();
 
                 // delete file on aTrain
-                Http::delete(config('internalPlugins.aTrainDelete').$fileId);
+                Log::info("delete files at ".$deleteUrl.$fileId);
+                Http::timeout(30)->delete($deleteUrl.$fileId);
                 event(new ConversionCompleted($this->projectId, $this->sourceId));
             }
 
@@ -126,9 +153,10 @@ class TranscriptionJob implements ShouldQueue
         return $outputDirectory;
     }
 
-    private function downloadTranscribedFile($fileId)
+    private function downloadTranscribedFile($url)
     {
-        return Http::timeout(3)->get(config('internalPlugins.aTrainDownload').$fileId);
+        Log::info("start download at ".$url);
+        return Http::timeout(30)->get($url);
     }
 
     public function failed($exception)
