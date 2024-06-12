@@ -26,4 +26,4 @@ else
 fi
 
 # run the background service
-exec  /usr/local/bin/start_debug_services.sh
+exec  /var/www/html/start_debug_services.sh
