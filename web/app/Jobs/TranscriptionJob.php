@@ -69,19 +69,20 @@ class TranscriptionJob implements ShouldQueue
         // Step1: upload the file and retrieve a fileId and
         // estimated length of processing in seconds
         try {
-            Log::info('Send the file to the aTrain service');
+            Log::info('send the file to the aTrain service');
             $fileSize = ceil(filesize($this->filePath) / 1000000);
-
+            $fileName = basename($this->filePath);
+            Log::info('file size ='.$fileSize.'MB for '.$fileName);
             $response = Http::attach(
                 'uploaded',                             // field name
                 file_get_contents($this->filePath),     // file content
-                basename($this->filePath),              // file name
+                $fileName,              // file name
             )
-                ->timeout($fileSize * 30)
+                ->timeout(60 * 60)
                 ->post($uploadUrl);
+            Log::info('upload complete for '.$fileName);
 
             if ($response->successful()) {
-                Log::info('Upload successful');
                 $fileId = $response->json('file_id');
                 $length = intval($response->json('length'));
                 Log::info('file_id='.$fileId.' length='.$length);
