@@ -66,10 +66,20 @@
       </span>
     </label>
   </div>
+  <div class="text-xs text-silver-700 mx-2 my-1">File size limit: 100MB</div>
   <FilesList
     rowClass="px-2"
     :documents="documents"
     :actions="[
+      {
+        id: 'retry-atrain',
+        title: 'Retry transcription',
+        icon: ArrowPathRoundedSquareIcon,
+        class: 'text-black-500 hover:text-cerulean-700',
+        onClick({ action, document, index }) {
+          retryConvert(document);
+        },
+      },
       {
         id: 'retry-conversion',
         title: 'Retry elaboration',
@@ -113,6 +123,7 @@
 
 <script setup>
 import {
+  ArrowPathRoundedSquareIcon,
   CloudArrowUpIcon,
   DocumentArrowDownIcon,
   DocumentPlusIcon,
