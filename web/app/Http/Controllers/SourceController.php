@@ -499,7 +499,7 @@ class SourceController extends Controller
     {
 
         $request->validate([
-            'file' => 'required|file|extensions:mpeg,mpga,mp3,wav,aac,ogg,m4a,flac',
+            'file' => 'required|file|extensions:mpeg,mpga,mp3,wav,aac,ogg,m4a,flac|max:100000',
             'model' => 'required|string',
             'language' => 'required|string',
         ]);
