@@ -77,7 +77,7 @@
         icon: ArrowPathRoundedSquareIcon,
         class: 'text-black-500 hover:text-cerulean-700',
         onClick({ document }) {
-          retryConvert(document, 'retrytranscription');
+          retryTranscription(document);
         },
         visible(document) {
           if (document.type !== 'audio') return false;
@@ -91,7 +91,7 @@
         icon: CloudArrowUpIcon,
         class: 'text-black-500 hover:text-cerulean-700',
         onClick({ document }) {
-          retryConvert(document, 'gethtmlcontent');
+          retryConvert(document);
         },
         visible(document) {
           if (document.type !== 'text') return false;
@@ -253,8 +253,35 @@ function renameDocument(document /*, index */) {
   newName.value = document.name;
 }
 
-async function retryConvert(document, endpoint) {
-  const url = `/projects/${projectId}/sources/${document.id}/${endpoint}`;
+async function retryTranscription(document) {
+  const url = `/projects/${projectId}/sources/${document.id}/retrytranscription`;
+  try {
+    const response = await axios.post(url);
+    console.debug(response);
+    const { message, status } = response.data;
+
+    if (status === 'finished') {
+      document.isConverting = false;
+      document.converted = true;
+      document.failed = false;
+    } else {
+      document.isConverting = true;
+      document.converted = false;
+      document.failed = false;
+    }
+
+    usePage().props.flash.message = message;
+  } catch (error) {
+    console.error('Error retrying conversion:', error);
+    document.failed = true;
+    usePage().props.flash.message =
+      error.response.data.message ||
+      'An error occurred while converting the document.';
+  }
+}
+
+async function retryConvert(document) {
+  const url = `/projects/${projectId}/sources/${document.id}/gethtmlcontent`;
   try {
     document.isConverting = true;
     const response = await axios.post(url);
