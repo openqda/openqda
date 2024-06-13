@@ -39,6 +39,5 @@ class DeleteSourceFiles
         // Delete all variables associated with the source
         Variable::where('source_id', $source->id)->delete();
 
-
     }
 }
