@@ -76,8 +76,13 @@
         title: 'Retry transcription',
         icon: ArrowPathRoundedSquareIcon,
         class: 'text-black-500 hover:text-cerulean-700',
-        onClick({ action, document, index }) {
-          retryConvert(document);
+        onClick({ document }) {
+          retryConvert(document, 'retrytranscription');
+        },
+        visible(document) {
+          if (document.type !== 'audio') return false;
+          if (document.converted) return false;
+          return document.failed || !document.isConverting;
         },
       },
       {
@@ -85,8 +90,13 @@
         title: 'Retry elaboration',
         icon: CloudArrowUpIcon,
         class: 'text-black-500 hover:text-cerulean-700',
-        onClick({ action, document, index }) {
-          retryConvert(document);
+        onClick({ document }) {
+          retryConvert(document, 'gethtmlcontent');
+        },
+        visible(document) {
+          if (document.type !== 'text') return false;
+          if (document.converted) return false;
+          return document.failed || !document.isConverting;
         },
       },
       {
@@ -94,8 +104,11 @@
         title: 'Download Source File',
         icon: DocumentArrowDownIcon,
         class: 'text-black-500 hover:text-cerulean-700',
-        onClick({ action, document, index }) {
+        onClick({ document }) {
           downloadSource(document);
+        },
+        visible(document) {
+          return document.converted;
         },
       },
       {
@@ -103,8 +116,11 @@
         title: 'Rename this document',
         icon: PencilSquareIcon,
         class: ' text-black hover:text-gray-600',
-        onClick({ action, document, index }) {
+        onClick({ document, index }) {
           renameDocument(document, index);
+        },
+        visible(document) {
+          return document.converted;
         },
       },
       {
@@ -112,8 +128,11 @@
         title: 'Delete this document',
         icon: XCircleIcon,
         class: ' text-red-700 hover:text-red-600',
-        onClick({ action, document, index }) {
+        onClick({ document, index }) {
           deleteDocument(document, index);
+        },
+        visible(/* document */) {
+          return true;
         },
       },
     ]"
@@ -234,17 +253,18 @@ function renameDocument(document /*, index */) {
   newName.value = document.name;
 }
 
-async function retryConvert(document) {
+async function retryConvert(document, endpoint) {
+  const url = `/projects/${projectId}/sources/${document.id}/${endpoint}`;
   try {
-    const response = await axios.post(
-      `/projects/${projectId}/sources/${document.id}/gethtmlcontent`
-    );
-
+    document.isConverting = true;
+    const response = await axios.post(url);
+    console.debug(response);
     document.isConverting = !response.data.success;
     document.converted = true;
   } catch (error) {
-    console.error('Error renaming document:', error);
-    renameError.value =
+    console.error('Error retrying conversion:', error);
+    document.failed = true;
+    usePage().props.flash.message =
       error.response.data.message ||
       'An error occurred while converting the document.';
   }
