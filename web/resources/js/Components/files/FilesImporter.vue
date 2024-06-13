@@ -79,11 +79,11 @@
         onClick({ document }) {
           retryConvert(document);
         },
-        visible (document) {
-            if (document.type !== 'audio') return false
-            if (document.converted) return false
-            return document.failed || !document.isConverting
-        }
+        visible(document) {
+          if (document.type !== 'audio') return false;
+          if (document.converted) return false;
+          return document.failed || !document.isConverting;
+        },
       },
       {
         id: 'retry-conversion',
@@ -93,11 +93,11 @@
         onClick({ document }) {
           retryConvert(document);
         },
-        visible (document) {
-            if (document.type !== 'text') return false
-            if (document.converted) return false
-            return document.failed || !document.isConverting
-        }
+        visible(document) {
+          if (document.type !== 'text') return false;
+          if (document.converted) return false;
+          return document.failed || !document.isConverting;
+        },
       },
       {
         id: 'download-source',
@@ -107,9 +107,9 @@
         onClick({ document }) {
           downloadSource(document);
         },
-        visible (document) {
-            return document.converted
-        }
+        visible(document) {
+          return document.converted;
+        },
       },
       {
         id: 'rename-document',
@@ -119,9 +119,9 @@
         onClick({ document, index }) {
           renameDocument(document, index);
         },
-        visible (document) {
-            return document.converted
-        }
+        visible(document) {
+          return document.converted;
+        },
       },
       {
         id: 'delete-document',
@@ -131,9 +131,9 @@
         onClick({ document, index }) {
           deleteDocument(document, index);
         },
-        visible (/* document */) {
-            return true
-        }
+        visible(/* document */) {
+          return true;
+        },
       },
     ]"
     @select="fetchAndRenderDocument"

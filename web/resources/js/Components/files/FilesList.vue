@@ -136,7 +136,9 @@
             {{ document.name }}
           </a>
           <div
-            v-if="!document.converted && !document.isConverting && !document.failed"
+            v-if="
+              !document.converted && !document.isConverting && !document.failed
+            "
             class="flex items-center bg-yellow-100 text-yellow-800 font-semibold px-2 py-1 mx-2 text-xs"
           >
             <ExclamationTriangleIcon
@@ -247,7 +249,6 @@ import {
   ChevronUpIcon,
   EllipsisVerticalIcon,
   LockClosedIcon,
-  XMarkIcon,
 } from '@heroicons/vue/20/solid/index.js';
 import {
   DocumentTextIcon,
