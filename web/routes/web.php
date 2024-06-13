@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdditionalTeamController;
 use App\Http\Controllers\AnalysisController;
+use App\Http\Controllers\CodebookCodesController;
 use App\Http\Controllers\CodebookController;
 use App\Http\Controllers\CodingController;
 use App\Http\Controllers\ProjectController;
@@ -120,7 +121,8 @@ Route::middleware([
     Route::post('/projects/{project}/codebooks/{codebook}', [CodebookController::class, 'update'])->name('codebook.update');
     Route::delete('/projects/{project}/codebooks/{codebook}', [CodebookController::class, 'destroy'])->name('codebook.destroy');
     Route::post('/projects/{project}/codebooks/', [CodebookController::class, 'store'])->name('codebook.store');
-
+    Route::post('/codebook/import', [CodebookCodesController::class, 'import'])->name('codebook-codes.import');
+    Route::get('/codebook/export/{id}', [CodebookCodesController::class, 'export'])->name('codebook-codes.export');
     /**
      * Analysis
      */

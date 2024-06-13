@@ -212,6 +212,12 @@
           >Import into project</a
         >
         <a
+          @click="exportCodebook(codebook)"
+          class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          role="menuitem"
+          >Export</a
+        >
+        <a
           v-if="!isPublic"
           @click="deleteCodebook(codebook)"
           class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-red-700"
@@ -407,6 +413,10 @@ const getBackgroundStyle = function (target) {
     .join(', ');
 
   return `background: linear-gradient(to right, ${gradient})`;
+};
+const exportCodebook = (codebook) => {
+  const url = `/codebook/export/${codebook.id}`;
+  window.location.href = url;
 };
 </script>
 <style scoped>

@@ -3,7 +3,7 @@
     @click="toggleAccordion"
     class="flex items-center justify-between cursor-pointer"
   >
-    <h1 class="font-bold text-lg text-porsche-400 my-2">Create new Codebook</h1>
+    <h1 class="font-bold text-lg text-porsche-400">Create new Codebook</h1>
     <svg
       :class="{ 'rotate-90': isAccordionOpen }"
       xmlns="http://www.w3.org/2000/svg"

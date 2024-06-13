@@ -151,11 +151,60 @@
       </div>
 
       <div v-show="currentSubView === 'codebooks'" class="space-y-4">
-        <div class="w-1/2">
-          <NewCodebookForm
-            :project="projectId"
-            @codebookCreated="onCodebookCreated"
-          />
+        <div class="flex space-x-4">
+          <div class="w-1/2 my-2">
+            <NewCodebookForm
+              :project="projectId"
+              @codebookCreated="onCodebookCreated"
+            />
+          </div>
+          <div class="w-1/2 my-2">
+            <Headline2>Import Codebook from</Headline2>
+            <div class="w-full italic text-gray-400 my-4 text-sm">
+              This import is intended for codebook exports that supports
+              <a
+                href="https://www.qdasoftware.org/refi-qda-codebook"
+                title="REFI website"
+                target="_blank"
+                class="text-blue-500 font-bold"
+                >REFI</a
+              >.
+              <br />
+              Our goal is to support MaxQDA, NViVo, atlas.ti, f4analyse. If you
+              find a problem, please
+              <a
+                href="mailto:openqda@uni-bremen.de"
+                class="text-blue-500 font-bold"
+                >contact us</a
+              >.
+              <br />
+              You can also import codebooks from other projects, but they might
+              not be fully functional.
+            </div>
+            <form
+              @submit.prevent="importXmlFile"
+              enctype="multipart/form-data"
+              class="space-y-4"
+            >
+              <label
+                class="font-medium text-sm text-gray-700 my-4 flex items-center"
+              >
+                <span class="sr-only">Choose file</span>
+                <input
+                  type="file"
+                  @change="handleFileUpload"
+                  accept=".qde,.xml,.qdc"
+                  class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                />
+              </label>
+              <button
+                type="submit"
+                class="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-cerulean-700 text-base font-medium text-white hover:bg-cerulean-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cerulean-700 sm:text-sm"
+              >
+                Import
+              </button>
+            </form>
+          </div>
         </div>
         <div>
           <Headline2>Codebooks of current Project</Headline2>
@@ -329,8 +378,9 @@ const description = ref(props.project.description);
 const url = window.location.pathname;
 const segments = url.split('/');
 let projectId = segments[2]; // Assuming project id is the third segment in URL path
-
 const localAudits = ref([]);
+// File handling for importing XML
+const selectedFile = ref(null);
 
 const filteredPublicCodebooks = computed(() => {
   return props.publicCodebooks.filter((codebook) =>
@@ -501,6 +551,42 @@ onBeforeUnmount(() => {
 function toggleSubView(key) {
   currentSubView.value = key;
 }
+
+const handleFileUpload = (event) => {
+  selectedFile.value = event.target.files[0];
+};
+
+const importXmlFile = async () => {
+  if (!selectedFile.value) {
+    alert('Please select a file first.');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', selectedFile.value);
+  formData.append('project_id', projectId);
+
+  try {
+    const response = await axios.post('/codebook/import', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    alert(response.data.message);
+    // Refresh the page or update the relevant data
+    router.get(
+      route('project.show', { project: projectId, codebookstab: true })
+    );
+  } catch (error) {
+    console.error('Failed to import XML:', error);
+    if (error.response && error.response.data && error.response.data.error) {
+      alert(error.response.data.error);
+    } else {
+      alert('Failed to import XML. An unexpected error occurred.');
+    }
+  }
+};
 </script>
 <style scoped>
 span[contenteditable='true']:focus {

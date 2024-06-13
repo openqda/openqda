@@ -142,7 +142,6 @@ class CodebookController extends Controller
         }
 
         try {
-            $codebook = Codebook::findOrFail($codebook);
             $codebook->delete();
 
             return response()->json(['success' => true, 'message' => 'Codebook deleted']);
