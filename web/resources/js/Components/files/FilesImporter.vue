@@ -465,7 +465,7 @@ onMounted(() => {
       if (documentIndex !== -1) {
         documents[documentIndex].isConverting = false;
         documents[documentIndex].converted = true;
-        documents[documentIndex].failed = true;
+        documents[documentIndex].failed = false;
       }
     }
   );
