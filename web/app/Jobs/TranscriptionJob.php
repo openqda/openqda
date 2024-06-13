@@ -53,6 +53,14 @@ class TranscriptionJob implements ShouldQueue
             return;
         }
 
+        // register this job's status
+        $jobRef = Variable::create([
+            'source_id' => $this->sourceId,
+            'name' => 'transcription_job_status',
+            'type_of_variable' => 'string',
+            'text_value' => 'uploading',
+        ]);
+
         $outputDirectory = $this->ensureOutputDirectory();
 
         // Extract filename without extension
@@ -80,6 +88,7 @@ class TranscriptionJob implements ShouldQueue
             )
                 ->timeout(60 * 60)
                 ->post($uploadUrl);
+
             Log::info('upload complete for '.$fileName);
 
             if ($response->successful()) {
@@ -88,14 +97,14 @@ class TranscriptionJob implements ShouldQueue
                 Log::info('file_id='.$fileId.' length='.$length);
 
                 // Save the file_id in the variables table
-                Variable::create([
+                $fileIdRef = Variable::create([
                     'source_id' => $this->sourceId,
                     'name' => 'atrain_file_id',
                     'type_of_variable' => 'string',
                     'text_value' => $fileId,
                 ]);
                 // Save the length in the variables table, too
-                Variable::create([
+                $lengthRef = Variable::create([
                     'source_id' => $this->sourceId,
                     'name' => 'atrain_length',
                     'type_of_variable' => 'int',
@@ -110,6 +119,8 @@ class TranscriptionJob implements ShouldQueue
             // Step2: start processing here, because the transcription service
             // does not start it automatically
             Log::info('start processing at '.$processingUrl.$fileId);
+            $jobRef->update(['text_value' => 'processing']);
+            $jobRef->save();
             $response = Http::timeout(60 * 60)->post($processingUrl.$fileId);
 
             if (! $response->successful()) {
@@ -118,6 +129,8 @@ class TranscriptionJob implements ShouldQueue
             }
 
             // Step3: download the result
+            $jobRef->update(['text_value' => 'downloading']);
+            $jobRef->save();
             $response = $this->downloadTranscribedFile($downloadUrl.$fileId);
 
             if (! $response->successful()) {
@@ -135,11 +148,19 @@ class TranscriptionJob implements ShouldQueue
 
                 // delete file on aTrain
                 Log::info('delete files at '.$deleteUrl.$fileId);
+                $jobRef->update(['text_value' => 'deleting']);
+                $jobRef->save();
                 Http::timeout(30)->delete($deleteUrl.$fileId);
+
+                $jobRef->delete();
+                $fileIdRef->delete();
+                $lengthRef->delete();
                 event(new ConversionCompleted($this->projectId, $this->sourceId));
             }
 
         } catch (\Exception $e) {
+            $jobRef->update(['text_value' => 'failed']);
+            $jobRef->save();
             File::delete($outputFilePath); // Cleanup
             $this->fail($e);
             Log::error('Conversion or file operation failed: '.$e->getMessage());

@@ -553,7 +553,19 @@ class SourceController extends Controller
     {
         // check if job exists and what status it has
         // retry job? restart job? what do here?
-        return response()->json(['message' => 'Conversion in progress']);
+        $jobRef = Variable::where('source_id', $source->id)->where('name', 'transcription_job_status')->first();
+
+        if (! $jobRef) {
+            return response()->json(['message' => 'Conversion has finished', 'status' => 'finished']);
+        }
+
+        if ($jobRef->text_value == 'failed') {
+            TranscriptionJob::dispatch($source->upload_path, $projectId->id, $source->id)->onQueue('conversion');
+
+            return response()->json(['message' => 'Conversion restarted', 'status' => 'restarted']);
+        } else {
+            return response()->json(['message' => 'Conversion is still running', 'status' => $jobRef->text_value]);
+        }
     }
 
     /**
