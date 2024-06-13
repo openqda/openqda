@@ -12,12 +12,15 @@ import base64
 import asyncio
 from process import post_process
 from audio import get_audio_length
+from dotenv import dotenv_values
 
 app = FastAPI()
-model = 'medium'
+config = dotenv_values('.env')
+model = config['WHISPER_MODEL']
+conversion_factor = int(config['CONVERSION_FACTOR'])
 language = 'auto-detect'
 device = 'CPU'
-speaker_detection = True
+speaker_detection = True if int(config['SPEAKER_DETECTION']) == 1 else False
 num_speakers = 'auto-detect'
 compute_type = 'int8'
 
@@ -72,7 +75,6 @@ def run(uploaded: UploadFile) -> FileStatus:
     file_name = f"{file_hash}{file_extension}"
     print('prepare uploaded file', file_name)
     file_location = get_upload_dir(file_name)
-
     file_id = outputs.create_file_id(file_location, file_name)
 
     print('save uploaded file', file_location)
@@ -80,17 +82,19 @@ def run(uploaded: UploadFile) -> FileStatus:
         file_object.write(uploaded.file.read())
 
     print('upload: try to get audio length', uploaded.filename)
+    length = None
     try:
-        status.length = get_audio_length(file_location)
+        length = get_audio_length(file_location)
     except Exception as e:
         print(e)
-        status.length = 300 # seconds
 
     print('uploaded complete', file_id)
     # 3. return file status
     return FileStatus(
         file_id=file_id,
-        status="uploaded"
+        status="uploaded",
+        length=length,
+        file_name=uploaded.filename
     )
 
 @app.post('/process/{file_id}')
@@ -99,6 +103,7 @@ def process(file_id: str) -> FileResponse:
     file_location = get_upload_dir(file_id)
     timestamp = datetime.now().strftime(globals.TIMESTAMP_FORMAT)
     print('run transcription for file at ', file_location)
+    print('speaker detection:', speaker_detection)
     check_inputs.check_inputs_transcribe(file_location, model, language, device)
     transcribe.transcribe(file_location, file_id, model, language,
                           speaker_detection, num_speakers, device,
