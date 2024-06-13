@@ -443,244 +443,264 @@
             />
           </div>
         </div>
-        <ul class="py-1 list-none" :style="{ height: 'calc(100vh + 500px)' }">
-          <li
-            class="my-2 text-2xl text-center"
-            v-if="filteredCodes.length === 0 && searchQuery !== ''"
-          >
-            No Result
-          </li>
-
-          <template
-            v-for="(codes, codebookId) in groupedCodes"
-            :key="codebookId"
-          >
-            <div
-              class="flex flex-col text-white select-none mb-2 mr-2 p-2 rounded font-bold :focus:outline-none :focus:ring-2 :focus:ring-sky-500 :focus:border-sky-500 w-full bg-cerulean-700"
-              @click="toggleCodebookDescription(codebookId)"
-            >
-              <div class="flex justify-between items-center">
-                <p class="text-lg flex-grow text-center">
-                  {{ codebookDetails.get(parseInt(codebookId)).name }}
-                </p>
-                <div>
-                  <ChevronUpIcon
-                    v-if="
-                      codebookDetails.get(parseInt(codebookId)).showDescription
-                    "
-                    class="-ml-0.5 h-5 w-5"
-                    aria-hidden="true"
-                  ></ChevronUpIcon>
-                  <ChevronDownIcon
-                    v-else-if="
-                      codebookDetails.get(parseInt(codebookId)).description
-                        .length > 0
-                    "
-                    class="-ml-0.5 h-5 w-5"
-                    aria-hidden="true"
-                  ></ChevronDownIcon>
-                </div>
-              </div>
-              <Collapse>
-                <div
-                  v-show="
-                    codebookDetails.get(parseInt(codebookId)).description
-                      .length > 0 &&
-                    codebookDetails.get(parseInt(codebookId)).showDescription
-                  "
-                  class="px-2 py-1 mt-1 text-xs font-normal antialiased text-white whitespace-pre-line text-center"
-                >
-                  {{ codebookDetails.get(parseInt(codebookId)).description }}
-                </div>
-              </Collapse>
-            </div>
-
-            <template v-for="code in codes" :key="code.id">
+        <div class="flex flex-col min-h-screen">
+          <div class="flex-grow overflow-auto">
+            <ul class="py-1 list-none pb-40">
               <li
-                @mouseover="lowerOpacityOfOthers(code.id)"
-                @mouseout="resetOpacityOfOthers(code.id)"
-                :draggable="!code.editable[index]"
-                @dragstart="handleDragCodeStart($event, index, null, code.id)"
-                @blur="
-                  (event) => {
-                    event.stopPropagation();
-                  }
-                "
-                ref="codeItems"
-                :style="{ borderColor: code.color }"
-                :class="`select-none mb-2 mr-2 border rounded text-black w-full ${
-                  code.editable ? 'border-2 border-orange-500 p-0' : ''
-                }`"
-                :data-id="code.id"
+                class="my-2 text-2xl text-center"
+                v-if="filteredCodes.length === 0 && searchQuery !== ''"
+              >
+                No Result
+              </li>
+
+              <template
+                v-for="(codes, codebookId) in groupedCodes"
+                :key="codebookId"
               >
                 <div
-                  class="flex items-center justify-between space-x-4 p-2"
-                  :style="{ backgroundColor: code.color }"
+                  class="flex flex-col text-white select-none mb-2 mr-2 p-2 rounded font-bold :focus:outline-none :focus:ring-2 :focus:ring-sky-500 :focus:border-sky-500 w-full bg-cerulean-700"
+                  @click="toggleCodebookDescription(codebookId)"
                 >
-                  <CodeLabel
-                    @click.stop
-                    :editable="code.editable"
-                    @startedit="code.editable = true"
-                    @endedit="saveCodeTitle(code.id, $event)"
-                    :label="code.title"
-                    @changed="saveCodeTitle(code.id, $event)"
-                  />
-                  <div
-                    class="relative inline-flex group py-1 px-2"
-                    @click.stop
-                    v-click-outside="{
-                      callback: handleCodeDescriptionClickOutside,
-                    }"
-                  >
-                    <div class="flex space-x-4">
+                  <div class="flex justify-between items-center">
+                    <p class="text-lg flex-grow text-center">
+                      {{ codebookDetails.get(parseInt(codebookId)).name }}
+                    </p>
+                    <div>
                       <ChevronUpIcon
-                        v-if="code.showDescription"
+                        v-if="
+                          codebookDetails.get(parseInt(codebookId))
+                            .showDescription
+                        "
                         class="-ml-0.5 h-5 w-5"
                         aria-hidden="true"
-                        @click="code.showDescription = !code.showDescription"
                       ></ChevronUpIcon>
                       <ChevronDownIcon
-                        v-else-if="code.description.length > 0"
+                        v-else-if="
+                          codebookDetails.get(parseInt(codebookId)).description
+                            .length > 0
+                        "
                         class="-ml-0.5 h-5 w-5"
                         aria-hidden="true"
-                        @click="code.showDescription = !code.showDescription"
                       ></ChevronDownIcon>
-                      <PencilSquareIcon
-                        @click.stop="openCodeDescription(code)"
-                        @mouseover="code.showHoverDescription = true"
-                        @mouseleave="code.showHoverDescription = false"
-                        class="w-5 h-5 text-black group/item"
-                      />
                     </div>
-
-                    <textarea
-                      @change="saveDescription(code)"
-                      v-if="code.showEditDescription"
-                      v-model="code.description"
-                      class="absolute w-64 h-64 post-it right-full"
-                      rows="4"
-                      cols="1"
-                    >
-                    </textarea>
-
+                  </div>
+                  <Collapse>
                     <div
-                      v-if="
-                        !code.showEditDescription &&
-                        code.description.length > 0 &&
-                        code.showHoverDescription
+                      v-show="
+                        codebookDetails.get(parseInt(codebookId)).description
+                          .length > 0 &&
+                        codebookDetails.get(parseInt(codebookId))
+                          .showDescription
                       "
-                      class="absolute z-10 px-2 py-1 text-xs text-white whitespace-pre-line bg-gray-700 rounded -bottom-6 right-6"
+                      class="px-2 py-1 mt-1 text-xs font-normal antialiased text-white whitespace-pre-line text-center"
                     >
-                      {{ code.description }}
+                      {{
+                        codebookDetails.get(parseInt(codebookId)).description
+                      }}
                     </div>
-                  </div>
-
-                  <div class="relative flex items-center">
-                    <button
-                      @click="toggleCodeText(code.id)"
-                      class="text-xs leading-relaxed bg-neutral-100 rounded px-1.5"
-                      :class="
-                        code.text.length === 0
-                          ? 'text-silver-300'
-                          : 'cursor-pointer text-silver-900'
-                      "
-                      :disabled="code.text.length === 0"
-                      :title="`${code.text.length} selections for this code`"
-                    >
-                      {{ code.text.length }}
-                    </button>
-                    <button
-                      @click="
-                        code.dropdownOpen = !code.dropdownOpen;
-                        code.justOpened = true;
-                      "
-                      class="z-0 ml-2"
-                    >
-                      <EllipsisVerticalIcon class="w-5 h-5 text-black" />
-                    </button>
-                    <DropdownMenu
-                      v-if="code.dropdownOpen"
-                      v-click-outside="{
-                        callback: handleDropdownClickOutside,
-                      }"
-                      :index="index"
-                      :code="code"
-                      :codes="codes"
-                      :level="0"
-                    />
-                  </div>
+                  </Collapse>
                 </div>
-                <Collapse>
-                  <div
-                    v-if="code.description.length > 0 && code.showDescription"
-                    :style="{ backgroundColor: code.color }"
-                    class="px-2 py-1 text-xs antialiased whitespace-pre-line"
-                  >
-                    {{ code.description }}
-                  </div>
-                </Collapse>
-                <transition
-                  name="accordion"
-                  enter-active-class="transition duration-200 ease-out"
-                  enter-from-class="translate-y-1 opacity-0"
-                  enter-to-class="translate-y-0 opacity-100"
-                  leave-active-class="transition duration-150 ease-in"
-                  leave-from-class="translate-y-0 opacity-100"
-                  leave-to-class="translate-y-1 opacity-0"
-                >
-                  <div
-                    v-if="code.showText"
-                    class="text-sm divide-y divide-silver-300 cursor-text"
-                    key="code.text"
+
+                <template v-for="code in codes" :key="code.id">
+                  <li
+                    @mouseover="lowerOpacityOfOthers(code.id)"
+                    @mouseout="resetOpacityOfOthers(code.id)"
+                    :draggable="!code.editable[index]"
+                    @dragstart="
+                      handleDragCodeStart($event, index, null, code.id)
+                    "
+                    @blur="
+                      (event) => {
+                        event.stopPropagation();
+                      }
+                    "
+                    ref="codeItems"
+                    :style="{ borderColor: code.color }"
+                    :class="`select-none mb-2 mr-2 border rounded text-black w-full ${
+                      code.editable ? 'border-2 border-orange-500 p-0' : ''
+                    }`"
+                    :data-id="code.id"
                   >
                     <div
-                      v-for="(item, textIndex) in code.text"
-                      :key="textIndex"
-                      class=""
+                      class="flex items-center justify-between space-x-4 p-2"
+                      :style="{ backgroundColor: code.color }"
+                    >
+                      <CodeLabel
+                        @click.stop
+                        :editable="code.editable"
+                        @startedit="code.editable = true"
+                        @endedit="saveCodeTitle(code.id, $event)"
+                        :label="code.title"
+                        @changed="saveCodeTitle(code.id, $event)"
+                      />
+                      <div
+                        class="relative inline-flex group py-1 px-2"
+                        @click.stop
+                        v-click-outside="{
+                          callback: handleCodeDescriptionClickOutside,
+                        }"
+                      >
+                        <div class="flex space-x-4">
+                          <ChevronUpIcon
+                            v-if="code.showDescription"
+                            class="-ml-0.5 h-5 w-5"
+                            aria-hidden="true"
+                            @click="
+                              code.showDescription = !code.showDescription
+                            "
+                          ></ChevronUpIcon>
+                          <ChevronDownIcon
+                            v-else-if="code.description.length > 0"
+                            class="-ml-0.5 h-5 w-5"
+                            aria-hidden="true"
+                            @click="
+                              code.showDescription = !code.showDescription
+                            "
+                          ></ChevronDownIcon>
+                          <PencilSquareIcon
+                            @click.stop="openCodeDescription(code)"
+                            @mouseover="code.showHoverDescription = true"
+                            @mouseleave="code.showHoverDescription = false"
+                            class="w-5 h-5 text-black group/item"
+                          />
+                        </div>
+
+                        <textarea
+                          @change="saveDescription(code)"
+                          v-if="code.showEditDescription"
+                          v-model="code.description"
+                          class="absolute w-64 h-64 post-it right-full"
+                          rows="4"
+                          cols="1"
+                        >
+                        </textarea>
+
+                        <div
+                          v-if="
+                            !code.showEditDescription &&
+                            code.description.length > 0 &&
+                            code.showHoverDescription
+                          "
+                          class="absolute z-10 px-2 py-1 text-xs text-white whitespace-pre-line bg-gray-700 rounded -bottom-6 right-6"
+                        >
+                          {{ code.description }}
+                        </div>
+                      </div>
+
+                      <div class="relative flex items-center">
+                        <button
+                          @click="toggleCodeText(code.id)"
+                          class="text-xs leading-relaxed bg-neutral-100 rounded px-1.5"
+                          :class="
+                            code.text.length === 0
+                              ? 'text-silver-300'
+                              : 'cursor-pointer text-silver-900'
+                          "
+                          :disabled="code.text.length === 0"
+                          :title="`${code.text.length} selections for this code`"
+                        >
+                          {{ code.text.length }}
+                        </button>
+                        <button
+                          @click="
+                            code.dropdownOpen = !code.dropdownOpen;
+                            code.justOpened = true;
+                          "
+                          class="z-0 ml-2"
+                        >
+                          <EllipsisVerticalIcon class="w-5 h-5 text-black" />
+                        </button>
+                        <DropdownMenu
+                          v-if="code.dropdownOpen"
+                          v-click-outside="{
+                            callback: handleDropdownClickOutside,
+                          }"
+                          :index="index"
+                          :code="code"
+                          :codes="codes"
+                          :level="0"
+                        />
+                      </div>
+                    </div>
+                    <Collapse>
+                      <div
+                        v-if="
+                          code.description.length > 0 && code.showDescription
+                        "
+                        :style="{ backgroundColor: code.color }"
+                        class="px-2 py-1 text-xs antialiased whitespace-pre-line"
+                      >
+                        {{ code.description }}
+                      </div>
+                    </Collapse>
+                    <transition
+                      name="accordion"
+                      enter-active-class="transition duration-200 ease-out"
+                      enter-from-class="translate-y-1 opacity-0"
+                      enter-to-class="translate-y-0 opacity-100"
+                      leave-active-class="transition duration-150 ease-in"
+                      leave-from-class="translate-y-0 opacity-100"
+                      leave-to-class="translate-y-1 opacity-0"
                     >
                       <div
-                        class="h-auto text-xs flex bg-gray-300 border border-solid border-1 border-b-silver-300 p-1 font-mono"
+                        v-if="code.showText"
+                        class="text-sm divide-y divide-silver-300 cursor-text"
+                        key="code.text"
                       >
                         <div
-                          class="p-0 cursor-pointer"
-                          @click="scrollToTextPosition(item.start, item.end)"
+                          v-for="(item, textIndex) in code.text"
+                          :key="textIndex"
+                          class=""
                         >
-                          {{ item.start }} -
-                          {{ item.end }}
+                          <div
+                            class="h-auto text-xs flex bg-gray-300 border border-solid border-1 border-b-silver-300 p-1 font-mono"
+                          >
+                            <div
+                              class="p-0 cursor-pointer"
+                              @click="
+                                scrollToTextPosition(item.start, item.end)
+                              "
+                            >
+                              {{ item.start }} -
+                              {{ item.end }}
+                            </div>
+                            <button
+                              class="flex ml-auto cursor-pointer"
+                              @click="
+                                deleteTextFromCode(item, textIndex, code.id)
+                              "
+                            >
+                              <XCircleSolidIcon
+                                class="w-4 h-4 text-silver-900 hover:text-silver-500"
+                              ></XCircleSolidIcon>
+                            </button>
+                          </div>
+                          <div class="p-2">
+                            {{ item.text }}
+                          </div>
+                          <!-- Don't render <hr> after last item -->
                         </div>
-                        <button
-                          class="flex ml-auto cursor-pointer"
-                          @click="deleteTextFromCode(item, textIndex, code.id)"
-                        >
-                          <XCircleSolidIcon
-                            class="w-4 h-4 text-silver-900 hover:text-silver-500"
-                          ></XCircleSolidIcon>
-                        </button>
                       </div>
-                      <div class="p-2">
-                        {{ item.text }}
-                      </div>
-                      <!-- Don't render <hr> after last item -->
-                    </div>
-                  </div>
-                </transition>
-              </li>
-              <!-- Recursive part: render children -->
-              <template v-if="code.children.length > 0">
-                <CodeItem
-                  v-for="(childCode, childIndex) in code.children"
-                  ref="codeItemComponents"
-                  :key="childCode.id"
-                  :code="childCode"
-                  :index="childIndex"
-                  :parentId="code.id"
-                  :level="1"
-                  @child-drag="handleDragCodeStart"
-                />
+                    </transition>
+                  </li>
+                  <!-- Recursive part: render children -->
+                  <template v-if="code.children.length > 0">
+                    <CodeItem
+                      v-for="(childCode, childIndex) in code.children"
+                      ref="codeItemComponents"
+                      :key="childCode.id"
+                      :code="childCode"
+                      :index="childIndex"
+                      :parentId="code.id"
+                      :level="1"
+                      @child-drag="handleDragCodeStart"
+                    />
+                  </template>
+                </template>
               </template>
-            </template>
-          </template>
-        </ul>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   </AppLayout>
@@ -2188,6 +2208,25 @@ const extractRGB = (colorString) => {
       a: matches[4] ? parseFloat(matches[4]) : 1,
     };
   }
+
+  // Check for hex color format
+  matches = colorString.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/);
+  if (matches) {
+    let hex = matches[1];
+    if (hex.length === 3) {
+      hex = hex
+        .split('')
+        .map((char) => char + char)
+        .join(''); // convert #abc to #aabbcc
+    }
+    return {
+      r: parseInt(hex.substring(0, 2), 16),
+      g: parseInt(hex.substring(2, 4), 16),
+      b: parseInt(hex.substring(4, 6), 16),
+      a: 1,
+    };
+  }
+
   return null;
 };
 

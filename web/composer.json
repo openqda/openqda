@@ -25,7 +25,8 @@
         "pusher/pusher-php-server": "^7.2",
         "react/promise": "3.*",
         "spatie/laravel-ray": "^1.33",
-        "tightenco/ziggy": "^1.0"
+        "tightenco/ziggy": "^1.0",
+        "ext-simplexml": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

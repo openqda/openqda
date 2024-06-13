@@ -329,7 +329,7 @@ class SourceController extends Controller
         $outputHtmlPath = $outputDirectory.'/'.pathinfo($filePath, PATHINFO_FILENAME).'.html';
 
         // Define the path to the Python script
-        $scriptPath = dirname(base_path(), 1).'/service-convert-rtf-to-html/convert_rtf_to_html_locally.py';
+        $scriptPath = dirname(base_path(), 1).'/services/convert-rtf-to-html/convert_rtf_to_html_locally.py';
 
         // Check if the Python script file exists
         if (! file_exists($scriptPath)) {

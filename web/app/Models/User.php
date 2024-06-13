@@ -202,6 +202,7 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
             return [
                 'id' => $codebook->id,
                 'name' => $codebook->name,
+                'description' => $codebook->description,
                 'properties' => $codebook->properties,
                 'codes' => $codebook->codes,
                 'project_id' => $codebook->project_id,
