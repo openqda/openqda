@@ -77,7 +77,7 @@
         icon: ArrowPathRoundedSquareIcon,
         class: 'text-black-500 hover:text-cerulean-700',
         onClick({ document }) {
-          retryConvert(document);
+          retryConvert(document, 'retrytranscription');
         },
         visible(document) {
           if (document.type !== 'audio') return false;
@@ -91,7 +91,7 @@
         icon: CloudArrowUpIcon,
         class: 'text-black-500 hover:text-cerulean-700',
         onClick({ document }) {
-          retryConvert(document);
+          retryConvert(document, 'gethtmlcontent');
         },
         visible(document) {
           if (document.type !== 'text') return false;
@@ -253,17 +253,18 @@ function renameDocument(document /*, index */) {
   newName.value = document.name;
 }
 
-async function retryConvert(document) {
+async function retryConvert(document, endpoint) {
+  const url = `/projects/${projectId}/sources/${document.id}/${endpoint}`;
   try {
-    const response = await axios.post(
-      `/projects/${projectId}/sources/${document.id}/gethtmlcontent`
-    );
-
+    document.isConverting = true;
+    const response = await axios.post(url);
+    console.debug(response);
     document.isConverting = !response.data.success;
     document.converted = true;
   } catch (error) {
-    console.error('Error renaming document:', error);
-    renameError.value =
+    console.error('Error retrying conversion:', error);
+    document.failed = true;
+    usePage().props.flash.message =
       error.response.data.message ||
       'An error occurred while converting the document.';
   }

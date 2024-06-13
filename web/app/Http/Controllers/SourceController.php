@@ -549,6 +549,13 @@ class SourceController extends Controller
         }
     }
 
+    public function retryTranscription(Project $project, Source $source)
+    {
+        // check if job exists and what status it has
+        // retry job? restart job? what do here?
+        return response()->json(['message' => 'Conversion in progress']);
+    }
+
     /**
      * Downloads the source file
      *
