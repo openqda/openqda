@@ -76,45 +76,64 @@
         title: 'Retry transcription',
         icon: ArrowPathRoundedSquareIcon,
         class: 'text-black-500 hover:text-cerulean-700',
-        onClick({ action, document, index }) {
+        onClick({ document }) {
           retryConvert(document);
         },
+        visible (document) {
+            if (document.type !== 'audio') return false
+            if (document.converted) return false
+            return document.failed || !document.isConverting
+        }
       },
       {
         id: 'retry-conversion',
         title: 'Retry elaboration',
         icon: CloudArrowUpIcon,
         class: 'text-black-500 hover:text-cerulean-700',
-        onClick({ action, document, index }) {
+        onClick({ document }) {
           retryConvert(document);
         },
+        visible (document) {
+            if (document.type !== 'text') return false
+            if (document.converted) return false
+            return document.failed || !document.isConverting
+        }
       },
       {
         id: 'download-source',
         title: 'Download Source File',
         icon: DocumentArrowDownIcon,
         class: 'text-black-500 hover:text-cerulean-700',
-        onClick({ action, document, index }) {
+        onClick({ document }) {
           downloadSource(document);
         },
+        visible (document) {
+            return document.converted
+        }
       },
       {
         id: 'rename-document',
         title: 'Rename this document',
         icon: PencilSquareIcon,
         class: ' text-black hover:text-gray-600',
-        onClick({ action, document, index }) {
+        onClick({ document, index }) {
           renameDocument(document, index);
         },
+        visible (document) {
+            return document.converted
+        }
       },
       {
         id: 'delete-document',
         title: 'Delete this document',
         icon: XCircleIcon,
         class: ' text-red-700 hover:text-red-600',
-        onClick({ action, document, index }) {
+        onClick({ document, index }) {
           deleteDocument(document, index);
         },
+        visible (/* document */) {
+            return true
+        }
       },
     ]"
     @select="fetchAndRenderDocument"
