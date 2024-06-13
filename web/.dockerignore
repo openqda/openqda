@@ -6,4 +6,7 @@ Dockerfile
 .dockerignore
 .gitignore
 .gitattributes
-
+**/.devcontainer
+**/.git
+**/.vscode
+**/docker

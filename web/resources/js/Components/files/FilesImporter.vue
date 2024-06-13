@@ -43,7 +43,17 @@
         class="py-3"
         accept=".txt,.rtf"
         label="Import"
-        fileSizeLimit="20"
+        fileSizeLimit="200"
+      />
+    </form>
+    <form @submit.prevent="transcribeFile">
+      <FileUploadButton
+        color="cerulean"
+        @fileAdded="handleFileAdded"
+        :icon="CloudArrowUpIcon"
+        label="Transcribe audio"
+        accept="audio/*"
+        fileSizeLimit="100"
       />
     </form>
     <label>
@@ -56,24 +66,49 @@
       </span>
     </label>
   </div>
-  <div
-    v-if="isUploading"
-    class="h-1 w-full bg-cerulean-700 py-3 my-2 relative top-0 combined-effect flex items-center justify-center text-white text-sm"
-  >
-    Processing the file...
-    <!-- You can style this text further or add additional elements -->
-  </div>
+  <div class="text-xs text-silver-700 mx-2 my-1">File size limit: 100MB</div>
   <FilesList
     rowClass="px-2"
     :documents="documents"
     :actions="[
       {
+        id: 'retry-atrain',
+        title: 'Retry transcription',
+        icon: ArrowPathRoundedSquareIcon,
+        class: 'text-black-500 hover:text-cerulean-700',
+        onClick({ document }) {
+          retryTranscription(document);
+        },
+        visible(document) {
+          if (document.type !== 'audio') return false;
+          if (document.converted) return false;
+          return document.failed || !document.isConverting;
+        },
+      },
+      {
         id: 'retry-conversion',
         title: 'Retry elaboration',
         icon: CloudArrowUpIcon,
         class: 'text-black-500 hover:text-cerulean-700',
-        onClick({ action, document, index }) {
+        onClick({ document }) {
           retryConvert(document);
+        },
+        visible(document) {
+          if (document.type !== 'text') return false;
+          if (document.converted) return false;
+          return document.failed || !document.isConverting;
+        },
+      },
+      {
+        id: 'download-source',
+        title: 'Download Source File',
+        icon: DocumentArrowDownIcon,
+        class: 'text-black-500 hover:text-cerulean-700',
+        onClick({ document }) {
+          downloadSource(document);
+        },
+        visible(document) {
+          return document.converted;
         },
       },
       {
@@ -81,8 +116,11 @@
         title: 'Rename this document',
         icon: PencilSquareIcon,
         class: ' text-black hover:text-gray-600',
-        onClick({ action, document, index }) {
+        onClick({ document, index }) {
           renameDocument(document, index);
+        },
+        visible(document) {
+          return document.converted;
         },
       },
       {
@@ -90,8 +128,11 @@
         title: 'Delete this document',
         icon: XCircleIcon,
         class: ' text-red-700 hover:text-red-600',
-        onClick({ action, document, index }) {
+        onClick({ document, index }) {
           deleteDocument(document, index);
+        },
+        visible(/* document */) {
+          return true;
         },
       },
     ]"
@@ -101,7 +142,9 @@
 
 <script setup>
 import {
+  ArrowPathRoundedSquareIcon,
   CloudArrowUpIcon,
+  DocumentArrowDownIcon,
   DocumentPlusIcon,
   PencilSquareIcon,
   XCircleIcon,
@@ -124,23 +167,131 @@ const url = window.location.pathname;
 const segments = url.split('/');
 const projectId = segments[2]; // Assuming project id is the third segment in URL path
 
+const audioFile = ref(null);
+const audioIsUploading = ref(false);
+
+function handleFileAdded({ files }) {
+  audioFile.value = files[0];
+  transcribeFile();
+}
+
+async function downloadSource(source) {
+  try {
+    // Perform the GET request to download the file
+    const response = await axios({
+      url: `/sources/${source.id}/download`,
+      method: 'POST',
+      responseType: 'blob', // Important to set response type to blob for binary data
+    });
+
+    // Extract the filename from the Content-Disposition header
+    const disposition = response.headers['content-disposition'];
+    let filename = source.name; // Fallback filename
+    if (disposition && disposition.includes('attachment')) {
+      const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+      const matches = filenameRegex.exec(disposition);
+      if (matches != null && matches[1]) {
+        filename = matches[1].replace(/['"]/g, ''); // Clean up the filename
+      }
+    }
+
+    // Create a URL for the blob response data
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename); // Set the download attribute with the filename
+    document.body.appendChild(link);
+    link.click(); // Trigger the download
+
+    // Clean up and remove the link from the DOM
+    link.parentNode.removeChild(link);
+  } catch (error) {
+    console.error('Error downloading source file:', error);
+    alert('An error occurred while downloading the source file.');
+  }
+}
+
+async function transcribeFile() {
+  if (!audioFile.value) {
+    alert('Please select an audio file to transcribe.');
+    return;
+  }
+
+  audioIsUploading.value = true;
+
+  const formData = new FormData();
+  formData.append('file', audioFile.value);
+  formData.append('project_id', projectId);
+  formData.append('model', 'default_model'); // Replace with your actual model name
+  formData.append('language', 'en'); // Replace with the desired language code
+
+  try {
+    const response = await axios.post('/files/transcribe', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    if (response.data.newDocument) {
+      response.data.newDocument.isConverting = true;
+      response.data.newDocument.userPicture =
+        usePage().props.auth.user.profile_photo_url;
+      documents.push(response.data.newDocument);
+      fileSelected(response.data.newDocument);
+    }
+  } catch (error) {
+    console.error('Error transcribing file:', error);
+    alert('An error occurred while transcribing the file.');
+  } finally {
+    audioIsUploading.value = false;
+  }
+}
+
 function renameDocument(document /*, index */) {
   isRenaming.value = true;
   renamingDocumentId = document.id;
   newName.value = document.name;
 }
 
-async function retryConvert(document) {
+async function retryTranscription(document) {
+  const url = `/projects/${projectId}/sources/${document.id}/retrytranscription`;
   try {
-    const response = await axios.post(
-      `/projects/${projectId}/sources/${document.id}/gethtmlcontent`
-    );
+    const response = await axios.post(url);
+    console.debug(response);
+    const { message, status } = response.data;
 
+    if (status === 'finished') {
+      document.isConverting = false;
+      document.converted = true;
+      document.failed = false;
+    } else {
+      document.isConverting = true;
+      document.converted = false;
+      document.failed = false;
+    }
+
+    usePage().props.flash.message = message;
+  } catch (error) {
+    console.error('Error retrying conversion:', error);
+    document.failed = true;
+    usePage().props.flash.message =
+      error.response.data.message ||
+      'An error occurred while converting the document.';
+  }
+}
+
+async function retryConvert(document) {
+  const url = `/projects/${projectId}/sources/${document.id}/gethtmlcontent`;
+  try {
+    document.isConverting = true;
+    const response = await axios.post(url);
+    console.debug(response);
     document.isConverting = !response.data.success;
     document.converted = true;
   } catch (error) {
-    console.error('Error renaming document:', error);
-    renameError.value =
+    console.error('Error retrying conversion:', error);
+    document.failed = true;
+    usePage().props.flash.message =
       error.response.data.message ||
       'An error occurred while converting the document.';
   }
@@ -302,6 +453,7 @@ onMounted(() => {
   window.Echo.private('conversion.' + projectId).listen(
     'ConversionCompleted',
     (e) => {
+      console.debug('ConversionCompleted', e.sourceId);
       let documentIndex = -1;
       documents.forEach((doc, index) => {
         console.log(doc.id);
@@ -313,6 +465,26 @@ onMounted(() => {
       if (documentIndex !== -1) {
         documents[documentIndex].isConverting = false;
         documents[documentIndex].converted = true;
+        documents[documentIndex].failed = false;
+      }
+    }
+  );
+  window.Echo.private('conversion.' + projectId).listen(
+    'ConversionFailed',
+    (e) => {
+      console.debug('ConversionFailed', e.sourceId, e.message);
+      let documentIndex = -1;
+      documents.forEach((doc, index) => {
+        console.log(doc.id);
+        if (doc.id === e.sourceId) {
+          documentIndex = index;
+        }
+      });
+
+      if (documentIndex !== -1) {
+        documents[documentIndex].isConverting = false;
+        documents[documentIndex].converted = false;
+        documents[documentIndex].failed = true;
       }
     }
   );

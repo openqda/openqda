@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Events\ConversionCompleted;
 use App\Jobs\ConvertFileToHtmlJob;
+use App\Jobs\TranscriptionJob;
 use App\Models\Project;
 use App\Models\Source;
 use App\Models\SourceStatus;
 use App\Models\Variable;
+use DB;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -18,6 +20,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use OwenIt\Auditing\Models\Audit;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * This controller handles the creation, updating, and deletion of sources.
@@ -137,7 +140,7 @@ class SourceController extends Controller
                 'userPicture' => $source->creatingUser->profile_photo_url,
                 'date' => $source->created_at->toDateString(),
                 'variables' => $source->transformVariables(),
-                'converted' => File::exists($source->converted->path),
+                'converted' => $source->converted ? File::exists($source->converted->path) : false,
             ];
         });
     }
@@ -329,7 +332,7 @@ class SourceController extends Controller
         $outputHtmlPath = $outputDirectory.'/'.pathinfo($filePath, PATHINFO_FILENAME).'.html';
 
         // Define the path to the Python script
-        $scriptPath = dirname(base_path(), 1).'/services/convert-rtf-to-html/convert_rtf_to_html_locally.py';
+        $scriptPath = dirname(base_path(), 1).'/services/transform/convert-rtf-to-html/convert_rtf_to_html_locally.py';
 
         // Check if the Python script file exists
         if (! file_exists($scriptPath)) {
@@ -439,7 +442,7 @@ class SourceController extends Controller
             }
 
             // Delete the rich_text file
-            if ($source->converted->path) {
+            if (($source->converted && $source->converted->path)) {
                 // Assuming it's an absolute path from the system's root
                 if (File::exists($source->converted->path)) {
                     File::delete($source->converted->path);
@@ -486,5 +489,102 @@ class SourceController extends Controller
         $this->getHtmlContent($source->upload_path, $project->id, $source, true);
 
         return response()->json(['message' => 'Conversion in progress']);
+    }
+
+    /**
+     * Requests a transcription from the external example service.
+     * Handle database transactions and error handling, leave file processing to the job.
+     */
+    public function transcribe(Request $request)
+    {
+
+        $request->validate([
+            'file' => 'required|file|extensions:mpeg,mpga,mp3,wav,aac,ogg,m4a,flac|max:100000',
+            'model' => 'required|string',
+            'language' => 'required|string',
+        ]);
+
+        $user = Auth::user();
+        $file = $request->file('file');
+        $model = $request->input('model');
+        $language = $request->input('language');
+
+        try {
+            // Generate a unique filename and store the file
+            $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
+            $projectId = $request->input('project_id');
+            $relativeFilePath = $file->storeAs('projects/'.$projectId.'/sources', $filename);
+            $path = storage_path("app/{$relativeFilePath}");
+
+            // Create the source record for the audio
+            $source = Source::create([
+                'name' => $file->getClientOriginalName(),
+                'creating_user_id' => $user->id,
+                'project_id' => $projectId,
+                'type' => 'audio',
+                'upload_path' => $path,
+            ]);
+            // Create the source status record
+            SourceStatus::create([
+                'source_id' => $source->id,
+                'status' => 'converting',
+            ]);
+
+            TranscriptionJob::dispatch($path, $projectId, $source->id)->onQueue('conversion');
+
+            return response()->json(['message' => 'File uploaded and processing started', 'newDocument' => [
+                'id' => $source->id,
+                'name' => $source->name,
+                'type' => 'audio',
+                'user' => auth()->user()->name,
+                'content' => '',
+                'converted' => false,
+
+            ], ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function retryTranscription(Project $project, Source $source)
+    {
+        // check if job exists and what status it has
+        // retry job? restart job? what do here?
+        $jobRef = Variable::where('source_id', $source->id)->where('name', 'transcription_job_status')->first();
+
+        if (! $jobRef) {
+            return response()->json(['message' => 'Conversion has finished', 'status' => 'finished']);
+        }
+
+        if ($jobRef->text_value == 'failed') {
+            TranscriptionJob::dispatch($source->upload_path, $projectId->id, $source->id)->onQueue('conversion');
+
+            return response()->json(['message' => 'Conversion restarted', 'status' => 'restarted']);
+        } else {
+            return response()->json(['message' => 'Conversion is still running', 'status' => $jobRef->text_value]);
+        }
+    }
+
+    /**
+     * Downloads the source file
+     *
+     * @param  $source
+     * @return BinaryFileResponse|JsonResponse
+     */
+    public function download($sourceId)
+    {
+        $source = Source::findOrFail($sourceId);
+        $project = $source->project;
+        // Use ProjectPolicy to authorize the action
+        if (! Gate::allows('view', $project)) {
+            return response()->json(['success' => false, 'message' => 'Not allowed'], 403);
+        }
+        $path = $source->upload_path;
+        $name = $source->name;
+
+        return response()->download($path, $name);
     }
 }

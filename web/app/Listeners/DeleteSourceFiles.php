@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\SourceDeleting;
 use App\Models\Code;
+use App\Models\Variable;
 use Illuminate\Support\Facades\Storage;
 
 class DeleteSourceFiles
@@ -34,5 +35,9 @@ class DeleteSourceFiles
         if ($source->rich_text_path) {
             Storage::delete($source->rich_text_path);
         }
+
+        // Delete all variables associated with the source
+        Variable::where('source_id', $source->id)->delete();
+
     }
 }

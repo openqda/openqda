@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Source;
+use App\Models\Variable;
 use Illuminate\Support\Facades\File;
 
 class SourceService
@@ -33,6 +34,8 @@ class SourceService
             }
 
             $source->sourceStatuses()->delete();
+            // Delete all variables associated with the source
+            Variable::where('source_id', $source->id)->delete();
             // Delete the database record
             $source->forceDelete();
 

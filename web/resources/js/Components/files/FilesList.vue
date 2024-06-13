@@ -113,6 +113,7 @@
         :class="[
           document.selected ? 'bg-silver-50' : '',
           document.converted ? '' : '',
+          document.failed ? 'border-l-red-600' : '',
           props.rowClass,
         ]"
       >
@@ -135,7 +136,9 @@
             {{ document.name }}
           </a>
           <div
-            v-if="!document.converted && !document.isConverting"
+            v-if="
+              !document.converted && !document.isConverting && !document.failed
+            "
             class="flex items-center bg-yellow-100 text-yellow-800 font-semibold px-2 py-1 mx-2 text-xs"
           >
             <ExclamationTriangleIcon
@@ -147,7 +150,7 @@
           </div>
 
           <div
-            v-if="document.isConverting"
+            v-if="document.isConverting && !document.failed"
             class="flex items-center bg-porsche-400 text-white text-xs font-semibold px-2 py-1 rounded-full"
           >
             <div class="animate-spin mr-1">
@@ -156,6 +159,12 @@
             </div>
             Converting
           </div>
+          <div
+            v-if="document.failed"
+            class="flex items-center bg-red-700 text-white text-xs font-semibold px-2 py-1 rounded-full"
+          >
+            Failed
+          </div>
         </td>
 
         <td class="py-2">
@@ -163,6 +172,10 @@
           <div :title="dataTypeTitle(document.type)" class="w-full text-center">
             <DocumentTextIcon
               v-if="document.type === 'text'"
+              class="h-4 w-4 gray-500 ml-auto mr-auto"
+            />
+            <SpeakerWaveIcon
+              v-if="document.type === 'audio'"
               class="h-4 w-4 gray-500 ml-auto mr-auto"
             />
           </div>
@@ -210,12 +223,7 @@
               class="items-center"
             >
               <button
-                v-if="
-                  !(
-                    action.id === 'retry-conversion' &&
-                    (document.isConverting || document.converted)
-                  )
-                "
+                v-if="action.visible(document)"
                 class="flex items-center text-gray-700 hover:bg-silver-100 px-4 py-2 text-sm w-full text-left"
                 @click="action.onClick({ action, document, index })"
               >
@@ -243,8 +251,9 @@ import {
   LockClosedIcon,
 } from '@heroicons/vue/20/solid/index.js';
 import {
-  ExclamationTriangleIcon,
   DocumentTextIcon,
+  ExclamationTriangleIcon,
+  SpeakerWaveIcon,
 } from '@heroicons/vue/24/outline/index.js';
 import { ref } from 'vue';
 import { vClickOutside } from '../coding/clickOutsideDirective.js';
