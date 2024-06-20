@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "test:unit": "vitest",
+    "test:unit": "vitest --coverage --ui",
     "ci:unit": "LARAVEL_BYPASS_ENV_CHECK=1 CI=1 vitest --run --watch=false",
     "format:write": "prettier ./resources/js --write",
     "format:check": "prettier ./resources/js --check",
@@ -29,7 +29,9 @@
     "@tailwindcss/typography": "^0.5.10",
     "@testing-library/vue": "^8.0.3",
     "@vitejs/plugin-vue": "^4.0.0",
+    "@vitest/coverage-istanbul": "^1.6.0",
     "@vitest/coverage-v8": "^1.6.0",
+    "@vitest/ui": "^1.6.0",
     "autoprefixer": "^10.4.17",
     "axios": "^1.6.4",
     "eslint": "^9.2.0",
