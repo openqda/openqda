@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: [ 8.3 ]
+        php: [8.3]
 
     steps:
       - name: Checkout code
@@ -25,11 +25,12 @@ jobs:
           extensions: json, dom, curl, libxml, mbstring
           coverage: none
 
-      - name: go into the backend folder
-        run: cd web
-
-      - name: Install Pint
-        run: composer global require laravel/pint
+      - name: Install dependencies
+        run: |
+          cd web
+          composer install
 
       - name: Run Pint
-        run: pint --test
+        run: |
+          cd web
+          ./vendor/bin/pint --test
