@@ -2,7 +2,12 @@
   <button
     type="button"
     :disabled="disabled ? 'disabled' : false"
-    :class="`rounded bg-${color}-700 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-${color}-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-${color}-500 inline-flex items-center ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`"
+    :class="[
+      'rounded font-semibold shadow-sm inline-flex items-center',
+      'px-2 py-1',
+      `bg-${col}-700 text-xs  text-white hover:bg-${col}-500  ${disabled === true ? 'opacity-50 cursor-not-allowed' : ''}`,
+      `focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-${col}-500`,
+    ]"
   >
     <component
       :is="icon"
@@ -13,5 +18,40 @@
 </template>
 
 <script setup>
-defineProps(['label', 'color', 'icon', 'disabled', 'iconSize']);
+import { ref } from 'vue';
+
+defineProps({
+  type: {
+    type: String,
+    required: false,
+  },
+  /**
+   * The actual button label to display
+   */
+  label: {
+    type: String,
+    required: false,
+  },
+  /**
+   * main background color of the button
+   */
+  color: {
+    type: String,
+    required: false,
+  },
+  icon: {
+    type: Object,
+    required: false,
+  },
+  iconSize: {
+    type: Number,
+    required: false,
+  },
+  disabled: {
+    type: Boolean,
+    required: false,
+  },
+});
+
+const col = ref('cerulean');
 </script>

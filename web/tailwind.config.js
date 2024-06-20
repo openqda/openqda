@@ -14,7 +14,7 @@ export default {
         './resources/views/filament/**/*.blade.php',
         './vendor/filament/**/*.blade.php',
     ],
-
+    darkMode: ['class', '[data-mode="dark"]'],
     theme: {
         extend: {
             fontFamily: {
