@@ -1,3 +1,13 @@
+/**
+ * Creates a new CSV builder that allows to construct a new csv
+ * string by given options and added rows.
+ *
+ * @param {object} options
+ * @param {string[]} options.header a list of strings to define the headers
+ * @param {string} options.separator character for the separator
+ * @param {string} options.newline character for linebreaks
+ * @return {CSVBuilder}
+ */
 export const createCSV = (options) => new CSVBuilder(options);
 
 class CSVBuilder {
@@ -35,3 +45,5 @@ class CSVBuilder {
 const toLine = (row, { separator, newline }) => {
   return row.join(separator) + newline;
 };
+
+export const className = CSVBuilder.name;

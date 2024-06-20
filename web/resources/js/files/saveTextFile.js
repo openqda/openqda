@@ -1,4 +1,15 @@
 import FileSaver from 'file-saver';
+
+/**
+ * Opens the save dialog to save a given text
+ * as file.
+ *
+ * @param {string} text
+ * @param {string} name
+ * @param {string} [encoding=text/plain]
+ * @param {string} [encoding=utf-8]
+ * @return {Promise<void>}
+ */
 export const saveTextFile = async ({
   text,
   name,
