@@ -421,7 +421,7 @@ class SourceController extends Controller
         // Convert the content to UTF-8 encoding
         $utf8Content = mb_convert_encoding($txtContent, 'UTF-8', $encoding);
 
-        // Convert special characters to HTML entities to prevent HTML injection
+        // Convert special characters to HTML entities to p1revent HTML injection
         $htmlContent = htmlspecialchars($utf8Content);
 
         // Convert line breaks to <br> tags
