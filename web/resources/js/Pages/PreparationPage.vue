@@ -138,7 +138,7 @@ import {
 } from '@heroicons/vue/20/solid';
 import { Head, router, usePage } from '@inertiajs/vue3';
 import Headline2 from '../Components/layout/Headline2.vue';
-import { debounce } from '../utils/debounce.js';
+import { debounce } from '../utils/dom/debounce.js';
 
 const editorSourceRef = ref({
   content: 'select to display',

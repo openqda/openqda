@@ -725,7 +725,7 @@ import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue';
 import {
   closeFullscreen,
   openFullscreen,
-} from '../Components/coding/FullScreen.js';
+} from '../utils/dom/fullScreen.js';
 import { XCircleIcon as XCircleSolidIcon } from '@heroicons/vue/24/solid';
 import { vClickOutside } from '../Components/coding/clickOutsideDirective.js';
 import DropdownMenu from '../Components/coding/DropdownMenu.vue';

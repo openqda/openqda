@@ -52,7 +52,7 @@
 
 <script setup>
 import { onMounted, ref, watch } from 'vue';
-import { debounce } from '../../utils/debounce.js';
+import { debounce } from '../../utils/dom/debounce.js';
 import { XMarkIcon } from '@heroicons/vue/24/solid';
 
 defineEmits(['remove']);

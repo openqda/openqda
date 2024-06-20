@@ -1,4 +1,4 @@
-import './bootstrap';
+import './startup/bootstrap.js';
 import '../css/app.css';
 
 import { createApp, h } from 'vue';

@@ -1,3 +1,8 @@
+/**
+ * Global client-side facade to
+ * retrieve the current valid project id.
+ * @type {object}
+ */
 export const Project = {};
 
 /**
@@ -22,8 +27,19 @@ Project.getId = () => {
   if (Project.isValidId(projectId)) {
     return projectId;
   }
+
+  throw new Error(`Could not retrieve a valid project id.`)
 };
 
-const invalidIdValues = [0, false, undefined, null, '', 'undefined', 'null'];
+/**
+ * @private
+ * @type {[]}
+ */
+const invalidIdValues = [0, '0', false, undefined, null, '', 'undefined', 'null'];
 
+/**
+ * checks, whether a given project id is valid
+ * @param id {any}
+ * @return {boolean}
+ */
 Project.isValidId = (id) => !invalidIdValues.includes(id);
