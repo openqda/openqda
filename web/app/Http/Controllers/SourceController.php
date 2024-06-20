@@ -402,6 +402,7 @@ class SourceController extends Controller
             File::makeDirectory($outputDirectory, 0755, true);
         }
         $outputHtmlPath = $outputDirectory.'/'.pathinfo($txtFilePath, PATHINFO_FILENAME).'.html';
+
         // Read the contents of the TXT file
         $txtContent = file_get_contents($txtFilePath);
 
@@ -410,11 +411,23 @@ class SourceController extends Controller
             return 'Error reading file.';
         }
 
+        // Detect the encoding of the text
+        $encoding = mb_detect_encoding($txtContent, mb_list_encodings(), true);
+        if ($encoding === false) {
+            // Handle error if encoding could not be detected
+            return 'Error detecting encoding.';
+        }
+
+        // Convert the content to UTF-8 encoding
+        $utf8Content = mb_convert_encoding($txtContent, 'UTF-8', $encoding);
+
         // Convert special characters to HTML entities to prevent HTML injection
-        $htmlContent = htmlspecialchars($txtContent);
+        $htmlContent = htmlspecialchars($utf8Content);
 
         // Convert line breaks to <br> tags
         $htmlContent = nl2br($htmlContent);
+
+        // Save the HTML content to the output file
         file_put_contents($outputHtmlPath, $htmlContent);
 
         return $htmlContent;
