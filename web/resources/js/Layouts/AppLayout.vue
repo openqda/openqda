@@ -110,7 +110,7 @@ const shouldShowFooter = computed(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-light-100">
+  <div class="min-h-screen bg-light-100 dark:bg-silver-900">
     <!-- Page Content -->
     <main>
       <Navigation :active="route().current()"></Navigation>

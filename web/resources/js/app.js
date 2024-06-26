@@ -1,3 +1,4 @@
+import './startup/theme.js';
 import './startup/bootstrap.js';
 import '../css/app.css';
 

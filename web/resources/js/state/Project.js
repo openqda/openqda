@@ -28,14 +28,23 @@ Project.getId = () => {
     return projectId;
   }
 
-  throw new Error(`Could not retrieve a valid project id.`)
+  throw new Error(`Could not retrieve a valid project id.`);
 };
 
 /**
  * @private
  * @type {[]}
  */
-const invalidIdValues = [0, '0', false, undefined, null, '', 'undefined', 'null'];
+const invalidIdValues = [
+  0,
+  '0',
+  false,
+  undefined,
+  null,
+  '',
+  'undefined',
+  'null',
+];
 
 /**
  * checks, whether a given project id is valid

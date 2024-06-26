@@ -242,7 +242,14 @@
     </tbody>
   </table>
 </template>
+
 <script setup>
+/**
+ * FileList is a generic list component that
+ * renders given documents, representing files
+ * with specific actions.
+ */
+
 import {
   ArrowPathIcon,
   ChevronDownIcon,

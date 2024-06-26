@@ -722,10 +722,7 @@ import CodingModal from '../Components/coding/CodingModal.vue';
 import CodeItem from '../Components/coding/CodeItem.vue';
 import AppLayout from '../Layouts/AppLayout.vue';
 import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue';
-import {
-  closeFullscreen,
-  openFullscreen,
-} from '../utils/dom/fullScreen.js';
+import { closeFullscreen, openFullscreen } from '../utils/dom/fullScreen.js';
 import { XCircleIcon as XCircleSolidIcon } from '@heroicons/vue/24/solid';
 import { vClickOutside } from '../Components/coding/clickOutsideDirective.js';
 import DropdownMenu from '../Components/coding/DropdownMenu.vue';
