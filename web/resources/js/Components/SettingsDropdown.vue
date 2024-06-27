@@ -33,14 +33,12 @@ const feedbackForm = useForm({
 
 function enableFeedback() {
   if (!feedbackFormIsActive.value) {
-    console.debug('enable feedback');
     feedbackFormIsActive.value = true;
   }
 }
 
 function disableFeedback() {
   if (feedbackFormIsActive.value) {
-    console.debug('disable feedback');
     feedbackFormIsActive.value = false;
   }
 }
@@ -54,7 +52,7 @@ async function submitFeedback(e) {
   const location = window.location.href;
   const payload = { projectId, location, ...formData };
   try {
-    const response = await axios.post('/user/feedback/', payload);
+    const response = await axios.post('/user/feedback', payload);
     if (response.data.sent) {
       usePage().props.flash.message = 'Your feedback has been submitted';
       feedbackFormIsActive.value = false;
@@ -173,7 +171,7 @@ async function submitFeedback(e) {
 
       <!-- Authentication -->
       <form @submit.prevent="logout" v-show="!feedbackFormIsActive">
-        <DropdownLink @click="onLogout" href="#"> Log Out </DropdownLink>
+        <DropdownLink @click="onLogout" href="#"> Log Out</DropdownLink>
       </form>
     </template>
   </Dropdown>
