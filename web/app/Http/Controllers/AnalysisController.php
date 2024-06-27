@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ShowAnalysisPage;
 use App\Models\Code;
 use App\Models\Project;
 use App\Models\Source;
-use App\Models\User;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class AnalysisController extends Controller
@@ -16,7 +15,7 @@ class AnalysisController extends Controller
 
     }
 
-    public function show(Request $request, Project $project)
+    public function show(ShowAnalysisPage $request, Project $project)
     {
         $sources = Source::where('project_id', $project->id)->get();
         $codebooks = $project->codebooks()->get();
