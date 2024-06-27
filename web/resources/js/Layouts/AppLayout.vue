@@ -3,7 +3,7 @@ import { computed, onMounted, onUnmounted, provide, ref, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import Navigation from '../Components/Navigation.vue';
 import FlashMessage from '../Components/FlashMessage.vue';
-import { setupEcho, useSharedState } from '../state/sharedState.js';
+import { setupEcho } from '../state/sharedState.js';
 import Footer from './Footer.vue';
 
 defineProps({
@@ -11,8 +11,6 @@ defineProps({
 });
 let pingIntervalId;
 let userInAteam = false;
-const sharedState = useSharedState();
-provide('sharedState', sharedState);
 
 const usersInChannel = ref([]);
 provide('usersInChannel', usersInChannel);
@@ -48,7 +46,10 @@ function setPresence() {
       console.error('Error sending navigation update:', error);
     });
 
-  setupEcho(getSharedTeam().id, usersInChannel);
+  setupEcho({
+      teamId :getSharedTeam().id,
+      usersInChannel,
+  });
 
   pingIntervalId = setInterval(() => {
     // Dispatch an event to the server to indicate that the user is still on the page
@@ -79,13 +80,9 @@ onMounted(() => {
 });
 
 // Watch for changes in usersInChannel and save them to local storage
-watch(
-  usersInChannel,
-  (newUsers) => {
-    saveUsersToStorage(newUsers);
-  },
-  { deep: true }
-);
+watch(usersInChannel, (newUsers) => {
+  saveUsersToStorage(newUsers);
+}, { deep: true });
 
 onUnmounted(() => {
   // Leave the channel when the component is unmounted

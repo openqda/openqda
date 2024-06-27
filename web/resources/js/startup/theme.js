@@ -8,4 +8,6 @@ import { ThemeBrowserStorage } from '../theme/ThemeBrowserStorage.js';
 Theme.init({ storage: ThemeBrowserStorage })
   .then(console.debug)
   .catch(console.error);
+
+// FIXME: remove once we have a theme switcher implemented
 window.Theme = Theme;
