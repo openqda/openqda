@@ -118,11 +118,11 @@ Route::middleware([
     /**
      * Codebooks
      */
-    Route::post('/projects/{project}/codebooks/{codebook}', [CodebookController::class, 'update'])->name('codebook.update');
+    Route::patch('/projects/{project}/codebooks/{codebook}', [CodebookController::class, 'update'])->name('codebook.update');
     Route::delete('/projects/{project}/codebooks/{codebook}', [CodebookController::class, 'destroy'])->name('codebook.destroy');
-    Route::post('/projects/{project}/codebooks/', [CodebookController::class, 'store'])->name('codebook.store');
-    Route::post('/codebook/import', [CodebookCodesController::class, 'import'])->name('codebook-codes.import');
-    Route::get('/codebook/export/{id}', [CodebookCodesController::class, 'export'])->name('codebook-codes.export');
+    Route::post('/projects/{project}/codebooks', [CodebookController::class, 'store'])->name('codebook.store');
+    Route::post('/projects/{project}/codebooks/import', [CodebookCodesController::class, 'import'])->name('codebook-codes.import');
+    Route::get('/projects/{project}/codebooks/export/{id}', [CodebookCodesController::class, 'export'])->name('codebook-codes.export');
     /**
      * Analysis
      */
