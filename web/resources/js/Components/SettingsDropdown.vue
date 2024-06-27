@@ -70,10 +70,12 @@ async function submitFeedback(e) {
   <Dropdown align="right" width="48" :prevent="feedbackFormIsActive">
     <template #trigger>
       <button
-        class="flex text-sm relative transition w-16 h-16 border-2 border-transparent focus:outline-none focus:border-gray-300"
+        class="flex text-sm relative transition w-16 h-16"
         v-if="$page.props.jetstream.managesProfilePhotos"
       >
-        <ProfileImage />
+        <ProfileImage
+            :alt="$page.props.auth.user.name"
+            :src="$page.props.auth.user.profile_photo_url" />
       </button>
 
       <span v-else class="inline-flex">
