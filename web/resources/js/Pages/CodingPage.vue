@@ -748,7 +748,7 @@ import Button from '../Components/interactive/Button.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
 import Collapse from '../Components/layout/Collapse.vue';
 import { flashMessage } from '../Components/notification/flashMessage.js';
-import { request } from '../utils/http/BackendRequest.js'
+import { request } from '../utils/http/BackendRequest.js';
 
 // Define a prop for the HTML content
 const props = defineProps(['source', 'sources', 'codebooks', 'allCodes']);
@@ -990,15 +990,14 @@ const deleteTextFromCode = (item, textIndex, codeId) => {
     console.warn('Code not found');
     // TODO warn message here?
   } else {
-      request({
-          url: `/projects/${projectId}/sources/${props.source.id}/codes/${codeId}/selections/${item.id}`,
-          type: 'delete',
-      })
-      .then(({ response, error }) => {
-        if (error) {
-            flashMessage(response.data.message);
-        }
-      })
+    request({
+      url: `/projects/${projectId}/sources/${props.source.id}/codes/${codeId}/selections/${item.id}`,
+      type: 'delete',
+    }).then(({ response, error }) => {
+      if (error) {
+        flashMessage(response.data.message);
+      }
+    });
   }
 };
 
@@ -1418,25 +1417,25 @@ const deleteCode = async (codeId) => {
   // Only proceed if the user confirms
   if (isConfirmed) {
     // Make a DELETE request
-      const { response, error } = await request({
-        url: `/projects/${projectId}/sources/${props.source.id}/codes/${codeId}`,
-        type: 'delete'
-      })
+    const { response, error } = await request({
+      url: `/projects/${projectId}/sources/${props.source.id}/codes/${codeId}`,
+      type: 'delete',
+    });
 
-      if (error) {
-          const message = `Code deletion failed: ${response.data.message}`;
-          flashMessage(message, { type: 'error'});
-      }else {
-          // Find all spans with an id that matches the code id
-          // and replace each span with its inner HTML
-          document
-            .querySelectorAll(`span[data-id="${codeId}"]`)
-            .forEach((span) => (span.outerHTML = span.innerHTML));
+    if (error) {
+      const message = `Code deletion failed: ${response.data.message}`;
+      flashMessage(message, { type: 'error' });
+    } else {
+      // Find all spans with an id that matches the code id
+      // and replace each span with its inner HTML
+      document
+        .querySelectorAll(`span[data-id="${codeId}"]`)
+        .forEach((span) => (span.outerHTML = span.innerHTML));
 
-          // Remove the code from the codes array
-          codeToSplice.parentArray.splice(codeToSplice.index, 1);
-          flashMessage(response.data.message);
-      }
+      // Remove the code from the codes array
+      codeToSplice.parentArray.splice(codeToSplice.index, 1);
+      flashMessage(response.data.message);
+    }
   }
 };
 
@@ -1572,16 +1571,16 @@ const handleTextHighlighting = async (range, targetCode, text) => {
     end_position: offsets.end,
   };
 
-  const { response, error} = await request({
-      url: `/projects/${projectId}/sources/${props.source.id}/codes/${targetCode.id}`,
-      type: 'post',
-      body: payload
-  })
+  const { response, error } = await request({
+    url: `/projects/${projectId}/sources/${props.source.id}/codes/${targetCode.id}`,
+    type: 'post',
+    body: payload,
+  });
 
-    if (error) {
-        const message = `There was an error saving the selection: ${response.data.message}`
-        flashMessage(message, { type: 'error' })
-    }
+  if (error) {
+    const message = `There was an error saving the selection: ${response.data.message}`;
+    flashMessage(message, { type: 'error' });
+  }
 
   // Add the selected text to the clicked code's highlightedSpans
   // As there's no new node created, you might just want to store the range, text, and offsets.
@@ -1591,7 +1590,7 @@ const handleTextHighlighting = async (range, targetCode, text) => {
     start: offsets.start,
     end: offsets.end,
   });
-}
+};
 
 function nextNode(node) {
   if (node.hasChildNodes()) {
@@ -1828,16 +1827,15 @@ const highlightAndAddTextToCode = async (index, currentId, parentId = null) => {
       body: {
         oldCodeId: rightClickedText.value.getAttribute('data-id'),
         newCodeId: targetCode.id,
-      }
+      },
     });
 
     if (error) {
-        const message = `Error reassigning text: ${response.data.message}`;
-        flashMessage(message, { type: 'error' })
-    }
-    else if (!response.data.success) {
-        const message = `Failed to reassign text.`
-        flashMessage(message, { type: 'error' })
+      const message = `Error reassigning text: ${response.data.message}`;
+      flashMessage(message, { type: 'error' });
+    } else if (!response.data.success) {
+      const message = `Failed to reassign text.`;
+      flashMessage(message, { type: 'error' });
     }
   } else {
     // Handle text highlighting for new text
@@ -1903,23 +1901,23 @@ const addCodeToList = async () => {
   codes.value.push(codeObject);
 
   const { response, error } = await request({
-      url: `/projects/${projectId}/codes`,
-      type: 'post',
-      body: codeObject,
-  })
-    if (error) {
-        const message = `Error while saving code: ${response.data.message}`;
-        flashMessage(message, { type: 'error' });
-    } else {
-        // Update the local ID with the received ID, assuming the received ID is at response.data.id
-        const localIndex = codes.value.findIndex((code) => code.id === idLocal);
+    url: `/projects/${projectId}/codes`,
+    type: 'post',
+    body: codeObject,
+  });
+  if (error) {
+    const message = `Error while saving code: ${response.data.message}`;
+    flashMessage(message, { type: 'error' });
+  } else {
+    // Update the local ID with the received ID, assuming the received ID is at response.data.id
+    const localIndex = codes.value.findIndex((code) => code.id === idLocal);
 
-        if (localIndex !== -1 && response.data.id) {
-            // Replace this with the actual path to the id in the response
-            codes.value[localIndex].id = response.data.id;
-        }
-        flashMessage(response.data.message);
+    if (localIndex !== -1 && response.data.id) {
+      // Replace this with the actual path to the id in the response
+      codes.value[localIndex].id = response.data.id;
     }
+    flashMessage(response.data.message);
+  }
 };
 
 /**
@@ -1972,27 +1970,26 @@ const addCodeToChildrenRecursive = async (codeId, codesArray = codes.value) => {
       currentCode.children.push(newChildCode);
 
       const { response, error } = await request({
-          url: `/projects/${projectId}/codes`,
-          type: 'post',
-          body: newChildCode
-      })
+        url: `/projects/${projectId}/codes`,
+        type: 'post',
+        body: newChildCode,
+      });
 
-        if (error) {
-            const message = `Error while saving code: ${response.data.message}`;
-            flashMessage(message, { type: 'error' });
-        }
-        else {
-            // Update the local ID with the received ID, assuming the received ID is at response.data.id
-            let localCode = findCodeById(codes.value, localId);
+      if (error) {
+        const message = `Error while saving code: ${response.data.message}`;
+        flashMessage(message, { type: 'error' });
+      } else {
+        // Update the local ID with the received ID, assuming the received ID is at response.data.id
+        let localCode = findCodeById(codes.value, localId);
 
-            // assign the id generated in the backend.
-            if (localCode !== -1) {
-                localCode.parentArray[localCode.index].id = response.data.id;
-            }
-            // close any open dropdowns
-            currentCode.dropdownOpen = false;
-            flashMessage(response.data.message);
+        // assign the id generated in the backend.
+        if (localCode !== -1) {
+          localCode.parentArray[localCode.index].id = response.data.id;
         }
+        // close any open dropdowns
+        currentCode.dropdownOpen = false;
+        flashMessage(response.data.message);
+      }
       return true;
     } else if (currentCode.children && currentCode.children.length > 0) {
       const added = await addCodeToChildrenRecursive(
@@ -2060,22 +2057,21 @@ const deleteTextFromCodeFromContextMenu = async (event) => {
   const found = deleteTextFromCodeById(codeId, textId, codes.value);
 
   if (!found) {
-      // TODO: warn using flash message?
+    // TODO: warn using flash message?
     console.warn('Code or Text not found');
     return;
   }
-      const { response, error } = await request({
-        url: `/projects/${projectId}/sources/${props.source.id}/codes/${codeId}/selections/${textId}`,
-        type: 'delete'
-      })
+  const { response, error } = await request({
+    url: `/projects/${projectId}/sources/${props.source.id}/codes/${codeId}/selections/${textId}`,
+    type: 'delete',
+  });
 
-    if (error) {
-        const message = `Error deleting code: ${response.data.message}`;
-        flashMessage(message, { type: 'error'});
-    }
-    else {
-        flashMessage(response.data.message);
-    }
+  if (error) {
+    const message = `Error deleting code: ${response.data.message}`;
+    flashMessage(message, { type: 'error' });
+  } else {
+    flashMessage(response.data.message);
+  }
 
   // Reset rightClickedText
   rightClickedText.value = null;
@@ -2153,18 +2149,18 @@ const saveCodeTitle = async (codeId, options = {}) => {
   codeObject.code.title = options.current ?? options.prev;
 
   // update the title in the DB
-    const { response, error } = await request({
-        url: `/projects/${projectId}/codes/${codeObject.code.id}/update-title`,
-        type: 'post',
-        body: {
-          title: codeObject.code.title,
-        }
-    })
+  const { response, error } = await request({
+    url: `/projects/${projectId}/codes/${codeObject.code.id}/update-title`,
+    type: 'post',
+    body: {
+      title: codeObject.code.title,
+    },
+  });
 
-    if (error) {
-        const message = `Error updating title in the database: ${response.data.message}`;
-        flashMessage(message, { type: 'error' });
-    }
+  if (error) {
+    const message = `Error updating title in the database: ${response.data.message}`;
+    flashMessage(message, { type: 'error' });
+  }
 };
 
 const hexToRgb = (hex) => {
@@ -2264,16 +2260,19 @@ const updateCodeColorFromId = async (codeId, newColor) => {
   });
 
   // update the color in the DB
-    const { response, error } = await request({
-        url: `/projects/${projectId}/codes/${codeId}/update-color`,
-        type: 'post',
-        body: {
-          color: newColor,
-        }
-    })
-    if (error) {
-        flashMessage(`Error updating color in the database: ${response.data.message}`, { type: 'error' });
-    }
+  const { response, error } = await request({
+    url: `/projects/${projectId}/codes/${codeId}/update-color`,
+    type: 'post',
+    body: {
+      color: newColor,
+    },
+  });
+  if (error) {
+    flashMessage(
+      `Error updating color in the database: ${response.data.message}`,
+      { type: 'error' }
+    );
+  }
 };
 
 const updateColor = async (event, index, codeId) => {
@@ -2682,12 +2681,17 @@ watchEffect(() => {
 const saveDescription = async (code) => {
   let description = code.description;
   const { response, error } = await request({
-      url: `/projects/${projectId}/sources/${props.source.id}/codes/${code.id}/description`
-      type: 'post',
-      body: {
-          description,
-      }
+    url: `/projects/${projectId}/sources/${props.source.id}/codes/${code.id}/description`,
+    type: 'post',
+    body: {
+      description,
+    },
   });
+  if (error) {
+    flashMessage(`Error while updating code: ${response.data.message}`);
+  } else {
+    flashMessage(response.data.message);
+  }
 };
 
 const upgradeToParent = async (codeId) => {
@@ -2701,15 +2705,15 @@ const upgradeToParent = async (codeId) => {
   codes.value.push(found.code);
 
   // make the call to remove the parent_id from the code in the backend
-    const { respone, error } = await request({
-      url: `/projects/${projectId}/sources/${props.source.id}/codes/${found.code.id}/remove-parent`,
-      type: 'post'
-    })
-    if(error) {
-        flashMessage(`Error while updating code: ${response.data.message}`);
-    } else {
+  const { response, error } = await request({
+    url: `/projects/${projectId}/sources/${props.source.id}/codes/${found.code.id}/remove-parent`,
+    type: 'post',
+  });
+  if (error) {
+    flashMessage(`Error while updating code: ${response.data.message}`);
+  } else {
     flashMessage(response.data.message);
-    }
+  }
 };
 
 const upHierarchy = async (codeId) => {
@@ -2727,11 +2731,13 @@ const upHierarchy = async (codeId) => {
   // make the call to remove the parent_id from the code in the backend
   const { response, error } = await request({
     url: `/projects/${projectId}/sources/${props.source.id}/codes/${found.code.id}/up-hierarchy`,
-    type: 'post'
+    type: 'post',
   });
 
   if (error) {
-    flashMessage(`Error while updating code: ${response.data.message}`, { type: 'error' });
+    flashMessage(`Error while updating code: ${response.data.message}`, {
+      type: 'error',
+    });
   } else {
     flashMessage(response.data.message);
   }

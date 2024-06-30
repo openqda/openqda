@@ -9,8 +9,8 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import { request } from '../../../utils/http/BackendRequest.js'
-import { flashMessage } from '../../../Components/notification/flashMessage.js'
+import { request } from '../../../utils/http/BackendRequest.js';
+import { flashMessage } from '../../../Components/notification/flashMessage.js';
 
 const props = defineProps({
   requiresConfirmation: Boolean,
@@ -46,11 +46,8 @@ const enableTwoFactorAuthentication = () => {
     {},
     {
       preserveScroll: true,
-      onSuccess: () => Promise.all([
-          showQrCode(),
-          showSetupKey(),
-          showRecoveryCodes()
-      ]),
+      onSuccess: () =>
+        Promise.all([showQrCode(), showSetupKey(), showRecoveryCodes()]),
       onFinish: () => {
         enabling.value = false;
         confirming.value = props.requiresConfirmation;
@@ -60,40 +57,40 @@ const enableTwoFactorAuthentication = () => {
 };
 
 const showQrCode = async () => {
-    const { response, error} = await request({
-        url: route('two-factor.qr-code'),
-        type: 'get'
-    })
+  const { response, error } = await request({
+    url: route('two-factor.qr-code'),
+    type: 'get',
+  });
 
-    if (error) {
-        flashMessage(response.data.message);
-    }else {
-        qrCode.value = response.data.svg;
-    }
+  if (error) {
+    flashMessage(response.data.message);
+  } else {
+    qrCode.value = response.data.svg;
+  }
 };
 
 const showSetupKey = async () => {
   const { response, error } = await request({
-      url: route('two-factor.secret-key'),
-      type: 'get'
-  })
-    if (error) {
-        flashMessage(response.data.message);
-    }else {
-        setupKey.value = response.data.secretKey;
-    }
+    url: route('two-factor.secret-key'),
+    type: 'get',
+  });
+  if (error) {
+    flashMessage(response.data.message);
+  } else {
+    setupKey.value = response.data.secretKey;
+  }
 };
 
 const showRecoveryCodes = async () => {
-    const { response, error } = await request({
-        url: route('two-factor.recovery-codes'),
-        type: 'get'
-    })
-    if (error) {
-        flashMessage(response.data.message);
-    }else {
-        recoveryCodes.value = response.data;
-    }
+  const { response, error } = await request({
+    url: route('two-factor.recovery-codes'),
+    type: 'get',
+  });
+  if (error) {
+    flashMessage(response.data.message);
+  } else {
+    recoveryCodes.value = response.data;
+  }
 };
 
 const confirmTwoFactorAuthentication = () => {
@@ -110,12 +107,12 @@ const confirmTwoFactorAuthentication = () => {
 };
 
 const regenerateRecoveryCodes = () => {
-    request({
-      url: route('two-factor.recovery-codes'),
-      type: 'post'
-    })
-      .catch(e => flashMessage(e.message, { type: 'error'}))
-      .then(() => showRecoveryCodes());
+  request({
+    url: route('two-factor.recovery-codes'),
+    type: 'post',
+  })
+    .catch((e) => flashMessage(e.message, { type: 'error' }))
+    .then(() => showRecoveryCodes());
 };
 
 const disableTwoFactorAuthentication = () => {

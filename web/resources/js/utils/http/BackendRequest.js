@@ -11,12 +11,12 @@
  * @class
  */
 class BackendRequest {
-
-    /**
-     * @constructor
-     * @param options {BackendRequestOptions}
-     */
-  constructor({ url, type, body, query, headers } = options) {
+  /**
+   * @constructor
+   * @param options {BackendRequestOptions}
+   */
+  constructor(options) {
+    const { url, type, body, query, headers } = options;
     this.url = url;
     this.type = type;
     this.body = body;
