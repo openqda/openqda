@@ -120,3 +120,23 @@ We use Vue3 + Vite + Tailwind as our main client-side stack.
 You need at least [NodeJS and NPM](https://nodejs.org/en) to build the client-side app.
 
 Once they are installed
+
+### Retrieve logs from docker container
+
+You can copy the logs to a local file via:
+
+```shell
+$ docker cp web-laravel.test-1:/var/www/html/storage/logs/laravel-2024-06-26.log laravel.log
+```
+
+Note that you need to adjust the date to the current one.
+
+### Run the Websocket
+
+OpenQDA additionally uses websockets for messaging in collaborative setups.
+To start the Websocket in development mode and as a second process within your 
+container you can execute the following command:
+
+```shell
+$ docker exec -it web-laravel.test-1 /var/www/html/start_debug_services.sh
+```
