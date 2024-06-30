@@ -136,9 +136,11 @@ import {
   QrCodeIcon,
   XMarkIcon,
 } from '@heroicons/vue/20/solid';
-import { Head, router, usePage } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import Headline2 from '../Components/layout/Headline2.vue';
 import { debounce } from '../utils/dom/debounce.js';
+import { flashMessage } from '../Components/notification/flashMessage.js';
+import { request } from '../utils/http/BackendRequest.js';
 
 const editorSourceRef = ref({
   content: 'select to display',
@@ -238,22 +240,22 @@ function codeThisFile() {
 }
 
 const unlockSource = async () => {
-  try {
-    const response = await axios.post(
-      `/sources/${editorSourceRef.value.id}/unlock`
-    );
-    usePage().props.flash.message = response.data.message;
-    if (response.data.success) {
-      editorSourceRef.value.locked = false;
-      editorSourceRef.value.CanUnlock = false;
+  const { response, error } = await request({
+    url: `/sources/${editorSourceRef.value.id}/unlock`,
+    type: 'post',
+  });
 
-      // Handle the successful response
-    } else {
-      console.error('Failed to unlock the source:', response.data.message);
-    }
-  } catch (error) {
-    usePage().props.flash.message = error.response.data.message;
+  if (error) {
     console.error('An error occurred:', error);
+    flashMessage(error.response.data.message, { type: 'error' });
+  } else if (response.data.success) {
+    editorSourceRef.value.locked = false;
+    editorSourceRef.value.CanUnlock = false;
+    flashMessage(response.data.message);
+  } else {
+    const msg = `Failed to unlock the source. (${response.data.message})`;
+    console.error(msg);
+    flashMessage(msg, { type: 'error' });
   }
 };
 
@@ -283,24 +285,20 @@ function onDocumentDeleted(deletedDocumentId) {
 }
 
 async function saveQuillContent() {
-  try {
-    const payload = {
-      content: unref(editorComponent.value),
+  const { response, error } = await request({
+    url: '/source/update',
+    type: 'post',
+    body: {
       id: editorSourceRef.value.id,
-    };
+      content: unref(editorComponent.value),
+    },
+  });
 
-    const response = await axios.post('/source/update', payload);
-    usePage().props.flash.message = response.data.message;
-
-    if (response.data.success) {
-      // You can also set a local state variable to show a temporary message, if you like
-    } else {
-      // Handle the error case
-    }
-  } catch (error) {
-    usePage().props.flash.message = error.response.data.message;
+  if (error) {
     console.error('An error occurred while saving:', error);
-    // Handle the error case
+    flashMessage(error.response.data.message, { type: 'error' });
+  } else {
+    flashMessage(response.data.message);
   }
 }
 

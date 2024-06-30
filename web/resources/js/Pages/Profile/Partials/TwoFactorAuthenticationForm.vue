@@ -9,6 +9,8 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import { request } from '../../../utils/http/BackendRequest.js'
+import { flashMessage } from '../../../Components/notification/flashMessage.js'
 
 const props = defineProps({
   requiresConfirmation: Boolean,
@@ -44,8 +46,11 @@ const enableTwoFactorAuthentication = () => {
     {},
     {
       preserveScroll: true,
-      onSuccess: () =>
-        Promise.all([showQrCode(), showSetupKey(), showRecoveryCodes()]),
+      onSuccess: () => Promise.all([
+          showQrCode(),
+          showSetupKey(),
+          showRecoveryCodes()
+      ]),
       onFinish: () => {
         enabling.value = false;
         confirming.value = props.requiresConfirmation;
@@ -54,22 +59,41 @@ const enableTwoFactorAuthentication = () => {
   );
 };
 
-const showQrCode = () => {
-  return axios.get(route('two-factor.qr-code')).then((response) => {
-    qrCode.value = response.data.svg;
-  });
+const showQrCode = async () => {
+    const { response, error} = await request({
+        url: route('two-factor.qr-code'),
+        type: 'get'
+    })
+
+    if (error) {
+        flashMessage(response.data.message);
+    }else {
+        qrCode.value = response.data.svg;
+    }
 };
 
-const showSetupKey = () => {
-  return axios.get(route('two-factor.secret-key')).then((response) => {
-    setupKey.value = response.data.secretKey;
-  });
+const showSetupKey = async () => {
+  const { response, error } = await request({
+      url: route('two-factor.secret-key'),
+      type: 'get'
+  })
+    if (error) {
+        flashMessage(response.data.message);
+    }else {
+        setupKey.value = response.data.secretKey;
+    }
 };
 
-const showRecoveryCodes = () => {
-  return axios.get(route('two-factor.recovery-codes')).then((response) => {
-    recoveryCodes.value = response.data;
-  });
+const showRecoveryCodes = async () => {
+    const { response, error } = await request({
+        url: route('two-factor.recovery-codes'),
+        type: 'get'
+    })
+    if (error) {
+        flashMessage(response.data.message);
+    }else {
+        recoveryCodes.value = response.data;
+    }
 };
 
 const confirmTwoFactorAuthentication = () => {
@@ -86,9 +110,12 @@ const confirmTwoFactorAuthentication = () => {
 };
 
 const regenerateRecoveryCodes = () => {
-  axios
-    .post(route('two-factor.recovery-codes'))
-    .then(() => showRecoveryCodes());
+    request({
+      url: route('two-factor.recovery-codes'),
+      type: 'post'
+    })
+      .catch(e => flashMessage(e.message, { type: 'error'}))
+      .then(() => showRecoveryCodes());
 };
 
 const disableTwoFactorAuthentication = () => {

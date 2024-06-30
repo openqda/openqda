@@ -2,13 +2,14 @@
 import { ref } from 'vue';
 import Dropdown from './Dropdown.vue';
 import DropdownLink from './DropdownLink.vue';
-import { router, useForm, usePage } from '@inertiajs/vue3';
+import { router, useForm } from '@inertiajs/vue3';
 import { Project } from '../state/Project.js';
 import ProfileImage from './user/ProfileImage.vue';
 import Button from './interactive/Button.vue';
 import TextInput from './TextInput.vue';
 import TextArea from './TextArea.vue';
 import Checkbox from './Checkbox.vue';
+import { flashMessage } from './notification/flashMessage.js';
 
 function onLogout() {
   router.post(route('logout'));
@@ -54,14 +55,15 @@ async function submitFeedback(e) {
   try {
     const response = await axios.post('/user/feedback', payload);
     if (response.data.sent) {
-      usePage().props.flash.message = 'Your feedback has been submitted';
+      flashMessage('Your feedback has been submitted');
       feedbackFormIsActive.value = false;
     }
   } catch (error) {
     console.error('Error during feedback submission:', error);
-    usePage().props.flash.message =
+    flashMessage(
       error.response.data.message ||
-      'Error while sending feedback, likely too many feedbacks in a short time.';
+        'Error while sending feedback, likely too many feedbacks in a short time.'
+    );
   }
 }
 </script>
@@ -74,8 +76,9 @@ async function submitFeedback(e) {
         v-if="$page.props.jetstream.managesProfilePhotos"
       >
         <ProfileImage
-            :alt="$page.props.auth.user.name"
-            :src="$page.props.auth.user.profile_photo_url" />
+          :alt="$page.props.auth.user.name"
+          :src="$page.props.auth.user.profile_photo_url"
+        />
       </button>
 
       <span v-else class="inline-flex">

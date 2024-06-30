@@ -1,13 +1,13 @@
 <script setup>
 defineProps({
-    src: {
-        type: String
-    },
-    alt: {
-        type: String,
-        required: false
-    }
-})
+  src: {
+    type: String,
+  },
+  alt: {
+    type: String,
+    required: false,
+  },
+});
 </script>
 
 <template>

@@ -154,6 +154,7 @@ import { inject, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import FilesList from './FilesList.vue';
+import { flashMessage } from '../notification/flashMessage.js';
 
 useForm({ file: null });
 const emit = defineEmits(['fileSelected', 'documentDeleted']);
@@ -270,13 +271,14 @@ async function retryTranscription(document) {
       document.failed = false;
     }
 
-    usePage().props.flash.message = message;
+    flashMessage(message);
   } catch (error) {
     console.error('Error retrying conversion:', error);
     document.failed = true;
-    usePage().props.flash.message =
+    flashMessage(
       error.response.data.message ||
-      'An error occurred while converting the document.';
+        'An error occurred while converting the document.'
+    );
   }
 }
 
@@ -291,9 +293,10 @@ async function retryConvert(document) {
   } catch (error) {
     console.error('Error retrying conversion:', error);
     document.failed = true;
-    usePage().props.flash.message =
+    flashMessage(
       error.response.data.message ||
-      'An error occurred while converting the document.';
+        'An error occurred while converting the document.'
+    );
   }
 }
 
@@ -349,15 +352,14 @@ async function deleteDocument(document, index) {
       documents.splice(index, 1);
 
       // Set the flash message
-      usePage().props.flash.message = response.data.message;
+      flashMessage(response.data.message);
     } else {
       console.error('Failed to delete the document:', response.data.message);
-      usePage().props.flash.message = response.data.message;
+      flashMessage(response.data.message);
     }
   } catch (error) {
     console.error('An error occurred while deleting the document:', error);
-    usePage().props.flash.message =
-      'An error occurred while deleting the document.';
+    flashMessage('An error occurred while deleting the document.');
   }
 }
 
@@ -394,9 +396,10 @@ async function fileAdded({ files }) {
   } catch (error) {
     console.error('File upload failed:', error);
     if (error.response.status === 429) {
-      usePage().props.flash.message =
+      flashMessage(
         error.response.data.message +
-        ' Please wait a few minutes and try again.';
+          ' Please wait a few minutes and try again.'
+      );
     }
   } finally {
     isUploading.value = false; // Stop loading indicator
@@ -436,9 +439,10 @@ async function createNewFile() {
   } catch (error) {
     console.error('File creation and upload failed:', error);
     if (error.response.status === 429) {
-      usePage().props.flash.message =
+      flashMessage(
         error.response.data.message +
-        ' Please wait a few minutes and try again.';
+          ' Please wait a few minutes and try again.'
+      );
     }
   } finally {
     isUploading.value = false;

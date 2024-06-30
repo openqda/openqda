@@ -2,7 +2,7 @@
 import { computed, onMounted, onUnmounted, provide, ref, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import Navigation from '../Components/Navigation.vue';
-import FlashMessage from '../Components/FlashMessage.vue';
+import FlashMessage from '../Components/notification/FlashMessage.vue';
 import { setupEcho } from '../state/sharedState.js';
 import Footer from './Footer.vue';
 
@@ -47,8 +47,8 @@ function setPresence() {
     });
 
   setupEcho({
-      teamId :getSharedTeam().id,
-      usersInChannel,
+    teamId: getSharedTeam().id,
+    usersInChannel,
   });
 
   pingIntervalId = setInterval(() => {
@@ -80,9 +80,13 @@ onMounted(() => {
 });
 
 // Watch for changes in usersInChannel and save them to local storage
-watch(usersInChannel, (newUsers) => {
-  saveUsersToStorage(newUsers);
-}, { deep: true });
+watch(
+  usersInChannel,
+  (newUsers) => {
+    saveUsersToStorage(newUsers);
+  },
+  { deep: true }
+);
 
 onUnmounted(() => {
   // Leave the channel when the component is unmounted
