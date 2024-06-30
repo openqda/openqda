@@ -144,12 +144,14 @@ import {
   PlusIcon,
 } from '@heroicons/vue/20/solid';
 import { ref } from 'vue';
-import { Head, usePage } from '@inertiajs/vue3';
-import FlashMessage from '../Components/FlashMessage.vue';
+import { Head } from '@inertiajs/vue3';
+import FlashMessage from '../Components/notification/FlashMessage.vue';
 import Button from '../Components/interactive/Button.vue';
 import Audit from '../Components/global/Audit.vue';
 import Footer from '../Layouts/Footer.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
+import { flashMessage } from '../Components/notification/flashMessage.js';
+import { request } from '../utils/http/BackendRequest.js';
 const props = defineProps(['projects', 'audits']);
 const newProject = ref({
   name: '',
@@ -164,39 +166,42 @@ let projectsComputed = ref(props.projects);
 
 const addProject = async () => {
   nameError = false;
-  try {
-    // Validate the project details. For example, check if the name is empty.
-    if (!newProject.value.name) {
-      nameError = true;
-      usePage().props.flash.message = 'Project name is required.';
-      console.error('Project name is required.');
-      return;
+
+  // Validate the project details. For example, check if the name is empty.
+  if (!newProject.value.name) {
+    nameError = true;
+    flashMessage('Project name is required.', { type: 'error' });
+    return;
+  }
+
+  const { response, error } = await request({
+    url: '/projects/new',
+    type: 'post',
+    body: newProject.value,
+  });
+
+  if (error) {
+    const message = `An error occurred while creating the project: ${response.data.message}`;
+    console.error(message);
+    flashMessage(message, { type: 'error' });
+  } else if (!response.data.success) {
+    const message = `Failed to create a new project: ${response.data.message}`;
+    flashMessage(message, { type: 'error' });
+  } else {
+    // Optionally, clear the form.
+    newProject.value.name = '';
+    newProject.value.description = '';
+
+    flashMessage(response.data.message);
+
+    if (response.data.project) {
+      // Add the new project to the projects list
+      projectsComputed.value.push(response.data.project);
     }
 
-    // Make the API call to create a new project.
-    const response = await axios.post('/projects/new', newProject.value);
-
-    // Check if the API call was successful.
-    if (response.data.success) {
-      // Optionally, clear the form.
-      newProject.value.name = '';
-      newProject.value.description = '';
-
-      usePage().props.flash.message = response.data.message;
-
-      if (response.data.project) {
-        // Add the new project to the projects list
-        projectsComputed.value.push(response.data.project);
-      }
-
-      setTimeout(() => {
-        window.location = route('project.show', response.data.project.id);
-      }, 1000);
-    } else {
-      console.error('Failed to create a new project:', response.data.message);
-    }
-  } catch (error) {
-    console.error('An error occurred while creating the project:', error);
+    setTimeout(() => {
+      window.location = route('project.show', response.data.project.id);
+    }, 1000);
   }
 };
 </script>

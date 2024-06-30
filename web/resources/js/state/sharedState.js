@@ -1,14 +1,4 @@
-import { ref } from 'vue';
-
-const state = ref({
-  usersInChannel: [],
-});
-
-export function useSharedState() {
-  return state;
-}
-
-export function setupEcho(teamId, usersInChannel) {
+export function setupEcho({ teamId, usersInChannel }) {
   // Assuming you have already configured Echo globally
   if (!window.Echo) {
     console.error('Echo has not been initialized.');
@@ -17,6 +7,7 @@ export function setupEcho(teamId, usersInChannel) {
 
   window.Echo.join(`team.${teamId}`)
     .here((/* users */) => {
+      // FIXME: why is this commented?
       // // First, update the current user's profile photo if they are already in the channel
       // const currentUser = usePage().props.auth.user;
       // const currentUserIndex = usersInChannel.value.findIndex(u => u.id === currentUser.id);
@@ -37,6 +28,7 @@ export function setupEcho(teamId, usersInChannel) {
       // usersInChannel.value.push(...newUsers);
     })
     .joining((/* user */) => {
+      // FIXME: why is this commented?
       // Use Vue.set or equivalent in Vue 3 for reactivity if needed
       // usersInChannel.value.push({
       //     ...user,
@@ -45,7 +37,6 @@ export function setupEcho(teamId, usersInChannel) {
       // });
     })
     .leaving((user) => {
-      console.log('leaving');
       sessionStorage.clear();
       // Remove the leaving user by filtering the array
       usersInChannel.value = usersInChannel.value.filter(

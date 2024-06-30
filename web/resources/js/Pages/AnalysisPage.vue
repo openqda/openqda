@@ -166,12 +166,12 @@ import { onMounted, ref, defineAsyncComponent, markRaw } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Button from '../Components/interactive/Button.vue';
 import { ArrowDownTrayIcon } from '@heroicons/vue/24/solid';
-import { createCSV } from '../files/createCSV.js';
-import { saveTextFile } from '../files/saveTextFile.js';
-import { debounce } from '../utils/debounce.js';
+import { createCSV } from '../utils/files/createCSV.js';
+import { saveTextFile } from '../utils/files/saveTextFile.js';
+import { debounce } from '../utils/dom/debounce.js';
 import { unfoldCodes } from './analysis/unfoldCodes.js';
 import Headline2 from '../Components/layout/Headline2.vue';
-import { createByPropertySorter } from '../utils/sortByProperty.js';
+import { createByPropertySorter } from '../utils/array/createByPropertySorter.js';
 
 // TODO: https://www.npmjs.com/package/html-to-rtf
 const hasSelections = ref(false);
