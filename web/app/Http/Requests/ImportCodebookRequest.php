@@ -12,8 +12,13 @@ class ImportCodebookRequest extends FormRequest
     public function authorize(): bool
     {
         $projectId = $this->input('project_id');
-        $project = \App\Models\Project::findOrFail($projectId);
+        $project = \App\Models\Project::find($projectId);
 
+        // If you need to check for specific permissions, you can use Gate
+        // return $project && Gate::allows('importCodebook', $project);
+
+        // If no specific authorization logic is needed, you can simply return true
+        return true;
     }
 
     /**

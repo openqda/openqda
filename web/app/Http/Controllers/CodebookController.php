@@ -2,43 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DestroyCodebookRequest;
+use App\Http\Requests\StoreCodebookRequest;
+use App\Http\Requests\UpdateCodebookRequest;
 use App\Models\Code;
 use App\Models\Codebook;
 use App\Models\Project;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Validator;
 
 class CodebookController extends Controller
 {
-    public function index()
-    {
-
-    }
-
     /**
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request, Project $project)
+    public function store(StoreCodebookRequest $request, Project $project)
     {
-
-        // Validate the request data
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-        ]);
-
-        /**
-         * Check if the user is authorized to create a codebook for the project
-         */
-        if (! Gate::allows('create', [Codebook::class, $project])) {
-            abort(403, 'Unauthorized action.');
-        }
-
-        // If validation fails, return a response with errors
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
         try {
 
             // Create the codebook with validated data
@@ -69,7 +46,7 @@ class CodebookController extends Controller
                     $newCode->codebook_id = $codebook->id;
                     $newCode->description = $code->description;
                     // Save the parent-child relationship for this code
-                    if (! empty($code['parent_id'])) {
+                    if (!empty($code['parent_id'])) {
                         $newCode->parent_id = $code->parent_id;
                     } else {
                         $newCode->parent_id = null;
@@ -83,25 +60,15 @@ class CodebookController extends Controller
         } catch (\Throwable $th) {
 
             // Handle any exceptions that occur during the creation process
-            return response()->json(['error' => 'An error occurred while creating the codebook '.$th], 500);
+            return response()->json(['error' => 'An error occurred while creating the codebook ' . $th], 500);
         }
     }
 
     /**
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, $project, $codebook)
+    public function update(UpdateCodebookRequest $request, $project, $codebook)
     {
-        // First, validate the request data
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-        ]);
-
-        // If validation fails, return a response with errors
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
-        }
-
         try {
             $codebook = Codebook::find($codebook);
 
@@ -134,20 +101,16 @@ class CodebookController extends Controller
     /**
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy($project, $codebook)
+    public function destroy($project, $codebook, DestroyCodebookRequest $request)
     {
-        $codebook = Codebook::findOrFail($codebook);
-        if (! Gate::allows('delete', [Codebook::class, $codebook])) {
-            abort(403, 'Unauthorized action.');
-        }
-
+        $codebook = Codebook::find($codebook);
         try {
             $codebook->delete();
 
             return response()->json(['success' => true, 'message' => 'Codebook deleted']);
 
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
         }
 
     }

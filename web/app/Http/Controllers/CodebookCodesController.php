@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ImportCodebookRequest;
 use App\Models\Code;
 use App\Models\Codebook;
 use App\Models\Project;
@@ -9,7 +10,6 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use SimpleXMLElement;
 
@@ -20,17 +20,8 @@ class CodebookCodesController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function import(Project $project, Request $request)
+    public function import(Project $project, ImportCodebookRequest $request)
     {
-
-        $validator = Validator::make($request->all(), [
-            'file' => 'required|file|mimes:qde,xml,qdc',
-            'project_id' => 'required|exists:projects,id',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 422);
-        }
         try {
             $file = $request->file('file');
             $xmlContent = file_get_contents($file->getRealPath());
@@ -101,7 +92,7 @@ class CodebookCodesController extends Controller
     }
 
     /**
-     * Creates a new Codebook model instance.
+     * Creates a new Codebook model instance from the imported file.
      *
      * @param  string  $origin
      * @return Codebook
