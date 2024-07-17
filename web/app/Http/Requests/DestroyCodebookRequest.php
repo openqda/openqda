@@ -14,6 +14,7 @@ class DestroyCodebookRequest extends FormRequest
     public function authorize(): bool
     {
         $codebook = Codebook::findOrFail($this->route('codebook'));
+
         return Gate::allows('delete', $codebook);
     }
 

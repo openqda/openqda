@@ -46,7 +46,7 @@ class CodebookController extends Controller
                     $newCode->codebook_id = $codebook->id;
                     $newCode->description = $code->description;
                     // Save the parent-child relationship for this code
-                    if (!empty($code['parent_id'])) {
+                    if (! empty($code['parent_id'])) {
                         $newCode->parent_id = $code->parent_id;
                     } else {
                         $newCode->parent_id = null;
@@ -60,7 +60,7 @@ class CodebookController extends Controller
         } catch (\Throwable $th) {
 
             // Handle any exceptions that occur during the creation process
-            return response()->json(['error' => 'An error occurred while creating the codebook ' . $th], 500);
+            return response()->json(['error' => 'An error occurred while creating the codebook '.$th], 500);
         }
     }
 
@@ -99,6 +99,8 @@ class CodebookController extends Controller
     }
 
     /**
+     * Delete a codebook
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($project, $codebook, DestroyCodebookRequest $request)
@@ -110,7 +112,7 @@ class CodebookController extends Controller
             return response()->json(['success' => true, 'message' => 'Codebook deleted']);
 
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()]);
         }
 
     }

@@ -60,7 +60,6 @@ class CodebookControllerTest extends TestCase
             'sharedWithTeams' => false,
         ], ['Accept' => 'application/json']);
 
-
         // Assert validation fails
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['name']);
@@ -96,7 +95,6 @@ class CodebookControllerTest extends TestCase
         $project = Project::factory()->create(['creating_user_id' => $user->id]);
         $codebook = Codebook::factory()->create(['project_id' => $project->id, 'creating_user_id' => $user->id]);
 
-
         // Acting as the created user
         $response = $this->actingAs($user)->delete(route('codebook.destroy', [$project->id, $codebook->id]), [], ['Accept' => 'application/json']);
 
@@ -114,12 +112,11 @@ class CodebookControllerTest extends TestCase
         $project = Project::factory()->create(['creating_user_id' => $user->id]);
         $codebook = Codebook::factory()->create(['project_id' => $project->id, 'creating_user_id' => $user->id]);
 
-
         // Acting as the another user
         $response = $this->actingAs($user2)->delete(route('codebook.destroy', [$project->id, $codebook->id]), [], ['Accept' => 'application/json']);
 
         // Assert the codebook was not deleted
         $response->assertStatus(403);
-        $response->assertJson(['message' => "This action is unauthorized.",]);
+        $response->assertJson(['message' => 'This action is unauthorized.']);
     }
 }

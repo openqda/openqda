@@ -8,7 +8,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 
 class Codebook extends Model implements Auditable
 {
-    use \OwenIt\Auditing\Auditable, HasFactory;
+    use HasFactory, \OwenIt\Auditing\Auditable;
 
     protected $fillable = [
         'name',

@@ -12,11 +12,6 @@ use Inertia\Inertia;
 
 class CodingController extends Controller
 {
-    public function index()
-    {
-
-    }
-
     /**
      * Store a newly created code.
      *
