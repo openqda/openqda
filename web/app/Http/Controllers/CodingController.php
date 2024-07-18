@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateCodeRequest;
+use App\Http\Requests\StoreCodeRequest;
 use App\Models\Code;
 use App\Models\Codebook;
 use App\Models\Project;
@@ -17,10 +19,8 @@ class CodingController extends Controller
      *
      * @return JsonResponse
      */
-    public function store(Request $request, Project $project)
+    public function store(StoreCodeRequest $request, Project $project)
     {
-        // Validation for code creation can go here...
-
         // Now you can create the code
         $code = new Code();
         $code->name = $request->input('title');
@@ -196,7 +196,7 @@ class CodingController extends Controller
         $nested = [];
 
         foreach ($codes as $code) {
-            if (! $code->parent_id) {  // This means it's a root code without a parent
+            if (!$code->parent_id) {  // This means it's a root code without a parent
                 $nestedCode = $this->buildNestedCode($code, $sourceId);
                 $nested[] = $nestedCode;
             }
