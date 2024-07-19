@@ -48,8 +48,6 @@ class Source extends Model implements Auditable
         'project_id',
         'type',
         'upload_path',
-        'path',
-        'current_path',
     ];
 
     /**

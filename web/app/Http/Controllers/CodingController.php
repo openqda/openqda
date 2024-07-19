@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateCodeRequest;
+use App\Http\Requests\DestroyCodeRequest;
 use App\Http\Requests\StoreCodeRequest;
+use App\Http\Requests\UpdateCodeRequest;
 use App\Models\Code;
 use App\Models\Codebook;
 use App\Models\Project;
@@ -111,8 +112,9 @@ class CodingController extends Controller
      *
      * @return JsonResponse
      */
-    public function destroy(Request $request, Project $project, Source $source, Code $code)
+    public function destroy(DestroyCodeRequest $request, Project $project, Source $source, Code $code)
     {
+
         if ($code->parent_id) {
             $code->parent_id = null;
             $code->save();
@@ -128,63 +130,25 @@ class CodingController extends Controller
     }
 
     /**
-     * @return JsonResponse
-     *                      Update the color of a code
+     * Update the code attributes.
      */
-    public function updateColor(Request $request, Project $project, Code $code)
+    public function updateAttribute(UpdateCodeRequest $request, Project $project, Code $code): JsonResponse
     {
-        // Validate the request (ensure color is provided and is in the correct format)
-        $validatedData = $request->validate([
-            'color' => 'required|string|max:255',  // Adjust validation rules as necessary
-        ]);
+        if ($request->has('color')) {
+            $code->color = $request->input('color');
+        }
 
-        // Update the color of the specified code
-        $code->color = $request->input('color');
+        if ($request->has('title')) {
+            $code->name = $request->input('title');
+        }
+
+        if ($request->has('description')) {
+            $code->description = $request->input('description');
+        }
+
         $code->save();
 
-        // Return a success response (you can also return the updated code if needed)
-        return response()->json(['message' => 'Color updated successfully']);
-    }
-
-    /**
-     * @return JsonResponse
-     *                      Update the name of a code
-     */
-    public function updateTitle(Request $request, Project $project, Code $code)
-    {
-        // Validate the request (ensure color is provided and is in the correct format)
-        $validatedData = $request->validate([
-            'title' => 'required|string|max:255',  // Adjust validation rules as necessary
-        ]);
-
-        // Update the color of the specified code
-        $code->name = $request->input('title');
-        $code->save();
-
-        // Return a success response (you can also return the updated code if needed)
-        return response()->json(['message' => 'Color title successfully changed']);
-    }
-
-    /**
-     * @return JsonResponse
-     *                      Update the description of a code
-     */
-    public function updateDescription(Project $project, Source $source, Code $code, Request $request)
-    {
-        // Validate the incoming request
-        $request->validate([
-            'description' => 'required|string|max:500', // or any other validation rules you need
-        ]);
-
-        // Update the description
-        $code->description = $request->input('description');
-        $code->save();
-
-        // Respond with success or any additional data if needed
-        return response()->json([
-            'message' => 'Description updated successfully',
-            'description' => $code->description,
-        ]);
+        return response()->json(['message' => 'Code updated successfully', 'code' => $code]);
     }
 
     /**
@@ -196,7 +160,7 @@ class CodingController extends Controller
         $nested = [];
 
         foreach ($codes as $code) {
-            if (!$code->parent_id) {  // This means it's a root code without a parent
+            if (! $code->parent_id) {  // This means it's a root code without a parent
                 $nestedCode = $this->buildNestedCode($code, $sourceId);
                 $nested[] = $nestedCode;
             }

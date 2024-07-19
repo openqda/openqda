@@ -11,7 +11,7 @@ class UpdateCodebookRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; // Adjust authorization as needed
+        return false; // Adjust authorization as needed
     }
 
     /**
