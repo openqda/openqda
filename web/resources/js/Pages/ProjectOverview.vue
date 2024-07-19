@@ -567,11 +567,15 @@ const importXmlFile = async () => {
   formData.append('project_id', projectId);
 
   try {
-    const response = await axios.post('/codebook/import', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await axios.post(
+      route('codebook-codes.import', { project: projectId }),
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
 
     alert(response.data.message);
     // Refresh the page or update the relevant data

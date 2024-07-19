@@ -245,6 +245,9 @@ const editableDescription = ref('');
 const editableCodebook = ref(null);
 const sharedOption = ref('update-not-shared');
 const emit = defineEmits(['delete', 'importCodebook']);
+const url = window.location.pathname;
+const segments = url.split('/');
+let projectId = segments[2]; // Assuming
 // Creating a reactive copy of the codes
 const localCodebooks = reactive({
   codes: [...props.codebook.codes],
@@ -298,7 +301,7 @@ const getInitials = (name) => {
 
 const updateCodebook = async () => {
   try {
-    await axios.post(
+    await axios.patch(
       `/projects/${editableCodebook.value.project_id}/codebooks/${editableCodebook.value.id}`,
       {
         name: editableName.value,
@@ -415,7 +418,7 @@ const getBackgroundStyle = function (target) {
   return `background: linear-gradient(to right, ${gradient})`;
 };
 const exportCodebook = (codebook) => {
-  const url = `/codebook/export/${codebook.id}`;
+  const url = '/projects/' + projectId + '/codebooks/export/' + codebook.id;
   window.location.href = url;
 };
 </script>

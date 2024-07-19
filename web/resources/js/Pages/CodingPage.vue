@@ -2155,12 +2155,9 @@ const saveCodeTitle = async (codeId, options = {}) => {
 
   // Axios call to update the title in the DB
   try {
-    await axios.post(
-      `/projects/${projectId}/codes/${codeObject.code.id}/update-title`,
-      {
-        title: codeObject.code.title,
-      }
-    );
+    await axios.patch(`/projects/${projectId}/codes/${codeObject.code.id}`, {
+      title: codeObject.code.title,
+    });
   } catch (error) {
     console.error('Error updating title in the database', error);
   }
@@ -2264,7 +2261,7 @@ const updateCodeColorFromId = async (codeId, newColor) => {
 
   // Axios call to update the color in the DB
   try {
-    await axios.post(`/projects/${projectId}/codes/${codeId}/update-color`, {
+    await axios.patch(`/projects/${projectId}/codes/${codeId}`, {
       color: newColor,
     });
     // Handle the response as needed. For example, show a success message or update the UI.
@@ -2679,12 +2676,9 @@ watchEffect(() => {
 // Function to save description
 const saveDescription = async (code) => {
   let description = code.description;
-  await axios.post(
-    `/projects/${projectId}/sources/${props.source.id}/codes/${code.id}/description`,
-    {
-      description,
-    }
-  );
+  await axios.patch(`/projects/${projectId}/codes/${code.id}`, {
+    description,
+  });
 };
 
 const upgradeToParent = async (codeId) => {

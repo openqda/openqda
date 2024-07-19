@@ -107,8 +107,7 @@ Route::middleware([
      */
     Route::get('/projects/{project}/codes', [CodingController::class, 'show'])->name('coding.show');
     Route::post('/projects/{project}/codes', [CodingController::class, 'store'])->name('coding.store');
-    Route::post('/projects/{project}/codes/{code}/update-color', [CodingController::class, 'updateColor'])->name('coding.update-color');
-    Route::post('/projects/{project}/codes/{code}/update-title', [CodingController::class, 'updateTitle'])->name('coding.update-title');
+    Route::patch('/projects/{project}/codes/{code}', [CodingController::class, 'updateAttribute'])->name('coding.update-attribute');
     Route::post('/projects/{project}/sources/{source}/codes/{code}/selections/{selection}/change-code', [SelectionController::class, 'changeCode'])->name('selection.change-code');
     Route::post('/projects/{project}/sources/{source}/codes/{code}/remove-parent', [CodingController::class, 'removeParent'])->name('coding.remove-parent');
     Route::post('/projects/{project}/sources/{source}/codes/{code}/up-hierarchy', [CodingController::class, 'upHierarchy'])->name('coding.up-hierarchy');
@@ -118,11 +117,11 @@ Route::middleware([
     /**
      * Codebooks
      */
-    Route::post('/projects/{project}/codebooks/{codebook}', [CodebookController::class, 'update'])->name('codebook.update');
+    Route::patch('/projects/{project}/codebooks/{codebook}', [CodebookController::class, 'update'])->name('codebook.update');
     Route::delete('/projects/{project}/codebooks/{codebook}', [CodebookController::class, 'destroy'])->name('codebook.destroy');
-    Route::post('/projects/{project}/codebooks/', [CodebookController::class, 'store'])->name('codebook.store');
-    Route::post('/codebook/import', [CodebookCodesController::class, 'import'])->name('codebook-codes.import');
-    Route::get('/codebook/export/{id}', [CodebookCodesController::class, 'export'])->name('codebook-codes.export');
+    Route::post('/projects/{project}/codebooks', [CodebookController::class, 'store'])->name('codebook.store');
+    Route::post('/projects/{project}/codebooks/import', [CodebookCodesController::class, 'import'])->name('codebook-codes.import');
+    Route::get('/projects/{project}/codebooks/export/{id}', [CodebookCodesController::class, 'export'])->name('codebook-codes.export');
     /**
      * Analysis
      */

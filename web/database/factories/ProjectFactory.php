@@ -10,6 +10,11 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class ProjectFactory extends Factory
 {
+    protected function withFaker()
+    {
+        return \Faker\Factory::create('en');
+    }
+
     /**
      * Define the model's default state.
      *
@@ -18,9 +23,9 @@ class ProjectFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->company,
-            'description' => $this->faker->paragraph,
-            'origin' => $this->faker->url,
+            'name' => $this->faker->word(),
+            'description' => $this->faker->paragraph(),
+            'origin' => $this->faker->url(),
             'team_id' => null, // Assuming a project may or may not have a team
             'creating_user_id' => User::factory(),
             'modifying_user_id' => null,
