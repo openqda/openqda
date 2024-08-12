@@ -37,7 +37,7 @@ class CodingController extends Controller
     }
 
     /**
-     * going into coding page
+     * go into coding page
      *
      * @return \Illuminate\Http\RedirectResponse|\Inertia\Response
      */
@@ -214,6 +214,7 @@ class CodingController extends Controller
 
     /**
      * @return JsonResponse
+     *                      Move the code up the hierarchy by one level
      */
     public function upHierarchy(Request $request, Project $project, Source $source, Code $code)
     {

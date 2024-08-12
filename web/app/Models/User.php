@@ -81,17 +81,6 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
         return $this->hasMany(Project::class, 'creating_user_id');
     }
 
-    public function invitedTeamProjects()
-    {
-        // Use the belongsToMany relationship with the Team model
-        // and then use whereHas to filter projects belonging to those teams
-        return Project::whereHas('team', function ($query) {
-            $query->whereHas('users', function ($query) {
-                $query->where('users.id', $this->id);
-            });
-        })->withTrashed()->get();
-    }
-
     /**
      * Get all projects where the user is part of the team or the creator.
      */
