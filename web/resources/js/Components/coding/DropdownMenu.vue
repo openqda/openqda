@@ -125,7 +125,7 @@ import {
   RectangleStackIcon,
   XCircleIcon,
 } from '@heroicons/vue/24/outline';
-import InputLabel from '../InputLabel.vue';
+import InputLabel from '../../ui/form/InputLabel.vue';
 
 export default {
   inject: [

@@ -1,18 +1,18 @@
 <script setup>
 import { inject, onMounted, reactive, ref } from 'vue';
 import { router, useForm, usePage } from '@inertiajs/vue3';
-import ActionMessage from '@/Components/ActionMessage.vue';
-import ActionSection from '@/Components/ActionSection.vue';
-import ConfirmationModal from '@/Components/ConfirmationModal.vue';
-import DangerButton from '@/Components/DangerButton.vue';
-import DialogModal from '@/Components/DialogModal.vue';
-import FormSection from '@/Components/FormSection.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
-import SectionBorder from '@/Components/SectionBorder.vue';
-import TextInput from '@/Components/TextInput.vue';
+import ActionMessage from '../../../Components/ActionMessage.vue';
+import ActionSection from '../../../Components/ActionSection.vue';
+import ConfirmationModal from '../../../Components/ConfirmationModal.vue';
+import DangerButton from '../../../Components/DangerButton.vue';
+import DialogModal from '../../../Components/DialogModal.vue';
+import FormSection from '../../../Components/FormSection.vue';
+import InputError from '../../../ui/form/InputError.vue';
+import InputLabel from '../../../ui/form/InputLabel.vue';
+import PrimaryButton from '../../../Components/PrimaryButton.vue';
+import SecondaryButton from '../../../Components/SecondaryButton.vue';
+import SectionBorder from '../../../Components/SectionBorder.vue';
+import InputField from '../../../ui/form/InputField.vue';
 
 const props = defineProps({
   team: Object,
@@ -154,7 +154,7 @@ onMounted(() => {
           <!-- Member Email -->
           <div class="col-span-6 sm:col-span-4">
             <InputLabel for="email" value="Email" />
-            <TextInput
+            <InputField
               id="email"
               v-model="addTeamMemberForm.email"
               type="email"

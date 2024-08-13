@@ -63,6 +63,11 @@ Theme.remove = async () => {
   return storage.remove();
 };
 
+/**
+ * Internal handler to update the DOM manually,
+ * pimarily on the html root
+ * @private
+ */
 const DOM = {};
 DOM.current = null;
 DOM.getPreferred = (names) => names.find((name) => DOM.isPreferred(name));

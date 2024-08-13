@@ -1,12 +1,12 @@
 <script setup>
 import { ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
-import ActionMessage from '@/Components/ActionMessage.vue';
-import FormSection from '@/Components/FormSection.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import ActionMessage from '../../../Components/ActionMessage.vue';
+import FormSection from '../../../Components/FormSection.vue';
+import InputError from '../../../ui/form/InputError.vue';
+import InputLabel from '../../../ui/form/InputLabel.vue';
+import PrimaryButton from '../../../Components/PrimaryButton.vue';
+import InputField from '../../../ui/form/InputField.vue';
 
 const passwordInput = ref(null);
 const currentPasswordInput = ref(null);
@@ -48,7 +48,7 @@ const updatePassword = () => {
     <template #form>
       <div class="col-span-6 sm:col-span-4">
         <InputLabel for="current_password" value="Current Password" />
-        <TextInput
+        <InputField
           id="current_password"
           ref="currentPasswordInput"
           v-model="form.current_password"
@@ -61,7 +61,7 @@ const updatePassword = () => {
 
       <div class="col-span-6 sm:col-span-4">
         <InputLabel for="password" value="New Password" />
-        <TextInput
+        <InputField
           id="password"
           ref="passwordInput"
           v-model="form.password"
@@ -74,7 +74,7 @@ const updatePassword = () => {
 
       <div class="col-span-6 sm:col-span-4">
         <InputLabel for="password_confirmation" value="Confirm Password" />
-        <TextInput
+        <InputField
           id="password_confirmation"
           v-model="form.password_confirmation"
           type="password"

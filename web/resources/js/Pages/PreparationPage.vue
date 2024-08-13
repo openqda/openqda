@@ -123,7 +123,7 @@ import {
   unref,
   watch,
 } from 'vue';
-import AppLayout from '@/Layouts/AppLayout.vue';
+import AppLayout from '../Layouts/AppLayout.vue';
 import PreparationsEditor from '../Components/preparation/PreparationsEditor.vue';
 import FilesImporter from '../Components/files/FilesImporter.vue';
 import Button from '../Components/interactive/Button.vue';

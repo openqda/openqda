@@ -1,11 +1,11 @@
 <script setup>
 import { Head, useForm } from '@inertiajs/vue3';
-import AuthenticationCard from '@/Components/AuthenticationCard.vue';
-import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import AuthenticationCard from '../../Components/AuthenticationCard.vue';
+import AuthenticationCardLogo from '../../Components/AuthenticationCardLogo.vue';
+import InputError from '../../ui/form/InputError.vue';
+import InputLabel from '../../ui/form/InputLabel.vue';
+import PrimaryButton from '../../Components/PrimaryButton.vue';
+import InputField from '../../ui/form/InputField.vue';
 import Footer from '../../Layouts/Footer.vue';
 
 defineProps({
@@ -42,7 +42,7 @@ const submit = () => {
     <form @submit.prevent="submit">
       <div>
         <InputLabel for="email" value="Email" />
-        <TextInput
+        <InputField
           id="email"
           v-model="form.email"
           type="email"

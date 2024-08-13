@@ -163,7 +163,7 @@
 
 <script setup>
 import { onMounted, ref, defineAsyncComponent, markRaw } from 'vue';
-import AppLayout from '@/Layouts/AppLayout.vue';
+import AppLayout from '../Layouts/AppLayout.vue';
 import Button from '../Components/interactive/Button.vue';
 import { ArrowDownTrayIcon } from '@heroicons/vue/24/solid';
 import { createCSV } from '../utils/files/createCSV.js';

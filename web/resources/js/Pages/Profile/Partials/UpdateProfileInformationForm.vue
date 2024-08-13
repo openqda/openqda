@@ -1,13 +1,13 @@
 <script setup>
 import { ref } from 'vue';
 import { Link, router, useForm } from '@inertiajs/vue3';
-import ActionMessage from '@/Components/ActionMessage.vue';
-import FormSection from '@/Components/FormSection.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import ActionMessage from '../../../Components/ActionMessage.vue';
+import FormSection from '../../../Components/FormSection.vue';
+import InputError from '../../../ui/form/InputError.vue';
+import InputLabel from '../../../ui/form/InputLabel.vue';
+import PrimaryButton from '../../../Components/PrimaryButton.vue';
+import SecondaryButton from '../../../Components/SecondaryButton.vue';
+import InputField from '../../../ui/form/InputField.vue';
 
 const props = defineProps({
   user: Object,
@@ -139,7 +139,7 @@ const clearPhotoFileInput = () => {
       <!-- Name -->
       <div class="col-span-6 sm:col-span-4">
         <InputLabel for="name" value="Name" />
-        <TextInput
+        <InputField
           id="name"
           v-model="form.name"
           type="text"
@@ -152,7 +152,7 @@ const clearPhotoFileInput = () => {
       <!-- Email -->
       <div class="col-span-6 sm:col-span-4">
         <InputLabel for="email" value="Email" />
-        <TextInput
+        <InputField
           id="email"
           v-model="form.email"
           type="email"

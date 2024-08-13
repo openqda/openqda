@@ -23,6 +23,26 @@ export default {
             // custom colors generated with https://uicolors.app/create
             // see also https://www.figma.com/community/plugin/1242548152689430610/tailwind-css-color-generator
             colors: {
+                primary: {
+                  'l': '#347aad',
+                  'd': '#eaeaea',
+                },
+                secondary: {
+                  'l': '#0898dd',
+                    'd': '#00ffff'
+                },
+                background: {
+                    'l': '#f3f3f4',
+                    'd': '#090909'
+                },
+                surface: {
+                  'l': '#f3f3f4',
+                  'd': '#1a1a1a'
+                },
+                text: {
+                  'l': '#000000',
+                  'd': '#ffffff',
+                },
                 cerulean: {
                     //DEFAULT: '#017db3', // 700
                     '50': '#f0faff',
