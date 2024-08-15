@@ -1,4 +1,7 @@
 <script setup>
+/*------------------------------------
+ | TODO: DEPREATED, remove
+ *------------------------------------*/
 import { computed, onMounted, onUnmounted, provide, ref, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import Navigation from '../Components/Navigation.vue';

@@ -1,5 +1,5 @@
 <template>
-  <footer class="bg-surface-l dark:bg-surface-d border-t">
+  <footer class="bg-surface-l dark:bg-surface-d border-t dark:border-gray-500">
     <div class="mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8">
       <nav
         class="-mb-6 columns-2 sm:flex sm:justify-center sm:space-x-12"
@@ -9,7 +9,7 @@
           <Anchor
             :href="item.href"
             :external="item.external"
-            class="tracking-wide text-sm leading-6 text-black"
+            class="tracking-wide text-sm leading-6 text-black dark:text-white"
           >
             {{ item.name }}
           </Anchor>
@@ -26,7 +26,7 @@
           <component :is="item.icon" class="h-6 w-6" aria-hidden="true" />
         </a>
       </div>
-      <p class="mt-10 text-center text-xs leading-5">
+      <p class="mt-10 text-center text-xs leading-5 text-black dark:text-white">
         &copy; {{ currentYear }} OpenQDA
       </p>
     </div>

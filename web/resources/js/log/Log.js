@@ -35,4 +35,4 @@ const runLog = (active, type, name, args) => {
   console[type].call(console, line);
 };
 
-export const createLog = (name) => new Log(name)
+export const createLog = (name) => new Log(name);

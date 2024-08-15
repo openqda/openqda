@@ -287,31 +287,14 @@
         </div>
       </div>
       <div v-show="currentSubView === 'collab'">
-        <CreateTeamForm :projectId="projectId" v-if="!hasTeam" />
-        <div v-if="hasTeam">
-          <Headline2>My Project Team</Headline2>
-
-          <div>
-            <div class="py-10 mx-auto max-w-7xl sm:px-6 lg:px-8">
-              <UpdateTeamNameForm :team="team" :permissions="permissions" />
-
-              <TeamMemberManager
-                class="mt-10 sm:mt-0"
-                :team="team"
-                :available-roles="availableRoles"
-                :user-permissions="permissions"
-                :team-owner="teamOwner"
-                :project="project"
-              />
-
-              <template v-if="permissions.canDeleteTeam && !team.personal_team">
-                <SectionBorder />
-
-                <DeleteTeamForm class="mt-10 sm:mt-0" :team="team" />
-              </template>
-            </div>
-          </div>
-        </div>
+        <ProjectTeams
+          :has-team="hasTeam"
+          :team="team"
+          :permissions="permissions"
+          :available-roles="availableRoles"
+          :team-owner="teamOwner"
+          :project="project"
+        />
       </div>
 
       <div v-show="currentSubView === 'history'">
@@ -355,6 +338,7 @@ import NewCodebookForm from '../Components/project/NewCodebookForm.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
 import { flashMessage } from '../Components/notification/flashMessage.js';
 import { request } from '../utils/http/BackendRequest.js';
+import ProjectTeams from './Teams/ProjectTeams.vue';
 
 const searchQueryPublicCodebooks = ref('');
 const codebooks = ref([]);
@@ -572,7 +556,7 @@ const importXmlFile = async () => {
     alert('Please select a file first.');
     return;
   }
-
+  y;
   const formData = new FormData();
   formData.append('file', selectedFile.value);
   formData.append('project_id', projectId);

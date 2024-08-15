@@ -3,12 +3,12 @@ import { Link, useForm } from '@inertiajs/vue3';
 import Checkbox from '../../Components/Checkbox.vue';
 import InputError from '../../ui/form/InputError.vue';
 import InputLabel from '../../ui/form/InputLabel.vue';
-import PrimaryButton from '../../Components/PrimaryButton.vue';
 import InputField from '../../ui/form/InputField.vue';
 
 defineProps({
   canResetPassword: Boolean,
   status: String,
+  class: String,
 });
 
 const form = useForm({
@@ -37,70 +37,70 @@ const submit = () => {
     {{ status }}
   </div>
 
-  <form @submit.prevent="submit">
-    <InputLabel
-      for="email"
-      value="email"
-      class="text-white uppercase font-thin"
-    />
-    <InputField
-      id="email"
-      v-model="form.email"
-      type="email"
-      class="mt-1 block w-full bg-transparent border-l-0 border-r-0 border-t-0 border-b focus:outline-none focus:ring focus:border-white focus:border-l-0 focus:border-r-0 focus:border-t-0 focus:border-b-2 rounded-none"
-      required
-      autofocus
-      autocomplete="username"
-    />
-    <InputError class="email-error mt-2" :message="form.errors.email" />
-
-    <div class="relative h-11 w-full min-w-[200px]">
-      <input
-        placeholder="EMail"
-        class="peer h-full w-full border-b border-blue-gray-200 bg-transparent pt-4 pb-1.5 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border-blue-gray-200 focus:border-gray-500 focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50 placeholder:opacity-0 focus:placeholder:opacity-100"
+  <form @submit.prevent="submit" :class="$props.class">
+    <div class="my-4">
+      <InputLabel for="email" value="Email" class="text-white" />
+      <InputField
+        id="email"
+        v-model="form.email"
+        class="text-white placeholder-white"
+        type="email"
+        required
+        placeholder="email@email.com"
+        autofocus
+        autocomplete="email"
       />
-      <label
-        class="after:content[''] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none !overflow-visible truncate text-[11px] font-normal leading-tight text-gray-500 transition-all after:absolute after:-bottom-1.5 after:block after:w-full after:scale-x-0 after:border-b-2 after:border-gray-500 after:transition-transform after:duration-300 peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[4.25] peer-placeholder-shown:text-blue-gray-500 peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:after:scale-x-100 peer-focus:after:border-gray-900 peer-disabled:text-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500"
-      >
-        Email
-      </label>
+      <InputError
+        class="email-error mt-2 bg-porsche-500 text-white p-1"
+        :message="form.errors.email"
+      />
     </div>
-
-    <div class="mt-4">
-      <InputLabel for="password" value="Password" />
+    <div class="my-4">
+      <InputLabel for="password" value="Password" class="text-white" />
       <InputField
         id="password"
         v-model="form.password"
         type="password"
-        class="mt-1 block w-full"
+        class="text-white placeholder-white"
         required
+        placeholder="your password"
         autocomplete="current-password"
       />
-      <InputError class="password-error mt-2" :message="form.errors.password" />
+      <InputError
+        class="password-error mt-2 bg-red-600 text-white"
+        :message="form.errors.password"
+      />
     </div>
-    <div class="block mt-4">
+    <div class="flex my-4 justify-between">
       <label class="flex items-center">
         <Checkbox v-model:checked="form.remember" name="remember" />
-        <span class="ml-2 text-sm text-gray-600">Remember me</span>
+        <span class="ml-2 text-sm text-white">Remember me</span>
       </label>
-    </div>
-
-    <div class="flex items-center justify-end mt-4">
       <Link
         v-if="canResetPassword"
         :href="route('password.request')"
-        class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cerulean-700"
+        class="hover:underline text-sm text-white hover:text-opacity-60 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white"
       >
-        Forgot your password?
+        Forgot password?
       </Link>
+    </div>
 
-      <PrimaryButton
-        class="ml-4"
-        :class="{ 'opacity-25': form.processing }"
-        :disabled="form.processing"
+    <button
+      type="submit"
+      :disabled="form.processing"
+      class="rounded-full border-2 border-white uppercase font-bold block w-full py-3 text-white my-5 bg-transparent hover:bg-white hover:text-primary-l"
+    >
+      Log in
+    </button>
+
+    <div class="text-left text-white mt-5 text-sm text-opacity-80">
+      <span>Not registered yet?</span>
+      <Link
+        v-if="canResetPassword"
+        :href="route('register')"
+        class="underline text-sm text-white hover:text-opacity-60 ml-1 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white"
+        >Create an account</Link
       >
-        Log in
-      </PrimaryButton>
     </div>
   </form>
 </template>

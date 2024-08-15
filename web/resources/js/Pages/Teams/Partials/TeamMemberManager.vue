@@ -1,5 +1,5 @@
 <script setup>
-import { inject, onMounted, reactive, ref } from 'vue';
+import { onMounted, reactive, ref } from 'vue';
 import { router, useForm, usePage } from '@inertiajs/vue3';
 import ActionMessage from '../../../Components/ActionMessage.vue';
 import ActionSection from '../../../Components/ActionSection.vue';
@@ -21,8 +21,6 @@ const props = defineProps({
   teamOwner: Boolean,
   project: Object,
 });
-
-inject('project');
 
 const addTeamMemberForm = useForm({
   email: '',

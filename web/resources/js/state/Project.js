@@ -27,8 +27,6 @@ Project.getId = () => {
   if (Project.isValidId(projectId)) {
     return projectId;
   }
-
-  throw new Error(`Could not retrieve a valid project id.`);
 };
 
 /**

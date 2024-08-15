@@ -1,23 +1,15 @@
 <script setup>
-// TODO deprecated
-
 import { Link } from '@inertiajs/vue3';
-
+import { NavRoutes } from '../routes/NavRoutes.js';
 import { computed, inject, onMounted, ref, watch } from 'vue';
 import SettingsDropdown from '../Components/SettingsDropdown.vue';
-import {
-  ChartPieIcon,
-  DocumentTextIcon,
-  Square3Stack3DIcon,
-  SquaresPlusIcon,
-} from '@heroicons/vue/20/solid';
 import { Project } from '../state/Project.js';
 
 const props = defineProps({ active: String });
 const usersInChannel = inject('usersInChannel');
 let usersInPages = ref([]);
 
-// TODO is this necessary
+// TODO is this necessary?
 //   y: document
 //   n: remove
 computed(() => usersInChannel);
@@ -39,36 +31,12 @@ onMounted(() => {
 
   sessionStorage.setItem('projectId', projectId);
 
-  const routes = [
-    {
-      name: 'Project',
-      href: `/projects/${projectId}/overview`,
-      current: props.active === 'project.show',
-      count: 0,
-      icon: Square3Stack3DIcon,
-    },
-    {
-      name: 'Preparation',
-      href: `/projects/${projectId}/preparation`,
-      icon: SquaresPlusIcon,
-      count: 0,
-      current: props.active === 'source.index',
-    },
-    {
-      name: 'Coding',
-      href: `/projects/${projectId}/codes`,
-      icon: DocumentTextIcon,
-      count: 0,
-      current: props.active === 'coding.show',
-    },
-    {
-      name: 'Analysis',
-      href: `/projects/${projectId}/analysis`,
-      icon: ChartPieIcon,
-      count: 0,
-      current: props.active === 'analysis.show',
-    },
-  ];
+  const routes = NavRoutes.map(({ icon, route }) => {
+    const href = route.path(projectId);
+    const count = 0;
+    const current = props.active === route.key;
+    return { icon, href, ...route, count, current };
+  });
 
   tabs.value.push(...routes);
 });
@@ -83,11 +51,6 @@ const selectTab = (selectedTab) => {
   });
 };
 </script>
-<style scoped>
-.nav-logo {
-  max-width: 5rem;
-}
-</style>
 <template>
   <div class="border-b border-silver-100" id="navigation">
     <nav class="flex -mb-px" aria-label="Tabs">
