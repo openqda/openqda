@@ -13,9 +13,11 @@
             class="w-1/3 lg:w-1/4 xl:w-1/5 ml-auto mr-auto"
           />
 
-          <h1 class="font-extrabold text-6xl text-white head-shadow uppercase">
+            <div class="w-64 h-[84px]">
+          <h1 class="fixed top-0 left-0 [text-shadow:0px_16.76px_33.52px_#0000001a] [-webkit-text-stroke:3.35px_#76a5c7] opacity-20 [font-family:'Saira-SemiBold',Helvetica] font-semibold text-[#c2edff] text-[53.6px] tracking-[0] leading-[normal]">
             {{ $page.props.title }}
           </h1>
+            </div>
 
           <slot />
         </div>
