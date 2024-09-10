@@ -28,7 +28,7 @@ class UpdateCodeRequest extends FormRequest
         return [
             'color' => 'sometimes|required|string|max:255',
             'title' => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|required|string|max:500',
+            'description' => 'sometimes|required|string',
         ];
     }
 }
