@@ -21,10 +21,8 @@ class SelectionController extends Controller
 
     /**
      * Store a newly created selection.
-     * @param Request $request
-     * @param Project $project
-     * @param Source $source
-     * @param Code $code
+     *
+     * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(StoreSelectionRequest $request, Project $project, Source $source, Code $code)
@@ -44,11 +42,6 @@ class SelectionController extends Controller
     /**
      * Edit the selection to a new code.
      *
-     * @param ChangeCodeRequest $request
-     * @param Project $project
-     * @param Source $source
-     * @param Code $code
-     * @param Selection $selection
      * @return \Illuminate\Http\JsonResponse
      */
     public function changeCode(ChangeCodeRequest $request, Project $project, Source $source, Code $code, Selection $selection)
@@ -69,11 +62,6 @@ class SelectionController extends Controller
     /**
      * Remove the specified selection.
      *
-     * @param DeleteSelectionRequest $request
-     * @param Project $project
-     * @param Source $source
-     * @param Code $code
-     * @param Selection $selection
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(DeleteSelectionRequest $request, Project $project, Source $source, Code $code, Selection $selection)
@@ -90,7 +78,7 @@ class SelectionController extends Controller
 
             return response()->json(['success' => true, 'message' => 'Text deleted successfully from code']);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()]);
         }
     }
 }
