@@ -216,7 +216,7 @@ class ProjectController extends Controller
      * Delete a project
      *
      * @param  Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
      */
     public function destroy(DeleteProjectRequest $request, $projectId)
     {
