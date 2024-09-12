@@ -412,11 +412,11 @@ watch(
 const loadMore = async () => {
   localAudits.value.current_page += 1;
 
-  let apiUrl = `projects/load-more-audits?page=${localAudits.value.current_page}`; // default for homepage
+  let apiUrl = `audits/index?page=${localAudits.value.current_page}`; // default for homepage
 
   // If the context is projectPage, adjust the apiUrl
   if (props.context === 'projectPage') {
-    apiUrl = `/projects/${props.projectId}/load-more-audits?page=${localAudits.value.current_page}`;
+    apiUrl = `/audits/${props.projectId}/load-more?page=${localAudits.value.current_page}`;
   }
 
   try {

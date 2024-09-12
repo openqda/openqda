@@ -10,7 +10,6 @@ use App\Models\Codebook;
 use App\Models\Project;
 use App\Services\AuditService;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -211,48 +210,6 @@ class ProjectController extends Controller
         $inertiaData['hasCodebooksTab'] = $request->has('codebookstab');
 
         return Inertia::render('ProjectOverview', $inertiaData);
-    }
-
-    public function loadMoreAudits(Request $request, Project $project)
-    {
-
-        $allAudits = app(AuditService::class)->getAudits($project);
-
-        $perPage = 20;
-        $currentPage = $request->get('page', 1);
-        $total = count($allAudits);
-        $start = ($currentPage - 1) * $perPage;
-        $currentData = $allAudits->slice($start, $perPage);
-
-        $paginator = new LengthAwarePaginator($currentData, $total, $perPage, $currentPage, [
-            'path' => $request->url(),
-            'query' => $request->query(),
-        ]);
-
-        return response()->json(['audits' => $paginator]);
-    }
-
-    public function loadAllProjectsAudits(Request $request)
-    {
-        // Get all audits from all projects. You'd replace 'user' with the actual user model instance.
-        $allAudits = Auth::user()->getAllAudits();
-
-        // Set pagination variables
-        $perPage = 20;
-        $currentPage = $request->get('page', 1);
-        $total = count($allAudits);
-
-        // Get the current page data
-        $start = ($currentPage - 1) * $perPage;
-        $currentData = $allAudits->slice($start, $perPage);
-
-        // Create a paginator instance
-        $paginator = new LengthAwarePaginator($currentData, $total, $perPage, $currentPage, [
-            'path' => $request->url(),
-            'query' => $request->query(),
-        ]);
-
-        return response()->json(['audits' => $paginator]);
     }
 
     /**

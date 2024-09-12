@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdditionalTeamController;
 use App\Http\Controllers\AnalysisController;
+use App\Http\Controllers\AuditsController;
 use App\Http\Controllers\CodebookCodesController;
 use App\Http\Controllers\CodebookController;
 use App\Http\Controllers\CodingController;
@@ -99,8 +100,12 @@ Route::middleware([
     Route::get('/projects/{project}/overview', [ProjectController::class, 'show'])->name('project.show');
     Route::post('/projects/update/{project}', [ProjectController::class, 'updateProjectAttributes'])->name('project.update');
     Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('project.destroy');
-    Route::get('/projects/{project}/load-more-audits', [ProjectController::class, 'loadMoreAudits']);
-    Route::get('/projects/load-more-audits', [ProjectController::class, 'loadAllProjectsAudits']);
+
+    /**
+     * Audits
+     */
+    Route::get('/audits/index', [AuditsController::class, 'index']);
+    Route::get('/audits/{project}/load-more', [AuditsController::class, 'loadMoreAudits']);
 
     /**
      * Coding
