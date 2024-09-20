@@ -7,6 +7,77 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    :root {
+        --background: #d3d3d3;
+        --foreground: #000000;
+
+        --surface: #ffffff;
+        --surface-foreground: #000000;
+
+        --confirmative: #4cac4a;
+        --confirmative-foreground: #000000;
+
+        --destructive: #dc6767;
+        --destructive-foreground: #000000;
+
+        --border: #f3f3f4;
+        --input: #f3f3f4;
+
+        --primary: #347aad;
+        --primary-foreground: #f3f3f4;
+
+        --secondary: #0898dd;
+        --secondary-foreground: #f3f3f4;
+
+        --ring: #000000;
+        --rint-primary: #f3f3f4;
+
+        --radius: 0.5rem;
+        --font-sans: -apple-system, BlinkMacSystemFont, "Open Sans", Helvetica, Arial, sans-serif;
+    }
+
+    .dark {
+        --background: #081118;
+        --foreground: #e7e8e8;
+
+        --surface: #10181e;
+        --surface-foreground: #e7e8e8;
+
+        --confirmative: #6ED36C;
+        --confirmative-foreground: #ffffff;
+
+        --destructive: #FA5555;
+        --destructive-foreground: #ffffff;
+
+        --border: rgba(231, 232, 232, 0.40);;
+        --input: rgba(231, 232, 232, 0.40);;
+
+
+        --primary: #E7E8E8;
+        --primary-foreground: #000000;
+
+        --secondary: #32C4FF;
+        --secondary-foreground: #f3f3f4;
+
+        --ring: #000000;
+        --rint-primary: #f3f3f4;
+
+        --radius: 0.5rem;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+        font-feature-settings: "rlig" 1, "calt" 1;
+    }
+}
+
 [x-cloak] {
     display: none;
 }
@@ -19,17 +90,17 @@
 
 
 /* Tailwind font family for quill classes */
-.ql-font-monospace{
+.ql-font-monospace {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
-.ql-font-serif{
+.ql-font-serif {
 
     font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 
 }
 
-.ql-font-sans-serif{
+.ql-font-sans-serif {
 
     font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }

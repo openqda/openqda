@@ -4,18 +4,19 @@
     :value="modelValue"
     :type="type"
     :name="name"
-    :class="[
-      'peer input-field block w-full bg-transparent border-0 border-b border-b-outline-l/50 dark:border-b-outline-d/50',
+    :class="cn(
+      'peer input-field block w-full bg-transparent border-0 border-b border-b-foreground',
       'outline outline-0',
-      'focus:outline-0 focus:ring-0 focus:border-outline-l dark:focus:border-outline-d focus:border-l-0 focus:border-r-0 focus:border-t-0 focus:border-b-2 rounded-none',
-      'text-label-l dark:text-label-d',
+      'focus:outline-0 focus:ring-0 rounded-none focus:border-b-foreground',
+      'text-foreground',
       $props.class,
-    ]"
+    )"
     @input="$emit('update:modelValue', $event.target.value)"
   />
 </template>
 <script setup>
 import { onMounted, ref } from 'vue';
+import { cn } from '../../utils/css/cn.js'
 
 const input = ref(null);
 

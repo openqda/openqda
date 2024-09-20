@@ -1,6 +1,6 @@
 <template>
   <Head :title="title" />
-  <div class="min-h-screen bg-background-l dark:bg-background-d">
+  <div class="min-h-screen bg-background">
     <slot />
   </div>
   <Footer v-if="shouldShowFooter" />
