@@ -25,30 +25,30 @@ export default {
         },
         extend: {
             colors: {
-                border: "var(--border)",
-                input: "var(--input)",
-                ring: "var(--ring)",
-                background: "var(--background)",
-                foreground: "var(--foreground)",
+                border: "rgb(var(--border))",
+                input: "rgb(var(--input))",
+                ring: "rgb(var(--ring))",
+                background: "rgb(var(--background))",
+                foreground: "rgb(var(--foreground))",
                 primary: {
-                    DEFAULT: "var(--primary)",
-                    foreground: "var(--primary-foreground)",
+                    DEFAULT: "rgb(var(--primary))",
+                    foreground: "rgb(var(--primary-foreground))",
                 },
                 secondary: {
-                    DEFAULT: "var(--secondary)",
-                    foreground: "var(--secondary-foreground)",
+                    DEFAULT: "rgb(var(--secondary))",
+                    foreground: "rgb(var(--secondary-foreground))",
                 },
                 surface: {
-                    DEFAULT: "var(--surface)",
-                    foreground: "var(--surface-foreground)",
+                    DEFAULT: "rgb(var(--surface))",
+                    foreground: "rgb(var(--surface-foreground))",
                 },
                 destructive: {
-                    DEFAULT: "var(--destructive)",
-                    foreground: "var(--destructive-foreground)",
+                    DEFAULT: "rgb(var(--destructive))",
+                    foreground: "rgb(var(--destructive-foreground))",
                 },
                 confirmative: {
-                    DEFAULT: "var(--confirmative)",
-                    foreground: "var(--confirmative-foreground)",
+                    DEFAULT: "rgb(var(--confirmative))",
+                    foreground: "rgb(var(--confirmative-foreground))",
                 },
             },
             borderRadius: {

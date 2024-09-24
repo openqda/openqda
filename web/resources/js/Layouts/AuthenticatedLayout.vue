@@ -166,7 +166,7 @@
           <Bars3Icon class="h-6 w-6" aria-hidden="true" />
         </button>
         <div
-          class="flex-1 text-sm font-semibold leading-6 text-primary-l dark:text-primary-d"
+          class="flex-1 text-sm font-semibold leading-6 text-primary"
         >
           {{ $props.title }}
         </div>
@@ -178,17 +178,17 @@
         :flash="$page.props.flash"
       />
       <aside
-        class="fixed inset-y-0 left-20 hidden w-96 bg-surface-l dark:bg-surface-d overflow-y-auto border-r border-gray-200 px-4 py-6 sm:px-6 lg:px-8 lg:block border-r-background-l border-r-4"
+        class="fixed inset-y-0 left-20 hidden w-96 bg-surface overflow-y-auto border-background px-4 py-6 sm:px-6 lg:px-8 lg:block border-r-background border-r-8"
       >
-        <h1 class="font-extrabold text-xl text-primary-l dark:text-white">
+        <h1 class="font-extrabold text-xl text-primary dark:text-foreground">
           {{ $props.title }}
         </h1>
         <slot name="menu" />
       </aside>
 
-      <main class="lg:pl-20 h-full">
-        <div class="xl:pl-96 h-full">
-          <div class="px-4 py-2 sm:px-6 lg:px-8 lg:py-0 h-full">
+      <main class="lg:pl-20 min-h-screen bg-surface text-surface-foreground">
+        <div class="xl:pl-96">
+          <div class="px-4 py-2 sm:px-6 lg:px-8 lg:py-0">
             <Transition>
               <slot name="main" />
             </Transition>

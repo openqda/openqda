@@ -46,10 +46,10 @@
     "prettier": "^3.2.5",
     "pusher-js": "^8.4.0-rc2",
     "storybook": "^8.1.10",
-    "tailwindcss": "^3.4.1",
+    "tailwindcss": "^3.4.12",
     "vite": "^5.2.6",
     "vitest": "^2.0.5",
-    "vue": "^3.2.31"
+    "vue": "^3.5.8"
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.22",
@@ -57,6 +57,7 @@
     "@thin-storage/core": "^1.0.2",
     "@vitejs/plugin-basic-ssl": "^1.0.1",
     "altcha": "^0.2.3",
+    "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "d3": "^7.8.5",
     "d3-cloud": "^1.2.7",

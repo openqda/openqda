@@ -26,7 +26,7 @@ defineProps({
     <Login v-if="!$page.props.auth.user" class="my-5" can-reset-password />
     <Link
       :href="route('projects.index')"
-      class="rounded-full border-2 border-white uppercase font-bold block w-full p-3 text-white my-5 bg-transparent hover:bg-white hover:text-primary-l"
+      class="rounded-full border-2 border-white uppercase font-bold block w-full p-3 text-white my-5 bg-transparent hover:bg-white hover:text-primary"
     >
       My Projects
     </Link>

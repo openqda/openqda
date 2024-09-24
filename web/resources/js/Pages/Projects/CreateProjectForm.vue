@@ -2,9 +2,10 @@
 import { Project } from '../../domain/Project';
 import Headline2 from '../../Components/layout/Headline2.vue';
 import AutoForm from '../../ui/form/AutoForm.vue';
-import { ref } from 'vue';
+import { onMounted, ref, useTemplateRef } from 'vue';
 import { flashMessage } from '../../Components/notification/flashMessage.js';
 import { Routes } from '../../routes/Routes.js';
+import ScrollIntoView from '../../Components/layout/ScrollIntoView.vue';
 
 defineEmits(['created', 'cancelled']);
 
@@ -31,12 +32,16 @@ const addProject = async () => {
 </script>
 
 <template>
-  <Headline2 class="mt-2 mb-4">Create new Project</Headline2>
-  <AutoForm
-    id="create-project-form"
-    :schema="Project.create.schema"
-    @cancel="$emit('cancelled')"
-    @submit="addProject"
-  >
-  </AutoForm>
+  <scroll-into-view behavior="smooth" halign="start" valign="start">
+    <Headline2 class="mt-2 mb-4 text-primary">Create new Project</Headline2>
+    <AutoForm
+      id="create-project-form"
+      :autofocus="true"
+      :schema="Project.create.schema"
+      @cancel="$emit('cancelled')"
+      @submit="addProject"
+      class="w-full lg:w-3/4 xl:w-1/2"
+    >
+    </AutoForm>
+  </scroll-into-view>
 </template>

@@ -9,59 +9,59 @@
 
 @layer base {
     :root {
-        --background: #d3d3d3;
-        --foreground: #000000;
+        --background: 211 211 211;
+        --foreground: 0 0 0;
 
-        --surface: #ffffff;
-        --surface-foreground: #000000;
+        --surface: 255 255 255;
+        --surface-foreground: 0 0 0;
 
-        --confirmative: #4cac4a;
-        --confirmative-foreground: #000000;
+        --confirmative: 76 172 74;
+        --confirmative-foreground: 0 0 0;
 
-        --destructive: #dc6767;
-        --destructive-foreground: #000000;
+        --destructive: 220 103 103;
+        --destructive-foreground: 0 0 0;
 
-        --border: #f3f3f4;
-        --input: #f3f3f4;
+        --border: 243 243 244;
+        --input: 243 243 244;
 
-        --primary: #347aad;
-        --primary-foreground: #f3f3f4;
+        --primary: 52 122 173;
+        --primary-foreground: 243 243 244;
 
-        --secondary: #0898dd;
-        --secondary-foreground: #f3f3f4;
+        --secondary: 8 152 221;
+        --secondary-foreground: 243 243 244;
 
-        --ring: #000000;
-        --rint-primary: #f3f3f4;
+        --ring: 0 0 0;
+        --ring-primary: 243 243 244;
 
         --radius: 0.5rem;
         --font-sans: -apple-system, BlinkMacSystemFont, "Open Sans", Helvetica, Arial, sans-serif;
     }
 
     .dark {
-        --background: #081118;
-        --foreground: #e7e8e8;
+        --background: 8 17 24;
+        --foreground: 231 232 232;
 
-        --surface: #10181e;
-        --surface-foreground: #e7e8e8;
+        --surface: 16 24 30;
+        --surface-foreground: 231 232 232;
 
-        --confirmative: #6ED36C;
-        --confirmative-foreground: #ffffff;
+        --confirmative: 110 211 108;
+        --confirmative-foreground: 255 255 255;
 
-        --destructive: #FA5555;
-        --destructive-foreground: #ffffff;
+        --destructive: 250 85 85;
+        --destructive-foreground: 255 255 255;
 
         --border: rgba(231, 232, 232, 0.40);;
         --input: rgba(231, 232, 232, 0.40);;
 
 
-        --primary: #E7E8E8;
-        --primary-foreground: #000000;
+        --primary: 231 232 232;
+        --primary-foreground: 0 0 0;
 
-        --secondary: #32C4FF;
-        --secondary-foreground: #f3f3f4;
+        --secondary: 50 196 255;
+        --secondary-foreground: 243 243 244;
 
-        --ring: #000000;
-        --rint-primary: #f3f3f4;
+        --ring: 243 243 244;
+        --ring-primary: 243 243 244;
 
         --radius: 0.5rem;
     }

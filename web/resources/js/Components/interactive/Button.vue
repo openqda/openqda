@@ -1,44 +1,59 @@
 <template>
   <button
-    type="button"
+    :type="$props.type ?? 'button'"
     :disabled="disabled ? 'disabled' : false"
-    :class="[
-      'rounded font-semibold shadow-sm inline-flex items-center',
-      'px-2 py-1',
-      `bg-${col}-700 text-xs  text-white hover:bg-${col}-500  ${disabled === true ? 'opacity-50 cursor-not-allowed' : ''}`,
-      `focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-${col}-500`,
-    ]"
+    :class="
+      cn(resolve({ variant: $props.variant ?? 'default', size: $props.size ?? 'default' }), props.class)
+    "
   >
     <component
       :is="icon"
-      :class="`h-${iconSize || 4} w-${iconSize || 4} text-white mr-1`"
+      :class="`h-${iconSize || 4} w-${iconSize || 4} text-inherit mr-1`"
     ></component>
-    <span>{{ label }}</span>
+    <slot />
   </button>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue'
+import { cn } from '../../utils/css/cn.js';
+import { variantAuthority } from '../../utils/css/variantAuthority.js'
 
-defineProps({
+const style = {
+  class: 'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+  variants: {
+    variant: {
+    default: 'bg-primary text-primary-foreground hover:bg-primary/70',
+    destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+    confirmative: 'bg-confirmative text-confirmative-foreground hover:bg-confirmative/90',
+    outline: 'border border-input bg-transparent hover:bg-background hover:text-background-foreground',
+    'outline-secondary': 'text-secondary border border-secondary bg-transparent hover:bg-secondary hover:text-secondary-foreground',
+    ghost: 'hover:bg-accent hover:text-accent-foreground',
+    link: 'text-primary underline-offset-4 hover:underline',
+  },
+  size: {
+    default: 'h-10 px-4 py-2',
+    sm: 'h-9 rounded-md px-3',
+    lg: 'h-11 rounded-md px-8',
+    icon: 'h-10 w-10',
+  },
+},
+    defaultVariants: {
+        variant: 'default',
+        size: 'default',
+    }
+};
+
+const resolve = variantAuthority(style)
+const props = defineProps({
   type: {
     type: String,
     required: false,
   },
-  /**
-   * The actual button label to display
-   */
-  label: {
-    type: String,
-    required: false,
-  },
-  /**
-   * main background color of the button
-   */
-  color: {
-    type: String,
-    required: false,
-  },
+    variant: {
+      type: String,
+        required: false,
+    },
   icon: {
     type: Object,
     required: false,
@@ -52,6 +67,5 @@ defineProps({
     required: false,
   },
 });
-
 const col = ref('cerulean');
 </script>

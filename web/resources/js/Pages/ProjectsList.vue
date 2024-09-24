@@ -8,7 +8,7 @@
       />
     </template>
     <template #main>
-      <div v-if="showContent" class="bg-surface-l dark:bg-surface-d p-5">
+      <div v-if="showContent" class="p-5">
         <CreateProjectForm
           v-if="newProjectForm"
           class="w-100 block"
@@ -31,6 +31,7 @@ import { ref } from 'vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import ProjectsListMenu from './Projects/ProjectsListMenu.vue';
 import CreateProjectForm from './Projects/CreateProjectForm.vue';
+import Headline3 from '../Components/layout/Headline3.vue'
 
 const props = defineProps(['projects', 'audits']);
 

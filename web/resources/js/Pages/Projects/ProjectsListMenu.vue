@@ -1,18 +1,21 @@
 <script setup>
 import { Routes } from '../../routes/Routes.js';
-import CreateButton from '../../ui/buttons/CreateButton.vue';
+import Button from '../../Components/interactive/Button.vue'
+import { PlusIcon } from '@heroicons/vue/24/outline'
 
 defineEmits(['create-project']);
 defineProps(['projects']);
 </script>
 
 <template>
-  <CreateButton
-    label="New Project"
+  <Button
+      variant="outline-secondary"
     class="mt-5"
     title="Create new project"
-    :onclick="() => $emit('create-project')"
-  />
+      :icon="PlusIcon"
+    :onclick="() => $emit('create-project')">
+      New Project
+  </Button>
 
   <ul v-if="$props.projects.length" class="mt-5">
     <li
