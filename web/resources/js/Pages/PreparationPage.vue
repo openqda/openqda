@@ -4,7 +4,7 @@
     <div class="flex w-screen h-screen">
       <!-- Left Side -->
       <div
-        class="pt-2 text-ellipsis overflow-hidden"
+        class="pt-2 text-ellipsis overflow-auto"
         ref="leftSide"
         :style="{ width: leftWidth + 'px' }"
         v-show="editorSourceRef.selected === false || focus === false"
