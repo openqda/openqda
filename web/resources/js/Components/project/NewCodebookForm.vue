@@ -92,7 +92,7 @@
   </div>
 </template>
 <script setup>
-import InputLabel from '../InputLabel.vue';
+import InputLabel from '../../ui/form/InputLabel.vue';
 import { onMounted, ref } from 'vue';
 
 const props = defineProps(['project']);

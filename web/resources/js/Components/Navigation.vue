@@ -1,4 +1,6 @@
 <script setup>
+// TODO deprecated
+
 import { Link } from '@inertiajs/vue3';
 
 import { computed, inject, onMounted, ref, watch } from 'vue';

@@ -1,12 +1,12 @@
 <script setup>
 import { ref } from 'vue';
 import { useForm, usePage } from '@inertiajs/vue3';
-import ActionSection from '@/Components/ActionSection.vue';
-import DangerButton from '@/Components/DangerButton.vue';
-import DialogModal from '@/Components/DialogModal.vue';
-import InputError from '@/Components/InputError.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import ActionSection from '../../../Components/ActionSection.vue';
+import DangerButton from '../../../Components/DangerButton.vue';
+import DialogModal from '../../../Components/DialogModal.vue';
+import InputError from '../../../ui/form/InputError.vue';
+import SecondaryButton from '../../..//Components/SecondaryButton.vue';
+import InputField from '../../../ui/form/InputField.vue';
 
 const confirmingUserDeletion = ref(false);
 const passwordInput = ref(null);
@@ -104,7 +104,7 @@ const closeModal = () => {
           delete your account.
 
           <div class="mt-4">
-            <TextInput
+            <InputField
               ref="passwordInput"
               v-model="form.password"
               type="password"

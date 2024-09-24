@@ -19,3 +19,5 @@ yarn-error.log
 /.vscode
 .deploy
 coverage
+
+*storybook.log

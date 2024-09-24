@@ -1,14 +1,16 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { router, useForm, usePage } from '@inertiajs/vue3';
-import ActionSection from '@/Components/ActionSection.vue';
-import ConfirmsPassword from '@/Components/ConfirmsPassword.vue';
-import DangerButton from '@/Components/DangerButton.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import ActionSection from '../../../Components/ActionSection.vue';
+import ConfirmsPassword from '../../../Components/ConfirmsPassword.vue';
+import DangerButton from '../../../Components/DangerButton.vue';
+import InputError from '../../../ui/form/InputError.vue';
+import InputLabel from '../../../ui/form/InputLabel.vue';
+import PrimaryButton from '../../../Components/PrimaryButton.vue';
+import SecondaryButton from '../../../Components/SecondaryButton.vue';
+import InputField from '../../../ui/form/InputField.vue';
+import { request } from '../../../utils/http/BackendRequest.js';
+import { flashMessage } from '../../../Components/notification/flashMessage.js';
 
 const props = defineProps({
   requiresConfirmation: Boolean,
@@ -54,22 +56,41 @@ const enableTwoFactorAuthentication = () => {
   );
 };
 
-const showQrCode = () => {
-  return axios.get(route('two-factor.qr-code')).then((response) => {
+const showQrCode = async () => {
+  const { response, error } = await request({
+    url: route('two-factor.qr-code'),
+    type: 'get',
+  });
+
+  if (error) {
+    flashMessage(response.data.message);
+  } else {
     qrCode.value = response.data.svg;
-  });
+  }
 };
 
-const showSetupKey = () => {
-  return axios.get(route('two-factor.secret-key')).then((response) => {
+const showSetupKey = async () => {
+  const { response, error } = await request({
+    url: route('two-factor.secret-key'),
+    type: 'get',
+  });
+  if (error) {
+    flashMessage(response.data.message);
+  } else {
     setupKey.value = response.data.secretKey;
-  });
+  }
 };
 
-const showRecoveryCodes = () => {
-  return axios.get(route('two-factor.recovery-codes')).then((response) => {
-    recoveryCodes.value = response.data;
+const showRecoveryCodes = async () => {
+  const { response, error } = await request({
+    url: route('two-factor.recovery-codes'),
+    type: 'get',
   });
+  if (error) {
+    flashMessage(response.data.message);
+  } else {
+    recoveryCodes.value = response.data;
+  }
 };
 
 const confirmTwoFactorAuthentication = () => {
@@ -86,8 +107,11 @@ const confirmTwoFactorAuthentication = () => {
 };
 
 const regenerateRecoveryCodes = () => {
-  axios
-    .post(route('two-factor.recovery-codes'))
+  request({
+    url: route('two-factor.recovery-codes'),
+    type: 'post',
+  })
+    .catch((e) => flashMessage(e.message, { type: 'error' }))
     .then(() => showRecoveryCodes());
 };
 
@@ -166,7 +190,7 @@ const disableTwoFactorAuthentication = () => {
           <div v-if="confirming" class="mt-4">
             <InputLabel for="code" value="Code" />
 
-            <TextInput
+            <InputField
               id="code"
               v-model="confirmationForm.code"
               type="text"

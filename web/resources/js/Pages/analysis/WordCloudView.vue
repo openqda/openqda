@@ -97,7 +97,7 @@
  * https://github.com/jasondavies/d3-cloud
  *-----------------------------------------------------------------------*/
 import { onMounted, ref, watch, watchEffect } from 'vue';
-import { debounce } from '../../utils/debounce.js';
+import { debounce } from '../../utils/dom/debounce.js';
 import * as d3Module from 'd3';
 import * as cloudModule from 'd3-cloud';
 import { useResizeObserver } from './resizeObserver.js';

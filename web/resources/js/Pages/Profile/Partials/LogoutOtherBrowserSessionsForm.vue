@@ -1,13 +1,13 @@
 <script setup>
 import { ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
-import ActionMessage from '@/Components/ActionMessage.vue';
-import ActionSection from '@/Components/ActionSection.vue';
-import DialogModal from '@/Components/DialogModal.vue';
-import InputError from '@/Components/InputError.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import ActionMessage from '../../../Components/ActionMessage.vue';
+import ActionSection from '../../../Components/ActionSection.vue';
+import DialogModal from '../../../Components/DialogModal.vue';
+import InputError from '../../../ui/form/InputError.vue';
+import PrimaryButton from '../../../Components/PrimaryButton.vue';
+import SecondaryButton from '../../../Components/SecondaryButton.vue';
+import InputField from '../../../ui/form/InputField.vue';
 
 defineProps({
   sessions: Array,
@@ -141,7 +141,7 @@ const closeModal = () => {
           your other browser sessions across all of your devices.
 
           <div class="mt-4">
-            <TextInput
+            <InputField
               ref="passwordInput"
               v-model="form.password"
               type="password"

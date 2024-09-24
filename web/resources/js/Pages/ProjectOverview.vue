@@ -287,31 +287,14 @@
         </div>
       </div>
       <div v-show="currentSubView === 'collab'">
-        <CreateTeamForm :projectId="projectId" v-if="!hasTeam" />
-        <div v-if="hasTeam">
-          <Headline2>My Project Team</Headline2>
-
-          <div>
-            <div class="py-10 mx-auto max-w-7xl sm:px-6 lg:px-8">
-              <UpdateTeamNameForm :team="team" :permissions="permissions" />
-
-              <TeamMemberManager
-                class="mt-10 sm:mt-0"
-                :team="team"
-                :available-roles="availableRoles"
-                :user-permissions="permissions"
-                :team-owner="teamOwner"
-                :project="project"
-              />
-
-              <template v-if="permissions.canDeleteTeam && !team.personal_team">
-                <SectionBorder />
-
-                <DeleteTeamForm class="mt-10 sm:mt-0" :team="team" />
-              </template>
-            </div>
-          </div>
-        </div>
+        <ProjectTeams
+          :has-team="hasTeam"
+          :team="team"
+          :permissions="permissions"
+          :available-roles="availableRoles"
+          :team-owner="teamOwner"
+          :project="project"
+        />
       </div>
 
       <div v-show="currentSubView === 'history'">
@@ -342,7 +325,7 @@ import {
   RectangleStackIcon,
 } from '@heroicons/vue/20/solid';
 import { UsersIcon } from '@heroicons/vue/24/outline';
-import { Head, router, usePage } from '@inertiajs/vue3';
+import { Head, router } from '@inertiajs/vue3';
 import CreateTeamForm from './Teams/Partials/CreateTeamForm.vue';
 import UpdateTeamNameForm from './Teams/Partials/UpdateTeamNameForm.vue';
 import TeamMemberManager from './Teams/Partials/TeamMemberManager.vue';
@@ -353,6 +336,9 @@ import Audit from '../Components/global/Audit.vue';
 import Codebook from '../Components/project/Codebook.vue';
 import NewCodebookForm from '../Components/project/NewCodebookForm.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
+import { flashMessage } from '../Components/notification/flashMessage.js';
+import { request } from '../utils/http/BackendRequest.js';
+import ProjectTeams from './Teams/ProjectTeams.vue';
 
 const searchQueryPublicCodebooks = ref('');
 const codebooks = ref([]);
@@ -472,42 +458,51 @@ const updateProject = async (field, event = null) => {
     payload.value = projectDescription.value.innerText;
   }
 
-  let response;
+  const { response, error } = await request({
+    url: `/projects/update/${projectId}`,
+    type: 'post',
+    body: payload,
+  });
 
-  try {
-    response = await axios.post('/projects/update/' + projectId, payload);
-    if (response.data.success) {
-      usePage().props.flash.message = response.data.message;
-      if (field === 'name') {
-        name.value = payload.value;
-      } else if (field === 'description') {
-        description.value = payload.value;
-      }
-      isEditable.value[field] = false;
-    }
-  } catch (error) {
-    usePage().props.flash.message = response?.data?.message;
+  if (error) {
     console.error('Failed to update project:', error);
+    flashMessage(response.data.message, { type: 'error' });
+  } else if (!response.data.success) {
+    flashMessage(`Failed to update project: ${response.data.message}`, {
+      type: 'error',
+    });
+  } else {
+    flashMessage(response.data.message);
+    if (field === 'name') {
+      name.value = payload.value;
+    } else if (field === 'description') {
+      description.value = payload.value;
+    }
+    isEditable.value[field] = false;
   }
 };
 
 const importCodebook = async (codebook) => {
-  try {
-    const response = await axios.post('/projects/' + projectId + '/codebooks', {
+  const { response, error } = await request({
+    url: `/projects/${projectId}/codebooks`,
+    type: 'post',
+    body: {
       name: codebook.name,
       description: codebook.description,
       sharedWithPublic: false,
       sharedWithTeams: false,
       import: true,
       id: codebook.id,
-    });
-
-    usePage().props.flash.message = response.data.message;
+    },
+  });
+  if (error) {
+    console.error('Failed to import codebook:', error);
+    flashMessage(response.data.message, { type: 'error' });
+  } else {
+    flashMessage(response.data.message);
     router.get(
       route('project.show', { project: projectId, codebookstab: true })
     );
-  } catch (error) {
-    console.error('Failed to import codebook:', error);
   }
 };
 
@@ -561,30 +556,35 @@ const importXmlFile = async () => {
     alert('Please select a file first.');
     return;
   }
-
+  y;
   const formData = new FormData();
   formData.append('file', selectedFile.value);
   formData.append('project_id', projectId);
 
-  try {
-    const response = await axios.post('/codebook/import', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+  const { response, error } = await request({
+    url: '/codebook/import',
+    body: formData,
+    type: 'post',
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
 
-    alert(response.data.message);
-    // Refresh the page or update the relevant data
-    router.get(
-      route('project.show', { project: projectId, codebookstab: true })
-    );
-  } catch (error) {
+  if (error) {
     console.error('Failed to import XML:', error);
-    if (error.response && error.response.data && error.response.data.error) {
-      alert(error.response.data.error);
-    } else {
-      alert('Failed to import XML. An unexpected error occurred.');
-    }
+    const message = response?.data?.error
+      ? response.data.error
+      : 'Failed to import XML. An unexpected error occurred.';
+    flashMessage(message, { type: 'error' });
+  } else {
+    flashMessage(response.data.message);
+    setTimeout(() => {
+      // Refresh the page or update the relevant data
+      router.get(
+        route('project.show', {
+          project: projectId,
+          codebookstab: true,
+        })
+      );
+    }, 1000);
   }
 };
 </script>

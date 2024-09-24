@@ -12,6 +12,7 @@ defineProps({
 
 function onLogout() {
   router.post(route('logout'));
+  router.post(route('logout'));
 }
 </script>
 

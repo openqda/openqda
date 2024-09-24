@@ -1,12 +1,12 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import AuthenticationCard from '@/Components/AuthenticationCard.vue';
-import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-import Altcha from '@/Components/Altcha.vue';
+import AuthenticationCard from '../../Components/AuthenticationCard.vue';
+import AuthenticationCardLogo from '../../Components/AuthenticationCardLogo.vue';
+import InputError from '../../ui/form/InputError.vue';
+import InputLabel from '../../ui/form/InputLabel.vue';
+import PrimaryButton from '../../Components/PrimaryButton.vue';
+import InputField from '../../ui/form/InputField.vue';
+import Altcha from '../../Components/Altcha.vue';
 import Headline2 from '../../Components/layout/Headline2.vue';
 import Footer from '../../Layouts/Footer.vue';
 import 'altcha';
@@ -70,7 +70,7 @@ const submit = () => {
     <form @submit.prevent="submit">
       <div>
         <InputLabel for="name" value="Name" />
-        <TextInput
+        <InputField
           id="name"
           v-model="form.name"
           type="text"
@@ -84,7 +84,7 @@ const submit = () => {
 
       <div class="mt-4">
         <InputLabel for="email" value="Email" />
-        <TextInput
+        <InputField
           id="email"
           v-model="form.email"
           type="email"
@@ -97,7 +97,7 @@ const submit = () => {
 
       <div class="mt-4">
         <InputLabel for="password" value="Password" />
-        <TextInput
+        <InputField
           id="password"
           v-model="form.password"
           type="password"
@@ -110,7 +110,7 @@ const submit = () => {
 
       <div class="my-4">
         <InputLabel for="password_confirmation" value="Confirm Password" />
-        <TextInput
+        <InputField
           id="password_confirmation"
           v-model="form.password_confirmation"
           type="password"

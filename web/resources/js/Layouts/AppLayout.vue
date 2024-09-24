@@ -1,9 +1,12 @@
 <script setup>
+/*------------------------------------
+ | TODO: DEPREATED, remove
+ *------------------------------------*/
 import { computed, onMounted, onUnmounted, provide, ref, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import Navigation from '../Components/Navigation.vue';
-import FlashMessage from '../Components/FlashMessage.vue';
-import { setupEcho, useSharedState } from '../state/sharedState.js';
+import FlashMessage from '../Components/notification/FlashMessage.vue';
+import { setupEcho } from '../state/sharedState.js';
 import Footer from './Footer.vue';
 
 defineProps({
@@ -11,8 +14,6 @@ defineProps({
 });
 let pingIntervalId;
 let userInAteam = false;
-const sharedState = useSharedState();
-provide('sharedState', sharedState);
 
 const usersInChannel = ref([]);
 provide('usersInChannel', usersInChannel);
@@ -48,7 +49,10 @@ function setPresence() {
       console.error('Error sending navigation update:', error);
     });
 
-  setupEcho(getSharedTeam().id, usersInChannel);
+  setupEcho({
+    teamId: getSharedTeam().id,
+    usersInChannel,
+  });
 
   pingIntervalId = setInterval(() => {
     // Dispatch an event to the server to indicate that the user is still on the page
@@ -111,7 +115,7 @@ const shouldShowFooter = computed(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-light-100">
+  <div class="min-h-screen bg-background-l dark:bg-background-d">
     <!-- Page Content -->
     <main>
       <Navigation :active="route().current()"></Navigation>
