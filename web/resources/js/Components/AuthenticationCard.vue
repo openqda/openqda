@@ -1,4 +1,6 @@
-<template>
+<template><span class="float-right m-3">
+          <ThemeSwitch />
+        </span>
   <LayoutContainer :title="$page.props.slogan">
     <div class="grid grid-cols-1 lg:grid-cols-2 items-stretch min-h-screen">
       <!--left side -->
@@ -17,7 +19,7 @@
       <!-- right side -->
       <div class="right flex-1 bg-surface">
         <span class="float-right m-3">
-          <ThemeSwitch light="text-foreground" dark="text-foreground" />
+          <ThemeSwitch />
         </span>
         <div class="w-full h-full flex justify-center content-center">
           <ImageCarousel

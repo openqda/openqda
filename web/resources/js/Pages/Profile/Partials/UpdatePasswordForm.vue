@@ -7,6 +7,7 @@ import InputError from '../../../ui/form/InputError.vue';
 import InputLabel from '../../../ui/form/InputLabel.vue';
 import PrimaryButton from '../../../Components/PrimaryButton.vue';
 import InputField from '../../../ui/form/InputField.vue';
+import Button from '../../../Components/interactive/Button.vue'
 
 const passwordInput = ref(null);
 const currentPasswordInput = ref(null);
@@ -46,7 +47,7 @@ const updatePassword = () => {
     </template>
 
     <template #form>
-      <div class="col-span-6 sm:col-span-4">
+      <div class="">
         <InputLabel for="current_password" value="Current Password" />
         <InputField
           id="current_password"
@@ -59,7 +60,7 @@ const updatePassword = () => {
         <InputError :message="form.errors.current_password" class="mt-2" />
       </div>
 
-      <div class="col-span-6 sm:col-span-4">
+      <div class="">
         <InputLabel for="password" value="New Password" />
         <InputField
           id="password"
@@ -72,7 +73,7 @@ const updatePassword = () => {
         <InputError :message="form.errors.password" class="mt-2" />
       </div>
 
-      <div class="col-span-6 sm:col-span-4">
+      <div class="">
         <InputLabel for="password_confirmation" value="Confirm Password" />
         <InputField
           id="password_confirmation"
@@ -90,12 +91,12 @@ const updatePassword = () => {
         Saved.
       </ActionMessage>
 
-      <PrimaryButton
+      <Button
         :class="{ 'opacity-25': form.processing }"
         :disabled="form.processing"
       >
         Save
-      </PrimaryButton>
+      </Button>
     </template>
   </FormSection>
 </template>

@@ -5,9 +5,9 @@ import ActionMessage from '../../../Components/ActionMessage.vue';
 import FormSection from '../../../Components/FormSection.vue';
 import InputError from '../../../ui/form/InputError.vue';
 import InputLabel from '../../../ui/form/InputLabel.vue';
-import PrimaryButton from '../../../Components/PrimaryButton.vue';
 import SecondaryButton from '../../../Components/SecondaryButton.vue';
 import InputField from '../../../ui/form/InputField.vue';
+import Button from '../../../Components/interactive/Button.vue'
 
 const props = defineProps({
   user: Object,
@@ -47,7 +47,9 @@ const selectNewPhoto = () => {
 const updatePhotoPreview = () => {
   const photo = photoInput.value.files[0];
 
-  if (!photo) return;
+  if (!photo) {
+    return;
+  }
 
   const reader = new FileReader();
 
@@ -77,67 +79,10 @@ const clearPhotoFileInput = () => {
 
 <template>
   <FormSection @submitted="updateProfileInformation">
-    <template #title> Profile Information </template>
-
-    <template #description>
-      Update your account's profile information and email address.
-    </template>
-
+    <template #title> Profile Information</template>
     <template #form>
-      <!-- Profile Photo -->
-      <div
-        v-if="$page.props.jetstream.managesProfilePhotos"
-        class="col-span-6 sm:col-span-4"
-      >
-        <!-- Profile Photo File Input -->
-        <input
-          ref="photoInput"
-          type="file"
-          class="hidden"
-          @change="updatePhotoPreview"
-        />
-
-        <InputLabel for="photo" value="Photo" />
-
-        <!-- Current Profile Photo -->
-        <div v-show="!photoPreview" class="mt-2">
-          <img
-            :src="user.profile_photo_url"
-            :alt="user.name"
-            class="rounded-full h-20 w-20 object-cover"
-          />
-        </div>
-
-        <!-- New Profile Photo Preview -->
-        <div v-show="photoPreview" class="mt-2">
-          <span
-            class="block rounded-full w-20 h-20 bg-cover bg-no-repeat bg-center"
-            :style="'background-image: url(\'' + photoPreview + '\');'"
-          />
-        </div>
-
-        <SecondaryButton
-          class="mt-2 mr-2"
-          type="button"
-          @click.prevent="selectNewPhoto"
-        >
-          Select A New Photo
-        </SecondaryButton>
-
-        <SecondaryButton
-          v-if="user.profile_photo_path"
-          type="button"
-          class="mt-2"
-          @click.prevent="deletePhoto"
-        >
-          Remove Photo
-        </SecondaryButton>
-
-        <InputError :message="form.errors.photo" class="mt-2" />
-      </div>
-
       <!-- Name -->
-      <div class="col-span-6 sm:col-span-4">
+      <div class="">
         <InputLabel for="name" value="Name" />
         <InputField
           id="name"
@@ -150,8 +95,8 @@ const clearPhotoFileInput = () => {
       </div>
 
       <!-- Email -->
-      <div class="col-span-6 sm:col-span-4">
-        <InputLabel for="email" value="Email" />
+      <div class="">
+        <InputLabel for="email" value="Email" class="mt-4" />
         <InputField
           id="email"
           v-model="form.email"
@@ -183,11 +128,61 @@ const clearPhotoFileInput = () => {
 
           <div
             v-show="verificationLinkSent"
-            class="mt-2 font-medium text-sm text-green-600"
+            class="mt-2 font-medium text-sm text-confirmative"
           >
             A new verification link has been sent to your email address.
           </div>
         </div>
+      </div>
+
+      <!-- Profile Photo -->
+      <div v-if="$page.props.jetstream.managesProfilePhotos">
+        <!-- Profile Photo File Input -->
+        <input
+          ref="photoInput"
+          type="file"
+          class="hidden"
+          @change="updatePhotoPreview"
+        />
+
+        <InputLabel for="photo" value="Photo" class="mt-4" />
+
+        <!-- Current Profile Photo -->
+        <div v-show="!photoPreview" class="mt-2">
+          <img
+            :src="user.profile_photo_url"
+            :alt="user.name"
+            class="rounded-full h-20 w-20 object-cover"
+          />
+        </div>
+
+        <!-- New Profile Photo Preview -->
+        <div v-show="photoPreview" class="mt-2">
+          <span
+            class="block rounded-full w-20 h-20 bg-cover bg-no-repeat bg-center"
+            :style="'background-image: url(\'' + photoPreview + '\');'"
+          />
+        </div>
+
+        <Button
+          class="mt-2 mr-2"
+          variant="outline"
+          @click.prevent="selectNewPhoto"
+        >
+          Select A New Photo
+        </Button>
+
+        <Button
+          v-if="user.profile_photo_path"
+          type="button"
+          variant="secondary"
+          class="mt-2"
+          @click.prevent="deletePhoto"
+        >
+          Remove Photo
+        </Button>
+
+        <InputError :message="form.errors.photo" class="mt-2" />
       </div>
     </template>
 
@@ -196,12 +191,12 @@ const clearPhotoFileInput = () => {
         Saved.
       </ActionMessage>
 
-      <PrimaryButton
+      <Button
         :class="{ 'opacity-25': form.processing }"
         :disabled="form.processing"
       >
         Save
-      </PrimaryButton>
+      </Button>
     </template>
   </FormSection>
 </template>

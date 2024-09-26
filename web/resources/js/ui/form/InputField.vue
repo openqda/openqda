@@ -5,10 +5,10 @@
     :type="type"
     :name="name"
     :class="cn(
-      'peer input-field block w-full bg-transparent border-0 border-b border-b-foreground',
+      'peer input-field block w-full bg-transparent border-0  border-b-2 border-b-foreground/10',
       'outline outline-0',
-      'focus:outline-0 focus:ring-0 rounded-none focus:border-b-foreground',
-      'text-foreground',
+      'focus:outline-0 focus:ring-0 rounded-none focus:border-b-foreground/80',
+      'text-foreground placeholder-foreground/50 font-semibold !autofill:text-foreground',
       $props.class,
     )"
     @input="$emit('update:modelValue', $event.target.value)"

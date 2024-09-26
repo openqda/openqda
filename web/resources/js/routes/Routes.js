@@ -46,6 +46,7 @@ Routes.projects = {
   name: 'projects',
   label: 'Manage Projects',
   path: () => href(Routes.projects),
+  active: (name) => name.startsWith('project'),
 };
 
 /**
@@ -57,8 +58,9 @@ Routes.project = {
   name: 'project',
   label: 'Manage Project',
   path(projectId) {
-    return projectId && href(this, projectId);
+    return projectId && href(Routes.project, projectId);
   },
+  active: (name) => name.startsWith('project'),
 };
 
 /**
@@ -70,7 +72,8 @@ Routes.preparation = {
   key: 'source.index',
   name: 'preparation',
   label: 'Preparation',
-  path: (projectId) => projectId && href(this, projectId),
+  path: (projectId) => projectId && href(Routes.preparation, projectId),
+  active: (name) => name.startsWith('preparation'),
 };
 
 /**
@@ -81,16 +84,33 @@ Routes.coding = {
   key: 'coding.show',
   name: 'coding',
   label: 'Coding',
-  path: (projectId) => projectId && href(this, projectId),
+  path: (projectId) => projectId && href(Routes.coding, projectId),
+  active: (name) => name.startsWith('coding'),
 };
 
 /**
  * Analysis page of the current coding.
  * @type {Route}
  */
-Routes.anaysis = {
-  key: 'anaysis.show',
-  name: 'anaysis',
-  label: 'Anaysis',
-  path: (projectId) => projectId && href(this, projectId),
+Routes.analysis = {
+  key: 'analysis.show',
+  name: 'analysis',
+  label: 'Analysis',
+  path: (projectId) => projectId && href(Routes.analysis, projectId),
+  active: (name) => name.startsWith('analysis'),
 };
+
+/**
+ * User's profile settings etc.
+ * @type {Route}
+ */
+Routes.profile = {
+    key: 'profile.show',
+    name: 'profile',
+    label: 'Profile',
+    path: (projectId) => {
+        const base = href(Routes.profile)
+        return projectId ? `${base}?projectId=${projectId}` : base
+    },
+    active: (name) => name.startsWith('profile'),
+}

@@ -5,9 +5,8 @@ import ActionMessage from '../../../Components/ActionMessage.vue';
 import ActionSection from '../../../Components/ActionSection.vue';
 import DialogModal from '../../../Components/DialogModal.vue';
 import InputError from '../../../ui/form/InputError.vue';
-import PrimaryButton from '../../../Components/PrimaryButton.vue';
-import SecondaryButton from '../../../Components/SecondaryButton.vue';
 import InputField from '../../../ui/form/InputField.vue';
+import Button from '../../../Components/interactive/Button.vue'
 
 defineProps({
   sessions: Array,
@@ -51,7 +50,7 @@ const closeModal = () => {
     </template>
 
     <template #content>
-      <div class="max-w-xl text-sm text-gray-600">
+      <div class="max-w-xl text-sm">
         If necessary, you may log out of all of your other browser sessions
         across all of your devices. Some of your recent sessions are listed
         below; however, this list may not be exhaustive. If you feel your
@@ -68,7 +67,7 @@ const closeModal = () => {
           <div>
             <svg
               v-if="session.agent.is_desktop"
-              class="w-8 h-8 text-gray-500"
+              class="w-8 h-8"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -84,7 +83,7 @@ const closeModal = () => {
 
             <svg
               v-else
-              class="w-8 h-8 text-gray-500"
+              class="w-8 h-8"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -100,14 +99,14 @@ const closeModal = () => {
           </div>
 
           <div class="ml-3">
-            <div class="text-sm text-gray-600">
+            <div class="text-sm">
               {{ session.agent.platform ? session.agent.platform : 'Unknown' }}
               -
               {{ session.agent.browser ? session.agent.browser : 'Unknown' }}
             </div>
 
             <div>
-              <div class="text-xs text-gray-500">
+              <div class="text-xs">
                 {{ session.ip_address }},
 
                 <span
@@ -123,9 +122,9 @@ const closeModal = () => {
       </div>
 
       <div class="flex items-center mt-5">
-        <PrimaryButton @click="confirmLogout">
+        <Button @click="confirmLogout">
           Log Out Other Browser Sessions
-        </PrimaryButton>
+        </Button>
 
         <ActionMessage :on="form.recentlySuccessful" class="ml-3">
           Done.
@@ -156,16 +155,16 @@ const closeModal = () => {
         </template>
 
         <template #footer>
-          <SecondaryButton @click="closeModal"> Cancel </SecondaryButton>
+          <Button variant="secondary" @click="closeModal"> Cancel </Button>
 
-          <PrimaryButton
+          <Button
             class="ml-3"
             :class="{ 'opacity-25': form.processing }"
             :disabled="form.processing"
             @click="logoutOtherBrowserSessions"
           >
             Log Out Other Browser Sessions
-          </PrimaryButton>
+          </Button>
         </template>
       </DialogModal>
     </template>

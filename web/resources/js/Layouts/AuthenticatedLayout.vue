@@ -101,7 +101,7 @@
 
       <!-- Static sidebar for desktop -->
       <div
-        class="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:block lg:w-20 lg:overflow-y-auto lg:bg-background-l dark:lg:bg-background-d lg:pb-4"
+        class="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:block lg:w-20 lg:overflow-y-auto lg:bg-background lg:pb-4"
       >
         <div class="flex h-16 shrink-0 items-center justify-center">
           <Link
@@ -121,18 +121,21 @@
             <li
               v-for="item in navigation"
               :key="item.name"
-              :class="item.current ? 'w-full' : ''"
+              :class="item.current ? 'w-full text-center' : ''"
             >
               <a
                 :href="item.href"
                 :title="item.label"
                 :aria-label="item.label"
-                :class="[
-                  item.current
-                    ? 'rounded-none text-center bg-surface-l text-secondary-l dark:bg-surface-d dark:text-secondary-d'
-                    : 'text-passive-l dark:text-passive-d hover:bg-secondary-l dark:hover:bg-secondary-d hover:text-label-d dark:hover:text-label-l',
-                  'group flex gap-x-3 rounded-md p-3 text-sm font-semibold leading-6',
-                ]"
+                :class="
+                  cn(
+                    'group flex gap-x-3 rounded-md p-3 text-sm font-semibold leading-6',
+                    item.current
+                      ? 'w-full justify-center rounded-none text-center bg-surface text-secondary rounded-l-md'
+                      : 'text-foreground/50 hover:bg-surface hover:text-foreground/50',
+                    item.disabled && !item.current && 'cursor-not-allowed'
+                  )
+                "
                 :aria-disabled="item.disabled"
               >
                 <component
@@ -142,12 +145,6 @@
                 />
                 <span class="sr-only">{{ item.label }}</span>
               </a>
-            </li>
-            <li>
-              <ThemeSwitch
-                light="w-6 h-6 text-dark"
-                dark="w-6 h-6 text-white"
-              />
             </li>
           </ul>
         </nav>
@@ -159,18 +156,15 @@
       >
         <button
           type="button"
-          class="-m-2.5 p-2.5 text-label-l dark:text-label-d lg:hidden"
+          class="-m-2.5 p-2.5 text-foreground/50 lg:hidden"
           @click="sidebarOpen = true"
         >
           <span class="sr-only">Open sidebar</span>
           <Bars3Icon class="h-6 w-6" aria-hidden="true" />
         </button>
-        <div
-          class="flex-1 text-sm font-semibold leading-6 text-primary"
-        >
+        <div class="flex-1 text-sm font-semibold leading-6 text-primary">
           {{ $props.title }}
         </div>
-        <ThemeSwitch light="w-6 h-6 text-dark" dark="w-6 h-6 text-white" />
       </div>
 
       <FlashMessage
@@ -178,6 +172,7 @@
         :flash="$page.props.flash"
       />
       <aside
+        v-show="$props.menu !== false"
         class="fixed inset-y-0 left-20 hidden w-96 bg-surface overflow-y-auto border-background px-4 py-6 sm:px-6 lg:px-8 lg:block border-r-background border-r-8"
       >
         <h1 class="font-extrabold text-xl text-primary dark:text-foreground">
@@ -186,8 +181,8 @@
         <slot name="menu" />
       </aside>
 
-      <main class="lg:pl-20 min-h-screen bg-surface text-surface-foreground">
-        <div class="xl:pl-96">
+      <main :class="cn($props.menu && 'lg:pl-20', 'min-h-screen bg-surface text-surface-foreground')">
+        <div :class="cn($props.menu ? 'xl:pl-96' : 'pl-20')">
           <div class="px-4 py-2 sm:px-6 lg:px-8 lg:py-0">
             <Transition>
               <slot name="main" />
@@ -203,8 +198,14 @@
 import { Routes } from '../routes/Routes.js';
 import { Link } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
+import { cn } from '../utils/css/cn.js';
+
 defineProps({
   title: String,
+  menu: {
+    type: Boolean,
+    required: false,
+  },
 });
 import {
   Dialog,
@@ -228,15 +229,18 @@ onMounted(() => {
     // not in session storage
     sessionStorage.setItem('projectId', projectId);
   }
-
   const routes = NavRoutes.map(({ icon, route }) => {
     const href = route.path(projectId);
     const disabled = !href;
     const count = 0;
-    const current = active === route.key;
-    return { icon, href, ...route, disabled, count, current };
+    const current = route.active(active);
+    const label = disabled
+      ? `${route.label} - You need to select a project`
+      : route.label;
+    return { icon, ...route, href, disabled, count, current, label };
   });
 
+  console.debug(routes);
   navigation.value.push(...routes);
 });
 
