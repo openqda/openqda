@@ -1,97 +1,24 @@
 <template>
-  <table class="w-full mt-4 border-collapse border-0 overflow-show">
+  <table class="table-fixed w-full border-collapse">
     <thead>
-      <tr class="border-b border-gray-200 align-middle" :class="props.rowClass">
-        <th></th>
-        <th
-          scope="col"
-          class="p-2 text-center text-xs font-medium uppercase text-gray-500 sm:pl-0"
-        >
+      <tr class="border-b align-middle" :class="props.rowClass">
+        <th v-for="field in headerFields" scope="col"
+            :class="cn('text-center text-xs font-normal text-foreground/50 sm:pl-0', field.class)">
           <a
             href
-            @click.prevent="sort('name')"
-            class="flex tracking-wider"
-            title="Sort by file name"
+            @click.prevent="() => sort(field.key)"
+            class="flex justify-center tracking-wider"
+            :title="field.title"
           >
-            <span>File</span>
-            <span>
+            <span>{{field.label}}</span>
+            <span >
               <ChevronUpIcon
-                class="h-4 w-4 gray-500"
-                v-if="sorter.key === 'name' && sorter.ascending === true"
+                class="h-4 w-4 text-foreground/50"
+                v-if="sorter.key === field.key && sorter.ascending === true"
               />
               <ChevronDownIcon
-                class="h-4 w-4 gray-500"
-                v-if="sorter.key === 'name' && sorter.ascending === false"
-              />
-            </span>
-          </a>
-        </th>
-
-        <th
-          scope="col"
-          class="p-2 text-xs font-medium uppercase text-gray-500 sm:pl-0"
-        >
-          <a
-            href
-            @click.prevent="sort('type')"
-            class="flex tracking-wider justify-center text-center"
-            title="Sort by data type"
-          >
-            <span>Type</span>
-            <span>
-              <ChevronUpIcon
-                class="h-4 w-4 gray-500"
-                v-if="sorter.key === 'type' && sorter.ascending === true"
-              />
-              <ChevronDownIcon
-                class="h-4 w-4 gray-500"
-                v-if="sorter.key === 'type' && sorter.ascending === false"
-              />
-            </span>
-          </a>
-        </th>
-        <th
-          scope="col"
-          class="p-2 text-xs font-medium uppercase tracking-wider text-gray-500 sm:pl-0"
-        >
-          <a
-            href
-            @click.prevent="sort('date')"
-            class="flex justify-center"
-            title="Sort by upload date"
-          >
-            <span>Date</span>
-            <span>
-              <ChevronUpIcon
-                class="h-4 w-4 gray-500"
-                v-if="sorter.key === 'date' && sorter.ascending === true"
-              />
-              <ChevronDownIcon
-                class="h-4 w-4 gray-500"
-                v-if="sorter.key === 'date' && sorter.ascending === false"
-              />
-            </span>
-          </a>
-        </th>
-        <th
-          scope="col"
-          class="p-2 text-center text-xs font-medium uppercase tracking-wider text-gray-500 sm:pl-0"
-        >
-          <a
-            href
-            @click.prevent="sort('user')"
-            class="flex justify-center"
-            title="Sort by username"
-          >
-            <span>By</span>
-            <span>
-              <ChevronUpIcon
-                class="h-4 w-4 gray-500"
-                v-if="sorter.key === 'user' && sorter.ascending === true"
-              />
-              <ChevronDownIcon
-                class="h-4 w-4 gray-500"
-                v-if="sorter.key === 'user' && sorter.ascending === false"
+                class="h-4 w-4 text-foreground/50"
+                v-if="sorter.key === field.key && sorter.ascending === false"
               />
             </span>
           </a>
@@ -99,9 +26,9 @@
         <th
           scope="col"
           v-show="$props.actions?.length"
-          class="p-2 text-center text-xs font-medium uppercase text-gray-500 sm:pl-0"
+          class="w-1/5 text-center text-xs font-medium uppercase text-foreground/50 sm:pl-0"
         >
-          <span class="tracking-wider">Actions</span>
+          <span class="sr-only">Actions</span>
         </th>
       </tr>
     </thead>
@@ -109,67 +36,55 @@
       <tr
         v-for="(document, index) in docs"
         :key="document.id"
-        class="text-sm border-b border-gray-200 text-ellipsis overflow-hidden justify-center items-center align-middle hover:bg-silver-50"
-        :class="[
-          document.selected ? 'bg-silver-50' : '',
-          document.converted ? '' : '',
-          document.failed ? 'border-l-red-600' : '',
+        :class="cn('text-sm',
+          (document.selected || hover === index) ? 'bg-secondary/20' : 'hover:text-secondary',
+          (!document.converted || document.failed) ? 'text-foreground/20' : 'text-foreground',
           props.rowClass,
-        ]"
+        )"
       >
-        <td class="text-center pl-2">
-          <LockClosedIcon
-            v-if="document.variables && document.variables.isLocked"
-            class="w-4 h-4 text-porsche-400"
-          />
-        </td>
-        <td class="py-4 flex items-center w-auto gap-2">
-          <a
-            @click="emit('select', document)"
-            :class="
-              document.converted
-                ? 'hover:text-porsche-400 cursor-pointer'
-                : 'text-silver-300 pointer-events-none'
-            "
-            class="tracking-wider"
-          >
+        <td :class="cn('py-4 w-auto rounded-xl', hover === index ? 'break-all' : 'truncate')"
+            @mouseenter="hover = index"
+            @mouseleave="hover = -1"
+            @touchstart="hover = index"
+            @touchend="hover = -1"
+            :colspan="hover === index ? 5 : undefined">
+            <LockClosedIcon
+                v-if="document.variables && document.variables.isLocked"
+                class="w-4 h-4 text-foreground/60"
+            />
+          <a  @click="document.converted && !document.selected && emit('select', document)"
+              :title="hover === index ? 'File already open' : `Open ${document.name} in editor`"
+            :class="cn(
+                document.converted && !document.failed
+                    ? ''
+                    : 'cursor-not-allowed pointer-events-none',
+                'tracking-wider',
+                !document.selected && 'cursor-pointer'
+            )">
             {{ document.name }}
           </a>
-          <div
-            v-if="
-              !document.converted && !document.isConverting && !document.failed
-            "
-            class="flex items-center bg-yellow-100 text-yellow-800 font-semibold px-2 py-1 mx-2 text-xs"
-          >
-            <ExclamationTriangleIcon
-              class="w-3 h-3 text-yellow-800 mr-1"
-            ></ExclamationTriangleIcon>
-            <span class="hidden md:block whitespace-nowrap"
-              >not ready to be coded - retry elaboration</span
-            >
-          </div>
-
-          <div
-            v-if="document.isConverting && !document.failed"
-            class="flex items-center bg-porsche-400 text-white text-xs font-semibold px-2 py-1 rounded-full"
-          >
-            <div class="animate-spin mr-1">
-              <!-- Replace with your rotating arrow icon -->
-              <ArrowPathIcon class="text-white w-3 h-3"></ArrowPathIcon>
-            </div>
-            Converting
-          </div>
-          <div
-            v-if="document.failed"
-            class="flex items-center bg-red-700 text-white text-xs font-semibold px-2 py-1 rounded-full"
-          >
-            Failed
-          </div>
         </td>
 
-        <td class="py-2">
+        <td class="py-2" v-if="hover !== index">
+            <div v-if="!document.converted && !document.isConverting && !document.failed"
+                 class="inline-flex justify-center w-full p-1">
+                <ExclamationTriangleIcon
+                    title="not ready to be coded - retry elaboration"
+                    class="w-5 h-5 !text-destructive rounded-md font-semibold" />
+            </div>
+            <div v-else-if="document.isConverting && !document.failed"
+                 class="inline-flex justify-center w-full p-1">
+                <div class="animate-spin mr-1">
+                    <ArrowPathIcon class="w-5 h-5 text-primary rounded-md font-semibold p-1"></ArrowPathIcon>
+                </div>
+                Converting
+            </div>
+            <div v-else-if="document.failed"
+                 class="flex items-center bg-red-700 text-white text-xs font-semibold  py-1 rounded-full">
+                Failed
+            </div>
           <!-- TODO make this open-close impl -->
-          <div :title="dataTypeTitle(document.type)" class="w-full text-center">
+          <div v-else :title="dataTypeTitle(document.type)" class="w-full text-center">
             <DocumentTextIcon
               v-if="document.type === 'text'"
               class="h-4 w-4 gray-500 ml-auto mr-auto"
@@ -180,31 +95,24 @@
             />
           </div>
         </td>
-        <td class="py-2 text-center tracking-wider">
+        <td class="py-2 text-center" v-if="hover !== index">
           {{ document.date }}
         </td>
-        <td class="py-2 text-center tracking-wider w-8 h-8">
-          <img
+        <td class="py-2 text-center tracking-wider w-8 h-8" v-if="hover !== index">
+          <ProfileImage
             v-if="document.userPicture"
-            class="object-cover w-full h-8 rounded-full"
+            :name="document.user"
             :src="document.userPicture"
-            :title="document.user"
-            :alt="document.user"
           />
-          <div
-            v-else
-            class="flex items-center justify-center w-full h-full rounded-full bg-gray-200"
-          >
-            <span class="text-gray-500">{{ document.user }}</span>
-          </div>
         </td>
         <td
+            v-if="hover !== index"
           v-show="$props.actions?.length"
           class="py-2 text-center tracking-wider justify-center align-middle items-center relative"
         >
           <button
             @click="toggleMenu(document.id)"
-            class="hover:text-porsche-400 focus:text-porsche-400 cursor-pointer menu-toggle"
+            class="focus:border-secondary focus:border focus:rounded-full cursor-pointer menu-toggle"
           >
             <EllipsisVerticalIcon
               class="w-4 h-4 menu-toggle z-0"
@@ -214,7 +122,7 @@
           <div
             v-show="isMenuOpen(document.id)"
             v-click-outside="{ callback: handleOutsideClick }"
-            class="absolute right-0 mt-2 py-2 w-60 center bg-white rounded-md border border-silver-300 shadow-xl z-20"
+            class="absolute right-0 mt-2 py-2 w-60 center bg-surface rounded-md border-2 border-border z-20"
           >
             <span
               v-for="action in $props.actions"
@@ -224,7 +132,7 @@
             >
               <button
                 v-if="action.visible(document)"
-                class="flex items-center text-gray-700 hover:bg-silver-100 px-4 py-2 text-sm w-full text-left"
+                class="flex items-center text-foreground hover:bg-foreground/20 px-4 py-2 text-sm w-full text-left"
                 @click="action.onClick({ action, document, index })"
               >
                 <component
@@ -261,15 +169,47 @@ import {
   DocumentTextIcon,
   ExclamationTriangleIcon,
   SpeakerWaveIcon,
+    UserIcon
 } from '@heroicons/vue/24/outline/index.js';
 import { ref } from 'vue';
 import { vClickOutside } from '../coding/clickOutsideDirective.js';
+import { cn } from '../../utils/css/cn.js'
+import ProfileImage from '../user/ProfileImage.vue'
 
 const emit = defineEmits(['select', 'delete']);
 const props = defineProps(['documents', 'actions', 'rowClass']);
 const docs = ref(props.documents);
 const sorter = ref({ key: null, ascending: false });
 const openMenuId = ref(null);
+
+const headerFields = ref([
+    {
+        label: 'File',
+        key: 'name',
+        title: "Sort by name",
+        class: 'w-3/5'
+    },
+    {
+        label: 'Type',
+        key: 'type',
+        title: "Sort by type",
+        class: 'w-1/5'
+    },
+    {
+        label: 'Date',
+        key: 'date',
+        title: "Sort by last edited date",
+        class: 'w-1/5'
+    },
+    {
+        label: 'By',
+        key: 'user',
+        title: "Sort by uploader",
+        class: 'w-2'
+    },
+])
+
+const hover = ref(-1)
 
 function toggleMenu(id) {
   // Check if the clicked menu is already open

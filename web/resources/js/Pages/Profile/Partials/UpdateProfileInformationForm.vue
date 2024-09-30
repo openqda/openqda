@@ -5,7 +5,6 @@ import ActionMessage from '../../../Components/ActionMessage.vue';
 import FormSection from '../../../Components/FormSection.vue';
 import InputError from '../../../ui/form/InputError.vue';
 import InputLabel from '../../../ui/form/InputLabel.vue';
-import SecondaryButton from '../../../Components/SecondaryButton.vue';
 import InputField from '../../../ui/form/InputField.vue';
 import Button from '../../../Components/interactive/Button.vue'
 

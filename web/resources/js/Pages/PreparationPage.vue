@@ -1,146 +1,106 @@
 <template>
-  <AppLayout>
-    <Head title="Edit"></Head>
-    <div class="flex w-screen h-screen">
-      <!-- Left Side -->
-      <div
-        class="pt-2 text-ellipsis overflow-hidden"
-        ref="leftSide"
-        :style="{ width: leftWidth + 'px' }"
-        v-show="editorSourceRef.selected === false || focus === false"
-      >
-        <!-- Top Left -->
-        <FilesImporter
-          @fileSelected="onFileSelected($event)"
-          @documentDeleted="onDocumentDeleted"
-        />
-      </div>
-      <!-- Separator -->
-      <div
-        ref="separator"
-        @mousedown="onMouseDown"
-        class="antialiased bg-transparent cursor-ew-resize"
-        style="width: 8px"
-      >
-        <div class="h-screen bg-gray-200" style="width: 2px"></div>
-      </div>
-      <!-- Right Side -->
-      <div
-        ref="rightSide"
-        class="overflow-auto transform transition-right duration-300 w-0"
-        :style="{ width: rightWidth + 'px' }"
-      >
-        <div v-show="editorSourceRef.selected === true">
-          <div class="flex items-center justify-between mt-3 align-center">
-            <!-- DATA DISPLAY -->
-            <Headline2>{{ editorSourceRef.name }}</Headline2>
-            <div class="flex items-center space-x-2 me-2">
-              <Button
-                v-if="
-                  editorSourceRef.CanUnlock && !editorSourceRef.hasSelections
-                "
-                color="cerulean"
-                :icon="LockOpenIcon"
-                :label="'Unlock to edit'"
-                @click="unlockSource"
-                class="px-1"
-              />
-              <Button
-                v-if="
-                  !editorSourceRef.CanUnlock && !editorSourceRef.hasSelections
-                "
-                color="cerulean"
-                :icon="LockClosedIcon"
-                :label="'Lock and Code'"
-                @click="lockAndCode"
-                class="px-1"
-              />
-              <Button
-                v-if="
-                  editorSourceRef.CanUnlock ||
-                  (!editorSourceRef.CanUnlock && editorSourceRef.hasSelections)
-                "
-                color="cerulean"
-                :icon="QrCodeIcon"
-                :label="'Code This file'"
-                @click="codeThisFile"
-                class="px-1"
-              />
-              <Button
-                v-if="
-                  !editorSourceRef.CanUnlock && !editorSourceRef.hasSelections
-                "
-                color="cerulean"
-                :icon="ArrowUpCircleIcon"
-                :label="'Save'"
-                @click="saveQuillContent"
-                class="px-1"
-              />
-              <Button
-                v-if="focus === false"
-                color="cerulean"
-                :icon="ArrowsPointingOutIcon"
-                @click="focus = true"
-                class="px-1"
-              />
-
-              <Button
-                v-if="focus === true"
-                color="cerulean"
-                :icon="ArrowsPointingInIcon"
-                @click="focus = false"
-                class="px-1"
-              />
-              <Button
-                color="cerulean"
-                :icon="XMarkIcon"
-                @click="editorSourceRef.selected = false"
-              />
-            </div>
-          </div>
-
-          <div class="h-screen mt-4">
-            <PreparationsEditor
-              ref="editorComponent"
-              :source="editorSourceRef.content"
-              :locked="editorSourceRef.locked"
-              :CanUnlock="editorSourceRef.CanUnlock"
-            />
-          </div>
+  <AuthenticatedLayout :menu="true" :showFooter="false">
+    <template #menu>
+      <FilesManager
+        :initialFile="initialFile"
+        @fileSelected="loadFileIntoEditor($event)"
+        @documentDeleted="onDocumentDeleted"
+      />
+    </template>
+    <template #main>
+      <div ref="rightSide" class="overflow-auto w-full h-full">
+        <div v-show="editorSourceRef.selected === true" class="mt-3 h-full">
+          <PreparationsEditor
+            ref="editorComponent"
+            :source="editorSourceRef.content"
+            :locked="editorSourceRef.locked"
+            :CanUnlock="editorSourceRef.CanUnlock"
+            @autosave="saveQuillContent"
+          >
+              <template #status>
+                  <div class="w-10 mr-2 self-center">
+                      <span v-if="saving" class="text-xs inline-flex items-center">
+                          <ArrowPathIcon class="w-4 h-4 text-secondary" />
+                          saving
+                      </span>
+                      <span v-if="saved" class="text-xs inline-flex items-center">
+                          <CheckIcon class="w-4 h-4 text-confirmative" />
+                          saved
+                      </span>
+                  </div>
+              </template>
+              <template #actions>
+              <div class="flex items-center space-x-2 me-2">
+                <Button
+                  v-if="
+                    editorSourceRef.CanUnlock && !editorSourceRef.hasSelections
+                  "
+                  variant="outline-secondary"
+                  :icon="LockOpenIcon"
+                  @click="unlockSource"
+                  class="px-1 mx-3 rounded-xl"
+                  >Unlock
+                </Button>
+                <Button
+                  v-if="
+                    !editorSourceRef.CanUnlock && !editorSourceRef.hasSelections
+                  "
+                  variant="outline-secondary"
+                  :icon="LockClosedIcon"
+                  @click="lockAndCode"
+                  class="px-1 py-2 mx-3 rounded-xl"
+                  >Lock
+                </Button>
+                <Button
+                  v-if="
+                    editorSourceRef.CanUnlock ||
+                    (!editorSourceRef.CanUnlock &&
+                      editorSourceRef.hasSelections)
+                  "
+                  type="outline-secondary"
+                  :icon="QrCodeIcon"
+                  @click="codeThisFile"
+                  class="px-1"
+                  >Code
+                </Button>
+              </div>
+            </template>
+          </PreparationsEditor>
         </div>
       </div>
-    </div>
-  </AppLayout>
+    </template>
+  </AuthenticatedLayout>
 </template>
 
 <script setup>
 import {
-  defineProps,
-  onBeforeUnmount,
-  onMounted,
-  provide,
-  ref,
-  unref,
-  watch,
-} from 'vue';
-import AppLayout from '../Layouts/AppLayout.vue';
+    computed,
+    defineProps,
+    onBeforeUnmount,
+    onMounted,
+    provide,
+    ref,
+    unref,
+    watch,
+} from 'vue'
 import PreparationsEditor from '../Components/preparation/PreparationsEditor.vue';
-import FilesImporter from '../Components/files/FilesImporter.vue';
+import FilesManager from '../Components/files/FilesImporter.vue';
 import Button from '../Components/interactive/Button.vue';
 import {
-  ArrowsPointingInIcon,
-  ArrowsPointingOutIcon,
-  ArrowUpCircleIcon,
   LockClosedIcon,
   LockOpenIcon,
   QrCodeIcon,
-  XMarkIcon,
+    ArrowPathIcon,
+    CheckIcon
 } from '@heroicons/vue/20/solid';
-import { Head, router } from '@inertiajs/vue3';
-import Headline2 from '../Components/layout/Headline2.vue';
+import { router } from '@inertiajs/vue3';
 import { debounce } from '../utils/dom/debounce.js';
 import { flashMessage } from '../Components/notification/flashMessage.js';
 import { request } from '../utils/http/BackendRequest.js';
+import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
+import { usePage } from '@inertiajs/vue3'
+import axios from 'axios'
+import { asyncTimeout } from '../utils/asyncTimeout.js'
 
 const editorSourceRef = ref({
   content: 'select to display',
@@ -154,7 +114,7 @@ const editorSourceRef = ref({
 });
 
 const focus = ref(false);
-let editorComponent = ref();
+const editorComponent = ref();
 const props = defineProps(['sources', 'newDocument']);
 const documents = ref([]);
 
@@ -187,7 +147,9 @@ const onMouseDown = () => {
 };
 
 const onMouseMove = (e) => {
-  if (!isResizing) return;
+  if (!isResizing) {
+    return;
+  }
   const newLeftWidth = e.clientX;
   const newRightWidth = window.innerWidth - e.clientX;
   updateSeparator(newLeftWidth, newRightWidth);
@@ -219,7 +181,7 @@ watch(
   (newValue) => {
     if (newValue !== null) {
       documents.value.push(newValue);
-      onFileSelected(newValue);
+      loadFileIntoEditor(newValue);
     }
   }
 );
@@ -259,7 +221,7 @@ const unlockSource = async () => {
   }
 };
 
-function onFileSelected(file) {
+function loadFileIntoEditor(file) {
   if (!file?.content) {
     return;
   }
@@ -273,6 +235,10 @@ function onFileSelected(file) {
   editorSourceRef.value.hasSelections = file.hasSelections;
   editorSourceRef.value.showLineNumbers = file.showLineNumbers ?? false;
   editorSourceRef.value.charsXLine = file.charsXLine;
+
+  const url = new URL(window.location);
+  url.searchParams.set("file", file.id);
+  history.pushState({}, "", url);
 }
 
 // Parent Component Script
@@ -284,7 +250,11 @@ function onDocumentDeleted(deletedDocumentId) {
   }
 }
 
+const saving = ref(false);
+const saved = ref(false);
+
 async function saveQuillContent() {
+  saving.value = true;
   const { response, error } = await request({
     url: '/source/update',
     type: 'post',
@@ -297,36 +267,21 @@ async function saveQuillContent() {
   if (error) {
     console.error('An error occurred while saving:', error);
     flashMessage(error.response.data.message, { type: 'error' });
-  } else {
-    flashMessage(response.data.message);
   }
+  await asyncTimeout(300)
+  saving.value = false;
+  saved.value = true
+    setTimeout(() => {
+        saved.value = false
+    }, 1000)
 }
 
-const getScale = (left, right) => {
-  const newWidth = window.innerWidth;
-  const oldWidth = left + right;
-  return newWidth / oldWidth;
-};
-
-const onWindowResize = debounce(() => {
-  const scale = getScale(leftWidth.value, rightWidth.value);
-  const currentLeft = leftWidth.value * scale;
-  const currentRight = rightWidth.value * scale;
-  updateSeparator(currentLeft, currentRight);
-}, 100);
-
+const initialFile = ref(null)
 onMounted(() => {
-  const scale = getScale(leftWidth.value, rightWidth.value);
-  if (scale !== 1 && !Number.isNaN(scale)) {
-    updateSeparator(leftWidth.value * scale, rightWidth.value * scale);
-  }
-  window.addEventListener('resize', onWindowResize);
-});
-
-onBeforeUnmount(() => {
-  document.removeEventListener('mousemove', onMouseMove);
-  document.removeEventListener('mouseup', onMouseUp);
-  window.removeEventListener('resize', onWindowResize);
+   const fileId = new URLSearchParams(window.location.search).get('file');
+   const file = fileId && props.sources.find(f => f.id === fileId)
+   initialFile.value = file?.id ?? null
+    console.debug('initial file', initialFile.value )
 });
 
 provide('sources', props.sources);

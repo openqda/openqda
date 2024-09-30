@@ -1,73 +1,47 @@
 <template>
-  <div
-    v-if="isRenaming"
-    class="fixed z-50 inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center"
-  >
-    <div
-      class="bg-white p-8 md:p-12 lg:p-16 rounded-lg shadow-lg w-full md:w-3/4 lg:w-1/2 xl:w-1/3 z-50"
+  <div class="flex items-center justify-start mt-4">
+    <Button
+      variant="outline-secondary"
+      class="rounded-xl"
+      @click="createNewFile"
     >
-      <h3 class="font-semibold text-lg mb-4">Rename Document</h3>
-      <div
-        v-if="renameError"
-        class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
-      >
-        {{ renameError }}
-      </div>
-      <input
-        v-model="newName"
-        class="border border-gray-300 p-2 rounded w-full mb-4"
-        placeholder="Enter new name"
-      />
-      <div class="flex justify-end space-x-2">
-        <button
-          @click="submitRename"
-          class="bg-cerulean-700 hover:bg-cerulean-700 text-white font-bold py-2 px-4 rounded"
-        >
-          Rename
-        </button>
-        <button
-          @click="cancelRename"
-          class="bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded"
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
+      <PlusIcon class="h-4 w-4 mr-2"></PlusIcon>
+      <span>New file</span>
+    </Button>
+    <Button
+      variant="outline-secondary"
+      class="rounded-xl ml-3"
+      @click="importFile"
+    >
+      <PlusIcon class="h-4 w-4 mr-2"></PlusIcon>
+      <span>Import</span>
+    </Button>
+    <!--
+      <form>
+        <FileUploadButton
+          color="cerulean"
+          @fileAdded="fileAdded"
+          :icon="CloudArrowUpIcon"
+          class="py-3"
+          accept=".txt,.rtf"
+          label="Import"
+          fileSizeLimit="200"
+        />
+      </form>
+      <form @submit.prevent="transcribeFile">
+        <FileUploadButton
+          color="cerulean"
+          @fileAdded="handleFileAdded"
+          :icon="CloudArrowUpIcon"
+          label="Transcribe audio"
+          accept="audio/*"
+          fileSizeLimit="100"
+        />
+      </form>
+      -->
   </div>
-  <div class="flex items-center justify-start space-x-2 pl-2">
-    <form>
-      <FileUploadButton
-        color="cerulean"
-        @fileAdded="fileAdded"
-        :icon="CloudArrowUpIcon"
-        class="py-3"
-        accept=".txt,.rtf"
-        label="Import"
-        fileSizeLimit="200"
-      />
-    </form>
-    <form @submit.prevent="transcribeFile">
-      <FileUploadButton
-        color="cerulean"
-        @fileAdded="handleFileAdded"
-        :icon="CloudArrowUpIcon"
-        label="Transcribe audio"
-        accept="audio/*"
-        fileSizeLimit="100"
-      />
-    </form>
-    <label>
-      <input @click="createNewFile" ref="fileCreate" class="hidden" />
-      <span
-        :class="`space-x-2 rounded bg-cerulean-700 px-2 py-1 text-xs font-semibold text-white shadow-sm hover:bg-cerulean-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-700 inline-flex items-center`"
-      >
-        <DocumentPlusIcon class="h-4 w-4 text-white"></DocumentPlusIcon>
-        <span>New file</span>
-      </span>
-    </label>
-  </div>
-  <div class="text-xs text-silver-700 mx-2 my-1">File size limit: 100MB</div>
   <FilesList
+    class="mt-5"
     rowClass="px-2"
     :documents="documents"
     :actions="[
@@ -145,19 +119,25 @@ import {
   ArrowPathRoundedSquareIcon,
   CloudArrowUpIcon,
   DocumentArrowDownIcon,
-  DocumentPlusIcon,
+  PlusIcon,
   PencilSquareIcon,
   XCircleIcon,
-} from '@heroicons/vue/20/solid';
+} from '@heroicons/vue/24/solid';
 import FileUploadButton from '../interactive/FileUploadButton.vue';
-import { inject, onBeforeUnmount, onMounted, ref } from 'vue';
+import { inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import FilesList from './FilesList.vue';
 import { flashMessage } from '../notification/flashMessage.js';
+import Button from '../interactive/Button.vue';
 
 useForm({ file: null });
 const emit = defineEmits(['fileSelected', 'documentDeleted']);
+const props = defineProps({
+    initialFile: {
+        type: String
+    }
+});
 const documents = inject('sources');
 const isUploading = ref(false);
 const isRenaming = ref(false);
@@ -499,7 +479,16 @@ onMounted(() => {
         'Are you sure you want to reload? A document is elaborating.';
     }
   });
+
 });
+
+watch(props, value => {
+    debugger
+    if (value.initialFile) {
+        fetchAndRenderDocument({ id: value.initialFile, converted: true })
+            .catch(console.error)
+    }
+})
 
 onBeforeUnmount(() => {
   window.removeEventListener('beforeunload', (event) => {
@@ -518,7 +507,6 @@ function fileSelected(file) {
   }
 
   const locked = file.isLocked;
-
   const hasSelections = file.selections && file.selections.length > 0;
   const CanUnlock = file.CanUnlock;
   const id = file.id;
@@ -543,7 +531,9 @@ function fileSelected(file) {
 }
 
 async function fetchAndRenderDocument(document) {
-  if (document.isConverting || !document.converted) return;
+  if (document.isConverting || !document.converted) {
+    return;
+  }
   try {
     const response = await axios.get(`/files/${document.id}`);
     const fetchedDocument = response.data;

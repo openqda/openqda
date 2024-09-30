@@ -1,8 +1,3 @@
-/* TODO load this only when the editor is actually used */
-@import 'quill/dist/quill.core.css';
-@import "quill/dist/quill.snow.css";
-
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

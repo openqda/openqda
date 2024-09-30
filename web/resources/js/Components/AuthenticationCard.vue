@@ -1,6 +1,4 @@
-<template><span class="float-right m-3">
-          <ThemeSwitch />
-        </span>
+<template>
   <LayoutContainer :title="$page.props.slogan">
     <div class="grid grid-cols-1 lg:grid-cols-2 items-stretch min-h-screen">
       <!--left side -->
@@ -18,9 +16,6 @@
 
       <!-- right side -->
       <div class="right flex-1 bg-surface">
-        <span class="float-right m-3">
-          <ThemeSwitch />
-        </span>
         <div class="w-full h-full flex justify-center content-center">
           <ImageCarousel
             :sources="[
@@ -37,7 +32,6 @@
   </LayoutContainer>
 </template>
 <script setup>
-import ThemeSwitch from '../ui/theme/ThemeSwitch.vue';
 import LayoutContainer from '../Layouts/LayoutContainer.vue';
 import ImageCarousel from '../ui/image/ImageCarousel.vue';
 </script>

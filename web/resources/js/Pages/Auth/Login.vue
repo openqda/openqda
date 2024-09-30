@@ -43,7 +43,7 @@ const submit = () => {
       <InputField
         id="email"
         v-model="form.email"
-        class="text-primary-foreground placeholder-primary-foreground dark:text-foreground dark:placeholder-foreground border-b-primary-foreground focus:border-b-primary-foreground"
+        class="text-primary-foreground placeholder-primary-foreground dark:text-foreground autofill:text-primary-foreground dark:autofill:text-foreground dark:placeholder-foreground border-b-primary-foreground focus:border-b-primary-foreground"
         type="email"
         required
         placeholder="email@email.com"

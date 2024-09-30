@@ -1,5 +1,5 @@
 <template>
-  <LayoutContainer v-bind="$props">
+  <LayoutContainer v-bind="$props" :showFooter="$props.showFooter">
     <div class="h-full">
       <TransitionRoot as="template" :show="sidebarOpen">
         <Dialog class="relative z-50 lg:hidden" @close="sidebarOpen = false">
@@ -171,25 +171,33 @@
         v-if="$page.props.flash.message"
         :flash="$page.props.flash"
       />
-      <aside
-        v-show="$props.menu !== false"
-        class="fixed inset-y-0 left-20 hidden w-96 bg-surface overflow-y-auto border-background px-4 py-6 sm:px-6 lg:px-8 lg:block border-r-background border-r-8"
-      >
-        <h1 class="font-extrabold text-xl text-primary dark:text-foreground">
-          {{ $props.title }}
-        </h1>
-        <slot name="menu" />
-      </aside>
 
-      <main :class="cn($props.menu && 'lg:pl-20', 'min-h-screen bg-surface text-surface-foreground')">
-        <div :class="cn($props.menu ? 'xl:pl-96' : 'pl-20')">
-          <div class="px-4 py-2 sm:px-6 lg:px-8 lg:py-0">
-            <Transition>
-              <slot name="main" />
-            </Transition>
-          </div>
-        </div>
-      </main>
+      <div class="flex lg:pl-20">
+        <aside
+          v-show="$props.menu !== false"
+          class="bg-surface w-1/3 h-screen overflow-y-auto border-background px-1 sm:px-2 lg:px-3 lg:block border-r-background border-r-8"
+        >
+          <h1
+            v-if="$props.title"
+            class="font-extrabold text-xl text-primary dark:text-foreground"
+          >
+            {{ $props.title }}
+          </h1>
+          <slot name="menu" />
+        </aside>
+
+        <main
+          :class="
+            cn(
+              'h-screen overflow-y-auto bg-surface text-surface-foreground flex-grow px-1 sm:px-2 lg:px-3'
+            )
+          "
+        >
+          <Transition>
+            <slot name="main" />
+          </Transition>
+        </main>
+      </div>
     </div>
   </LayoutContainer>
 </template>
@@ -206,6 +214,10 @@ defineProps({
     type: Boolean,
     required: false,
   },
+  showFooter: {
+    type: Boolean,
+    required: false,
+  },
 });
 import {
   Dialog,
@@ -215,7 +227,6 @@ import {
 } from '@headlessui/vue';
 import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline';
 import LayoutContainer from './LayoutContainer.vue';
-import ThemeSwitch from '../ui/theme/ThemeSwitch.vue';
 import { NavRoutes } from '../routes/NavRoutes.js';
 import { Project } from '../state/Project.js';
 import FlashMessage from '../Components/notification/FlashMessage.vue';
@@ -240,7 +251,6 @@ onMounted(() => {
     return { icon, ...route, href, disabled, count, current, label };
   });
 
-  console.debug(routes);
   navigation.value.push(...routes);
 });
 

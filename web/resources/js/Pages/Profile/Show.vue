@@ -1,12 +1,12 @@
 <script setup>
 import DeleteUserForm from '../../Pages/Profile/Partials/DeleteUserForm.vue';
 import LogoutOtherBrowserSessionsForm from '../../Pages/Profile/Partials/LogoutOtherBrowserSessionsForm.vue';
-import '../../Pages/Profile/Partials/TwoFactorAuthenticationForm.vue';
 import UpdatePasswordForm from '../../Pages/Profile/Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from '../../Pages/Profile/Partials/UpdateProfileInformationForm.vue';
 import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout.vue';
 import InputLabel from '../../ui/form/InputLabel.vue';
 import ThemeSwitch from '../../ui/theme/ThemeSwitch.vue';
+// import '../../Pages/Profile/Partials/TwoFactorAuthenticationForm.vue';
 
 defineProps({
   confirmsTwoFactorAuthentication: Boolean,
