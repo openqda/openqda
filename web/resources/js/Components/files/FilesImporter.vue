@@ -17,29 +17,36 @@
       <span>Import</span>
     </Button>
     <!--
-      <form>
-        <FileUploadButton
-          color="cerulean"
-          @fileAdded="fileAdded"
-          :icon="CloudArrowUpIcon"
-          class="py-3"
-          accept=".txt,.rtf"
-          label="Import"
-          fileSizeLimit="200"
-        />
-      </form>
-      <form @submit.prevent="transcribeFile">
-        <FileUploadButton
-          color="cerulean"
-          @fileAdded="handleFileAdded"
-          :icon="CloudArrowUpIcon"
-          label="Transcribe audio"
-          accept="audio/*"
-          fileSizeLimit="100"
-        />
-      </form>
-      -->
+              <form>
+                <FileUploadButton
+                  color="cerulean"
+                  @fileAdded="fileAdded"
+                  :icon="CloudArrowUpIcon"
+                  class="py-3"
+                  accept=".txt,.rtf"
+                  label="Import"
+                  fileSizeLimit="200"
+                />
+              </form>
+              <form @submit.prevent="transcribeFile">
+                <FileUploadButton
+                  color="cerulean"
+                  @fileAdded="handleFileAdded"
+                  :icon="CloudArrowUpIcon"
+                  label="Transcribe audio"
+                  accept="audio/*"
+                  fileSizeLimit="100"
+                />
+              </form>
+              -->
   </div>
+  <CreateDialog
+    :schema="createSchema"
+    title="Create new file"
+    :submit="onCreateSubmit"
+    @created="onCreated"
+    @cancelled="createSchema = null"
+  />
   <FilesList
     class="mt-5"
     rowClass="px-2"
@@ -90,8 +97,8 @@
         title: 'Rename this document',
         icon: PencilSquareIcon,
         class: ' text-black hover:text-gray-600',
-        onClick({ document, index }) {
-          renameDocument(document, index);
+        onClick({ document }) {
+          toRename = document;
         },
         visible(document) {
           return document.converted;
@@ -112,6 +119,13 @@
     ]"
     @select="fetchAndRenderDocument"
   />
+  <RenameDialog
+    title="Rename File"
+    :target="toRename"
+    :submit="({ id, name }) => axios.post(`/sources/${id}`, { name })"
+    @renamed="onRenamed"
+    @cancelled="toRename = null"
+  />
 </template>
 
 <script setup>
@@ -123,27 +137,27 @@ import {
   PencilSquareIcon,
   XCircleIcon,
 } from '@heroicons/vue/24/solid';
-import FileUploadButton from '../interactive/FileUploadButton.vue';
-import { inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { inject, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import FilesList from './FilesList.vue';
 import { flashMessage } from '../notification/flashMessage.js';
 import Button from '../interactive/Button.vue';
+import RenameDialog from '../../dialogs/RenameDialog.vue';
+import CreateDialog from '../../dialogs/CreateDialog.vue';
+import { ensureFileExtension } from '../../utils/files/ensureFileExtension.js';
+import { createBlob } from '../../utils/files/createBlob.js';
 
 useForm({ file: null });
 const emit = defineEmits(['fileSelected', 'documentDeleted']);
 const props = defineProps({
-    initialFile: {
-        type: String
-    }
+  initialFile: {
+    type: String,
+  },
 });
 const documents = inject('sources');
 const isUploading = ref(false);
-const isRenaming = ref(false);
-const newName = ref('');
 let renamingDocumentId = null;
-const renameError = ref('');
 const url = window.location.pathname;
 const segments = url.split('/');
 const projectId = segments[2]; // Assuming project id is the third segment in URL path
@@ -177,7 +191,7 @@ async function downloadSource(source) {
     }
 
     // Create a URL for the blob response data
-    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const url = window.URL.createObjectURL(createBlob({ data: response.data }));
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', filename); // Set the download attribute with the filename
@@ -228,12 +242,6 @@ async function transcribeFile() {
   }
 }
 
-function renameDocument(document /*, index */) {
-  isRenaming.value = true;
-  renamingDocumentId = document.id;
-  newName.value = document.name;
-}
-
 async function retryTranscription(document) {
   const url = `/projects/${projectId}/sources/${document.id}/retrytranscription`;
   try {
@@ -280,41 +288,62 @@ async function retryConvert(document) {
   }
 }
 
-async function submitRename() {
-  if (renamingDocumentId && newName.value) {
-    try {
-      await axios.post(`/sources/${renamingDocumentId}`, {
-        name: newName.value,
-      });
+/*---------------------------------------------------------------------------*/
+// CREATE DOCUMENT
+/*---------------------------------------------------------------------------*/
+const createSchema = ref(null);
+const createNewFile = () => {
+  // Generate a casual name for the file
+  const fileName = `NewDocument_${new Date().getTime()}.txt`;
+  createSchema.value = {
+    name: {
+      type: String,
+      label: 'Filename',
+      required: true,
+      defaultValue: fileName,
+    },
+  };
+};
+const onCreateSubmit = async ({ name }) => {
+  const fileName = ensureFileExtension(name, 'txt');
+  const emptyFile = new File([createBlob()], fileName, { type: 'text/plain' });
 
-      // Update the document's name in the documents array
-      const documentIndex = documents.findIndex(
-        (doc) => doc.id === renamingDocumentId
-      );
-      if (documentIndex !== -1) {
-        documents[documentIndex].name = newName.value;
-      }
+  // Start the upload process
+  isUploading.value = true;
 
-      isRenaming.value = false;
-      renameError.value = ''; // Clear any previous error
-    } catch (error) {
-      console.error('Error renaming document:', error);
-      renameError.value =
-        error.response.data.message ||
-        'An error occurred while renaming the document.';
-    }
-  } else {
-    if (newName.value.length === 0) {
-      renameError.value = 'Please enter a name for the document.';
-    }
+  const formData = new FormData();
+  formData.append('file', emptyFile);
+  formData.append('projectId', usePage().props.projectId ?? 0);
+
+  const response = await axios.post('/files/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data.newDocument;
+};
+const onCreated = (newDocument) => {
+  if (newDocument) {
+    documents.push(newDocument);
+    fileSelected(newDocument);
   }
-}
+};
 
-function cancelRename() {
-  isRenaming.value = false;
-  renameError.value = ''; // Clear any previous error
-}
+/*---------------------------------------------------------------------------*/
+// RENAME DOCUMENT
+/*---------------------------------------------------------------------------*/
+const toRename = ref(null);
+const onRenamed = ({ id, name }) => {
+  // Update the document's name in the documents array
+  const documentIndex = documents.findIndex((doc) => doc.id === id);
+  if (documentIndex !== -1) {
+    documents[documentIndex].name = name;
+  }
 
+  toRename.value = null;
+};
+
+/*---------------------------------------------------------------------------*/
+// DELETE DOCUMENT
+/*---------------------------------------------------------------------------*/
 async function deleteDocument(document, index) {
   // Confirmation dialogue
   if (!confirm('Are you sure you want to delete this document?')) {
@@ -386,49 +415,6 @@ async function fileAdded({ files }) {
   }
 }
 
-async function createNewFile() {
-  // Generate a casual name for the file
-  const fileName = `NewDocument_${new Date().getTime()}.txt`;
-
-  const keyword =
-    'Llanfair­pwllgwyngyll­gogery­chwyrn­drobwll­llan­tysilio­gogo­goch';
-  // Create a Blob representing an empty file
-  const emptyFileContent = new Blob([keyword], { type: 'text/plain' });
-  const emptyFile = new File([emptyFileContent], fileName, {
-    type: 'text/plain',
-  });
-
-  // Start the upload process
-  isUploading.value = true;
-
-  const formData = new FormData();
-  formData.append('file', emptyFile);
-  formData.append('projectId', usePage().props.projectId ?? 0);
-
-  try {
-    const response = await axios.post('/files/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-
-    if (response.data.newDocument) {
-      documents.push(response.data.newDocument);
-      fileSelected(response.data.newDocument);
-    }
-  } catch (error) {
-    console.error('File creation and upload failed:', error);
-    if (error.response.status === 429) {
-      flashMessage(
-        error.response.data.message +
-          ' Please wait a few minutes and try again.'
-      );
-    }
-  } finally {
-    isUploading.value = false;
-  }
-}
-
 onMounted(() => {
   /**
    * Listen for conversion completed events
@@ -479,16 +465,16 @@ onMounted(() => {
         'Are you sure you want to reload? A document is elaborating.';
     }
   });
-
 });
 
-watch(props, value => {
-    debugger
-    if (value.initialFile) {
-        fetchAndRenderDocument({ id: value.initialFile, converted: true })
-            .catch(console.error)
+watch(
+  () => props.initialFile,
+  (id) => {
+    if (id) {
+      fetchAndRenderDocument({ id, converted: true }).catch(console.error);
     }
-})
+  }
+);
 
 onBeforeUnmount(() => {
   window.removeEventListener('beforeunload', (event) => {

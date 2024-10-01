@@ -33,7 +33,7 @@ const props = defineProps({
         required: false,
     }
 });
-defineEmits(['cancel']);
+const emit = defineEmits(['cancel', 'submit']);
 const fields = ref(null);
 const validationErrors = ref({});
 const submitFailed = ref(false);
@@ -48,15 +48,14 @@ const validateForm = (e) => {
   e.preventDefault();
   e.stopPropagation();
   const formData = new FormData(e.target);
-  const fields = [...formData.entries()];
+  const data = [...formData.entries()];
   const validation = {};
   let isValid = true;
-  fields.forEach(([key, value]) => {
-    validation[key] = {
-      isValid: false,
-      error: 'fooo bar baz',
-    };
-    isValid = false;
+  data.forEach(([key, value]) => {
+    const schema = fields.value.find(s => s.data.name === key)
+      const result = schema.data.validate(value)
+    validation[key] = result
+    isValid = result.valid;
   });
 
   if (!isValid) {
@@ -65,6 +64,8 @@ const validateForm = (e) => {
     e.stopImmediatePropagation();
     return false;
   }
+
+  emit('submit', Object.fromEntries(data))
 };
 </script>
 
@@ -76,6 +77,7 @@ const validateForm = (e) => {
       :type="data.type"
       :label="data.label"
       :name="data.name"
+      :value="data.defaultValue"
       :validation="validationErrors[data.name]"
       class="mb-4"
     ></component>

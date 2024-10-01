@@ -9,7 +9,7 @@
     </template>
     <template #main>
       <div ref="rightSide" class="overflow-auto w-full h-full">
-        <div v-show="editorSourceRef.selected === true" class="mt-3 h-full">
+        <div v-show="editorSourceRef.selected === true" class="mt-3">
           <PreparationsEditor
             ref="editorComponent"
             :source="editorSourceRef.content"

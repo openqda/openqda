@@ -92,6 +92,7 @@ const updatePassword = () => {
       </ActionMessage>
 
       <Button
+        type="submit"
         :class="{ 'opacity-25': form.processing }"
         :disabled="form.processing"
       >

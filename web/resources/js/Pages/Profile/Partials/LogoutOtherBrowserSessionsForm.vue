@@ -6,7 +6,7 @@ import ActionSection from '../../../Components/ActionSection.vue';
 import DialogModal from '../../../Components/DialogModal.vue';
 import InputError from '../../../ui/form/InputError.vue';
 import InputField from '../../../ui/form/InputField.vue';
-import Button from '../../../Components/interactive/Button.vue'
+import Button from '../../../Components/interactive/Button.vue';
 
 defineProps({
   sessions: Array,
@@ -43,7 +43,7 @@ const closeModal = () => {
 
 <template>
   <ActionSection>
-    <template #title> Browser Sessions </template>
+    <template #title> Browser Sessions</template>
 
     <template #description>
       Manage and log out your active sessions on other browsers and devices.
@@ -122,9 +122,7 @@ const closeModal = () => {
       </div>
 
       <div class="flex items-center mt-5">
-        <Button @click="confirmLogout">
-          Log Out Other Browser Sessions
-        </Button>
+        <Button @click="confirmLogout" variant="outline"> Log Out Other Browser Sessions </Button>
 
         <ActionMessage :on="form.recentlySuccessful" class="ml-3">
           Done.
@@ -133,7 +131,7 @@ const closeModal = () => {
 
       <!-- Log Out Other Devices Confirmation Modal -->
       <DialogModal :show="confirmingLogout" @close="closeModal">
-        <template #title> Log Out Other Browser Sessions </template>
+        <template #title> Log Out Other Browser Sessions</template>
 
         <template #content>
           Please enter your password to confirm you would like to log out of
@@ -155,9 +153,10 @@ const closeModal = () => {
         </template>
 
         <template #footer>
-          <Button variant="secondary" @click="closeModal"> Cancel </Button>
+          <Button variant="secondary" @click="closeModal"> Cancel</Button>
 
           <Button
+            variant="outline"
             class="ml-3"
             :class="{ 'opacity-25': form.processing }"
             :disabled="form.processing"

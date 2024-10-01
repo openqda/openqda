@@ -1,0 +1,123 @@
+<script setup lang="ts">
+import { ref, watch } from 'vue';
+import DialogBase from '../Components/interactive/DialogBase.vue';
+import TextInput from '../ui/form/TextInput.vue';
+import Button from '../Components/interactive/Button.vue';
+import InputError from '../ui/form/InputError.vue';
+import ActionMessage from '../Components/ActionMessage.vue';
+import { asyncTimeout } from '../utils/asyncTimeout';
+
+const props = defineProps({
+  target: {
+    type: Object,
+  },
+  submit: {
+    type: Function,
+  },
+  title: { type: String, required: false }
+});
+
+const emit = defineEmits(['renamed', 'cancelled']);
+const newName = ref(null);
+const error = ref(null);
+const complete = ref(false);
+const submitting = ref(false);
+const open = ref(false);
+const id = ref(null);
+
+watch(
+  () => props.target,
+  (newFile) => newFile && start(newFile)
+);
+
+const start = (file) => {
+  id.value = file.id;
+  newName.value = file.name;
+  open.value = true;
+  error.value = null;
+  submitting.value = false;
+  complete.value = false;
+};
+
+const submit = async () => {
+  error.value = false; // Clear any previous error
+  complete.value = false;
+
+  if (!newName.value.length || newName.value === props.target.name) {
+    error.value = 'A new name is required';
+    return;
+  }
+
+  submitting.value = true;
+  await asyncTimeout(300);
+  try {
+    const data = { id: id.value, name: newName.value };
+    const response = await props.submit(data);
+    complete.value = true;
+  } catch (e) {
+    console.error('Error renaming document:', e);
+    error.value =
+      e.response?.data?.message ??
+      e.message ??
+      'An error occurred while renaming the document.';
+  } finally {
+    submitting.value = false;
+  }
+
+  if (complete.value) {
+    setTimeout(() => {
+      complete.value = false;
+      open.value = false;
+      submitting.value = false;
+      emit('renamed', { id: id.value, name: newName.value });
+    }, 300);
+  }
+};
+
+const cancel = () => {
+  open.value = false;
+  id.value = null;
+  newName.value = null;
+  error.value = null;
+  submitting.value = false;
+  complete.value = false;
+  emit('cancelled');
+};
+</script>
+
+<template>
+  <DialogBase :title="props.title ?? 'Rename'" :show="open">
+    <template #body>
+      <TextInput
+        v-model="newName"
+        type="text"
+        class="w-full"
+        :value="newName"
+        @keydown.enter="submit"
+      />
+      <InputError v-if="error">{{ error }}</InputError>
+    </template>
+    <template #footer>
+      <div class="flex justify-between items-center w-full">
+        <Button variant="outline" @click="cancel">Cancel </Button>
+        <span class="flex-grow text-right mx-1">
+          <ActionMessage
+            v-if="!complete && !error"
+            :on="submitting"
+            class="text-secondary"
+            >Saving</ActionMessage
+          >
+          <ActionMessage :on="complete" class="text-secondary"
+            >Saved</ActionMessage
+          >
+          <ActionMessage :on="error" class="text-destructive">{{
+            error
+          }}</ActionMessage>
+        </span>
+        <Button @click="submit" :disabled="submitting">Rename</Button>
+      </div>
+    </template>
+  </DialogBase>
+</template>
+
+<style scoped></style>

@@ -1,6 +1,9 @@
 <script setup>
-defineProps({
+import { cn } from '../utils/css/cn.js'
+
+const props = defineProps({
   on: Boolean,
+    class: { type: String, required: false}
 });
 </script>
 
@@ -11,7 +14,7 @@ defineProps({
       leave-from-class="opacity-100"
       leave-to-class="opacity-0"
     >
-      <div v-show="on" class="text-sm text-gray-600">
+      <div v-show="on" :class="cn('text-sm text-foreground', props.class)">
         <slot />
       </div>
     </transition>

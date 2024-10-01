@@ -6,7 +6,8 @@ import FormSection from '../../../Components/FormSection.vue';
 import InputError from '../../../ui/form/InputError.vue';
 import InputLabel from '../../../ui/form/InputLabel.vue';
 import InputField from '../../../ui/form/InputField.vue';
-import Button from '../../../Components/interactive/Button.vue'
+import Button from '../../../Components/interactive/Button.vue';
+import ProfileImage from '../../../Components/user/ProfileImage.vue';
 
 const props = defineProps({
   user: Object,
@@ -147,13 +148,12 @@ const clearPhotoFileInput = () => {
         <InputLabel for="photo" value="Photo" class="mt-4" />
 
         <!-- Current Profile Photo -->
-        <div v-show="!photoPreview" class="mt-2">
-          <img
-            :src="user.profile_photo_url"
-            :alt="user.name"
-            class="rounded-full h-20 w-20 object-cover"
-          />
-        </div>
+        <ProfileImage
+          :email="user.email"
+          :src="user.profile_photo_url"
+          :name="user.name"
+          class="h-20 w-20"
+        />
 
         <!-- New Profile Photo Preview -->
         <div v-show="photoPreview" class="mt-2">
@@ -191,10 +191,12 @@ const clearPhotoFileInput = () => {
       </ActionMessage>
 
       <Button
+        type="submit"
         :class="{ 'opacity-25': form.processing }"
         :disabled="form.processing"
       >
-        Save
+        <span v-if="form.processing">Saving</span>
+        <span v-else>Save</span>
       </Button>
     </template>
   </FormSection>

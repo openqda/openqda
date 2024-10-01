@@ -11,6 +11,7 @@ import SecondaryButton from '../../../Components/SecondaryButton.vue';
 import InputField from '../../../ui/form/InputField.vue';
 import { request } from '../../../utils/http/BackendRequest.js';
 import { flashMessage } from '../../../Components/notification/flashMessage.js';
+import Button from '../../../Components/interactive/Button.vue'
 
 const props = defineProps({
   requiresConfirmation: Boolean,
@@ -252,21 +253,23 @@ const disableTwoFactorAuthentication = () => {
           </ConfirmsPassword>
 
           <ConfirmsPassword @confirmed="regenerateRecoveryCodes">
-            <SecondaryButton
+            <Button
               v-if="recoveryCodes.length > 0 && !confirming"
+              variant="secondary"
               class="mr-3"
             >
               Regenerate Recovery Codes
-            </SecondaryButton>
+            </Button>
           </ConfirmsPassword>
 
           <ConfirmsPassword @confirmed="showRecoveryCodes">
-            <SecondaryButton
+            <Button
+              variant="secondary"
               v-if="recoveryCodes.length === 0 && !confirming"
               class="mr-3"
             >
               Show Recovery Codes
-            </SecondaryButton>
+            </Button>
           </ConfirmsPassword>
 
           <ConfirmsPassword @confirmed="disableTwoFactorAuthentication">

@@ -43,22 +43,23 @@
         )"
       >
         <td :class="cn('py-4 w-auto rounded-xl', hover === index ? 'break-all' : 'truncate')"
-            @mouseenter="hover = index"
-            @mouseleave="hover = -1"
-            @touchstart="hover = index"
-            @touchend="hover = -1"
             :colspan="hover === index ? 5 : undefined">
             <LockClosedIcon
                 v-if="document.variables && document.variables.isLocked"
                 class="w-4 h-4 text-foreground/60"
             />
-          <a  @click="document.converted && !document.selected && emit('select', document)"
+          <a
+              @mouseenter="hover = index"
+              @mouseleave="hover = -1"
+              @touchstart="hover = index"
+              @touchend="hover = -1"
+              @click="document.converted && !document.selected && emit('select', document)"
               :title="hover === index ? 'File already open' : `Open ${document.name} in editor`"
             :class="cn(
+                'py-3 tracking-wide',
                 document.converted && !document.failed
                     ? ''
                     : 'cursor-not-allowed pointer-events-none',
-                'tracking-wider',
                 !document.selected && 'cursor-pointer'
             )">
             {{ document.name }}
@@ -102,6 +103,7 @@
           <ProfileImage
             v-if="document.userPicture"
             :name="document.user"
+            :email="document.userEmail"
             :src="document.userPicture"
           />
         </td>

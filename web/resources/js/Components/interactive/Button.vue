@@ -15,7 +15,6 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
 import { cn } from '../../utils/css/cn.js';
 import { variantAuthority } from '../../utils/css/variantAuthority.js'
 
@@ -69,7 +68,6 @@ const props = defineProps({
   disabled: {
     type: Boolean,
     required: false,
-  },
+  }
 });
-const col = ref('cerulean');
 </script>

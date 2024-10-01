@@ -1,9 +1,9 @@
 <template>
-  <div class="flex justify-center sticky top-3 z-40">
+  <div class="block xl:flex lg:justify-center sticky top-0 py-2 z-40 bg-surface">
       <slot name="status"></slot>
     <div
       id="toolbar"
-      class="rounded-full border-2 bg-surface z-150 shadow-lg border-foreground/20 py-2 px-4 inline-flex !text-foreground/60"
+      class="rounded-none mb-3 xl:mb-0 lg:rounded-full border-2 bg-surface z-150 shadow-lg border-foreground/20 py-2 px-4 inline-flex !text-foreground/60"
     >
       <EditorToolbar />
     </div>
