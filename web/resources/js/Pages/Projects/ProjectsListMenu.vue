@@ -4,6 +4,7 @@ import Button from '../../Components/interactive/Button.vue'
 import { PlusIcon } from '@heroicons/vue/24/outline'
 import SearchableList from '../../Components/lists/SearchableList.vue'
 import { EllipsisVerticalIcon } from '@heroicons/vue/24/outline'
+import { Link } from '@inertiajs/vue3'
 
 defineEmits(['create-project']);
 defineProps(['projects']);
@@ -38,7 +39,7 @@ const filterItems = (item, term) => {
         liclass="group/li w-100 px-2 py-3 rounded-md bg-transparent hover:bg-secondary/20 dark:hover:bg-foreground/20"
         items="$props.projects">
         <template #item="{ id, name, description, created_at }">
-            <a class="flex w-100" :href="Routes.project.path(id)">
+            <Link class="flex w-100" :href="Routes.project.path(id)" :title="`Open and edit ${name}`">
                 <div class="flex-grow max-w-1/2">
                     <h3 class="font-semibold text-foreground">
                         {{ name }}
@@ -56,7 +57,7 @@ const filterItems = (item, term) => {
                 <span class="text-center pl-2 text-foreground/50">
                     <EllipsisVerticalIcon class="w-4 h-4" />
                 </span>
-            </a>
+            </Link>
         </template>
     </SearchableList>
 </template>

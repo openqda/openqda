@@ -110,7 +110,7 @@
         icon: XCircleIcon,
         class: ' text-red-700 hover:text-red-600',
         onClick({ document, index }) {
-          deleteDocument(document, index);
+          toDelete = document
         },
         visible(/* document */) {
           return true;
@@ -126,6 +126,12 @@
     @renamed="onRenamed"
     @cancelled="toRename = null"
   />
+    <DeleteDialog
+        :target="toDelete"
+        :submit="deleteDocument"
+        challenge="random"
+        @cancelled="toDelete = null"
+        />
 </template>
 
 <script setup>
@@ -147,6 +153,7 @@ import RenameDialog from '../../dialogs/RenameDialog.vue';
 import CreateDialog from '../../dialogs/CreateDialog.vue';
 import { ensureFileExtension } from '../../utils/files/ensureFileExtension.js';
 import { createBlob } from '../../utils/files/createBlob.js';
+import DeleteDialog from '../../dialogs/DeleteDialog.vue'
 
 useForm({ file: null });
 const emit = defineEmits(['fileSelected', 'documentDeleted']);
@@ -344,6 +351,7 @@ const onRenamed = ({ id, name }) => {
 /*---------------------------------------------------------------------------*/
 // DELETE DOCUMENT
 /*---------------------------------------------------------------------------*/
+const toDelete = ref(null)
 async function deleteDocument(document, index) {
   // Confirmation dialogue
   if (!confirm('Are you sure you want to delete this document?')) {

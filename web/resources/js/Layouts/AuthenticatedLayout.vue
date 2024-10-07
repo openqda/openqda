@@ -117,7 +117,7 @@
               :key="item.name"
               :class="item.current ? 'w-full text-center' : ''"
             >
-              <a
+              <Link
                 :href="item.href"
                 :title="item.label"
                 :aria-label="item.label"
@@ -138,7 +138,7 @@
                   aria-hidden="true"
                 />
                 <span class="sr-only">{{ item.label }}</span>
-              </a>
+              </Link>
             </li>
           </ul>
         </nav>

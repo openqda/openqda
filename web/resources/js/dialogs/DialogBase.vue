@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+/*-----------------------------------------------------------------------------
+ | This is styled version of the headlessui dialog component using our theme
+ | variables and conventions.
+ | It's opinionated in its layout and animation and flexible
+ | in its content.
+ *---------------------------------------------------------------------------*/
 import {
   Dialog,
   DialogPanel,
@@ -9,25 +14,16 @@ import {
   TransitionChild,
 } from '@headlessui/vue';
 
-const props = defineProps({
+defineProps({
   title: String,
   description: { type: String, required: false },
   show: { type: Boolean, required: false },
 });
-const isOpen = ref(props.show);
-
-function setIsOpen(value) {
-  isOpen.value = value;
-}
-
-function handleDeactivate() {
-  // ...
-}
 </script>
 
 <template>
   <TransitionRoot as="template" :show="show">
-    <Dialog class="relative z-50" @close="open = false">
+    <Dialog class="relative z-50">
       <TransitionChild
         as="template"
         enter="ease-out duration-300"
@@ -68,7 +64,7 @@ function handleDeactivate() {
                       as="h3"
                       class="text-base font-semibold leading-6 text-foreground"
                     >
-                      {{ title }}
+                      {{ title }}<slot name="title" />
                     </DialogTitle>
                     <div class="mt-2">
                       <slot name="body"></slot>

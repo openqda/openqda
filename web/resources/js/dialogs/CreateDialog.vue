@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Button from '../Components/interactive/Button.vue';
-import DialogBase from '../Components/interactive/DialogBase.vue';
+import DialogBase from './DialogBase.vue';
 import ActionMessage from '../Components/ActionMessage.vue';
 import AutoForm from '../ui/form/AutoForm.vue';
 import { ref, watch } from 'vue';
