@@ -122,7 +122,7 @@
   <RenameDialog
     title="Rename File"
     :target="toRename"
-    :submit="({ id, name }) => axios.post(`/sources/${id}`, { name })"
+    :submit="({ id, name }) => request({ type: 'POST', url: `/sources/${id}`, body: { name } })"
     @renamed="onRenamed"
     @cancelled="toRename = null"
   />
@@ -154,6 +154,7 @@ import CreateDialog from '../../dialogs/CreateDialog.vue';
 import { ensureFileExtension } from '../../utils/files/ensureFileExtension.js';
 import { createBlob } from '../../utils/files/createBlob.js';
 import DeleteDialog from '../../dialogs/DeleteDialog.vue'
+import { request } from '../../utils/http/BackendRequest.js'
 
 useForm({ file: null });
 const emit = defineEmits(['fileSelected', 'documentDeleted']);

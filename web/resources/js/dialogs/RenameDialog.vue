@@ -14,7 +14,7 @@ const props = defineProps({
   submit: {
     type: Function,
   },
-  title: { type: String, required: false }
+  title: { type: String, required: false },
 });
 
 const emit = defineEmits(['renamed', 'cancelled']);
@@ -50,16 +50,25 @@ const submit = async () => {
 
   submitting.value = true;
   await asyncTimeout(300);
-  try {
-    const data = { id: id.value, name: newName.value };
-    const response = await props.submit(data);
-    complete.value = true;
-  } catch (e) {
+
+  const onError = (e) => {
     console.error('Error renaming document:', e);
     error.value =
       e.response?.data?.message ??
       e.message ??
       'An error occurred while renaming the document.';
+  };
+
+  try {
+    const data = { id: id.value, name: newName.value };
+    const { error } = await props.submit(data);
+    if (error) {
+      onError(error);
+    } else {
+      complete.value = true;
+    }
+  } catch (e) {
+    onError(e);
   } finally {
     submitting.value = false;
   }
@@ -99,7 +108,7 @@ const cancel = () => {
     </template>
     <template #footer>
       <div class="flex justify-between items-center w-full">
-        <Button variant="outline" @click="cancel">Cancel </Button>
+        <Button variant="outline" @click="cancel">Cancel</Button>
         <span class="flex-grow text-right mx-1">
           <ActionMessage
             v-if="!complete && !error"

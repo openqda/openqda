@@ -47,14 +47,29 @@ const start = (file) => {
       break;
     case 'name':
       challengeEntered.value = '';
-      challenge.value = randomString(4, props.target.name);
+      challenge.value = props.target.name;
       break;
     default:
       challenge.value = null;
   }
 };
 
-const submit = async () => {};
+const submit = async () => {
+    submitting.value = true
+    const onError = e => {
+        console.error(e)
+    }
+    try {
+        const response = await props.submit({ id: id, name: name })
+        if (response?.error === 200) {
+            onError(response.error)
+        }
+    } catch (e) {
+
+    } finally {
+        submitting.value = false
+    }
+};
 
 const cancel = () => {
   open.value = false;
@@ -113,7 +128,7 @@ const cancel = () => {
             error
           }}</ActionMessage>
         </span>
-        <Button variant="destructive" @click="submit" :disabled="submitting"
+        <Button variant="destructive" @click="submit" :disabled="submitting || (challenge && challengeEntered !== challenge)"
           >Delete
         </Button>
       </div>

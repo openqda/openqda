@@ -23,7 +23,8 @@ const style = {
   variants: {
     variant: {
     default: 'bg-primary text-primary-foreground hover:bg-primary/70',
-    destructive: 'bg-destructive text-destructive-foreground hover:bg-destructive/90',
+    secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/70',
+    destructive: 'bg-transparent text-destructive border border-destructive hover:bg-destructive/90 hover:text-destructive-foreground',
     confirmative: 'bg-confirmative text-confirmative-foreground hover:bg-confirmative/90',
     outline: 'border border-input bg-transparent hover:bg-background hover:text-background-foreground',
     'outline-secondary': 'text-secondary border border-secondary bg-transparent hover:bg-secondary hover:text-secondary-foreground',
