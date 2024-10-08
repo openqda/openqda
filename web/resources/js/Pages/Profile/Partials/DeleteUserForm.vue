@@ -4,9 +4,9 @@ import { useForm, usePage } from '@inertiajs/vue3';
 import ActionSection from '../../../Components/ActionSection.vue';
 import DangerButton from '../../../Components/DangerButton.vue';
 import DialogModal from '../../../Components/DialogModal.vue';
-import InputError from '../../../ui/form/InputError.vue';
+import InputError from '../../../form/InputError.vue';
 import SecondaryButton from '../../..//Components/SecondaryButton.vue';
-import InputField from '../../../ui/form/InputField.vue';
+import InputField from '../../../form/InputField.vue';
 
 const confirmingUserDeletion = ref(false);
 const passwordInput = ref(null);

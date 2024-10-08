@@ -4,8 +4,8 @@ import { useForm } from '@inertiajs/vue3';
 import ActionMessage from '../../../Components/ActionMessage.vue';
 import ActionSection from '../../../Components/ActionSection.vue';
 import DialogModal from '../../../Components/DialogModal.vue';
-import InputError from '../../../ui/form/InputError.vue';
-import InputField from '../../../ui/form/InputField.vue';
+import InputError from '../../../form/InputError.vue';
+import InputField from '../../../form/InputField.vue';
 import Button from '../../../Components/interactive/Button.vue';
 
 defineProps({

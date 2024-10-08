@@ -2,7 +2,7 @@
 import Button from '../Components/interactive/Button.vue';
 import DialogBase from './DialogBase.vue';
 import ActionMessage from '../Components/ActionMessage.vue';
-import AutoForm from '../ui/form/AutoForm.vue';
+import AutoForm from '../form/AutoForm.vue';
 import { ref, watch } from 'vue';
 import {asyncTimeout} from "../utils/asyncTimeout";
 

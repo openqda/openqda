@@ -3,7 +3,7 @@ import { ExclamationTriangleIcon, PencilIcon } from '@heroicons/vue/20/solid';
 import { inject, ref } from 'vue';
 import { request } from '../../utils/http/BackendRequest';
 import RenameDialog from '../../dialogs/RenameDialog.vue';
-import InputLabel from '../../ui/form/InputLabel.vue';
+import InputLabel from '../../form/InputLabel.vue';
 import Button from '../../Components/interactive/Button.vue';
 import { cn } from '../../utils/css/cn';
 import DeleteDialog from '../../dialogs/DeleteDialog.vue';

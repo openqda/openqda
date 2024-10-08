@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import InputField from '../../ui/form/InputField.vue';
+import InputField from '../../form/InputField.vue';
 import { onMounted, ref, watch } from 'vue';
 import { cn } from '../../utils/css/cn';
 import { debounce } from '../../utils/dom/debounce';

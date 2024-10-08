@@ -1,7 +1,7 @@
 <script setup>
 import { Project } from '../../domain/Project';
 import Headline2 from '../../Components/layout/Headline2.vue';
-import AutoForm from '../../ui/form/AutoForm.vue';
+import AutoForm from '../../form/AutoForm.vue';
 import { onMounted, ref, useTemplateRef } from 'vue';
 import { flashMessage } from '../../Components/notification/flashMessage.js';
 import { Routes } from '../../routes/Routes.js';

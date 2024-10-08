@@ -4,8 +4,8 @@ import LogoutOtherBrowserSessionsForm from '../../Pages/Profile/Partials/LogoutO
 import UpdatePasswordForm from '../../Pages/Profile/Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from '../../Pages/Profile/Partials/UpdateProfileInformationForm.vue';
 import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout.vue';
-import InputLabel from '../../ui/form/InputLabel.vue';
-import ThemeSwitch from '../../ui/theme/ThemeSwitch.vue';
+import InputLabel from '../../form/InputLabel.vue';
+import ThemeSwitch from '../../theme/ThemeSwitch.vue';
 // import '../../Pages/Profile/Partials/TwoFactorAuthenticationForm.vue';
 
 defineProps({

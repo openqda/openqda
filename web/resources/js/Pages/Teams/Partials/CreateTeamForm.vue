@@ -2,10 +2,10 @@ a
 <script setup>
 import { useForm } from '@inertiajs/vue3';
 import FormSection from '../../../Components/FormSection.vue';
-import InputError from '../../../ui/form/InputError.vue';
-import InputLabel from '../../../ui/form/InputLabel.vue';
+import InputError from '../../../form/InputError.vue';
+import InputLabel from '../../../form/InputLabel.vue';
 import PrimaryButton from '../../../Components/PrimaryButton.vue';
-import InputField from '../../../ui/form/InputField.vue';
+import InputField from '../../../form/InputField.vue';
 
 const props = defineProps(['projectId']);
 const form = useForm({

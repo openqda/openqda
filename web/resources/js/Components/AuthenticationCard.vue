@@ -33,7 +33,7 @@
 </template>
 <script setup>
 import LayoutContainer from '../Layouts/LayoutContainer.vue';
-import ImageCarousel from '../ui/image/ImageCarousel.vue';
+import ImageCarousel from './image/ImageCarousel.vue';
 </script>
 
 <style scoped>

@@ -2,10 +2,10 @@
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AuthenticationCard from '../../Components/AuthenticationCard.vue';
 import AuthenticationCardLogo from '../../Components/AuthenticationCardLogo.vue';
-import InputError from '../../ui/form/InputError.vue';
-import InputLabel from '../../ui/form/InputLabel.vue';
+import InputError from '../../form/InputError.vue';
+import InputLabel from '../../form/InputLabel.vue';
 import PrimaryButton from '../../Components/PrimaryButton.vue';
-import InputField from '../../ui/form/InputField.vue';
+import InputField from '../../form/InputField.vue';
 import Altcha from '../../Components/Altcha.vue';
 import Headline2 from '../../Components/layout/Headline2.vue';
 import Footer from '../../Layouts/Footer.vue';

@@ -2,8 +2,8 @@
 import { ref, watch } from 'vue';
 import Button from '../Components/interactive/Button.vue';
 import DialogBase from './DialogBase.vue';
-import TextInput from '../ui/form/TextInput.vue';
-import InputError from '../ui/form/InputError.vue';
+import TextInput from '../form/TextInput.vue';
+import InputError from '../form/InputError.vue';
 import ActionMessage from '../Components/ActionMessage.vue';
 import { randomString } from '../utils/randomString';
 

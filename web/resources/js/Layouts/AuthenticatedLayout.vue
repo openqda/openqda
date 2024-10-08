@@ -200,18 +200,6 @@ import { Routes } from '../routes/Routes.js';
 import { Link } from '@inertiajs/vue3';
 import { onMounted, ref } from 'vue';
 import { cn } from '../utils/css/cn.js';
-
-defineProps({
-  title: String,
-  menu: {
-    type: Boolean,
-    required: false,
-  },
-  showFooter: {
-    type: Boolean,
-    required: false,
-  },
-});
 import {
   Dialog,
   DialogPanel,
@@ -223,6 +211,21 @@ import LayoutContainer from './LayoutContainer.vue';
 import { NavRoutes } from '../routes/NavRoutes.js';
 import { Project } from '../state/Project.js';
 import FlashMessage from '../Components/notification/FlashMessage.vue';
+
+const navigation = ref([]);
+const sidebarOpen = ref(false);
+
+defineProps({
+    title: String,
+    menu: {
+        type: Boolean,
+        required: false,
+    },
+    showFooter: {
+        type: Boolean,
+        required: false,
+    },
+});
 
 onMounted(() => {
   const projectId = Project.getId();
@@ -246,9 +249,6 @@ onMounted(() => {
 
   navigation.value.push(...routes);
 });
-
-const navigation = ref([]);
-const sidebarOpen = ref(false);
 </script>
 <style scoped>
 /* we will explain what these classes do next! */

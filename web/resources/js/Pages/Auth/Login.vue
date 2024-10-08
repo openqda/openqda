@@ -1,9 +1,9 @@
 <script setup>
 import { Link, useForm } from '@inertiajs/vue3';
 import Checkbox from '../../Components/Checkbox.vue';
-import InputError from '../../ui/form/InputError.vue';
-import InputLabel from '../../ui/form/InputLabel.vue';
-import InputField from '../../ui/form/InputField.vue';
+import InputError from '../../form/InputError.vue';
+import InputLabel from '../../form/InputLabel.vue';
+import InputField from '../../form/InputField.vue';
 
 defineProps({
   canResetPassword: Boolean,

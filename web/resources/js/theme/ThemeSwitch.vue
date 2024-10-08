@@ -1,6 +1,6 @@
 <script setup>
 import { Switch } from '@headlessui/vue';
-import { Theme } from '../../theme/Theme.js';
+import { Theme } from './Theme.js';
 import { SunIcon, MoonIcon } from '@heroicons/vue/24/outline';
 import { onMounted, ref } from 'vue';
 

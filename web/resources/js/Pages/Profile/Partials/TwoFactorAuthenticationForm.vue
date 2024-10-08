@@ -4,11 +4,11 @@ import { router, useForm, usePage } from '@inertiajs/vue3';
 import ActionSection from '../../../Components/ActionSection.vue';
 import ConfirmsPassword from '../../../Components/ConfirmsPassword.vue';
 import DangerButton from '../../../Components/DangerButton.vue';
-import InputError from '../../../ui/form/InputError.vue';
-import InputLabel from '../../../ui/form/InputLabel.vue';
+import InputError from '../../../form/InputError.vue';
+import InputLabel from '../../../form/InputLabel.vue';
 import PrimaryButton from '../../../Components/PrimaryButton.vue';
 import SecondaryButton from '../../../Components/SecondaryButton.vue';
-import InputField from '../../../ui/form/InputField.vue';
+import InputField from '../../../form/InputField.vue';
 import { request } from '../../../utils/http/BackendRequest.js';
 import { flashMessage } from '../../../Components/notification/flashMessage.js';
 import Button from '../../../Components/interactive/Button.vue'

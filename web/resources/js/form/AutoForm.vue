@@ -4,11 +4,11 @@
  | by given schema.
  *--------------------------------------------------*/
 import { onMounted, ref } from 'vue';
-import { cn } from '../../utils/css/cn.js'
+import { cn } from '../utils/css/cn.js'
 import { transformSchema } from './transformSchema.js';
 import { initForms } from './initForms.js';
-import InputError from '../../../../vendor/laravel/jetstream/stubs/inertia/resources/js/Components/InputError.vue';
-import Button from '../../Components/interactive/Button.vue'
+import InputError from '../../../vendor/laravel/jetstream/stubs/inertia/resources/js/Components/InputError.vue';
+import Button from '../Components/interactive/Button.vue'
 
 // make sure we have registered all elements
 initForms();

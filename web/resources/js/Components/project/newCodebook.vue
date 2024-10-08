@@ -95,7 +95,7 @@
   </div>
 </template>
 <script setup>
-import InputLabel from '../../ui/form/InputLabel.vue';
+import InputLabel from '../../form/InputLabel.vue';
 import { onMounted, ref } from 'vue';
 import Headline2 from '../layout/Headline2.vue';
 

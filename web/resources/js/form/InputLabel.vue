@@ -1,5 +1,5 @@
 <script setup>
-import { cn } from '../../utils/css/cn.js'
+import { cn } from '../utils/css/cn.js'
 
 defineProps({
   value: String,

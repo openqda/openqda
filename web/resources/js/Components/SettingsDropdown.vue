@@ -6,8 +6,8 @@ import { router, useForm } from '@inertiajs/vue3';
 import { Project } from '../state/Project.js';
 import ProfileImage from './user/ProfileImage.vue';
 import Button from './interactive/Button.vue';
-import TextInput from '../ui/form/InputField.vue';
-import TextArea from '../ui/form/TextArea.vue';
+import TextInput from '../form/InputField.vue';
+import TextArea from '../form/TextArea.vue';
 import Checkbox from './Checkbox.vue';
 import { flashMessage } from './notification/flashMessage.js';
 

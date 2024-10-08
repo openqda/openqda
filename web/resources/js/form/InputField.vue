@@ -16,7 +16,7 @@
 </template>
 <script setup>
 import { onMounted, ref } from 'vue';
-import { cn } from '../../utils/css/cn.js'
+import { cn } from '../utils/css/cn.js'
 
 const input = ref(null);
 
