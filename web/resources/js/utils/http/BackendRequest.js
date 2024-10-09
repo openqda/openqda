@@ -18,7 +18,7 @@ class BackendRequest {
   constructor(options) {
     const { url, type, body, query, headers } = options;
     this.url = url;
-    this.type = type;
+    this.type = type.toLowerCase();
     this.body = body;
     this.query = query;
     this.response = null;

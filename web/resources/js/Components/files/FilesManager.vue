@@ -11,34 +11,11 @@
     <Button
       variant="outline-secondary"
       class="rounded-xl ml-3"
-      @click="importFile"
+      @click="importSchema = { foo: {} }"
     >
       <PlusIcon class="h-4 w-4 mr-2"></PlusIcon>
       <span>Import</span>
     </Button>
-    <!--
-              <form>
-                <FileUploadButton
-                  color="cerulean"
-                  @fileAdded="fileAdded"
-                  :icon="CloudArrowUpIcon"
-                  class="py-3"
-                  accept=".txt,.rtf"
-                  label="Import"
-                  fileSizeLimit="200"
-                />
-              </form>
-              <form @submit.prevent="transcribeFile">
-                <FileUploadButton
-                  color="cerulean"
-                  @fileAdded="handleFileAdded"
-                  :icon="CloudArrowUpIcon"
-                  label="Transcribe audio"
-                  accept="audio/*"
-                  fileSizeLimit="100"
-                />
-              </form>
-              -->
   </div>
   <CreateDialog
     :schema="createSchema"
@@ -46,6 +23,11 @@
     :submit="onCreateSubmit"
     @created="onCreated"
     @cancelled="createSchema = null"
+  />
+  <WizardDialog
+    :schema="importSchema"
+    title="Import file(s)"
+    @files-selected="importFiles"
   />
   <FilesList
     class="mt-5"
@@ -110,7 +92,7 @@
         icon: XCircleIcon,
         class: ' text-red-700 hover:text-red-600',
         onClick({ document, index }) {
-          toDelete = document
+          toDelete = document;
         },
         visible(/* document */) {
           return true;
@@ -118,20 +100,25 @@
       },
     ]"
     @select="fetchAndRenderDocument"
-  />
+  >
+  </FilesList>
   <RenameDialog
     title="Rename File"
     :target="toRename"
-    :submit="({ id, name }) => request({ type: 'POST', url: `/sources/${id}`, body: { name } })"
+    :submit="
+      ({ id, name }) =>
+        request({ type: 'POST', url: `/sources/${id}`, body: { name } })
+    "
     @renamed="onRenamed"
     @cancelled="toRename = null"
   />
-    <DeleteDialog
-        :target="toDelete"
-        :submit="deleteDocument"
-        challenge="random"
-        @cancelled="toDelete = null"
-        />
+  <DeleteDialog
+    :target="toDelete"
+    :submit="deleteDocument"
+    challenge="random"
+    @cancelled="toDelete = null"
+    @deleted="onDeleted"
+  />
 </template>
 
 <script setup>
@@ -147,14 +134,17 @@ import { inject, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import FilesList from './FilesList.vue';
-import { flashMessage } from '../notification/flashMessage.js';
 import Button from '../interactive/Button.vue';
 import RenameDialog from '../../dialogs/RenameDialog.vue';
 import CreateDialog from '../../dialogs/CreateDialog.vue';
+import DeleteDialog from '../../dialogs/DeleteDialog.vue';
+import WizardDialog from '../../dialogs/WizardDialog.vue';
+import { flashMessage } from '../notification/flashMessage.js';
 import { ensureFileExtension } from '../../utils/files/ensureFileExtension.js';
 import { createBlob } from '../../utils/files/createBlob.js';
-import DeleteDialog from '../../dialogs/DeleteDialog.vue'
-import { request } from '../../utils/http/BackendRequest.js'
+import { request } from '../../utils/http/BackendRequest.js';
+import { useFiles } from './useFiles.js';
+import { asyncTimeout } from '../../utils/asyncTimeout.js';
 
 useForm({ file: null });
 const emit = defineEmits(['fileSelected', 'documentDeleted']);
@@ -163,13 +153,12 @@ const props = defineProps({
     type: String,
   },
 });
-const documents = inject('sources');
-const isUploading = ref(false);
+
 let renamingDocumentId = null;
+const documents = inject('sources');
 const url = window.location.pathname;
 const segments = url.split('/');
 const projectId = segments[2]; // Assuming project id is the third segment in URL path
-
 const audioFile = ref(null);
 const audioIsUploading = ref(false);
 
@@ -178,41 +167,7 @@ function handleFileAdded({ files }) {
   transcribeFile();
 }
 
-async function downloadSource(source) {
-  try {
-    // Perform the GET request to download the file
-    const response = await axios({
-      url: `/sources/${source.id}/download`,
-      method: 'POST',
-      responseType: 'blob', // Important to set response type to blob for binary data
-    });
-
-    // Extract the filename from the Content-Disposition header
-    const disposition = response.headers['content-disposition'];
-    let filename = source.name; // Fallback filename
-    if (disposition && disposition.includes('attachment')) {
-      const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-      const matches = filenameRegex.exec(disposition);
-      if (matches != null && matches[1]) {
-        filename = matches[1].replace(/['"]/g, ''); // Clean up the filename
-      }
-    }
-
-    // Create a URL for the blob response data
-    const url = window.URL.createObjectURL(createBlob({ data: response.data }));
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', filename); // Set the download attribute with the filename
-    document.body.appendChild(link);
-    link.click(); // Trigger the download
-
-    // Clean up and remove the link from the DOM
-    link.parentNode.removeChild(link);
-  } catch (error) {
-    console.error('Error downloading source file:', error);
-    alert('An error occurred while downloading the source file.');
-  }
-}
+const { downloadSource } = useFiles();
 
 async function transcribeFile() {
   if (!audioFile.value) {
@@ -334,7 +289,25 @@ const onCreated = (newDocument) => {
     fileSelected(newDocument);
   }
 };
+/*---------------------------------------------------------------------------*/
+// IMPORT FILES
+/*---------------------------------------------------------------------------*/
+const importSchema = ref(null);
+const isUploading = ref(false);
+const uploadProgress = ref(0);
 
+const importFiles = async (files) => {
+  for (const file of files) {
+    file.isUploading = true;
+    documents.push(file);
+    const newFile = await fileAdded(file);
+    await asyncTimeout(100);
+    const index = documents.indexOf(file);
+    documents.splice(index, 1);
+    documents.push(newFile);
+    await asyncTimeout(1000);
+  }
+};
 /*---------------------------------------------------------------------------*/
 // RENAME DOCUMENT
 /*---------------------------------------------------------------------------*/
@@ -352,44 +325,25 @@ const onRenamed = ({ id, name }) => {
 /*---------------------------------------------------------------------------*/
 // DELETE DOCUMENT
 /*---------------------------------------------------------------------------*/
-const toDelete = ref(null)
+const toDelete = ref(null);
+
 async function deleteDocument(document, index) {
-  // Confirmation dialogue
-  if (!confirm('Are you sure you want to delete this document?')) {
-    return;
-  }
-
-  try {
-    const response = await axios.delete(`/files/${document.id}`);
-
-    if (response.data.success) {
-      // Emit an event to inform the parent that a document has been deleted
-      emit('documentDeleted', document.id);
-
-      // Remove the document from the local state
-      documents.splice(index, 1);
-
-      // Set the flash message
-      flashMessage(response.data.message);
-    } else {
-      console.error('Failed to delete the document:', response.data.message);
-      flashMessage(response.data.message);
-    }
-  } catch (error) {
-    console.error('An error occurred while deleting the document:', error);
-    flashMessage('An error occurred while deleting the document.');
-  }
+  return request({ url: `/files/${document.id}`, type: 'delete' });
 }
 
-async function fileAdded({ files }) {
-  const file = files[0];
-  if (!file) {
-    return;
-  }
+const onDeleted = ({ id, name }) => {
+  // Emit an event to inform the parent that a document has been deleted
+  emit('documentDeleted', id);
 
+  // Remove the document from the local state
+  const index = documents.indexOf((doc) => doc.id === id);
+  documents.splice(index, 1);
+};
+
+async function fileAdded(file) {
   const isRtf =
     file.type === 'text/rtf' || (file.name && file.name.endsWith('.rtf'));
-  isUploading.value = true; // Start loading indicator
+  uploadProgress.value = 0;
 
   const formData = new FormData();
   formData.append('file', file);
@@ -400,6 +354,10 @@ async function fileAdded({ files }) {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
+      onUploadProgress: (progressEvent) => {
+        uploadProgress.value =
+          (progressEvent.loaded / progressEvent.total) * 100;
+      },
     });
 
     if (response.data.newDocument) {
@@ -408,8 +366,7 @@ async function fileAdded({ files }) {
       }
       response.data.newDocument.userPicture =
         usePage().props.auth.user.profile_photo_url;
-      documents.push(response.data.newDocument);
-      fileSelected(response.data.newDocument);
+      return response.data.newDocument;
     }
   } catch (error) {
     console.error('File upload failed:', error);

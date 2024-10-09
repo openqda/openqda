@@ -59,26 +59,33 @@ const submit = async () => {
     const onError = e => {
         console.error(e)
     }
+    const options = { id: id.value, name: name.value }
     try {
-        const response = await props.submit({ id: id, name: name })
-        if (response?.error === 200) {
-            onError(response.error)
+        const response = await props.submit(options)
+        if (response?.error) {
+            return onError(response.error)
         }
+        emit('deleted', options)
+        reset()
     } catch (e) {
-
+        onError(e)
     } finally {
         submitting.value = false
     }
 };
 
+const reset = () => {
+    open.value = false;
+    id.value = null;
+    name.value = null;
+    error.value = null;
+    submitting.value = false;
+    complete.value = false;
+}
+
 const cancel = () => {
-  open.value = false;
-  id.value = null;
-  name.value = null;
-  error.value = null;
-  submitting.value = false;
-  complete.value = false;
   emit('cancelled');
+  reset()
 };
 </script>
 
@@ -118,11 +125,11 @@ const cancel = () => {
           <ActionMessage
             v-if="!complete && !error"
             :on="submitting"
-            class="text-secondary"
-            >Saving</ActionMessage
+            class="text-destructive"
+            >Deleting</ActionMessage
           >
-          <ActionMessage :on="complete" class="text-secondary"
-            >Saved</ActionMessage
+          <ActionMessage :on="complete" class="text-destructive"
+            >Deleted</ActionMessage
           >
           <ActionMessage :on="error" class="text-destructive">{{
             error

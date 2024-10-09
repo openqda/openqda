@@ -5,7 +5,7 @@
     @dragover.prevent="setActive"
     @dragleave.prevent="setInactive"
     @drop.prevent="onDrop"
-    :class="[active ? 'bg-gray-100' : 'bg-transparent']"
+    :class="[active ? 'bg-secondary/10' : 'bg-transparent']"
   >
     <slot :dropZoneActive="active"></slot>
   </div>
@@ -13,8 +13,11 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-const emit = defineEmits(['files-dropped']);
 
+const emit = defineEmits(['files-dropped']);
+const props = defineProps({
+  accept: String,
+});
 let active = ref(false);
 let inActiveTimeout = null;
 
@@ -25,6 +28,7 @@ function setActive() {
   active.value = true;
   clearTimeout(inActiveTimeout);
 }
+
 function setInactive() {
   inActiveTimeout = setTimeout(() => {
     active.value = false;
@@ -33,7 +37,16 @@ function setInactive() {
 
 function onDrop(e) {
   setInactive();
-  emit('files-dropped', [...e.dataTransfer.files]);
+  const accept = props.accept && new Set(props.accept.split(','));
+  const files = [...e.dataTransfer.files].filter((file) => {
+    if (!props.accept) {
+      return true;
+    }
+    const split = file.name.split('.');
+    const ending = `.${split[split.length - 1]}`;
+    return accept.has(ending);
+  });
+  emit('files-dropped', files);
 }
 
 function preventDefaults(e) {

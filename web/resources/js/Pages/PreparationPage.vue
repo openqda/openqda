@@ -84,7 +84,7 @@ import {
     watch,
 } from 'vue'
 import PreparationsEditor from '../Components/preparation/PreparationsEditor.vue';
-import FilesManager from '../Components/files/FilesImporter.vue';
+import FilesManager from '../Components/files/FilesManager.vue';
 import Button from '../Components/interactive/Button.vue';
 import {
   LockClosedIcon,

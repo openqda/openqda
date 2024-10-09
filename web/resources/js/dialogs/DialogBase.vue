@@ -62,9 +62,10 @@ defineProps({
                   >
                     <DialogTitle
                       as="h3"
-                      class="text-base font-semibold leading-6 text-foreground"
+                      class="text-base font-semibold leading-6 text-foreground flex justify-between items-center"
                     >
-                      {{ title }}<slot name="title" />
+                        <span class="flex-grow">{{ title }}<slot name="title" /></span>
+                        <span><slot name="close" /></span>
                     </DialogTitle>
                     <div class="mt-2">
                       <slot name="body"></slot>
