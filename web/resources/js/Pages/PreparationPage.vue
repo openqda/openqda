@@ -19,12 +19,12 @@
           >
               <template #status>
                   <div class="w-10 mr-2 self-center">
-                      <span v-if="saving" class="text-xs inline-flex items-center">
-                          <ArrowPathIcon class="w-4 h-4 text-secondary" />
+                      <span v-if="saving" class="text-xs inline-flex items-center border border-secondary rounded-lg p-3">
+                          <ArrowPathIcon class="w-4 h-4 me-1 text-secondary" />
                           saving
                       </span>
-                      <span v-if="saved" class="text-xs inline-flex items-center">
-                          <CheckIcon class="w-4 h-4 text-confirmative" />
+                      <span v-if="saved" class="text-xs inline-flex items-center  border border-confirmative rounded-lg p-3">
+                          <CheckIcon class="w-4 h-4 me-1  text-confirmative" />
                           saved
                       </span>
                   </div>
@@ -88,7 +88,7 @@ import {
     unref,
     watch,
 } from 'vue'
-import PreparationsEditor from '../Components/preparation/PreparationsEditor.vue';
+import PreparationsEditor from '../editor/PreparationsEditor.vue';
 import FilesManager from '../Components/files/FilesManager.vue';
 import Button from '../Components/interactive/Button.vue';
 import {
