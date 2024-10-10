@@ -1,5 +1,5 @@
 <template>
-  <AuthenticatedLayout :menu="true" :showFooter="false">
+  <AuthenticatedLayout :menu="true" :showFooter="false" :title="pageTitle">
     <template #menu>
       <FilesManager
         :initialFile="initialFile"
@@ -17,19 +17,25 @@
             :CanUnlock="editorSourceRef.CanUnlock"
             @autosave="saveQuillContent"
           >
-              <template #status>
-                  <div class="w-10 mr-2 self-center">
-                      <span v-if="saving" class="text-xs inline-flex items-center border border-secondary rounded-lg p-3">
-                          <ArrowPathIcon class="w-4 h-4 me-1 text-secondary" />
-                          saving
-                      </span>
-                      <span v-if="saved" class="text-xs inline-flex items-center  border border-confirmative rounded-lg p-3">
-                          <CheckIcon class="w-4 h-4 me-1  text-confirmative" />
-                          saved
-                      </span>
-                  </div>
-              </template>
-              <template #actions>
+            <template #status>
+              <div class="w-10 mr-2 self-center">
+                <span
+                  v-if="saving"
+                  class="text-xs inline-flex items-center border border-secondary rounded-lg p-3"
+                >
+                  <ArrowPathIcon class="w-4 h-4 me-1 text-secondary" />
+                  saving
+                </span>
+                <span
+                  v-if="saved"
+                  class="text-xs inline-flex items-center border border-confirmative rounded-lg p-3"
+                >
+                  <CheckIcon class="w-4 h-4 me-1 text-confirmative" />
+                  saved
+                </span>
+              </div>
+            </template>
+            <template #actions>
               <div class="flex items-center space-x-2 me-2">
                 <Button
                   v-if="
@@ -47,7 +53,10 @@
                   "
                   variant="outline-secondary"
                   :icon="LockClosedIcon"
-                  @click="confirmText = 'Are you sure you want to lock the document and start coding? It cannot be unlocked once you started coding.'"
+                  @click="
+                    confirmText =
+                      'Are you sure you want to lock the document and start coding? It cannot be unlocked once you started coding.'
+                  "
                   class="px-1 py-2 mx-3 rounded-xl"
                   >Lock
                 </Button>
@@ -63,11 +72,12 @@
                   class="px-1"
                   >Code
                 </Button>
-                  <ConfirmDialog
-                      :text="confirmText"
-                      :show="!!confirmText"
-                      @confirmed="lockAndCode"
-                      @cancelled="confirmText = null" />
+                <ConfirmDialog
+                  :text="confirmText"
+                  :show="!!confirmText"
+                  @confirmed="lockAndCode"
+                  @cancelled="confirmText = null"
+                />
               </div>
             </template>
           </PreparationsEditor>
@@ -79,15 +89,15 @@
 
 <script setup>
 import {
-    computed,
-    defineProps,
-    onBeforeUnmount,
-    onMounted,
-    provide,
-    ref,
-    unref,
-    watch,
-} from 'vue'
+  computed,
+  defineProps,
+  onBeforeUnmount,
+  onMounted,
+  provide,
+  ref,
+  unref,
+  watch,
+} from 'vue';
 import PreparationsEditor from '../editor/PreparationsEditor.vue';
 import FilesManager from '../Components/files/FilesManager.vue';
 import Button from '../Components/interactive/Button.vue';
@@ -95,15 +105,15 @@ import {
   LockClosedIcon,
   LockOpenIcon,
   QrCodeIcon,
-    ArrowPathIcon,
-    CheckIcon
+  ArrowPathIcon,
+  CheckIcon,
 } from '@heroicons/vue/20/solid';
 import { router } from '@inertiajs/vue3';
 import { flashMessage } from '../Components/notification/flashMessage.js';
 import { request } from '../utils/http/BackendRequest.js';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
-import { asyncTimeout } from '../utils/asyncTimeout.js'
-import ConfirmDialog from '../dialogs/ConfirmDialog.vue'
+import { asyncTimeout } from '../utils/asyncTimeout.js';
+import ConfirmDialog from '../dialogs/ConfirmDialog.vue';
 
 const editorSourceRef = ref({
   content: 'select to display',
@@ -120,6 +130,7 @@ const focus = ref(false);
 const editorComponent = ref();
 const props = defineProps(['sources', 'newDocument']);
 const documents = ref([]);
+const pageTitle = ref('Preparation')
 
 watch(
   () => props.newDocument,
@@ -134,12 +145,12 @@ watch(
 /*---------------------------------------------------------------------------*/
 // LOCK AND CODE
 /*---------------------------------------------------------------------------*/
-const confirmText = ref(null)
+const confirmText = ref(null);
 const lockAndCode = () => {
-    confirmText.value = null
-    setTimeout(() => {
-        router.post(route('source.lock', editorSourceRef.value.id));
-    }, 300)
+  confirmText.value = null;
+  setTimeout(() => {
+    router.post(route('source.lock', editorSourceRef.value.id));
+  }, 300);
 };
 
 function codeThisFile() {
@@ -181,9 +192,12 @@ function loadFileIntoEditor(file) {
   editorSourceRef.value.showLineNumbers = file.showLineNumbers ?? false;
   editorSourceRef.value.charsXLine = file.charsXLine;
 
-  const url = new URL(window.location);
-  url.searchParams.set("file", file.id);
-  history.pushState({}, "", url);
+  const url = new URL(location.href);
+  if (url.searchParams.get('file') !== file.id) {
+    url.searchParams.set('file', file.id);
+    history.pushState(history.state, '', url);
+  }
+  pageTitle.value = `Preparation: ${file.name}`;
 }
 
 // Parent Component Script
@@ -213,19 +227,19 @@ async function saveQuillContent() {
     console.error('An error occurred while saving:', error);
     flashMessage(error.response.data.message, { type: 'error' });
   }
-  await asyncTimeout(300)
+  await asyncTimeout(300);
   saving.value = false;
-  saved.value = true
-    setTimeout(() => {
-        saved.value = false
-    }, 1000)
+  saved.value = true;
+  setTimeout(() => {
+    saved.value = false;
+  }, 1000);
 }
 
-const initialFile = ref(null)
+const initialFile = ref(null);
 onMounted(() => {
-   const fileId = new URLSearchParams(window.location.search).get('file');
-   const file = fileId && props.sources.find(f => f.id === fileId)
-   initialFile.value = file?.id ?? null
+  const fileId = new URLSearchParams(window.location.search).get('file');
+  const file = fileId && props.sources.find((f) => f.id === fileId);
+  initialFile.value = file?.id ?? null;
 });
 
 provide('sources', props.sources);

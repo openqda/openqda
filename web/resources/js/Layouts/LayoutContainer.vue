@@ -10,7 +10,7 @@ import { computed } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import Footer from './Footer.vue';
 
-defineProps(['title', 'showFooter']);
+defineProps(['title', 'showFooter', 'menu']);
 
 const shouldShowFooter = computed(() => {
   // Extract the path and hash from the URL
