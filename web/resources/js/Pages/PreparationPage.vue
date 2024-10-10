@@ -47,7 +47,7 @@
                   "
                   variant="outline-secondary"
                   :icon="LockClosedIcon"
-                  @click="lockAndCode"
+                  @click="confirmText = 'Are you sure you want to lock the document and start coding? It cannot be unlocked once you started coding.'"
                   class="px-1 py-2 mx-3 rounded-xl"
                   >Lock
                 </Button>
@@ -63,6 +63,11 @@
                   class="px-1"
                   >Code
                 </Button>
+                  <ConfirmDialog
+                      :text="confirmText"
+                      :show="!!confirmText"
+                      @confirmed="lockAndCode"
+                      @cancelled="confirmText = null" />
               </div>
             </template>
           </PreparationsEditor>
@@ -94,13 +99,11 @@ import {
     CheckIcon
 } from '@heroicons/vue/20/solid';
 import { router } from '@inertiajs/vue3';
-import { debounce } from '../utils/dom/debounce.js';
 import { flashMessage } from '../Components/notification/flashMessage.js';
 import { request } from '../utils/http/BackendRequest.js';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
-import { usePage } from '@inertiajs/vue3'
-import axios from 'axios'
 import { asyncTimeout } from '../utils/asyncTimeout.js'
+import ConfirmDialog from '../dialogs/ConfirmDialog.vue'
 
 const editorSourceRef = ref({
   content: 'select to display',
@@ -118,64 +121,6 @@ const editorComponent = ref();
 const props = defineProps(['sources', 'newDocument']);
 const documents = ref([]);
 
-const initialWidth = Math.round(
-  Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0) /
-    2
-);
-
-const leftSide = ref(null);
-const rightSide = ref(null);
-const separator = ref(null);
-
-const leftWidth = ref(
-  Number(sessionStorage.getItem('preparation/leftWidth') || initialWidth)
-);
-const rightWidth = ref(
-  Number(sessionStorage.getItem('preparation/rightWidth') || initialWidth)
-); // remaining width
-let isResizing = false;
-
-const onMouseDown = () => {
-  isResizing = true;
-  const innerDiv = separator.value.querySelector('div'); // Select the inner div
-  if (innerDiv) {
-    innerDiv.classList.add('bg-cerulean-700'); // Add class on mouse down
-    innerDiv.classList.remove('bg-gray-200'); // Add class on mouse down
-  }
-  document.addEventListener('mousemove', onMouseMove);
-  document.addEventListener('mouseup', onMouseUp);
-};
-
-const onMouseMove = (e) => {
-  if (!isResizing) {
-    return;
-  }
-  const newLeftWidth = e.clientX;
-  const newRightWidth = window.innerWidth - e.clientX;
-  updateSeparator(newLeftWidth, newRightWidth);
-};
-
-const updateSeparator = (newLeftWidth, newRightWidth) => {
-  if (Number.isNaN(newLeftWidth) || Number.isNaN(newRightWidth)) {
-    return;
-  }
-  leftWidth.value = Math.round(newLeftWidth);
-  rightWidth.value = Math.round(newRightWidth);
-  sessionStorage.setItem('preparation/leftWidth', newLeftWidth); // Save to local storage
-  sessionStorage.setItem('preparation/rightWidth', newRightWidth); // Save to local storage
-};
-
-const onMouseUp = () => {
-  isResizing = false;
-  const innerDiv = separator.value.querySelector('div'); // Select the inner div
-  if (innerDiv) {
-    innerDiv.classList.remove('bg-cerulean-700'); // Add class on mouse down
-    innerDiv.classList.add('bg-gray-200'); // Add class on mouse down
-  }
-  document.removeEventListener('mousemove', onMouseMove);
-  document.removeEventListener('mouseup', onMouseUp);
-};
-
 watch(
   () => props.newDocument,
   (newValue) => {
@@ -186,15 +131,15 @@ watch(
   }
 );
 
-const lockAndCode = async () => {
-  if (
-    !confirm(
-      'Are you sure you want to lock the document and start coding? It cannot be unlocked once you started coding.'
-    )
-  ) {
-    return;
-  }
-  router.post(route('source.lock', editorSourceRef.value.id));
+/*---------------------------------------------------------------------------*/
+// LOCK AND CODE
+/*---------------------------------------------------------------------------*/
+const confirmText = ref(null)
+const lockAndCode = () => {
+    confirmText.value = null
+    setTimeout(() => {
+        router.post(route('source.lock', editorSourceRef.value.id));
+    }, 300)
 };
 
 function codeThisFile() {
@@ -281,7 +226,6 @@ onMounted(() => {
    const fileId = new URLSearchParams(window.location.search).get('file');
    const file = fileId && props.sources.find(f => f.id === fileId)
    initialFile.value = file?.id ?? null
-    console.debug('initial file', initialFile.value )
 });
 
 provide('sources', props.sources);

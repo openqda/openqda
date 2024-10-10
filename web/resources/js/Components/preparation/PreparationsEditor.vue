@@ -1,6 +1,7 @@
 <template>
+  <!-- editor toolbar -->
   <div class="block xl:flex lg:justify-center sticky top-0 py-2 z-40 bg-surface">
-      <slot name="status"></slot>
+    <slot name="status"></slot>
     <div
       id="toolbar"
       class="rounded-none mb-3 xl:mb-0 lg:rounded-full border-2 bg-surface z-150 shadow-lg border-foreground/20 py-2 px-4 inline-flex !text-foreground/60"
@@ -9,7 +10,11 @@
     </div>
     <slot name="actions"></slot>
   </div>
-  <div id="editor"></div>
+    <!-- editor content -->
+    <div class="flex">
+      <div id="lineNumber"></div>
+      <div id="editor" class="flex-grow"></div>
+    </div>
 </template>
 
 <script setup>
@@ -17,6 +22,7 @@ import { onMounted, onUnmounted, ref, watch } from 'vue';
 import Quill from 'quill';
 import QuillCursors from 'quill-cursors';
 import EditorToolbar from '../../editor/EditorToolbar.vue';
+import { LineNumber } from './LineNumber.js'
 import { formats, redoChange, undoChange } from '../../editor/EditorConfig.js';
 import { debounce } from '../../utils/dom/debounce.js'
 import '../../editor/editor.css';
@@ -26,6 +32,7 @@ const Delta = Quill.import('delta');
 const editorContent = ref('');
 const unsaved = ref(false)
 
+Quill.register('modules/lineNumber', LineNumber, true);
 Quill.register('modules/cursors', QuillCursors);
 const emit = defineEmits(['status', 'autosave']);
 
@@ -48,6 +55,9 @@ onMounted(() => {
           redo: redoChange,
         },
       },
+      lineNumber: {
+        container: '#lineNumber'
+      }
     },
   });
 
@@ -124,6 +134,17 @@ defineExpose({ editorContent });
 
 <style scoped>
 .ql-container.ql-snow {
-  border: none !important;
+    line-height: 18.4667;
+    border: none !important;
+}
+
+#lineNumber {
+    text-align: end;
+    font-size: 10px;
+    font-family: "Lucida Console", monospace, sans-serif;
+    padding: 12px 5px;
+    line-height: 18.4667;
+    vertical-align: top;
+    box-sizing: border-box;
 }
 </style>
