@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import { UserIcon } from '@heroicons/vue/24/outline/index.js';
 import { cn } from '../../utils/css/cn.js';
 import { getUserColor } from './getUserColor.js'
@@ -24,7 +24,7 @@ const props = defineProps({
   },
 });
 
-const char = props.name.charAt(0).toUpperCase();
+const char = (props.name ?? '').charAt(0).toUpperCase();
 const showImage = ref(!!props.src)
 const hue = ref(getUserColor(props.email) || getUserColor(props.name));
 </script>
