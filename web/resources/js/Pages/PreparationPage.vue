@@ -38,12 +38,13 @@
             <template #actions>
               <div class="flex items-center space-x-2 me-2">
                 <Button
-                  v-if="
-                    editorSourceRef.CanUnlock && !editorSourceRef.hasSelections
-                  "
+                  v-if="editorSourceRef.CanUnlock && !editorSourceRef.hasSelections"
                   variant="outline-secondary"
                   :icon="LockOpenIcon"
-                  @click="unlockSource"
+                  @click="toConfirm({
+                    text: 'Are you sure you want to unlock the source? This will affect all codes and analysis, applied to this source.',
+                    fn: unlockSource
+                  })"
                   class="px-1 mx-3 rounded-xl"
                   >Unlock
                 </Button>
@@ -53,10 +54,10 @@
                   "
                   variant="outline-secondary"
                   :icon="LockClosedIcon"
-                  @click="
-                    confirmText =
-                      'Are you sure you want to lock the document and start coding? It cannot be unlocked once you started coding.'
-                  "
+                  @click="toConfirm({
+                    text: 'Are you sure you want to lock the source and start coding?',
+                    fn: lockAndCode
+                  })"
                   class="px-1 py-2 mx-3 rounded-xl"
                   >Lock
                 </Button>
@@ -73,10 +74,10 @@
                   >Code
                 </Button>
                 <ConfirmDialog
-                  :text="confirmText"
-                  :show="!!confirmText"
-                  @confirmed="lockAndCode"
-                  @cancelled="confirmText = null"
+                  :text="confirm.text"
+                  :show="!!confirm.text"
+                  @confirmed="onConfirm"
+                  @cancelled="toConfirm(null)"
                 />
               </div>
             </template>
@@ -145,13 +146,16 @@ watch(
 /*---------------------------------------------------------------------------*/
 // LOCK AND CODE
 /*---------------------------------------------------------------------------*/
-const confirmText = ref(null);
-const lockAndCode = () => {
-  confirmText.value = null;
-  setTimeout(() => {
-    router.post(route('source.lock', editorSourceRef.value.id));
-  }, 300);
-};
+const confirm = ref({});
+const toConfirm = (data) => {
+    confirm.value = data ? data : {}
+}
+const onConfirm = async () => {
+    await confirm.value.fn()
+    toConfirm(null)
+}
+
+const lockAndCode = () => router.post(route('source.lock', editorSourceRef.value.id));
 
 function codeThisFile() {
   router.get(route('source.go-and-code', editorSourceRef.value.id));

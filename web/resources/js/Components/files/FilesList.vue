@@ -2,6 +2,7 @@
   <table class="table-fixed w-full border-collapse">
     <thead>
       <tr class="border-b align-middle" :class="props.rowClass">
+        <th class="w-5"></th>
         <th v-for="field in headerFields" scope="col"
             :class="cn('text-center text-xs font-normal text-foreground/50 sm:pl-0', field.class)">
           <a
@@ -42,12 +43,18 @@
           props.rowClass,
         )"
       >
+          <td class="text-center">
+              <LockOpenIcon
+                  v-if="!document.variables?.isLocked"
+                  class="w-4 h-4 text-foreground/20"
+              />
+              <LockClosedIcon
+                  v-if="document.variables?.isLocked"
+                  class="w-4 h-4 text-secondary/60"
+              />
+          </td>
         <td :class="cn('py-4 w-auto rounded-xl', hover === index ? 'break-all' : 'truncate')"
             :colspan="hover === index ? 5 : undefined">
-            <LockClosedIcon
-                v-if="document.variables && document.variables.isLocked"
-                class="w-4 h-4 text-foreground/60"
-            />
           <a
               @mouseenter="hover = index"
               @mouseleave="hover = -1"
@@ -167,6 +174,9 @@ import {
   EllipsisVerticalIcon,
   LockClosedIcon,
 } from '@heroicons/vue/20/solid/index.js';
+import {
+    LockOpenIcon
+} from '@heroicons/vue/24/outline'
 import {
   DocumentTextIcon,
   ExclamationTriangleIcon,

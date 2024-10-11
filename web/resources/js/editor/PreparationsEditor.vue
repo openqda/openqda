@@ -16,7 +16,8 @@
     </div>
     <div class="absolute bottom-10 right-10" style="z-index: 999;">
         <slot name="status"></slot>
-        <span id="selection-hash" class="w-6 h-6 text-center text-xs text-foreground/60 border-0 bg-surface p-2">0:0</span>
+        <span id="selection-hash"
+              class="w-6 h-6 text-center text-xs text-foreground/60 border-0 bg-surface p-2">0:0</span>
     </div>
 </template>
 
@@ -40,7 +41,6 @@ Quill.register('modules/lineNumber', LineNumber, true);
 Quill.register('modules/selectionHash', SelectionHash, true);
 Quill.register('modules/cursors', QuillCursors);
 const emit = defineEmits(['status', 'autosave']);
-
 onMounted(() => {
   quillInstance = new Quill('#editor', {
     theme: 'snow',
@@ -96,6 +96,7 @@ onMounted(() => {
   });
 
   quillInstance.enable(!props.locked);
+
 
 
   // Check for unsaved data
