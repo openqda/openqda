@@ -156,11 +156,7 @@ const onConfirm = async () => {
 }
 
 const lockAndCode = () => router.post(route('source.lock', editorSourceRef.value.id));
-
-function codeThisFile() {
-  router.get(route('source.go-and-code', editorSourceRef.value.id));
-}
-
+const codeThisFile = () => router.get(route('source.go-and-code', editorSourceRef.value.id))
 const unlockSource = async () => {
   const { response, error } = await request({
     url: `/sources/${editorSourceRef.value.id}/unlock`,
@@ -181,6 +177,9 @@ const unlockSource = async () => {
   }
 };
 
+/*---------------------------------------------------------------------------*/
+// EDITING
+/*---------------------------------------------------------------------------*/
 function loadFileIntoEditor(file) {
   if (!file?.content) {
     return;

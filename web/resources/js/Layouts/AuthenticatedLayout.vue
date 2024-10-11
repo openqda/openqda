@@ -170,12 +170,6 @@
           v-show="$props.menu !== false"
           class="bg-surface hidden lg:w-full xl:w-1/2 2xl:w-1/3 h-screen overflow-y-auto border-background px-1 sm:px-2 lg:px-3 lg:block border-r-background border-r-8"
         >
-          <h1
-            v-if="$props.title"
-            class="font-extrabold text-xl text-primary dark:text-foreground"
-          >
-            {{ $props.title }}
-          </h1>
           <slot name="menu" />
         </aside>
 
