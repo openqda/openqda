@@ -711,8 +711,8 @@
 </template>
 
 <script setup>
-import {formats, undoChange, redoChange} from '../editor/EditorConfig.js'
-import '../editor/editor.css'
+// import {formats, undoChange, redoChange} from '../editor/EditorConfig.js'
+// import '../editor/editor.css'
 import {
     computed,
     onBeforeUnmount,
@@ -723,37 +723,37 @@ import {
     watch,
     watchEffect,
 } from 'vue';
-import CodingModal from '../Components/coding/CodingModal.vue';
-import CodeItem from '../Components/coding/CodeItem.vue';
-import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue';
-import { closeFullscreen, openFullscreen } from '../utils/dom/fullScreen.js';
+//import CodingModal from '../Components/coding/CodingModal.vue';
+//import CodeItem from '../Components/coding/CodeItem.vue';
+//import { Switch, SwitchGroup, SwitchLabel } from '@headlessui/vue';
+// import { closeFullscreen, openFullscreen } from '../utils/dom/fullScreen.js';
 import { XCircleIcon as XCircleSolidIcon } from '@heroicons/vue/24/solid';
 import { vClickOutside } from '../Components/coding/clickOutsideDirective.js';
-import DropdownMenu from '../Components/coding/DropdownMenu.vue';
-import {
-    ArrowsPointingInIcon,
-    ArrowsPointingOutIcon,
-    Bars3Icon,
-    ChevronDownIcon,
-    ChevronUpIcon,
-    Cog6ToothIcon,
-    DocumentTextIcon,
-    EllipsisVerticalIcon,
-    EyeSlashIcon,
-    PencilSquareIcon,
-    PlusIcon,
-    RectangleStackIcon,
-} from '@heroicons/vue/24/outline';
-import CodeLabel from '../Components/coding/CodeLabel.vue';
-import { Head, router } from '@inertiajs/vue3';
-import NewCodebookForm from '../Components/project/NewCodebookForm.vue';
-import SideOverlay from '../Components/layout/SideOverlay.vue';
-import Button from '../Components/interactive/Button.vue';
-import Headline2 from '../Components/layout/Headline2.vue';
-import Collapse from '../Components/layout/Collapse.vue';
-import { flashMessage } from '../Components/notification/flashMessage.js';
-import { request } from '../utils/http/BackendRequest.js';
-import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue'
+// import DropdownMenu from '../Components/coding/DropdownMenu.vue';
+// import {
+//     ArrowsPointingInIcon,
+//     ArrowsPointingOutIcon,
+//     Bars3Icon,
+//     ChevronDownIcon,
+//     ChevronUpIcon,
+//     Cog6ToothIcon,
+//     DocumentTextIcon,
+//     EllipsisVerticalIcon,
+//     EyeSlashIcon,
+//     PencilSquareIcon,
+//     PlusIcon,
+//     RectangleStackIcon,
+// } from '@heroicons/vue/24/outline';
+// import CodeLabel from '../Components/coding/CodeLabel.vue';
+// import { Head, router } from '@inertiajs/vue3';
+// import NewCodebookForm from '../Components/project/NewCodebookForm.vue';
+// import SideOverlay from '../Components/layout/SideOverlay.vue';
+// import Button from '../Components/interactive/Button.vue';
+// import Headline2 from '../Components/layout/Headline2.vue';
+// import Collapse from '../Components/layout/Collapse.vue';
+// import { flashMessage } from '../Components/notification/flashMessage.js';
+// import { request } from '../utils/http/BackendRequest.js';
+// import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue'
 
 // Define a prop for the HTML content
 const props = defineProps(['source', 'sources', 'codebooks', 'allCodes']);
@@ -2097,8 +2097,7 @@ const showContextMenu = (event) => {
     let isCode = false;
 
     if (isSafari) window.getSelection().removeAllRanges();
-    selectedText =
-        isSafari && storedSelectionRange
+    selectedText = isSafari && storedSelectionRange
             ? storedSelectionRange.toString()
             : window.getSelection().toString();
     if (

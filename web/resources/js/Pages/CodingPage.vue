@@ -4,11 +4,13 @@
             <div class="flex">
                 <Headline2 class="mt-3">Codes</Headline2>
             </div>
-            <CodeList
-                :codes="props.allCodes" />
+            <CodeList :codes="$props.allCodes" />
         </template>
         <template #main>
-
+            <CodingEditor
+                :source="$props.source"
+                :codes="$props.allCodes"
+            />
         </template>
     </AuthenticatedLayout>
 </template>
@@ -18,23 +20,20 @@ import { onMounted, ref } from 'vue'
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue'
 import Headline2 from '../Components/layout/Headline2.vue'
 import CodeList from './coding/CodeList.vue'
+import CodingEditor from './coding/CodingEditor.vue'
 
 const pageTitle = ref('Coding')
-const initialFile = ref(null)
 const props = defineProps(['source', 'sources', 'codebooks', 'allCodes']);
 
 onMounted(() => {
     const fileId = new URLSearchParams(window.location.search).get('source');
-    const file = fileId && props.sources.find((f) => f.id === fileId);
-    initialFile.value = file?.id ?? null;
-    if (initialFile.value) {
-        onFileSelected(file)
+    if (fileId !== props.source.id) {
+        // relocate?
     }
-    console.debug(props.codebooks)
-    console.debug(props.allCodes)
+    onSourceSelected(props.source)
 })
 
-const onFileSelected = (file) => {
+const onSourceSelected = (file) => {
     const url = new URL(location.href);
     if (url.searchParams.get('source') !== file.id) {
         url.searchParams.set('source', file.id);

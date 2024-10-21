@@ -45,8 +45,8 @@
         --destructive: 250 85 85;
         --destructive-foreground: 255 255 255;
 
-        --border: rgba(231, 232, 232, 0.40);;
-        --input: rgba(231, 232, 232, 0.40);;
+        --border: 231, 232, 232;
+        --input: 231, 232, 232;
 
 
         --primary: 231 232 232;

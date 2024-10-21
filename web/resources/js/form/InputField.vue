@@ -11,6 +11,8 @@
       'text-foreground placeholder-foreground/50 font-semibold !autofill:text-foreground',
       $props.class,
     )"
+   :placeholder="$props.placeholder"
+    v-bind="$attrs"
     @input="$emit('update:modelValue', $event.target.value)"
   />
 </template>
