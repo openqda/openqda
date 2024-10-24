@@ -110,7 +110,7 @@
             />
           </Link>
         </div>
-        <nav class="mt-0">
+        <nav class="mt-0 flex flex-col items-stretch">
           <ul role="list" class="flex flex-col items-center space-y-1">
             <li
               v-for="item in navigation"
@@ -141,6 +141,13 @@
               </Link>
             </li>
           </ul>
+            <div class="p-3 text-center" :title="`Collaboration: ${websocket.status.value}`">
+                <SignalIcon
+                    :class="cn(
+                        'h-5 w-5 mx-auto',
+                        websocket.connected.value ? 'text-secondary' : 'text-foreground/50')"
+                />
+            </div>
         </nav>
       </div>
 
@@ -200,12 +207,14 @@ import {
   TransitionChild,
   TransitionRoot,
 } from '@headlessui/vue';
-import { Bars3Icon, XMarkIcon } from '@heroicons/vue/24/outline';
+import { Bars3Icon, XMarkIcon, SignalIcon } from '@heroicons/vue/24/outline';
 import LayoutContainer from './LayoutContainer.vue';
 import { NavRoutes } from '../routes/NavRoutes.js';
 import { Project } from '../state/Project.js';
 import FlashMessage from '../Components/notification/FlashMessage.vue';
+import { useWebSocketConnection } from '../startup/echo.js'
 
+const websocket = useWebSocketConnection()
 const navigation = ref([]);
 const sidebarOpen = ref(false);
 

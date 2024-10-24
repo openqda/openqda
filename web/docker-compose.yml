@@ -11,7 +11,7 @@ services:
             - 'host.docker.internal:host-gateway'
         ports:
             - '${APP_PORT:-80}:80'
-            - "8080:8080"
+            - "127.0.0.1:${REVERB_PORT:-7676}:7676"
             - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
         environment:
             WWWUSER: '${WWWUSER}'
@@ -25,7 +25,6 @@ services:
             - sail
         depends_on:
             - mysql
-            - plugin.transform.atrain
     mysql:
         container_name: mysql
         image: 'mysql/mysql-server:8.0'

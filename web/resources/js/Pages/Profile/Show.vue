@@ -17,7 +17,7 @@ defineProps({
 <template>
   <AuthenticatedLayout :menu="false">
     <template #main>
-      <div class="w-full lg:w-3/4 xl:w-1/2">
+      <div class="w-full lg:w-3/4 xl:w-1/2 p-1 lg:p-3">
         <div class="flex justify-between py-4 border-b border-foreground/10">
           <InputLabel> Theme </InputLabel>
           <ThemeSwitch />
