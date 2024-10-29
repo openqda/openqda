@@ -1,11 +1,13 @@
 <template>
   <AuthenticatedLayout :menu="true" :showFooter="false" :title="pageTitle">
     <template #menu>
+        <BaseContainer>
       <FilesManager
         :initialFile="initialFile"
         @fileSelected="loadFileIntoEditor($event)"
         @documentDeleted="onDocumentDeleted"
       />
+        </BaseContainer>
     </template>
     <template #main>
       <div ref="rightSide" class="overflow-auto w-full h-full">
@@ -16,6 +18,7 @@
             :locked="editorSourceRef.locked"
             :CanUnlock="editorSourceRef.CanUnlock"
             @autosave="saveQuillContent"
+            @settings="console.debug('show settings')"
           >
             <template #status>
               <div class="w-10 mr-2 self-center">
@@ -115,6 +118,7 @@ import { request } from '../utils/http/BackendRequest.js';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import { asyncTimeout } from '../utils/asyncTimeout.js';
 import ConfirmDialog from '../dialogs/ConfirmDialog.vue';
+import BaseContainer from '../Layouts/BaseContainer.vue'
 
 const editorSourceRef = ref({
   content: 'select to display',

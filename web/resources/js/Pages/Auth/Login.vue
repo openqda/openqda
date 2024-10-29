@@ -82,7 +82,7 @@ const submit = () => {
     <button
       type="submit"
       :disabled="form.processing"
-      class="my-12 rounded-full border-2 border-secondary-foreground uppercase font-bold block w-full py-3 text-secondary-foreground dark:text-foreground bg-transparent hover:bg-secondary-foreground hover:text-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-foreground"
+      class="my-12 rounded-full border-2 border-secondary-foreground uppercase font-bold block w-full py-3 text-secondary-foreground dark:text-foreground bg-transparent hover:bg-secondary-foreground hover:text-secondary hover:dark:text-background focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-foreground"
     >
       Log in
     </button>

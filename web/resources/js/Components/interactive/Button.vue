@@ -35,6 +35,8 @@ const style = {
         'border border-input bg-transparent hover:bg-background hover:text-background-foreground',
       'outline-secondary':
         'text-secondary border border-secondary bg-transparent hover:bg-secondary hover:text-secondary-foreground',
+      'outline-confirmative':
+          'text-confirmative border border-confirmative bg-transparent hover:bg-confirmative hover:text-confirmative-foreground',
       ghost: 'hover:bg-accent hover:text-accent-foreground',
       link: 'text-primary underline-offset-4 hover:underline',
     },

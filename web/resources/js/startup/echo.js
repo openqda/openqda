@@ -23,7 +23,7 @@ const state = reactive({
   connecting: false,
   failed: false,
   unavailable: false,
-  status: null,
+  status: 'disconnected',
 });
 
 /**
@@ -65,7 +65,7 @@ window.Echo.connector.pusher.connection.bind('unavailable', (payload) => {
    */
   console.log('unavailable', payload);
   state.unavailable = true;
-    state.connecting = false;
+  state.connecting = false;
   state.status = 'Unavailable or unreachable';
 });
 

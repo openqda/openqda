@@ -13,19 +13,24 @@ const project = inject('project');
 const renameTarget = ref(null);
 const deleteTarget = ref(null);
 
-const submitRename = async ({ id, name }) => {
+const submitRename = async ({ name }) => {
   const { type } = renameTarget.value;
   const payload = { value: name, type };
-  console.debug('payload', payload);
-  return request({
+
+  const response = await request({
     url: `/projects/update/${project.id}`,
     type: 'post',
     body: payload,
   });
+
+  if (!response.error) {
+    project[type] = name
+  }
+
+  return response
 };
 
 const deleteProject = async () => {
-    debugger
   localStorage.removeItem('text');
   const path = route('project.destroy', { project: project.id })
   router.delete(path);
@@ -33,15 +38,13 @@ const deleteProject = async () => {
 </script>
 
 <template>
-  <div class="divide-y divide-foreground/50 px-4">
+  <div class="divide-y divide-foreground/20">
     <!-- RENAME TITLE -->
     <div class="py-6">
       <InputLabel>Project Name</InputLabel>
 
       <div class="flex justify-between items-center">
-        <span class="flex-grow text-foreground/80 tracking-wide">{{
-          project.name
-        }}</span>
+        <span class="flex-grow text-foreground/80 tracking-wide pe-4">{{project.name }}</span>
         <Button
           variant="outline-secondary"
           @click="
@@ -66,13 +69,11 @@ const deleteProject = async () => {
         <span
           :class="
             cn(
-              'flex-grow tracking-wide',
+              'flex-grow tracking-wide pe-4',
               project.description ? 'text-foreground/80' : 'text-foreground/40'
             )
           "
-          >{{
-            project.description ?? 'Add a project description (optional)'
-          }}</span
+          >{{project.description ?? 'Add a project description (optional)' }}</span
         >
         <Button
           variant="outline-secondary"
@@ -92,11 +93,11 @@ const deleteProject = async () => {
 
     <!-- DELETE PROJECT -->
     <div class="py-6">
-      <InputLabel>Project Delete</InputLabel>
+      <InputLabel>Delete Project</InputLabel>
 
       <div class="flex justify-between items-center">
-        <div class="p-4 flex items-center tracking-wide text-foreground/80">
-          <ExclamationTriangleIcon class="w-5 h-5" />
+        <div class="flex items-center tracking-wide text-foreground/80">
+          <ExclamationTriangleIcon class="h-5 w-5" />
           <span class="ms-2">This action cannot be undone</span>
         </div>
         <Button variant="destructive" @click="deleteTarget = project">
@@ -109,6 +110,7 @@ const deleteProject = async () => {
     :title="`Edit project ${renameTarget?.type}`"
     :target="renameTarget"
     :submit="submitRename"
+    :emptyAllowed="renameTarget?.type === 'description'"
     @renamed="renameTarget = null"
     @cancelled="renameTarget = null"
   />

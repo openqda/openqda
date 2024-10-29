@@ -1,9 +1,9 @@
 <template>
   <!-- editor toolbar -->
-  <div class="block xl:flex lg:justify-center sticky top-0 py-2 z-40 bg-surface">
+  <div class="block xl:flex lg:justify-center sticky top-0 py-2 z-40 bg-surface mx-0 md:mx-2">
     <div
       id="toolbar"
-      class="rounded-none mb-3 xl:mb-0 lg:rounded-full border-2 bg-surface z-150 shadow-lg border-foreground/20 py-2 px-4 inline-flex !text-foreground/60"
+      class="rounded-none mb-3 xl:mb-0 lg:rounded-full border-2 bg-surface z-150 shadow-lg border-foreground/20 py-2 px-4 inline-flex !text-foreground/60 text-center"
     >
       <EditorToolbar />
     </div>
@@ -40,7 +40,7 @@ const unsaved = ref(false)
 Quill.register('modules/lineNumber', LineNumber, true);
 Quill.register('modules/selectionHash', SelectionHash, true);
 Quill.register('modules/cursors', QuillCursors);
-const emit = defineEmits(['status', 'autosave']);
+const emit = defineEmits(['status', 'autosave', 'settings']);
 onMounted(() => {
   quillInstance = new Quill('#editor', {
     theme: 'snow',
@@ -58,6 +58,7 @@ onMounted(() => {
         handlers: {
           undo: undoChange,
           redo: redoChange,
+          settings: () => emit('settings')
         },
       },
       lineNumber: {

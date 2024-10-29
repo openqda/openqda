@@ -1,12 +1,12 @@
 <template>
-  <div class="flex items-center justify-start mt-4">
+  <div class="flex items-center justify-start">
     <Button
       variant="outline-secondary"
       class="rounded-xl"
       @click="createNewFile"
     >
       <PlusIcon class="h-4 w-4 mr-2"></PlusIcon>
-      <span>New file</span>
+      <span>Create</span>
     </Button>
     <Button
       variant="outline-secondary"

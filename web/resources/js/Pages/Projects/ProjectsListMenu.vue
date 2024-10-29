@@ -1,63 +1,117 @@
 <script setup>
 import { Routes } from '../../routes/Routes.js';
-import Button from '../../Components/interactive/Button.vue'
-import { PlusIcon } from '@heroicons/vue/24/outline'
-import SearchableList from '../../Components/lists/SearchableList.vue'
-import { EllipsisVerticalIcon } from '@heroicons/vue/24/outline'
-import { Link } from '@inertiajs/vue3'
+import Button from '../../Components/interactive/Button.vue';
+import { PlusIcon, ChevronDownIcon, UsersIcon, KeyIcon } from '@heroicons/vue/24/outline';
+import { Link } from '@inertiajs/vue3';
+import { useProjects } from './useProjects.js';
+import Dropdown from '../../../../vendor/laravel/jetstream/stubs/inertia/resources/js/Components/Dropdown.vue';
+import DropdownLink from '../../../../vendor/laravel/jetstream/stubs/inertia/resources/js/Components/DropdownLink.vue';
+import InputField from '../../form/InputField.vue';
+import { cn } from '../../utils/css/cn.js';
+import Headline3 from '../../Components/layout/Headline3.vue'
 
 defineEmits(['create-project']);
-defineProps(['projects']);
 
-const compare = (a = '', b = '') => a && a.trim().toLowerCase().includes(b)
-const filterItems = (item, term) => {
-    const value = term.trim().toLowerCase()
-    return item && (
-        compare(item.name, term) ||
-        compare(item.description, term) ||
-        compare(item.created_at, term) ||
-        value === `id:${item.id}`
-    )
-}
-
+const {
+  projects,
+  currentProject,
+  sortOptions,
+  sortBy,
+  updateSorter,
+  searchTerm,
+} = useProjects();
+console.debug(projects)
 </script>
 
 <template>
-  <Button
+  <div class="flex justify-between items-baseline">
+    <Button
       variant="outline-secondary"
-    class="mt-5"
-    title="Create new project"
+      title="Create new project"
       :icon="PlusIcon"
-    :onclick="() => $emit('create-project')">
+      :onclick="() => $emit('create-project')"
+    >
       New Project
-  </Button>
+    </Button>
 
-    <SearchableList
-        :items="$props.projects"
-        :filter="filterItems"
-        class="mt-5"
-        liclass="group/li w-100 px-2 py-3 rounded-md bg-transparent hover:bg-secondary/20 dark:hover:bg-foreground/20"
-        items="$props.projects">
-        <template #item="{ id, name, description, created_at }">
-            <Link class="flex w-100" :href="Routes.project.path(id)" :title="`Open and edit ${name}`">
-                <div class="flex-grow max-w-1/2">
-                    <h3 class="font-semibold text-foreground">
-                        {{ name }}
-                    </h3>
-                    <p v-if="!!description" class="py-3 text-sm text-foreground/50 ">
-                        {{ description }}
-                    </p>
-                </div>
-                <div class="text-center">
-                    <div class="text-xs text-foreground/50">date</div>
-                    <div class="text-sm">
-                        {{ new Date(created_at).toLocaleDateString() }}
-                    </div>
-                </div>
-                <span class="text-center pl-2 text-foreground/50">
-                    <EllipsisVerticalIcon class="w-4 h-4" />
-                </span>
-            </Link>
-        </template>
-    </SearchableList>
+    <Dropdown>
+      <template #trigger>
+        <a
+          href=""
+          class="hover:underline text-foreground text-sm flex items-center"
+          @click.prevent
+        >
+          <ChevronDownIcon class="w-4 h-4 me-2" />
+          {{ sortBy.label }}
+        </a>
+      </template>
+      <template #content>
+        <DropdownLink
+          as="button"
+          v-for="(sorter, index) in sortOptions"
+          :key="sorter.id"
+          :data-id="index"
+          :class="
+            cn(
+              'text-nowrap',
+              index === sortBy.id && 'bg-secondary text-secondary-foreground'
+            )
+          "
+          @click.prevent="updateSorter(sorter)"
+        >
+          {{ sorter.label }}
+        </DropdownLink>
+      </template>
+    </Dropdown>
+  </div>
+
+  <InputField
+    type="search"
+    placeholder="Search..."
+    v-model="searchTerm"
+  />
+
+  <ul>
+    <li
+      v-for="entry in projects"
+      :class="
+        cn(
+          'group/li w-full px-2 py-3 rounded-md bg-transparent hover:bg-secondary/20 dark:hover:bg-foreground/20 text-foreground',
+          currentProject?.id === entry.id && 'bg-secondary/20'
+        )
+      "
+    >
+      <Link
+        class="flex items-center space-x-4"
+        :href="Routes.project.path(entry.id)"
+        :title="
+          currentProject?.id === entry.id
+            ? 'Current selected project'
+            : `Open and edit ${entry.name}`"
+      >
+        <div class="flex-1">
+          <Headline3 class="line-clamp-1">{{ entry.name }}</Headline3>
+          <p class="py-1 text-sm text-foreground/50 line-clamp-2">
+            {{ entry.description }}
+          </p>
+        </div>
+          <span class="self-center" title="Collaborative">
+              <UsersIcon
+                  v-if="entry.isCollaborative"
+                  class="w-4 h-4" />
+          </span>
+          <span class="self-center" title="I own this project">
+              <KeyIcon
+                  v-if="entry.isOwner"
+                  class="w-4 h-4" />
+          </span>
+        <div class="text-center w-1/6">
+          <div class="text-xs text-foreground/50">date</div>
+          <div class="text-sm">
+            {{ new Date(entry.updated_at).toLocaleDateString() }}
+          </div>
+        </div>
+      </Link>
+    </li>
+  </ul>
 </template>

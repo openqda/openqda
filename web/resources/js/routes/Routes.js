@@ -73,7 +73,10 @@ Routes.preparation = {
   name: 'preparation',
   label: 'Preparation',
   path: (projectId) => projectId && href(Routes.preparation, projectId),
-  active: (name) => name.startsWith('preparation'),
+  active: (name) =>
+      name === 'source.index' ||
+      name.startsWith('preparation')
+  ,
 };
 
 /**

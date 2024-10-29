@@ -14,6 +14,11 @@ const props = defineProps({
   submit: {
     type: Function,
   },
+  emptyAllowed: {
+      type: Boolean,
+      required: false,
+      default: false
+  },
   title: { type: String, required: false },
 });
 
@@ -43,8 +48,14 @@ const submit = async () => {
   error.value = false; // Clear any previous error
   complete.value = false;
 
-  if (!newName.value.length || newName.value === props.target.name) {
-    error.value = 'A new name is required';
+  const shouldPassEmpty = props.emptyAllowed || newName.value?.length > 0
+  if (!shouldPassEmpty) {
+      error.value = 'An empty value is not allowed';
+      return;
+  }
+
+  if (!shouldPassEmpty || newName.value === props.target.name) {
+    error.value = 'A different value is required';
     return;
   }
 
@@ -56,7 +67,7 @@ const submit = async () => {
     error.value =
       e.response?.data?.message ??
       e.message ??
-      'An error occurred while renaming the document.';
+      'An error occurred while saving.';
   };
 
   try {
@@ -123,7 +134,9 @@ const cancel = () => {
             error
           }}</ActionMessage>
         </span>
-        <Button @click="submit" :disabled="submitting">Rename</Button>
+        <Button @click="submit" :disabled="submitting">
+            Save
+        </Button>
       </div>
     </template>
   </DialogBase>

@@ -6,6 +6,8 @@ import InputError from '../../../form/InputError.vue';
 import InputLabel from '../../../form/InputLabel.vue';
 import PrimaryButton from '../../../Components/PrimaryButton.vue';
 import InputField from '../../../form/InputField.vue';
+import Button from '../../../Components/interactive/Button.vue'
+import ProfileImage from '../../../Components/user/ProfileImage.vue'
 
 const props = defineProps({
   team: Object,
@@ -26,58 +28,39 @@ const updateTeamName = () => {
 
 <template>
   <FormSection @submitted="updateTeamName">
-    <template #title> Team Name </template>
-
-    <template #description> The team's name and owner information. </template>
-
     <template #form>
-      <!-- Team Owner Information -->
-      <div class="col-span-6">
-        <InputLabel value="Team Owner" />
+        <!-- Team Name -->
+        <div class="mt-4">
+            <InputLabel for="name" value="Team Name" />
 
-        <div class="flex items-center mt-2">
-          <img
-            class="w-12 h-12 rounded-full object-cover"
-            :src="team.owner.profile_photo_url"
-            :alt="team.owner.name"
-          />
+            <InputField
+                id="name"
+                v-model="form.name"
+                type="text"
+                class="mt-1 block w-full"
+                :disabled="!permissions.canUpdateTeam"
+            />
 
-          <div class="ml-4 leading-tight">
-            <div class="text-gray-900">{{ team.owner.name }}</div>
-            <div class="text-gray-700 text-sm">
-              {{ team.owner.email }}
-            </div>
-          </div>
+            <InputError :message="form.errors.name" class="mt-2" />
         </div>
-      </div>
 
-      <!-- Team Name -->
-      <div class="col-span-6 sm:col-span-4">
-        <InputLabel for="name" value="Team Name" />
-
-        <InputField
-          id="name"
-          v-model="form.name"
-          type="text"
-          class="mt-1 block w-full"
-          :disabled="!permissions.canUpdateTeam"
-        />
-
-        <InputError :message="form.errors.name" class="mt-2" />
-      </div>
     </template>
+
+
 
     <template v-if="permissions.canUpdateTeam" #actions>
       <ActionMessage :on="form.recentlySuccessful" class="mr-3">
         Saved.
       </ActionMessage>
 
-      <PrimaryButton
+      <Button
+          type="submit"
+          variant="secondary"
         :class="{ 'opacity-25': form.processing }"
         :disabled="form.processing"
       >
         Save
-      </PrimaryButton>
+      </Button>
     </template>
   </FormSection>
 </template>

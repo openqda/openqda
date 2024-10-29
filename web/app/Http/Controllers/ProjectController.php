@@ -22,29 +22,7 @@ class ProjectController extends Controller
 
         $user = Auth::user();
 
-        // Fetch projects directly created by the user
-        $ownedProjects = $user->projects()->withTrashed()->get();
-
-        // Fetch projects where the user is invited through a team
-        $invitedProjects = $user->invitedTeamProjects();
-
-        // Combine the two types of projects
-        $allProjectModels = $ownedProjects->concat($invitedProjects);
-
-        // Transform projects for frontend
-        $visibleProjects = $allProjectModels->map(function ($project) use ($user) {
-            return [
-                'name' => $project->name,
-                'description' => $project->description,
-                'created_at' => $project->created_at,
-                'id' => $project->id,
-                'isOwner' => $project->creating_user_id == $user->id,
-                'isCollaborative' => ($project->team_id !== null),
-                'isTrashed' => $project->trashed(),
-            ];
-        })->filter(function ($project) {
-            return ! $project['isTrashed'];
-        })->toArray();
+        $visibleProjects = $this->visibleProjects();
 
         // Fetch all related audits using the User model's method
         $allAudits = $user->getAllAudits()->values();
@@ -59,6 +37,35 @@ class ProjectController extends Controller
             'bgbr' => config('app.bgbr'),
             'bgbl' => config('app.bgbl'),
         ]);
+    }
+
+    protected function visibleProjects () {
+        $user = Auth::user();
+
+        // Fetch projects directly created by the user
+        $ownedProjects = $user->projects()->withTrashed()->get();
+
+        // Fetch projects where the user is invited through a team
+        $invitedProjects = $user->invitedTeamProjects();
+
+        // Combine the two types of projects
+        $allProjectModels = $ownedProjects->concat($invitedProjects);
+
+        // Transform projects for frontend
+        return $allProjectModels->map(function ($project) use ($user) {
+            return [
+                'name' => $project->name,
+                'description' => $project->description,
+                'created_at' => $project->created_at,
+                'updated_at' => $project->updated_at,
+                'id' => $project->id,
+                'isOwner' => $project->creating_user_id == $user->id,
+                'isCollaborative' => ($project->team_id !== null),
+                'isTrashed' => $project->trashed(),
+            ];
+        })->filter(function ($project) {
+            return ! $project['isTrashed'];
+        })->toArray();
     }
 
     /**
@@ -129,6 +136,9 @@ class ProjectController extends Controller
 
         $user = Auth::user();
 
+        // to provide the project list we also need to load them here
+        $visibleProjects = $this->visibleProjects();
+
         // Retrieve audits related to the project
         $allAudits = app(AuditService::class)->getAudits($project);
 
@@ -177,6 +187,7 @@ class ProjectController extends Controller
                 'projectId' => $project->id,
                 'codebooks' => $formattedCodebooks,
             ],
+            'projects' => $visibleProjects,
             'userCodebooks' => auth()->user()->getCodebooksAsCreator($project->id),
             'publicCodebooks' => $formattedPublicCodebooks,
             'audits' => $paginator,

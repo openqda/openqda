@@ -87,7 +87,7 @@
                       </li>
                     </ul>
                   </nav>
-                    <slot name="menu"></slot>
+                  <slot name="menu"></slot>
                 </div>
               </DialogPanel>
             </TransitionChild>
@@ -175,18 +175,12 @@
       <div class="flex lg:pl-20">
         <aside
           v-show="$props.menu !== false"
-          class="bg-surface hidden lg:w-full xl:w-1/2 2xl:w-1/3 h-screen overflow-y-auto border-background px-1 sm:px-2 lg:px-3 lg:block border-r-background border-r-8"
+          class="bg-surface hidden lg:w-full xl:w-1/2 2xl:w-1/3 h-screen overflow-y-auto border-background lg:block border-r-background border-r-8 flex-shrink-0 max-w-[50%]"
         >
           <slot name="menu" />
         </aside>
 
-        <main
-          :class="
-            cn(
-              'h-screen overflow-y-auto bg-surface text-surface-foreground flex-grow'
-            )
-          "
-        >
+        <main :class="cn('h-screen overflow-y-auto bg-surface text-surface-foreground flex-grow')">
           <Transition>
             <slot name="main" />
           </Transition>
@@ -234,11 +228,12 @@ onMounted(() => {
   const projectId = Project.getId();
   const active = route().current();
 
-  if (projectId) {
+  if (projectId && sessionStorage.getItem('projectId') !== projectId) {
     // we should update the projectId only of it's
     // not in session storage
     sessionStorage.setItem('projectId', projectId);
   }
+
   const routes = NavRoutes.map(({ icon, route }) => {
     const href = route.path(projectId);
     const disabled = !href;

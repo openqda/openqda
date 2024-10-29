@@ -1,22 +1,20 @@
 <template>
   <AuthenticatedLayout :title="name" :menu="true">
     <template #menu>
+        <BaseContainer>
       <ProjectsListMenu
           :projects="projects"
       />
+        </BaseContainer>
     </template>
     <template #main>
-      <div>
-        <div class="md:px-4 md:mt-4">
+      <BaseContainer>
           <ResponsiveTabList
               :tabs="tabs"
               :initial="currentSubView"
               @change="value => currentSubView = value"
           />
-        </div>
-        <div class="md:mt-8 xl:pe-6 2xl:w-3/4">
           <ProjectSummary v-if="currentSubView === 'overview'" />
-          <ProjectCodebooks v-if="currentSubView === 'codebooks'" />
           <ProjectTeams
             v-if="currentSubView === 'collab'"
             :has-team="hasTeam"
@@ -26,14 +24,14 @@
             :team-owner="teamOwner"
             :project="project"
           />
+          <ProjectCodebooks v-if="currentSubView === 'codebooks'" />
           <Audit
             v-if="currentSubView === 'history'"
             :project-id="projectId"
             :audits="audits"
             context="projectPage"
           />
-        </div>
-      </div>
+      </BaseContainer>
     </template>
   </AuthenticatedLayout>
 </template>
@@ -54,6 +52,7 @@ import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import ProjectSummary from './Projects/ProjectSummary.vue';
 import ProjectCodebooks from './Projects/ProjectCodebooks.vue';
 import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue';
+import BaseContainer from '../Layouts/BaseContainer.vue'
 
 const props = defineProps([
   'project',
@@ -105,18 +104,21 @@ const tabs = ref([
     href: '#history',
   },
 ]);
-const currentSubView = ref(tabs.value[0].value);
-
-onMounted(() => {
-  localAudits.value = props.audits;
-  const hash = window.location.hash;
-  if (hash) {
+const currentSubView = ref('');
+const hash = window.location.hash;
+if (hash) {
     // Find the tab that corresponds to the URL hash
     const matchedTab = tabs.value.find((tab) => `#${tab.value}` === hash);
     if (matchedTab) {
-      currentSubView.value = matchedTab.value;
+        currentSubView.value = matchedTab.value;
     }
-  }
+}
+if (!currentSubView.value) {
+    currentSubView.value = tabs.value[0].value
+}
+
+onMounted(() => {
+  localAudits.value = props.audits;
 
   if (typeof projectId === 'undefined') {
     projectId = props.project.id;

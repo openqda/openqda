@@ -1,13 +1,16 @@
 <template>
     <AuthenticatedLayout :title="pageTitle" :menu="true" :showFooter="false" >
         <template #menu>
-            <div class="flex">
-                <Headline2 class="mt-3">Codes</Headline2>
-            </div>
-            <CodeList :codes="$props.allCodes" />
+            <BaseContainer>
+                <div class="flex">
+                    <Headline2 class="mt-3">Codes</Headline2>
+                </div>
+                <CodeList :codes="$props.allCodes" />
+            </BaseContainer>
         </template>
         <template #main>
             <CodingEditor
+                :project="{ id: projectId}"
                 :source="$props.source"
                 :codes="$props.allCodes"
             />
@@ -21,9 +24,13 @@ import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue'
 import Headline2 from '../Components/layout/Headline2.vue'
 import CodeList from './coding/CodeList.vue'
 import CodingEditor from './coding/CodingEditor.vue'
+import BaseContainer from '../Layouts/BaseContainer.vue'
 
 const pageTitle = ref('Coding')
 const props = defineProps(['source', 'sources', 'codebooks', 'allCodes']);
+const url = window.location.pathname;
+const segments = url.split('/');
+const projectId = segments[2]; // Assuming project id is the third segment in URL path
 
 onMounted(() => {
     const fileId = new URLSearchParams(window.location.search).get('source');

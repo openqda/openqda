@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { cn } from '../../utils/css/cn';
-import { ref } from 'vue';
+import {onMounted, ref} from 'vue';
 /*
  | This component renders a horizontal tab-list (nav tabs)
  | on md or larger screens or a native select component on
@@ -22,13 +22,14 @@ const setCurrent = (value) => {
 </script>
 
 <template>
+    <div>
   <div class="sm:hidden">
     <label for="tabs" class="sr-only">Select a tab</label>
     <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
     <select
       id="tabs"
       name="tabs"
-      class="block w-full rounded-md focus:border-primary focus:ring-primary bg-input text-foreground"
+      class="block w-full rounded-md focus:border-secondary focus:ring-secondary bg-surface text-foreground"
       @change="e => setCurrent(e.target.value)"
     >
       <option
@@ -67,6 +68,7 @@ const setCurrent = (value) => {
       </nav>
     </div>
   </div>
+    </div>
 </template>
 
 <style scoped></style>

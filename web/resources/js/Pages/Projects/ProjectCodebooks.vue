@@ -103,7 +103,7 @@ const importXmlFile = async () => {
 </script>
 
 <template>
-  <div class="flex space-x-4">
+  <div class="">
     <div class="w-1/2 my-2">
       <NewCodebookForm
         :project="project.id"

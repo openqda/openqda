@@ -10,12 +10,11 @@ import { ref } from 'vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import ProjectsListMenu from './Projects/ProjectsListMenu.vue';
 import CreateProjectForm from './Projects/CreateProjectForm.vue';
+import BaseContainer from '../Layouts/BaseContainer.vue';
 
-const props = defineProps(['projects', 'audits']);
-
+const props = defineProps(['audits']);
 const newProjectForm = ref(false);
 const showContent = ref(false);
-const showHistory = ref(false);
 
 sessionStorage.clear();
 
@@ -28,22 +27,26 @@ const projectSelected = async () => {};
 </script>
 
 <template>
-    <AuthenticatedLayout title="Manage Projects" :menu="true">
-        <template #menu>
-            <ProjectsListMenu
-                :projects="projects"
-                @selected="projectSelected"
-                @create-project="() => projectForm(true)"
-            />
-        </template>
-        <template #main>
-            <div v-if="showContent" class="p-5">
-                <CreateProjectForm
-                    v-if="newProjectForm"
-                    class="w-100 block"
-                    @cancelled="() => projectForm(false)"
-                />
-            </div>
-        </template>
-    </AuthenticatedLayout>
+  <AuthenticatedLayout title="Manage Projects" :menu="true">
+    <template #menu>
+        <BaseContainer>
+      <ProjectsListMenu
+        @selected="projectSelected"
+        @create-project="() => projectForm(true)"
+      />
+        </BaseContainer>
+    </template>
+    <template #main>
+      <BaseContainer>
+        <CreateProjectForm
+          v-if="newProjectForm"
+          class="w-100 block"
+          @cancelled="() => projectForm(false)"
+        />
+          <div v-else class="flex items-center justify-center h-full text-foreground/50">
+              <span>Select a project from the list or create a new one</span>
+          </div>
+      </BaseContainer>
+    </template>
+  </AuthenticatedLayout>
 </template>

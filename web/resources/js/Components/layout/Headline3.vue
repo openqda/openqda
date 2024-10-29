@@ -1,5 +1,5 @@
 <template>
-    <h3 :class="['font-semibold leading-6 text-lg text-porsche-400', props.class]">
+    <h3 :class="['font-semibold leading-6 tracking-wide text-foreground', props.class]">
         <slot></slot>
     </h3>
 </template>
