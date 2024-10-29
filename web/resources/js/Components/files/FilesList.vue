@@ -1,7 +1,7 @@
 <template>
   <table class="table-fixed w-full border-collapse">
     <thead>
-      <tr class="border-b align-middle" :class="props.rowClass">
+      <tr class="align-middle" :class="props.rowClass">
         <th class="w-5"></th>
         <th v-for="field in headerFields" scope="col"
             :class="cn('text-center text-xs font-normal text-foreground/50 sm:pl-0', field.class)">

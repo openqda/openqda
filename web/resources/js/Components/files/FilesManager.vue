@@ -31,14 +31,12 @@
   />
   <FilesList
     class="mt-5"
-    rowClass="px-2"
     :documents="documents"
     :actions="[
       {
         id: 'retry-atrain',
         title: 'Retry transcription',
         icon: ArrowPathRoundedSquareIcon,
-        class: 'text-black-500 hover:text-cerulean-700',
         onClick({ document }) {
           retryTranscription(document);
         },
@@ -52,7 +50,6 @@
         id: 'retry-conversion',
         title: 'Retry elaboration',
         icon: CloudArrowUpIcon,
-        class: 'text-black-500 hover:text-cerulean-700',
         onClick({ document }) {
           retryConvert(document);
         },
@@ -66,7 +63,6 @@
         id: 'download-source',
         title: 'Download Source File',
         icon: DocumentArrowDownIcon,
-        class: 'text-black-500 hover:text-cerulean-700',
         onClick({ document }) {
           downloadSource(document);
         },
@@ -78,7 +74,6 @@
         id: 'rename-document',
         title: 'Rename this document',
         icon: PencilSquareIcon,
-        class: ' text-black hover:text-gray-600',
         onClick({ document }) {
           toRename = document;
         },
@@ -90,7 +85,6 @@
         id: 'delete-document',
         title: 'Delete this document',
         icon: XCircleIcon,
-        class: ' text-red-700 hover:text-red-600',
         onClick({ document, index }) {
           toDelete = document;
         },

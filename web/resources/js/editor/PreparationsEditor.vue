@@ -31,6 +31,7 @@ import { SelectionHash } from './SelectionHash.js'
 import { formats, redoChange, undoChange } from './EditorConfig.js';
 import { debounce } from '../utils/dom/debounce.js'
 import './editor.css';
+import { retry } from '../utils/dom/retry.js'
 
 let quillInstance;
 const Delta = Quill.import('delta');
@@ -96,9 +97,9 @@ onMounted(() => {
     editorContent.value = quillInstance.root.innerHTML;
   });
 
-  quillInstance.enable(!props.locked);
-
-
+  quillInstance.enable(!props.locked)
+  const ln = quillInstance.getModule('lineNumber')
+  clearLinesRepeat = retry(() => ln.update(), 10)
 
   // Check for unsaved data
   window.onbeforeunload = function () {
@@ -108,7 +109,11 @@ onMounted(() => {
   };
 });
 
+let clearLinesRepeat
+
 onUnmounted(() => {
+  clearLinesRepeat()
+
   if (quillInstance) {
     const lineNumberModule =quillInstance.getModule('lineNumber')
     lineNumberModule.dispose()

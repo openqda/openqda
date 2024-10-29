@@ -8,6 +8,7 @@ import InputLabel from '../../form/InputLabel.vue';
 import ThemeSwitch from '../../theme/ThemeSwitch.vue';
 import Button from '../../Components/interactive/Button.vue'
 import { router, useForm } from '@inertiajs/vue3';
+import BaseContainer from '../../Layouts/BaseContainer.vue'
 // import '../../Pages/Profile/Partials/TwoFactorAuthenticationForm.vue';
 
 defineProps({
@@ -23,7 +24,7 @@ function onLogout ()  { router.post(route('logout')) }
 <template>
   <AuthenticatedLayout :menu="false">
     <template #main>
-      <div class="w-full lg:w-3/4 xl:w-1/2 p-1 lg:p-3">
+      <BaseContainer class="w-full lg:w-3/4 xl:w-1/2 p-1 lg:p-3">
               <form @submit.prevent="logout">
           <div class="flex justify-between py-4 border-b border-foreground/10">
               <InputLabel> Logout </InputLabel>
@@ -56,7 +57,7 @@ function onLogout ()  { router.post(route('logout')) }
         </template>
 
           <!-- LOGOUT Button -->
-      </div>
+      </BaseContainer>
     </template>
   </AuthenticatedLayout>
 </template>
