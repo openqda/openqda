@@ -47,7 +47,8 @@ class CodingController extends Controller
      */
     public function show(Request $request, Project $project)
     {
-        $allSources = Source::where('project_id', $project->id)
+        $projectId = $project->id;
+        $allSources = Source::where('project_id', $projectId)
             ->whereHas('variables', function ($query) {
                 $query->where('name', 'isLocked')
                     ->where('boolean_value', true);
@@ -59,7 +60,7 @@ class CodingController extends Controller
             $source = Source::findOrFail($request->source);
         } else {
             // Fetch the latest LOCKED source for the project if 'source' is not defined
-            $source = Source::where('project_id', $project->id)
+            $source = Source::where('project_id',  $projectId)
                 ->whereHas('variables', function ($query) {
                     $query->where('name', 'isLocked')
                         ->where('boolean_value', true);
@@ -74,7 +75,7 @@ class CodingController extends Controller
             $content = file_get_contents($source->converted->path);
             $source->content = $content;
         } else {
-            return redirect()->route('source.index', ['project' => $project->id]);
+            return redirect()->route('source.index', ['project' =>  $projectId]);
         }
         $source->variables = $source->transformVariables();
 
@@ -85,7 +86,7 @@ class CodingController extends Controller
         if (is_null($codebook)) {
             $codebook = new Codebook();
             $codebook->name = 'Default Codebook';
-            $codebook->project_id = $project->id;
+            $codebook->project_id = $projectId;
             $codebook->creating_user_id = $request->user()->id;
             $codebook->save();
         }
@@ -108,6 +109,7 @@ class CodingController extends Controller
             'sources' => $allSources,
             'codebooks' => $codebooks,
             'allCodes' => $allCodes,
+            'projectId' => $projectId
         ]);
     }
 

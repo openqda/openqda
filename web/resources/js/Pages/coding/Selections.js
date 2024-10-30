@@ -1,10 +1,18 @@
 import { randomUUID } from '../../utils/randomUUID.js'
 import { request } from '../../utils/http/BackendRequest.js'
+import { createStoreRepository } from '../../state/StoreRepository.js'
+import { AbstractStore } from '../../state/AbstractStore.js'
 
-/**
- * Handles backend requests for managing (code-) selections.
- */
-export const Selections = {}
+class SelectionsStore extends AbstractStore {
+    print() {
+        console.debug(this.entries)
+    }
+}
+
+export const Selections = createStoreRepository({
+    key: 'store/selections',
+    factory: options => new SelectionsStore(options)
+})
 
 /**
  * Stores a selection in DB

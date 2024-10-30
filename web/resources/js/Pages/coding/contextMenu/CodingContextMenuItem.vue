@@ -1,40 +1,62 @@
 <script setup lang="ts">
-import { useContextMenu } from './useContextMenu';
+import { ChevronRightIcon, CheckIcon } from '@heroicons/vue/24/solid/index.js';
+import { computed, ref } from 'vue';
+import { cn } from '../../../utils/css/cn';
+import Button from '../../../Components/interactive/Button.vue';
+import { changeRGBOpacity } from '../../../utils/color/changeRGBOpacity'
+import { useSelections } from '../selections/useSelections'
 
-const { select } = useContextMenu();
-defineProps({
+const { select } = useSelections();
+const props = defineProps({
   code: Object,
-  parent: Object
+  parent: Object,
+  liClass: String,
 });
 
-const changeRGBOpacity = (rgba, opacity) => {
-  const rgbaValues = rgba.match(/[\d.]+/g);
-  if (rgbaValues && rgbaValues.length >= 3) {
-    return `rgba(${rgbaValues[0]}, ${rgbaValues[1]}, ${rgbaValues[2]}, ${opacity})`;
-  }
-  return rgba;
-};
+const children = computed(
+  () => props.code && props.code.children.filter((child) => child.active)
+);
+const open = ref(false);
+
+
 </script>
 
 <template>
   <li
-    class="px-4 py-2 my-2 group text-sm rounded-md cursor-pointer hover:bg-white selection-none contextMenuOption"
-    :style="{
-      backgroundColor: changeRGBOpacity(code.color, 1),
-    }"
-    @click="select({ code, parent })"
+    :class="
+      cn(
+        'p-0 my-2 text-sm rounded-md selection-none contextMenuOption flex items-center border-4',
+        props.liClass
+      )
+    "
   >
-    <span class="group-hover:bg-surface group-hover:text-foreground px-1">
+    <button
+      v-if="code.children.length"
+      title="Toggle children"
+      class="p-0 my-2 me-2 bg-transparent"
+      @click.prevent="open = !open"
+    >
+      <ChevronRightIcon :class="cn('w-4 h-4', open && 'rotate-90')" />
+    </button>
+    <span class="w-4 h-4 my-2 me-2" v-else></span>
+    <button
+      class="border-4 w-full p-2 rounded-md"
+      :style="{
+        borderColor: changeRGBOpacity(code.color, 1),
+      }"
+      @click="select({ code, parent })"
+    >
       {{ code.name }}
-    </span>
+    </button>
   </li>
 
-  <ul v-if="code.children?.length">
+  <ul v-if="code.children?.length && open">
     <CodingContextMenuItem
-      v-for="child in code.children"
+      v-for="child in children"
       :key="child.id"
       :code="child"
       :parent="code"
+      li-class="ps-3"
     />
   </ul>
 </template>

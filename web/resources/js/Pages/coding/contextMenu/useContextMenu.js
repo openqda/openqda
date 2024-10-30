@@ -1,31 +1,18 @@
-import { toRefs, reactive } from 'vue'
-
-export const useContextMenu = () => {
-    const { selected, openWith, toDelete } = toRefs(state)
-
-    const select = code => {
-        selected.value = code
-    }
-    const open = (codeId) => {
-        openWith.value = codeId
-    }
-
-    const markToDelete = (codes) => {
-        toDelete.value = codes
-    }
-
-    return {
-        selected,
-        select,
-        openWith,
-        open,
-        toDelete,
-        markToDelete,
-    }
-}
+import { toRefs, reactive } from 'vue';
 
 const state = reactive({
-    selected: null,
-    openWith: null,
-    toDelete: []
-})
+  openWith: null,
+});
+
+export const useContextMenu = () => {
+  const { openWith } = toRefs(state);
+
+  const open = (codeId) => {
+    openWith.value = codeId;
+  };
+
+  return {
+    openWith,
+    open,
+  };
+};

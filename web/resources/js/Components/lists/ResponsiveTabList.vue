@@ -51,8 +51,11 @@ const setCurrent = (value) => {
         <a
           v-for="tab in props.tabs"
           :key="tab.value"
-          :href="tab.href"
-          @click="() => setCurrent(tab.value)"
+          :href="tab.href ?? ''"
+          @click="(e) => {
+              setCurrent(tab.value)
+              if (!tab.href) e.preventDefault()
+          }"
           :class="
             cn(
               'group inline-flex items-center justify-center border-b-2 py-1 px-1 text-sm',

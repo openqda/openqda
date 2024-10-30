@@ -4,8 +4,8 @@ import Button from '../../Components/interactive/Button.vue';
 import { PlusIcon, ChevronDownIcon, UsersIcon, KeyIcon } from '@heroicons/vue/24/outline';
 import { Link } from '@inertiajs/vue3';
 import { useProjects } from './useProjects.js';
-import Dropdown from '../../../../vendor/laravel/jetstream/stubs/inertia/resources/js/Components/Dropdown.vue';
-import DropdownLink from '../../../../vendor/laravel/jetstream/stubs/inertia/resources/js/Components/DropdownLink.vue';
+import Dropdown from '../../Components/Dropdown.vue';
+import DropdownLink from '../../Components/DropdownLink.vue';
 import InputField from '../../form/InputField.vue';
 import { cn } from '../../utils/css/cn.js';
 import Headline3 from '../../Components/layout/Headline3.vue'

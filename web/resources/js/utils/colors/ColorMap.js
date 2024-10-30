@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 export class ColorMap {
   constructor(mapping) {
     this.mapping = { ...mapping };

@@ -1,4 +1,5 @@
 import Quill from 'quill';
+import { changeRGBOpacity } from '../../../utils/color/changeRGBOpacity.js'
 
 const Parchment = Quill.import('parchment');
 const { Registry, Attributor, Scope } = Parchment
@@ -14,12 +15,19 @@ export class SelectionHighlightBG extends Module {
         this.options = options;
     }
 
-    highlight ({ id, start, end, color }) {
-        const length = end - start
-        this.quill.formatText(start, length, {
-            background: color,
-            id,
-        })
+    highlight ({ id, color, start, length, active }) {
+        if (!active) {
+            this.quill.formatText(start, length, {
+                background: 'transparent'
+            })
+        }
+        else {
+            const background = changeRGBOpacity(color,1)
+            this.quill.formatText(start, length, {
+                background,
+                id,
+            })
+        }
     }
 
     remove ({ start, end }) {

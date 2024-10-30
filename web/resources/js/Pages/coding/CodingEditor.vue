@@ -1,6 +1,7 @@
 <template>
   <!-- editor toolbar -->
   <div
+      v-show="false"
     class="block xl:flex lg:justify-center sticky top-0 py-2 z-40 bg-surface"
   >
     <div
@@ -33,13 +34,13 @@
   </div>
   <CodingContextMenu
     @close="contextMenuVisible = false"
-    :codes="$props.codes"
+    :codes="activeCodes"
     :visible="contextMenuVisible"
   />
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import Quill from 'quill';
 import QuillCursors from 'quill-cursors';
 import { formats, redoChange, undoChange } from '../../editor/EditorConfig.js';
@@ -49,17 +50,20 @@ import { SelectionHighlightBG } from './editor/SelectionHighlightBG.js'
 import { SelectionHash } from '../../editor/SelectionHash.js';
 import EditorToolbar from '../../editor/EditorToolbar.vue';
 import CodingContextMenu from './contextMenu/CodingContextMenu.vue';
-import { useContextMenu } from './contextMenu/useContextMenu.js';
 import { Selections } from './Selections.js';
 import { flashMessage } from '../../Components/notification/flashMessage.js';
+import { useCodes } from './useCodes.js'
+import { useRange } from './useRange.js'
+import { useSelections } from './selections/useSelections.js'
 
 let quillInstance;
 const Delta = Quill.import('delta');
 const editorContent = ref('');
 const contextMenuVisible = ref(false);
-const lastRange = ref();
-const { selected, markToDelete } = useContextMenu();
-
+const { selected, markToDelete } = useSelections();
+const { codes, selections,  codesInRange} = useCodes()
+const { prevRange, setRange } = useRange()
+const activeCodes = computed(() => codes.value.filter(c => c.active))
 Quill.register('modules/lineNumber', LineNumber, true);
 Quill.register('modules/selectionHash', SelectionHash, true);
 Quill.register('modules/cursors', QuillCursors);
@@ -73,7 +77,7 @@ const props = defineProps({
   locked: Boolean,
   CanUnlock: Boolean,
 });
-
+const projectId = props.project.id
 onMounted(() => {
   quillInstance = new Quill('#editor', {
     theme: 'snow',
@@ -105,24 +109,41 @@ onMounted(() => {
 
   quillInstance.enable(false);
   quillInstance.clipboard.dangerouslyPasteHTML(props.source.content);
-  quillInstance.on('selection-change', (data) => {
-    if (data !== null) {
-      lastRange.value = data;
-    }
-  });
+
+  /*
+   * Update selected range to shared state
+   */
+  quillInstance.on('selection-change', setRange);
   const highlight = quillInstance.getModule('highlight')
-  props.codes.forEach(code => {
-      if (code.text.length) {
-          code.text.forEach(({ start, end }) => {
-              highlight.highlight({
-                  id: code.id,
-                  start: Number(start),
-                  end: Number(end),
-                  color: code.color
-              })
-          })
-      }
-  })
+
+    const applyCodes = (entries) => {
+        entries.forEach(code => {
+            if (code.text.length) {
+                code.text.forEach(({ start, end }) => {
+                    highlight.highlight({
+                        id: code.id,
+                        start: Number(start),
+                        end: Number(end),
+                        color: code.color,
+                        active: code.active
+                    })
+                })
+            }
+            if (code.children?.length) {
+                applyCodes(code.children)
+            }
+        })
+    }
+
+    watch(() => selections, entries => {
+        entries.value.forEach(selection => highlight.highlight({
+            id: selection.code.id,
+            color: selection.code.color,
+            start: selection.start,
+            length: selection.length,
+            active: selection.code.active
+        }))
+    }, { deep: true, immediate: true  })
 });
 
 onUnmounted(() => {
@@ -141,11 +162,11 @@ watch(
 
 watch(selected, async ({ code, parent }) => {
   // skip if no usable selection was made
-  if (!lastRange.value?.length || !code?.id) {
+  if (!prevRange.value?.length || !code?.id) {
     return;
   }
 
-  const { index, length } = lastRange.value;
+  const { index, length } = prevRange.value;
   const start = index;
   const end = start + length;
   const text = quillInstance.getText(start, length);
@@ -163,22 +184,28 @@ watch(selected, async ({ code, parent }) => {
   }
 });
 
+// TODO move to useContextMenu
 const showContextMenu = (event) => {
   if (event.ctrlKey || event.metaKey) {
     // Allow the browser's context menu to appear
     return;
   }
   event.preventDefault();
+
   const selectedCode = quillInstance.getSelection()
-  const codeId = event.target.getAttribute('data-code-id') ?? null;
-  const codes = props.codes.filter(code => code.id === codeId);
+  const hasSelection = selectedCode?.length
+  const codes = selectedCode && !hasSelection
+        ? codesInRange(selectedCode.index)
+        : []
+
+  if (!hasSelection && !codes.length) { return }
   markToDelete(codes)
 
   contextMenuVisible.value = true;
   const contextMenu = document.getElementById('contextMenu');
   const windowHeight = window.innerHeight;
 
-  contextMenu.style.left = `${event.clientX}px`;
+  contextMenu.style.left = `${event.clientX + 100}px`;
   contextMenu.classList.remove('hidden');
 
   // Force a slight layout update so we can measure the contextMenu's dimensions

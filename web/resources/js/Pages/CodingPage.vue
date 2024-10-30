@@ -2,10 +2,13 @@
     <AuthenticatedLayout :title="pageTitle" :menu="true" :showFooter="false" >
         <template #menu>
             <BaseContainer>
-                <div class="flex">
-                    <Headline2 class="mt-3">Codes</Headline2>
-                </div>
-                <CodeList :codes="$props.allCodes" />
+                <ResponsiveTabList
+                    :tabs="codesTabs"
+                    :initial="codesView"
+                    @change="value => codesView = value"
+                />
+                <CodeList v-if="codesView === 'codes'" />
+                <CodebookList v-if="codesView === 'codebooks'" />
             </BaseContainer>
         </template>
         <template #main>
@@ -21,10 +24,23 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue'
-import Headline2 from '../Components/layout/Headline2.vue'
 import CodeList from './coding/CodeList.vue'
 import CodingEditor from './coding/CodingEditor.vue'
 import BaseContainer from '../Layouts/BaseContainer.vue'
+import { useCodes } from './coding/useCodes.js'
+import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue'
+import CodebookList from './coding/CodebookList.vue'
+
+
+//------------------------------------------------------------------------
+// CODES / CODEBOOKS
+//------------------------------------------------------------------------
+const { codebooks, initCodebooks } = useCodes()
+const codesTabs = [
+    { value: 'codes', label: 'Codes' },
+    { value: 'codebooks', label: 'Codebooks' },
+]
+const codesView = ref(codesTabs[0].value)
 
 const pageTitle = ref('Coding')
 const props = defineProps(['source', 'sources', 'codebooks', 'allCodes']);
@@ -32,12 +48,14 @@ const url = window.location.pathname;
 const segments = url.split('/');
 const projectId = segments[2]; // Assuming project id is the third segment in URL path
 
-onMounted(() => {
+onMounted(async () => {
     const fileId = new URLSearchParams(window.location.search).get('source');
     if (fileId !== props.source.id) {
         // relocate?
     }
     onSourceSelected(props.source)
+
+    await initCodebooks()
 })
 
 const onSourceSelected = (file) => {
