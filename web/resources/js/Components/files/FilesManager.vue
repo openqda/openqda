@@ -203,7 +203,6 @@ async function retryTranscription(document) {
   const url = `/projects/${projectId}/sources/${document.id}/retrytranscription`;
   try {
     const response = await axios.post(url);
-    console.debug(response);
     const { message, status } = response.data;
 
     if (status === 'finished') {
@@ -232,7 +231,6 @@ async function retryConvert(document) {
   try {
     document.isConverting = true;
     const response = await axios.post(url);
-    console.debug(response);
     document.isConverting = !response.data.success;
     document.converted = true;
   } catch (error) {
@@ -383,7 +381,6 @@ onMounted(() => {
   window.Echo.private('conversion.' + projectId).listen(
     'ConversionCompleted',
     (e) => {
-      console.debug('ConversionCompleted', e.sourceId);
       let documentIndex = -1;
       documents.forEach((doc, index) => {
         console.log(doc.id);
@@ -402,7 +399,6 @@ onMounted(() => {
   window.Echo.private('conversion.' + projectId).listen(
     'ConversionFailed',
     (e) => {
-      console.debug('ConversionFailed', e.sourceId, e.message);
       let documentIndex = -1;
       documents.forEach((doc, index) => {
         console.log(doc.id);

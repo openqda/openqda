@@ -1,4 +1,4 @@
-import { reactive, toRaw, ref } from 'vue';
+import { reactive, ref } from 'vue';
 
 export class AbstractStore {
   constructor({ projectId, key }) {
@@ -16,8 +16,6 @@ export class AbstractStore {
      * @type {string}
      */
     this.key = key;
-
-    this.saving = ref(false);
   }
 
   entry(id) {
@@ -30,8 +28,17 @@ export class AbstractStore {
     return entry;
   }
 
+
+  add(entry) {
+    this.entries[entry.id] = entry;
+  }
+
+  remove(id) {
+      this.entry(id)
+      delete this.entries[id]
+  }
+
   all () {
-      // memoize to speed up
       return Object.values(this.entries)
   }
 
@@ -41,7 +48,7 @@ export class AbstractStore {
 
   load(entries) {
     Object.values(entries).forEach((entry) => {
-      this.entries[entry.id] = entry;
+        this.add(entry)
     });
   }
 }

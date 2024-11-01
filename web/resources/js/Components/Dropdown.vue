@@ -51,7 +51,6 @@ const alignmentClasses = computed(() => {
 });
 
 function handleClick() {
-  console.debug('drop down click event', props.prevent);
   if (!props.prevent) {
     open.value = !open.value;
     const name = open.value ? 'open' : 'close';

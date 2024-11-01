@@ -20,7 +20,6 @@ const {
   updateSorter,
   searchTerm,
 } = useProjects();
-console.debug(projects)
 </script>
 
 <template>

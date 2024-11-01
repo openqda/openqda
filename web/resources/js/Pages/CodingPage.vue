@@ -2,11 +2,22 @@
     <AuthenticatedLayout :title="pageTitle" :menu="true" :showFooter="false" >
         <template #menu>
             <BaseContainer>
+                <div class="flex items-baseline justify-between">
+                <Button variant="outline-secondary">
+                    <PlusIcon class="w-4 h-4 me-1" />
+                    <span v-if="codesView === 'codes' && range?.length">Create In-Vivo</span>
+                    <span v-else>Create</span>
+                </Button>
                 <ResponsiveTabList
                     :tabs="codesTabs"
                     :initial="codesView"
                     @change="value => codesView = value"
                 />
+                </div>
+                <div class="flex justify-between text-foreground/60" v-if="codesView === 'codes'">
+                    <p class="my-0 text-xs">{{range?.length ? 'Click a code to assign to selection' : 'Manage codes'}}</p>
+                    <div class="text-xs">Sort by name</div>
+                </div>
                 <CodeList v-if="codesView === 'codes'" />
                 <CodebookList v-if="codesView === 'codebooks'" />
             </BaseContainer>
@@ -22,6 +33,7 @@
 </template>
 
 <script setup>
+import { PlusIcon } from '@heroicons/vue/24/solid'
 import { onMounted, ref } from 'vue'
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue'
 import CodeList from './coding/CodeList.vue'
@@ -30,7 +42,13 @@ import BaseContainer from '../Layouts/BaseContainer.vue'
 import { useCodes } from './coding/useCodes.js'
 import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue'
 import CodebookList from './coding/CodebookList.vue'
+import Button from '../Components/interactive/Button.vue'
+import { useRange } from './coding/useRange.js'
 
+//------------------------------------------------------------------------
+// RANGE / SELECTION
+//------------------------------------------------------------------------
+const { range } = useRange()
 
 //------------------------------------------------------------------------
 // CODES / CODEBOOKS

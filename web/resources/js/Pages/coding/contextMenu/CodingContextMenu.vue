@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { TrashIcon, ArrowPathRoundedSquareIcon } from '@heroicons/vue/24/solid';
+import { TrashIcon, ArrowsRightLeftIcon } from '@heroicons/vue/24/solid';
 import Button from '../../../Components/interactive/Button.vue';
 import { cn } from '../../../utils/css/cn';
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed } from 'vue';
 import InputField from '../../../form/InputField.vue';
 import { vClickOutside } from '../../../Components/coding/clickOutsideDirective';
 import CodingContextMenuItem from './CodingContextMenuItem.vue';
 import {useSelections} from "../selections/useSelections";
+import { useContextMenu } from './useContextMenu'
 
-const { toDelete } = useSelections();
-const emit = defineEmits(['code-selected', 'close']);
+const { close, isOpen } = useContextMenu();
+const { current, toDelete, deleteSelection } = useSelections();
+const emit = defineEmits(['code-selected','code-deleted']);
 const props = defineProps({
-  selection: Object,
   codes: Array,
   visible: Boolean,
 });
@@ -32,15 +33,16 @@ let filteredCodes = computed(() =>
 
 <template>
   <div
-    v-click-outside="{ callback: () => emit('close') }"
+    v-click-outside="{ callback: close }"
     id="contextMenu"
     :class="
       cn(
         'fixed p-3 z-50 bg-surface border-background border-4 max-h-screen w-min-64 w-1/5 mt-1 overflow-auto rounded-md shadow-lg overflow-y-scroll',
-        $props.visible !== true && 'hidden'
+        isOpen !== true && 'hidden'
       )
     "
   >
+      <p>{{current?.text}}</p>
     <div v-if="toDelete?.length" class="mb-6">
       <div class="block w-full text-xs font-semibold">Linked codes</div>
         <div class="flex items-baseline space-x-2 text-sm"  v-for="code in toDelete">
@@ -51,13 +53,13 @@ let filteredCodes = computed(() =>
                 class="p-2"
                 @click.prevent="(e) => e.stopPropagation()"
             >
-                <ArrowPathRoundedSquareIcon class="w-4 h-4" />
+                <ArrowsRightLeftIcon class="w-4 h-4" />
             </Button>
             <Button
                 title="Delete selection with this code"
                 variant="destructive"
                 class="p-2"
-                @click.prevent="(e) => e.stopPropagation()"
+                @click.prevent="deleteSelection(current) && close() && emit('code-deleted', current)"
             >
                 <TrashIcon class="w-4 h-4" />
             </Button>

@@ -5,7 +5,9 @@ import { cn } from '../../../utils/css/cn';
 import Button from '../../../Components/interactive/Button.vue';
 import { changeRGBOpacity } from '../../../utils/color/changeRGBOpacity'
 import { useSelections } from '../selections/useSelections'
+import {useContextMenu} from "./useContextMenu";
 
+const { close } = useContextMenu();
 const { select } = useSelections();
 const props = defineProps({
   code: Object,
@@ -44,7 +46,7 @@ const open = ref(false);
       :style="{
         borderColor: changeRGBOpacity(code.color, 1),
       }"
-      @click="select({ code, parent })"
+      @click="select({ code, parent }) && close()"
     >
       {{ code.name }}
     </button>

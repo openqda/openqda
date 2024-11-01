@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/vue3'
-import { computed, reactive } from 'vue'
+import { computed, reactive, watch } from 'vue'
 import { Codebooks } from './codebooks/Codebooks.js'
 import { Codes } from './codes/Codes.js'
 import { Selections } from './Selections.js'
@@ -10,6 +10,9 @@ const state = reactive({
 
 export const useCodes = () => {
     const { allCodes, codebooks, projectId } = usePage().props
+    const codeStore = Codes.by(projectId)
+    const codebookStore = Codebooks.by(projectId)
+    const selectionStore = Selections.by(projectId)
 
     /**
      * To lazy load codes and codebooks
@@ -45,23 +48,23 @@ export const useCodes = () => {
             })
         }
         parseCodes(allCodes)
-        Codebooks.by(projectId).load(codebooks)
-        Codes.by(projectId).load(codeList)
-        Selections.by(projectId).load(selections)
+        codebookStore.load(codebooks)
+        codeStore.load(codeList)
+        selectionStore.load(selections)
         state.loaded = true
     }
 
     const computedCodes = computed({
-        get: () => Codes.entries(projectId).filter(c => !c.parent)
+        get: () => codeStore.all().filter(c => !c.parent)
     })
 
     const computedCodebooks = computed({
-        get: () => Codebooks.entries(projectId)
+        get: () => codebookStore.all()
     })
 
     const toggleCodebook = async ({ id }) => {
        const active = Codebooks.toggle(projectId, id)
-       Codes.entries(projectId).forEach((code) => {
+       codeStore.all().forEach((code) => {
            if (code.codebook === id) {
                code.active = active
            }
@@ -70,37 +73,49 @@ export const useCodes = () => {
     }
 
     const toggleCode = async (code) => {
-        Codes.by(projectId).toggle(code.id)
+        codeStore.toggle(code.id)
     }
 
     const selections = computed(() => {
-        const selections = Selections.by(projectId).all().sort((a, b) => b.length - a.length)
-        const codes = Codes.by(projectId)
+        const selections = [...selectionStore.all()] //.sort((a, b) => b.length - a.length)
 
-        return selections.map(selection => {
+        return selections.map(entry => {
+            const selection = {...entry}
             // xxx code duplicates might occur and we
             // have to be forgiving and support these
-            selection.code = typeof selection.code === 'object'
-                ? selection.code
-                : codes.entry(selection.code)
+            const type = typeof selection.code
+            if (type === 'string') {
+                  selection.code = codeStore.entry(selection.code)
+            }
             return selection
         })
     })
-
-    const codesInRange = (index) => {
+    const codesInRange = (index, codeId) => {
         const current = selections.value.filter(({ start, end })  => {
             return start <= index && end >= index
         })
-        return current.map(sel => sel.code)
+        const codes = current.map(sel => sel.code)
+        let selection
+        if (codeId) {
+            selection = current.find(sel => sel.code.id === codeId)
+        }
+        return {
+            selection,
+            codes
+        }
     }
 
     return {
         codes: computedCodes,
         codebooks: computedCodebooks,
         selections,
+        selectionStore,
         codesInRange,
         toggleCodebook,
         toggleCode,
-        initCodebooks
+        initCodebooks,
+        sorter: {
+            byIndex: useCodes
+        }
     }
 }

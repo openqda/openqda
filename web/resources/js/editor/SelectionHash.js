@@ -26,7 +26,7 @@ export class SelectionHash extends Module {
   updateSelection(range /* , oldRange, source */) {
     this.clearValue();
     if (range && typeof range.index === 'number') {
-        const newValue = `${range.index}:${range.length}`
+        const newValue = `${range.index}:${range.index + range.length}`
         this.container.textContent = newValue
         this.value = newValue
     }
