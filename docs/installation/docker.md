@@ -84,6 +84,14 @@ $ ./vendor/bin/sail artisan db:seed
 
 The users + credentials are located at [`web/database/seeders/UserSeeder.php`](../../web/database/seeders/UserSeeder.php).
 
+### Connect Filesystem
+
+In order to have images being available you also need to run
+
+```shell
+./vendor/bin/sail artisan storage:link
+```
+
 ### Stop local setup
 
 ```shell
