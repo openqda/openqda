@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
+use Inertia\Response;
 use OwenIt\Auditing\Models\Audit;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
@@ -28,6 +29,9 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
  */
 class SourceController extends Controller
 {
+    /**
+     * @return JsonResponse|Response
+     */
     public function index(Request $request, $projectId)
     {
 
@@ -44,6 +48,11 @@ class SourceController extends Controller
         ]);
     }
 
+    /**
+     * @return JsonResponse|string
+     *
+     * @throws \Exception
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -127,6 +136,9 @@ class SourceController extends Controller
 
     }
 
+    /**
+     * @return \Illuminate\Support\Collection
+     */
     private function fetchAndTransformSources($projectId)
     {
         $sources = Source::where('project_id', $projectId)->with('variables')->get();
@@ -161,6 +173,9 @@ class SourceController extends Controller
         return to_route('coding.show', ['project' => $source->project_id, 'source' => $source]);
     }
 
+    /**
+     * @return JsonResponse|\Illuminate\Http\RedirectResponse
+     */
     public function lockAndCode(Request $request, $sourceId)
     {
 
@@ -204,6 +219,9 @@ class SourceController extends Controller
         }
     }
 
+    /**
+     * @return JsonResponse
+     */
     public function unlock(Request $request, $sourceId)
     {
 
@@ -238,6 +256,9 @@ class SourceController extends Controller
         }
     }
 
+    /**
+     * @return JsonResponse
+     */
     public function fetchDocument($id)
     {
         // Find the document
@@ -321,6 +342,11 @@ class SourceController extends Controller
 
     }
 
+    /**
+     * @return false|string
+     *
+     * @throws \Exception
+     */
     private function convertFileToHtmlLocally($filePath, $projectId)
     {
         // Define the output directory for the HTML file using the projectId
@@ -357,6 +383,9 @@ class SourceController extends Controller
         }
     }
 
+    /**
+     * @return JsonResponse
+     */
     public function rename(Request $request, $sourceId)
     {
         // Validate the new name
@@ -394,6 +423,9 @@ class SourceController extends Controller
         }
     }
 
+    /**
+     * @return string
+     */
     public function convertTxtToHtml($txtFilePath, $projectId)
     {
         // Define the output directory for the HTML file using the projectId
@@ -433,6 +465,9 @@ class SourceController extends Controller
         return $htmlContent;
     }
 
+    /**
+     * @return JsonResponse
+     */
     public function destroy($id)
     {
 
@@ -573,7 +608,7 @@ class SourceController extends Controller
         }
 
         if ($jobRef->text_value == 'failed') {
-            TranscriptionJob::dispatch($source->upload_path, $projectId->id, $source->id)->onQueue('conversion');
+            TranscriptionJob::dispatch($source->upload_path, $project->id, $source->id)->onQueue('conversion');
 
             return response()->json(['message' => 'Conversion restarted', 'status' => 'restarted']);
         } else {

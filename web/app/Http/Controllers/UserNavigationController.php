@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Events\UserNavigated;
-use App\Http\Controller\Log;
 use App\Mail\UserFeedback;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +11,11 @@ use Illuminate\Support\Facades\RateLimiter;
 
 class UserNavigationController extends Controller
 {
+    /**
+     * Update the location of the user by sending an event
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(Request $request)
     {
         // Validate the request data
@@ -25,6 +29,13 @@ class UserNavigationController extends Controller
         return response()->json(['status' => 'success']);
     }
 
+    /**
+     * submit feedback to the team
+     *
+     * @return \Illuminate\Http\JsonResponse
+     *
+     * @throws \Exception
+     */
     public function feedback(Request $request)
     {
         $data = $request->validate([
@@ -55,7 +66,6 @@ class UserNavigationController extends Controller
         );
 
         if (! $executed) {
-            //Log::error('RateLimiter exceeded by userId '.$userId);
             throw new \Exception('Too many messages sent!');
         }
 
