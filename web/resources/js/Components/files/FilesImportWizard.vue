@@ -48,7 +48,7 @@ const uploadFiles = async () => {
 
     <WizardStep name="localUpload" title="Add your files">
       <Dropzone
-        accept=".txt"
+        accept=".txt,.rtf,audio/*"
         @files-dropped="addFiles"
         class="w-full min-h-20 border-dashed border-4 rounded-lg border-foreground/60 flex items-center justify-center text-foreground/60 text-sm"
       >
@@ -57,7 +57,7 @@ const uploadFiles = async () => {
             label="Select files"
             class="my-1"
             :multiple="true"
-            accept=".txt"
+            accept=".txt,.rtf,audio/*"
             @file-added="addFiles"
           >
             <span class="cursor-pointer hover:underline"
