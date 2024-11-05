@@ -14,7 +14,7 @@ export class AbstractStore {
      * @type {Reactive<{}>}
      */
     this.entries = reactive({});
-    this.size = ref(0)
+    this.size = ref(0);
     /**
      * Namespace key for unique identification
      * @type {string}
@@ -67,7 +67,7 @@ export class AbstractStore {
       // skip existing docs / avoid duplicates
       if (!(doc.id in this.entries)) {
         document[doc.id] = doc;
-        this.size.value++
+        this.size.value++;
       }
     });
     Object.assign(this.entries, document);
@@ -104,7 +104,7 @@ export class AbstractStore {
       const entry = this.entries[id];
       docs.push(entry);
       delete this.entries[id];
-      this.size.value--
+      this.size.value--;
     });
     this.observable.run('removed', docs);
     this.observable.run('changed', { type: 'removed', docs });

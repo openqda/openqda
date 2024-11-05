@@ -25,9 +25,9 @@
     ></div>
   </div>
   <div class="absolute flex items-end bottom-10 right-16" style="z-index: 999">
-      <span class="text-foreground/60 w-4 h-4 animate-spin" v-show="updating">
-          <ArrowPathIcon class="w-4 h-4" />
-      </span>
+    <span class="text-foreground/60 w-4 h-4 animate-spin" v-show="updating">
+      <ArrowPathIcon class="w-4 h-4" />
+    </span>
     <span
       id="selection-hash"
       class="w-6 h-6 text-center text-xs ArrowPathIcon border-0 bg-surface p-2 float-end"
@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import Quill from 'quill';
 import QuillCursors from 'quill-cursors';
 import { formats, redoChange, undoChange } from '../../editor/EditorConfig.js';
@@ -55,13 +55,12 @@ import { useRange } from './useRange.js';
 import { useSelections } from './selections/useSelections.js';
 import { useCodingEditor } from './useCodingEditor.js';
 import { useContextMenu } from './contextMenu/useContextMenu.js';
-import { ArrowPathIcon } from '@heroicons/vue/20/solid'
+import { ArrowPathIcon } from '@heroicons/vue/20/solid';
 
 let quillInstance;
-const Delta = Quill.import('delta');
 const editorContent = ref('');
 const contextMenu = useContextMenu();
-const { selected, select, markToDelete } = useSelections();
+const { selected, markToDelete } = useSelections();
 const { observe, overlaps, selections, selectionsByIndex } = useCodes();
 const { prevRange, setRange } = useRange();
 const { setInstance, dispose } = useCodingEditor();
@@ -70,7 +69,6 @@ Quill.register('modules/selectionHash', SelectionHash, true);
 Quill.register('modules/cursors', QuillCursors);
 Quill.register('modules/highlight', SelectionHighlightBG);
 
-const emit = defineEmits(['code-assigned']);
 const props = defineProps({
   project: Object,
   projectId: String,
@@ -120,11 +118,9 @@ onMounted(() => {
   /*
    * Update selected range to shared state
    */
-  quillInstance.on('selection-change', data => {
-      const text = data
-        ? quillInstance.getText(data)
-        : ''
-      setRange(data, text)
+  quillInstance.on('selection-change', (data) => {
+    const text = data ? quillInstance.getText(data) : '';
+    setRange(data, text);
   });
   const hl = quillInstance.getModule('highlight');
 
@@ -161,33 +157,37 @@ onMounted(() => {
     // }
   });
   disposables.add(disposeSelectionObserver);
-window.quill = quillInstance
+  window.quill = quillInstance;
 
-    watch(selections, entries => {
-        updating.value = true
+  watch(
+    selections,
+    (entries) => {
+      updating.value = true;
+      requestAnimationFrame(() => {
+        entries.forEach((selection) => {
+          hl.highlight({
+            id: selection.code.id,
+            color: selection.code.color,
+            title: selection.code.name,
+            start: selection.start,
+            length: selection.length,
+            active: selection.code.active,
+          });
+        });
         requestAnimationFrame(() => {
-            entries.forEach((selection) => {
-                hl.highlight({
-                    id: selection.code.id,
-                    color: selection.code.color,
-                    title: selection.code.name,
-                    start: selection.start,
-                    length: selection.length,
-                    active: selection.code.active,
-                });
-            });
-            requestAnimationFrame(() => {
-                updating.value = false
-            })
-        })
-    }, { deep: true, immediate: true })
+          updating.value = false;
+        });
+      });
+    },
+    { deep: true, immediate: true }
+  );
 
   watch(overlaps, (entries) => {
     entries.forEach((entry) => hl.overlap(entry));
   });
 });
 
-const updating = ref(false)
+const updating = ref(false);
 
 onUnmounted(() => {
   if (quillInstance) {
@@ -205,7 +205,7 @@ watch(
   }
 );
 
-watch(selected, async ({ code, parent }) => {
+watch(selected, async ({ code }) => {
   // skip if no usable selection was made
   if (!prevRange.value?.length || !code?.id) {
     return;
@@ -274,27 +274,31 @@ const showContextMenu = (event) => {
   const selectedArea = quillInstance.getSelection();
   const hasSelection = selectedArea?.length;
   const linkedCodeId = event.target.getAttribute('data-code-id');
-  const currentSelections = selectionsByIndex(selectedArea?.index, linkedCodeId);
+  const currentSelections = selectionsByIndex(
+    selectedArea?.index,
+    linkedCodeId
+  );
 
   if (!hasSelection && !currentSelections.length) {
     return;
   }
   markToDelete(currentSelections);
 
-  let lowest = selectedArea.index
-  let highest = selectedArea.index + selectedArea.length
+  let lowest = selectedArea.index;
+  let highest = selectedArea.index + selectedArea.length;
 
   if (currentSelections.length) {
-      currentSelections.forEach(selection => {
-          if (selection.start < lowest) lowest = selection.start
-          if (selection.end > highest) highest = selection.end
-      })
+    currentSelections.forEach((selection) => {
+      if (selection.start < lowest) lowest = selection.start;
+      if (selection.end > highest) highest = selection.end;
+    });
   }
 
   const hm = quillInstance.getModule('highlight');
-  hm.current({ index: lowest, length: highest - lowest })
+  hm.current({ index: lowest, length: highest - lowest });
 
-  const rect = quillInstance.getBounds(lowest, highest - lowest);
+  // use bounding rect to safely place the menu
+    // const rect = quillInstance.getBounds(lowest, highest - lowest);
 
   contextMenu.open();
   const contextMenuElement = document.getElementById('contextMenu');
@@ -316,9 +320,9 @@ const showContextMenu = (event) => {
 };
 
 const contextMenuClosed = () => {
-    const hm = quillInstance.getModule('highlight');
-    hm.current()
-}
+  const hm = quillInstance.getModule('highlight');
+  hm.current();
+};
 
 defineExpose({ editorContent });
 </script>

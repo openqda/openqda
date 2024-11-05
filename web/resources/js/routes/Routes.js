@@ -73,10 +73,7 @@ Routes.preparation = {
   name: 'preparation',
   label: 'Preparation',
   path: (projectId) => projectId && href(Routes.preparation, projectId),
-  active: (name) =>
-      name === 'source.index' ||
-      name.startsWith('preparation')
-  ,
+  active: (name) => name === 'source.index' || name.startsWith('preparation'),
 };
 
 /**
@@ -108,12 +105,12 @@ Routes.analysis = {
  * @type {Route}
  */
 Routes.profile = {
-    key: 'profile.show',
-    name: 'profile',
-    label: 'Profile',
-    path: (projectId) => {
-        const base = href(Routes.profile)
-        return projectId ? `${base}?projectId=${projectId}` : base
-    },
-    active: (name) => name.startsWith('profile'),
-}
+  key: 'profile.show',
+  name: 'profile',
+  label: 'Profile',
+  path: (projectId) => {
+    const base = href(Routes.profile);
+    return projectId ? `${base}?projectId=${projectId}` : base;
+  },
+  active: (name) => name.startsWith('profile'),
+};

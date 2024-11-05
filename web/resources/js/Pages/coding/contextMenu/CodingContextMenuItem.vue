@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { ChevronRightIcon, CheckIcon } from '@heroicons/vue/24/solid/index.js';
+import { ChevronRightIcon } from '@heroicons/vue/24/solid/index.js';
 import { computed, ref } from 'vue';
 import { cn } from '../../../utils/css/cn';
-import Button from '../../../Components/interactive/Button.vue';
-import { changeRGBOpacity } from '../../../utils/color/changeRGBOpacity'
-import { useSelections } from '../selections/useSelections'
-import {useContextMenu} from "./useContextMenu";
+import { changeRGBOpacity } from '../../../utils/color/changeRGBOpacity';
+import { useSelections } from '../selections/useSelections';
+import { useContextMenu } from './useContextMenu';
 
 const { close } = useContextMenu();
 const { select, reassignCode } = useSelections();
@@ -21,15 +20,14 @@ const children = computed(
 );
 const open = ref(false);
 const handle = async ({ code, parent }) => {
-    if (props.reassign) {
-        await reassignCode({  selection: props.reassign, code })
-    }
-    else {
-        await select({ code, parent })
-    }
+  if (props.reassign) {
+    await reassignCode({ selection: props.reassign, code });
+  } else {
+    await select({ code, parent });
+  }
 
-    close()
-}
+  close();
+};
 </script>
 
 <template>

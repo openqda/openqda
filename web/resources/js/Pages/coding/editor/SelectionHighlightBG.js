@@ -1,15 +1,21 @@
 import Quill from 'quill';
-import { changeRGBOpacity } from '../../../utils/color/changeRGBOpacity.js'
+import { changeRGBOpacity } from '../../../utils/color/changeRGBOpacity.js';
 
 const Parchment = Quill.import('parchment');
-const { Registry, Attributor, Scope } = Parchment
-const IdAttributor = new Attributor('id', 'data-code-id', { scope: Scope.INLINE })
-const TitleAttributor = new Attributor('title', 'title', { scope: Scope.INLINE })
-const ClassAttributor = new Attributor('class', 'class', { scope: Scope.INLINE })
+const { Attributor, Scope } = Parchment;
+const IdAttributor = new Attributor('id', 'data-code-id', {
+  scope: Scope.INLINE,
+});
+const TitleAttributor = new Attributor('title', 'title', {
+  scope: Scope.INLINE,
+});
+const ClassAttributor = new Attributor('class', 'class', {
+  scope: Scope.INLINE,
+});
 
-Quill.register(IdAttributor, true)
-Quill.register(TitleAttributor, true)
-Quill.register(ClassAttributor, true)
+Quill.register(IdAttributor, true);
+Quill.register(TitleAttributor, true);
+Quill.register(ClassAttributor, true);
 const Module = Quill.import('core/module');
 
 export class SelectionHighlightBG extends Module {
@@ -22,18 +28,18 @@ export class SelectionHighlightBG extends Module {
   }
 
   current(range) {
-    const { index, length } = range ?? this.active
-    const show = !!range
+    const { index, length } = range ?? this.active;
+    const show = !!range;
     if (show) {
-        this.active.index = index
-        this.active.length = length
+      this.active.index = index;
+      this.active.length = length;
     }
     this.quill.formatText(index, length, {
       class: show ? 'border-b border-t border-secondary shadow-xl' : '',
     });
   }
 
-  overlap({ ids, start, length }) {
+  overlap({ start, length }) {
     this.quill.formatText(start, length, {
       class: 'border-b border-2 border-background',
     });
@@ -49,14 +55,15 @@ export class SelectionHighlightBG extends Module {
       const background = changeRGBOpacity(color, opacity);
       this.quill.formatText(start, length, {
         background,
-        class: 'my-0.5 py-0.5 border-b border-t border-transparent hover:border-secondary hover:shadow-xl',
+        class:
+          'my-0.5 py-0.5 border-b border-t border-transparent hover:border-secondary hover:shadow-xl',
         title: selectionTitle,
         id,
       });
     }
   }
 
-  remove({ id, start, end }) {
+  remove({ start, end }) {
     const length = end - start;
     this.quill.formatText(start, length, {
       background: null,

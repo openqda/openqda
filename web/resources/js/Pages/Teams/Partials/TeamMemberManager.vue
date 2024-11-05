@@ -14,7 +14,7 @@ import SecondaryButton from '../../../Components/SecondaryButton.vue';
 import SectionBorder from '../../../Components/SectionBorder.vue';
 import InputField from '../../../form/InputField.vue';
 import ProfileImage from '../../../Components/user/ProfileImage.vue';
-import Button from '../../../Components/interactive/Button.vue'
+import Button from '../../../Components/interactive/Button.vue';
 
 const props = defineProps({
   team: Object,
@@ -158,13 +158,10 @@ onMounted(() => {
       <ActionSection>
         <!-- Team Member List -->
         <template #content>
-            <div class="flex justify-between align-baseline my-6">
-                <InputLabel value="Team Members" class="mb-3" />
-                <Button
-                    variant="outline-confirmative">
-                    Add
-                </Button>
-            </div>
+          <div class="flex justify-between align-baseline my-6">
+            <InputLabel value="Team Members" class="mb-3" />
+            <Button variant="outline-confirmative"> Add </Button>
+          </div>
           <div class="space-y-6">
             <div
               v-for="user in team.users"
@@ -198,7 +195,9 @@ onMounted(() => {
                 </Button>
                 <!-- Manage Team Member Role -->
                 <Button
-                  v-if="userPermissions.canAddTeamMembers && availableRoles.length"
+                  v-if="
+                    userPermissions.canAddTeamMembers && availableRoles.length
+                  "
                   variant="outline"
                   @click="manageRole(user)"
                 >
@@ -236,7 +235,11 @@ onMounted(() => {
       </ActionSection>
     </div>
 
-    <div v-if="team.team_invitations.length > 0 && userPermissions.canAddTeamMembers">
+    <div
+      v-if="
+        team.team_invitations.length > 0 && userPermissions.canAddTeamMembers
+      "
+    >
       <!-- Team Member Invitations -->
       <ActionSection class="mt-10 sm:mt-0">
         <template #title> Pending Team Invitations</template>
@@ -469,7 +472,7 @@ onMounted(() => {
           </ActionMessage>
 
           <Button
-              v-if="availableRoles?.length > 1"
+            v-if="availableRoles?.length > 1"
             :class="{ 'opacity-25': addTeamMemberForm.processing }"
             :disabled="addTeamMemberForm.processing"
           >

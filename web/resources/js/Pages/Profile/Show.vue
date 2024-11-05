@@ -6,9 +6,9 @@ import UpdateProfileInformationForm from '../../Pages/Profile/Partials/UpdatePro
 import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout.vue';
 import InputLabel from '../../form/InputLabel.vue';
 import ThemeSwitch from '../../theme/ThemeSwitch.vue';
-import Button from '../../Components/interactive/Button.vue'
+import Button from '../../Components/interactive/Button.vue';
 import { router, useForm } from '@inertiajs/vue3';
-import BaseContainer from '../../Layouts/BaseContainer.vue'
+import BaseContainer from '../../Layouts/BaseContainer.vue';
 // import '../../Pages/Profile/Partials/TwoFactorAuthenticationForm.vue';
 
 defineProps({
@@ -16,21 +16,23 @@ defineProps({
   sessions: Array,
 });
 
-const form = useForm({})
+const form = useForm({});
 
-function onLogout ()  { router.post(route('logout')) }
+function onLogout() {
+  router.post(route('logout'));
+}
 </script>
 
 <template>
   <AuthenticatedLayout :menu="false">
     <template #main>
       <BaseContainer class="w-full lg:w-3/4 xl:w-1/2 p-1 lg:p-3">
-              <form @submit.prevent="logout">
+        <form @submit.prevent="logout">
           <div class="flex justify-between py-4 border-b border-foreground/10">
-              <InputLabel> Logout </InputLabel>
-              <Button variant="secondary" :onclick="onLogout">Logout</Button>
+            <InputLabel> Logout </InputLabel>
+            <Button variant="secondary" :onclick="onLogout">Logout</Button>
           </div>
-              </form>
+        </form>
         <div class="flex justify-between py-4 border-b border-foreground/10">
           <InputLabel> Theme </InputLabel>
           <ThemeSwitch />
@@ -56,7 +58,7 @@ function onLogout ()  { router.post(route('logout')) }
           <DeleteUserForm class="mt-10 sm:mt-0" />
         </template>
 
-          <!-- LOGOUT Button -->
+        <!-- LOGOUT Button -->
       </BaseContainer>
     </template>
   </AuthenticatedLayout>

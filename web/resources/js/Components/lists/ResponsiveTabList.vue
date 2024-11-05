@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { cn } from '../../utils/css/cn';
-import {onMounted, ref} from 'vue';
+import { onMounted, ref } from 'vue';
 /*
  | This component renders a horizontal tab-list (nav tabs)
  | on md or larger screens or a native select component on
@@ -22,56 +22,58 @@ const setCurrent = (value) => {
 </script>
 
 <template>
-    <div>
-  <div class="sm:hidden">
-    <label for="tabs" class="sr-only">Select a tab</label>
-    <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
-    <select
-      id="tabs"
-      name="tabs"
-      class="block w-full rounded-md focus:border-secondary focus:ring-secondary bg-surface text-foreground"
-      @change="e => setCurrent(e.target.value)"
-    >
-      <option
-        v-for="tab in props.tabs"
-        :key="tab.value"
-        :value="tab.value"
-        :selected="current === tab.value"
+  <div>
+    <div class="sm:hidden">
+      <label for="tabs" class="sr-only">Select a tab</label>
+      <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
+      <select
+        id="tabs"
+        name="tabs"
+        class="block w-full rounded-md focus:border-secondary focus:ring-secondary bg-surface text-foreground"
+        @change="(e) => setCurrent(e.target.value)"
       >
-        {{ tab.label }}
-      </option>
-    </select>
-  </div>
-  <div class="hidden sm:block">
-    <div class="">
-      <nav
-        class="flex justify-start -mb-px space-x-8 tracking-wider font-semibold"
-        aria-label="Tabs"
-      >
-        <a
+        <option
           v-for="tab in props.tabs"
           :key="tab.value"
-          :href="tab.href ?? ''"
-          @click="(e) => {
-              setCurrent(tab.value)
-              if (!tab.href) e.preventDefault()
-          }"
-          :class="
-            cn(
-              'group inline-flex items-center justify-center border-b-2 py-1 px-1 text-sm',
-              current === tab.value
-                ? 'border-secondary text-secondary'
-                : 'border-transparent text-foreground/60'
-            )
-          "
-          :aria-current="current === tab.value ? 'page' : undefined"
+          :value="tab.value"
+          :selected="current === tab.value"
         >
-          <span>{{ tab.label }}</span>
-        </a>
-      </nav>
+          {{ tab.label }}
+        </option>
+      </select>
+    </div>
+    <div class="hidden sm:block">
+      <div class="">
+        <nav
+          class="flex justify-start -mb-px space-x-8 tracking-wider font-semibold"
+          aria-label="Tabs"
+        >
+          <a
+            v-for="tab in props.tabs"
+            :key="tab.value"
+            :href="tab.href ?? ''"
+            @click="
+              (e) => {
+                setCurrent(tab.value);
+                if (!tab.href) e.preventDefault();
+              }
+            "
+            :class="
+              cn(
+                'group inline-flex items-center justify-center border-b-2 py-1 px-1 text-sm',
+                current === tab.value
+                  ? 'border-secondary text-secondary'
+                  : 'border-transparent text-foreground/60'
+              )
+            "
+            :aria-current="current === tab.value ? 'page' : undefined"
+          >
+            <span>{{ tab.label }}</span>
+          </a>
+        </nav>
+      </div>
     </div>
   </div>
-    </div>
 </template>
 
 <style scoped></style>

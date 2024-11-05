@@ -11,7 +11,7 @@ import Headline2 from '../../Components/layout/Headline2.vue';
 import Footer from '../../Layouts/Footer.vue';
 import 'altcha';
 import Button from '../../Components/interactive/Button.vue';
-import Headline1 from '../../Components/layout/Headline1.vue'
+import Headline1 from '../../Components/layout/Headline1.vue';
 
 const form = useForm({
   name: '',
@@ -41,7 +41,7 @@ const submit = () => {
     </Headline1>
 
     <form @submit.prevent="submit" class="space-y-10">
-      <div >
+      <div>
         <InputLabel
           for="name"
           value="Name"
@@ -60,7 +60,7 @@ const submit = () => {
         <InputError class="mt-2" :message="form.errors.name" />
       </div>
 
-      <div >
+      <div>
         <InputLabel
           for="email"
           value="Email"
@@ -96,7 +96,7 @@ const submit = () => {
         <InputError class="mt-2" :message="form.errors.password" />
       </div>
 
-      <div >
+      <div>
         <InputLabel
           for="password_confirmation"
           value="Confirm Password"

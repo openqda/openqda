@@ -9,7 +9,6 @@ import {
   Dialog,
   DialogPanel,
   DialogTitle,
-  DialogDescription,
   TransitionRoot,
   TransitionChild,
 } from '@headlessui/vue';
@@ -64,8 +63,10 @@ defineProps({
                       as="h3"
                       class="text-base font-semibold leading-6 text-foreground flex justify-between items-center"
                     >
-                        <span class="flex-grow">{{ title }}<slot name="title" /></span>
-                        <span><slot name="close" /></span>
+                      <span class="flex-grow"
+                        >{{ title }}<slot name="title"
+                      /></span>
+                      <span><slot name="close" /></span>
                     </DialogTitle>
                     <div class="mt-2">
                       <slot name="body"></slot>

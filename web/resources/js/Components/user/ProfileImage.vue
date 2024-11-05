@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { UserIcon } from '@heroicons/vue/24/outline/index.js';
 import { cn } from '../../utils/css/cn.js';
-import { getUserColor } from './getUserColor.js'
+import { getUserColor } from './getUserColor.js';
 
 const props = defineProps({
   src: {
@@ -25,7 +25,7 @@ const props = defineProps({
 });
 
 const char = (props.name ?? '').charAt(0).toUpperCase();
-const showImage = ref(!!props.src)
+const showImage = ref(!!props.src);
 const hue = ref(getUserColor(props.email) || getUserColor(props.name));
 </script>
 
@@ -37,12 +37,12 @@ const hue = ref(getUserColor(props.email) || getUserColor(props.name));
     :alt="alt"
     @error="showImage = false"
   />
-    <a href="" v-else :title="props.name">
-  <UserIcon
-    :class="cn(`border border-inherit rounded-full w-7 h-7 p-1`, props.class)"
-    :style="`background-color:hsl(${hue},67%,52%);border-color:hsl(${hue},77%,62%);fill:hsl(${hue},67%,52%);stroke:hsl(${hue},77%,62%);`"
-  />
-        </a>
+  <a href="" v-else :title="props.name">
+    <UserIcon
+      :class="cn(`border border-inherit rounded-full w-7 h-7 p-1`, props.class)"
+      :style="`background-color:hsl(${hue},67%,52%);border-color:hsl(${hue},77%,62%);fill:hsl(${hue},67%,52%);stroke:hsl(${hue},77%,62%);`"
+    />
+  </a>
 </template>
 
 <style scoped></style>

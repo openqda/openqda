@@ -11,12 +11,12 @@ export const useContextMenu = () => {
   const open = (codeId) => {
     state.openWith = codeId;
     state.isOpen = true;
-    return true
+    return true;
   };
 
   const close = () => {
-      state.isOpen = false
-      return true
+    state.isOpen = false;
+    return true;
   };
 
   return {

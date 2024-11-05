@@ -20,7 +20,10 @@ const hasActions = computed(() => !!useSlots().actions);
     <div class="mt-5 md:mt-0">
       <form @submit.prevent="$emit('submitted')">
         <slot name="form" />
-        <div v-if="hasActions" class="flex items-center justify-end py-3 px-0 sm:px-6">
+        <div
+          v-if="hasActions"
+          class="flex items-center justify-end py-3 px-0 sm:px-6"
+        >
           <slot name="actions" />
         </div>
       </form>

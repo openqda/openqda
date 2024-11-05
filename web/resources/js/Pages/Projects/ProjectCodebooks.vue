@@ -2,104 +2,103 @@
 import Codebook from '../../Components/project/Codebook.vue';
 import NewCodebookForm from '../../Components/project/NewCodebookForm.vue';
 import Headline2 from '../../Components/layout/Headline2.vue';
-import {request} from "../../utils/http/BackendRequest";
-import {flashMessage} from "../../Components/notification/flashMessage";
-import {router} from "@inertiajs/vue3";
-import {computed, inject, ref} from "vue";
+import { request } from '../../utils/http/BackendRequest';
+import { flashMessage } from '../../Components/notification/flashMessage';
+import { router } from '@inertiajs/vue3';
+import { computed, inject, ref } from 'vue';
 
 // File handling for importing XML
 const selectedFile = ref(null);
-const project = inject('project')
-const userCodebooks = inject('userCodebooks')
-const publicCodebooks = inject('publicCodebooks')
+const project = inject('project');
+const userCodebooks = inject('userCodebooks');
+const publicCodebooks = inject('publicCodebooks');
 const codebooks = ref(project.codebooks);
 const searchQueryPublicCodebooks = ref('');
 
 const filteredPublicCodebooks = computed(() => {
-    return publicCodebooks.filter((codebook) =>
-        codebook.name
-            .toLowerCase()
-            .includes(searchQueryPublicCodebooks.value.toLowerCase())
-    );
+  return publicCodebooks.filter((codebook) =>
+    codebook.name
+      .toLowerCase()
+      .includes(searchQueryPublicCodebooks.value.toLowerCase())
+  );
 });
 
 const onCodebookCreated = (newCodebook) => {
-    // Add the new codebook to the project's codebooks array
-    codebooks.value.push(newCodebook);
+  // Add the new codebook to the project's codebooks array
+  codebooks.value.push(newCodebook);
 };
 
 const deleteCodebookFromArray = (codebook) => {
-    const index = codebooks.value.findIndex((cb) => cb.id === codebook.id);
-    if (index !== -1) {
-        codebooks.value.splice(index, 1);
-    }
+  const index = codebooks.value.findIndex((cb) => cb.id === codebook.id);
+  if (index !== -1) {
+    codebooks.value.splice(index, 1);
+  }
 };
 
 const importCodebook = async (codebook) => {
-    const { response, error } = await request({
-        url: `/projects/${project.id}/codebooks`,
-        type: 'post',
-        body: {
-            name: codebook.name,
-            description: codebook.description,
-            sharedWithPublic: false,
-            sharedWithTeams: false,
-            import: true,
-            id: codebook.id,
-        },
-    });
-    if (error) {
-        console.error('Failed to import codebook:', error);
-        flashMessage(response.data.message, { type: 'error' });
-    } else {
-        flashMessage(response.data.message);
-        router.get(
-            route('project.show', { project: project.id, codebookstab: true })
-        );
-    }
+  const { response, error } = await request({
+    url: `/projects/${project.id}/codebooks`,
+    type: 'post',
+    body: {
+      name: codebook.name,
+      description: codebook.description,
+      sharedWithPublic: false,
+      sharedWithTeams: false,
+      import: true,
+      id: codebook.id,
+    },
+  });
+  if (error) {
+    console.error('Failed to import codebook:', error);
+    flashMessage(response.data.message, { type: 'error' });
+  } else {
+    flashMessage(response.data.message);
+    router.get(
+      route('project.show', { project: project.id, codebookstab: true })
+    );
+  }
 };
 
 const handleFileUpload = (event) => {
-    selectedFile.value = event.target.files[0];
+  selectedFile.value = event.target.files[0];
 };
 
 const importXmlFile = async () => {
-    if (!selectedFile.value) {
-        alert('Please select a file first.');
-        return;
-    }
-    y;
-    const formData = new FormData();
-    formData.append('file', selectedFile.value);
-    formData.append('project_id', project.id);
+  if (!selectedFile.value) {
+    alert('Please select a file first.');
+    return;
+  }
+  y;
+  const formData = new FormData();
+  formData.append('file', selectedFile.value);
+  formData.append('project_id', project.id);
 
-    const { response, error } = await request({
-        url: '/codebook/import',
-        body: formData,
-        type: 'post',
-        headers: { 'Content-Type': 'multipart/form-data' },
-    });
+  const { response, error } = await request({
+    url: '/codebook/import',
+    body: formData,
+    type: 'post',
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
 
-    if (error) {
-        console.error('Failed to import XML:', error);
-        const message = response?.data?.error
-            ? response.data.error
-            : 'Failed to import XML. An unexpected error occurred.';
-        flashMessage(message, { type: 'error' });
-    } else {
-        flashMessage(response.data.message);
-        setTimeout(() => {
-            // Refresh the page or update the relevant data
-            router.get(
-                route('project.show', {
-                    project: project.id,
-                    codebookstab: true,
-                })
-            );
-        }, 1000);
-    }
+  if (error) {
+    console.error('Failed to import XML:', error);
+    const message = response?.data?.error
+      ? response.data.error
+      : 'Failed to import XML. An unexpected error occurred.';
+    flashMessage(message, { type: 'error' });
+  } else {
+    flashMessage(response.data.message);
+    setTimeout(() => {
+      // Refresh the page or update the relevant data
+      router.get(
+        route('project.show', {
+          project: project.id,
+          codebookstab: true,
+        })
+      );
+    }, 1000);
+  }
 };
-
 </script>
 
 <template>

@@ -4,11 +4,11 @@
  | by given schema.
  *--------------------------------------------------*/
 import { onMounted, ref } from 'vue';
-import { cn } from '../utils/css/cn.js'
+import { cn } from '../utils/css/cn.js';
 import { transformSchema } from './transformSchema.js';
 import { initForms } from './initForms.js';
 import InputError from '../../../vendor/laravel/jetstream/stubs/inertia/resources/js/Components/InputError.vue';
-import Button from '../Components/interactive/Button.vue'
+import Button from '../Components/interactive/Button.vue';
 
 // make sure we have registered all elements
 initForms();
@@ -20,18 +20,18 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-    autofocus: {
-        type: Boolean,
-        default: true,
-    },
+  autofocus: {
+    type: Boolean,
+    default: true,
+  },
   showCancel: {
     type: Boolean,
     default: true,
   },
-    class: {
-      type: String,
-        required: false,
-    }
+  class: {
+    type: String,
+    required: false,
+  },
 });
 const emit = defineEmits(['cancel', 'submit']);
 const fields = ref(null);
@@ -48,14 +48,14 @@ const validateForm = (e) => {
   e.preventDefault();
   e.stopPropagation();
   const formData = new FormData(e.target);
-  console.debug(formData)
+  console.debug(formData);
   const data = [...formData.entries()];
   const validation = {};
   let isValid = true;
   data.forEach(([key, value]) => {
-    const schema = fields.value.find(s => s.data.name === key)
-      const result = schema.data.validate(value)
-    validation[key] = result
+    const schema = fields.value.find((s) => s.data.name === key);
+    const result = schema.data.validate(value);
+    validation[key] = result;
     isValid = result.valid;
   });
 
@@ -66,14 +66,19 @@ const validateForm = (e) => {
     return false;
   }
 
-  emit('submit', Object.fromEntries(data))
+  emit('submit', Object.fromEntries(data));
 };
 </script>
 
 <template>
-  <form :id="props.id" :class="cn('bg-transparent', $props.class)" @submit="validateForm">
+  <form
+    :id="props.id"
+    :class="cn('bg-transparent', $props.class)"
+    @submit="validateForm"
+  >
     <component
-      v-for="{ component, data } in fields"
+      v-for="({ component, data }, index) in fields"
+      :key="index"
       :is="component"
       :type="data.type"
       :label="data.label"

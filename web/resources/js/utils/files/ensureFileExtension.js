@@ -5,5 +5,5 @@
  * @return {string}
  */
 export const ensureFileExtension = (name, ending) => {
-    return name.endsWith(`.${ending}`) ? name : `${name}.${ending}`;
-}
+  return name.endsWith(`.${ending}`) ? name : `${name}.${ending}`;
+};

@@ -1,5 +1,5 @@
-import { clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 /**
  * Common helper to easily merge tailwind classes.
@@ -7,5 +7,5 @@ import { twMerge } from "tailwind-merge"
  * @return {string}
  */
 export const cn = (...inputs) => {
-    return twMerge(clsx(inputs))
-}
+  return twMerge(clsx(inputs));
+};

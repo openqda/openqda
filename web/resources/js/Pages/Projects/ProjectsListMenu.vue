@@ -1,14 +1,19 @@
 <script setup>
 import { Routes } from '../../routes/Routes.js';
 import Button from '../../Components/interactive/Button.vue';
-import { PlusIcon, ChevronDownIcon, UsersIcon, KeyIcon } from '@heroicons/vue/24/outline';
+import {
+  PlusIcon,
+  ChevronDownIcon,
+  UsersIcon,
+  KeyIcon,
+} from '@heroicons/vue/24/outline';
 import { Link } from '@inertiajs/vue3';
 import { useProjects } from './useProjects.js';
 import Dropdown from '../../Components/Dropdown.vue';
 import DropdownLink from '../../Components/DropdownLink.vue';
 import InputField from '../../form/InputField.vue';
 import { cn } from '../../utils/css/cn.js';
-import Headline3 from '../../Components/layout/Headline3.vue'
+import Headline3 from '../../Components/layout/Headline3.vue';
 
 defineEmits(['create-project']);
 
@@ -64,11 +69,7 @@ const {
     </Dropdown>
   </div>
 
-  <InputField
-    type="search"
-    placeholder="Search..."
-    v-model="searchTerm"
-  />
+  <InputField type="search" placeholder="Search..." v-model="searchTerm" />
 
   <ul>
     <li
@@ -86,7 +87,8 @@ const {
         :title="
           currentProject?.id === entry.id
             ? 'Current selected project'
-            : `Open and edit ${entry.name}`"
+            : `Open and edit ${entry.name}`
+        "
       >
         <div class="flex-1">
           <Headline3 class="line-clamp-1">{{ entry.name }}</Headline3>
@@ -94,16 +96,12 @@ const {
             {{ entry.description }}
           </p>
         </div>
-          <span class="self-center" title="Collaborative">
-              <UsersIcon
-                  v-if="entry.isCollaborative"
-                  class="w-4 h-4" />
-          </span>
-          <span class="self-center" title="I own this project">
-              <KeyIcon
-                  v-if="entry.isOwner"
-                  class="w-4 h-4" />
-          </span>
+        <span class="self-center" title="Collaborative">
+          <UsersIcon v-if="entry.isCollaborative" class="w-4 h-4" />
+        </span>
+        <span class="self-center" title="I own this project">
+          <KeyIcon v-if="entry.isOwner" class="w-4 h-4" />
+        </span>
         <div class="text-center w-1/6">
           <div class="text-xs text-foreground/50">date</div>
           <div class="text-sm">

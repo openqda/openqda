@@ -24,15 +24,15 @@ const submitRename = async ({ name }) => {
   });
 
   if (!response.error) {
-    project[type] = name
+    project[type] = name;
   }
 
-  return response
+  return response;
 };
 
 const deleteProject = async () => {
   localStorage.removeItem('text');
-  const path = route('project.destroy', { project: project.id })
+  const path = route('project.destroy', { project: project.id });
   router.delete(path);
 };
 </script>
@@ -44,7 +44,9 @@ const deleteProject = async () => {
       <InputLabel>Project Name</InputLabel>
 
       <div class="flex justify-between items-center">
-        <span class="flex-grow text-foreground/80 tracking-wide pe-4">{{project.name }}</span>
+        <span class="flex-grow text-foreground/80 tracking-wide pe-4">{{
+          project.name
+        }}</span>
         <Button
           variant="outline-secondary"
           @click="
@@ -73,7 +75,9 @@ const deleteProject = async () => {
               project.description ? 'text-foreground/80' : 'text-foreground/40'
             )
           "
-          >{{project.description ?? 'Add a project description (optional)' }}</span
+          >{{
+            project.description ?? 'Add a project description (optional)'
+          }}</span
         >
         <Button
           variant="outline-secondary"

@@ -11,7 +11,7 @@ import SecondaryButton from '../../../Components/SecondaryButton.vue';
 import InputField from '../../../form/InputField.vue';
 import { request } from '../../../utils/http/BackendRequest.js';
 import { flashMessage } from '../../../Components/notification/flashMessage.js';
-import Button from '../../../Components/interactive/Button.vue'
+import Button from '../../../Components/interactive/Button.vue';
 
 const props = defineProps({
   requiresConfirmation: Boolean,

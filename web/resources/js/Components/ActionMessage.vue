@@ -1,9 +1,9 @@
 <script setup>
-import { cn } from '../utils/css/cn.js'
+import { cn } from '../utils/css/cn.js';
 
 const props = defineProps({
   on: Boolean,
-    class: { type: String, required: false}
+  class: { type: String, required: false },
 });
 </script>
 

@@ -4,7 +4,7 @@ import DialogBase from './DialogBase.vue';
 import ActionMessage from '../Components/ActionMessage.vue';
 import AutoForm from '../form/AutoForm.vue';
 import { ref, watch } from 'vue';
-import {asyncTimeout} from "../utils/asyncTimeout";
+import { asyncTimeout } from '../utils/asyncTimeout';
 
 const props = defineProps({
   schema: { type: Object },
@@ -17,60 +17,60 @@ const error = ref(null);
 const complete = ref(false);
 const submitting = ref(false);
 const open = ref(false);
-const schema = ref(null);
+const currentSchema = ref(null);
 watch(
   () => props.schema,
   (newSchema) => newSchema && start(newSchema)
 );
 
 const start = (newSchema) => {
-    schema.value = newSchema
-    open.value = true
+  currentSchema.value = newSchema;
+  open.value = true;
 };
 const submit = async (document) => {
-    error.value = false; // Clear any previous error
-    complete.value = false;
-    submitting.value = true
-    await asyncTimeout(300);
+  error.value = false; // Clear any previous error
+  complete.value = false;
+  submitting.value = true;
+  await asyncTimeout(300);
 
-    let created = null
-    try {
-        created = await props.submit(document);
-    } catch (e) {
-        console.error('Error during form submission:', e);
-        error.value =
-            e.response?.data?.message ??
-            e.message ??
-            'An unknown error occurred while submitting.';
-        created = null
-    } finally {
-        submitting.value = false;
-    }
+  let created = null;
+  try {
+    created = await props.submit(document);
+  } catch (e) {
+    console.error('Error during form submission:', e);
+    error.value =
+      e.response?.data?.message ??
+      e.message ??
+      'An unknown error occurred while submitting.';
+    created = null;
+  } finally {
+    submitting.value = false;
+  }
 
-    if (!created) {
-        if (!error.value) {
-            error.value = 'Create failed due to unknown reasons';
-        }
-        return
-    } else {
-        complete.value = true;
+  if (!created) {
+    if (!error.value) {
+      error.value = 'Create failed due to unknown reasons';
     }
+    return;
+  } else {
+    complete.value = true;
+  }
 
-    if (complete.value) {
-        setTimeout(() => {
-            complete.value = false;
-            open.value = false;
-            submitting.value = false;
-            emit('created', created);
-        }, 300);
-    }
+  if (complete.value) {
+    setTimeout(() => {
+      complete.value = false;
+      open.value = false;
+      submitting.value = false;
+      emit('created', created);
+    }, 300);
+  }
 };
 const cancel = () => {
-    open.value = false;
-    error.value = null;
-    submitting.value = false;
-    complete.value = false;
-    emit('cancelled');
+  open.value = false;
+  error.value = null;
+  submitting.value = false;
+  complete.value = false;
+  emit('cancelled');
 };
 </script>
 
@@ -78,10 +78,10 @@ const cancel = () => {
   <DialogBase :title="props.title ?? 'Rename'" :show="open">
     <template #body>
       <AutoForm
-        v-if="schema"
+        v-if="currentSchema"
         id="create-custom-form"
         :autofocus="true"
-        :schema="schema"
+        :schema="currentSchema"
         @submit="submit"
         class="w-full"
         :show-cancel="false"

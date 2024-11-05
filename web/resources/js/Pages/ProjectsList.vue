@@ -29,12 +29,12 @@ const projectSelected = async () => {};
 <template>
   <AuthenticatedLayout title="Manage Projects" :menu="true">
     <template #menu>
-        <BaseContainer>
-      <ProjectsListMenu
-        @selected="projectSelected"
-        @create-project="() => projectForm(true)"
-      />
-        </BaseContainer>
+      <BaseContainer>
+        <ProjectsListMenu
+          @selected="projectSelected"
+          @create-project="() => projectForm(true)"
+        />
+      </BaseContainer>
     </template>
     <template #main>
       <BaseContainer>
@@ -43,9 +43,12 @@ const projectSelected = async () => {};
           class="w-100 block"
           @cancelled="() => projectForm(false)"
         />
-          <div v-else class="flex items-center justify-center h-full text-foreground/50">
-              <span>Select a project from the list or create a new one</span>
-          </div>
+        <div
+          v-else
+          class="flex items-center justify-center h-full text-foreground/50"
+        >
+          <span>Select a project from the list or create a new one</span>
+        </div>
       </BaseContainer>
     </template>
   </AuthenticatedLayout>

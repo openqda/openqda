@@ -9,10 +9,11 @@
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Blob/Blob
  */
 export const createBlob = (options = {}) => {
-    const data = options.data ??
-        'Llanfair­pwllgwyngyll­gogery­chwyrn­drobwll­llan­tysilio­gogo­goch';
-    // Create a Blob representing an empty file
-    const type = options.type ?? 'text/plain'
-    const endings = options.endings ?? 'transparent'
-    return new Blob([data], { type, endings });
-}
+  const data =
+    options.data ??
+    'Llanfair­pwllgwyngyll­gogery­chwyrn­drobwll­llan­tysilio­gogo­goch';
+  // Create a Blob representing an empty file
+  const type = options.type ?? 'text/plain';
+  const endings = options.endings ?? 'transparent';
+  return new Blob([data], { type, endings });
+};

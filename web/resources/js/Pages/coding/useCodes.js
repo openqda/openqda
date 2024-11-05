@@ -3,26 +3,24 @@ import { computed, reactive } from 'vue';
 import { Codebooks } from './codebooks/Codebooks.js';
 import { Codes } from './codes/Codes.js';
 import { Selections } from './selections/Selections.js';
-import { randomString } from '../../utils/randomString.js';
 
 const state = reactive({
   loaded: false,
 });
 
-const orders = {}
+const orders = {};
 const getOrder = (codebook) => {
-    if (! (codebook in orders)) {
-        orders[codebook] = 0;
-    }
-    return orders[codebook]++;
-}
+  if (!(codebook in orders)) {
+    orders[codebook] = 0;
+  }
+  return orders[codebook]++;
+};
 
 export const useCodes = () => {
   const { allCodes, codebooks, projectId } = usePage().props;
   const codeStore = Codes.by(projectId);
   const codebookStore = Codebooks.by(projectId);
   const selectionStore = Selections.by(projectId);
-  const id = randomString(8);
 
   /**
    * To lazy load codes and codebooks
@@ -41,7 +39,7 @@ export const useCodes = () => {
       codes.forEach((code) => {
         code.active = true;
         code.parent = parent;
-        code.order = getOrder(code.codebook)
+        code.order = getOrder(code.codebook);
 
         // parse selections
         if (code.text?.length) {
@@ -105,7 +103,7 @@ export const useCodes = () => {
     // reactivate codebook, in case it was inactive
     const codebook = codebookStore.entry(code.codebook);
     if (codebook && code.active && !codebook.active) {
-        codebookStore.active(codebook.id, true);
+      codebookStore.active(codebook.id, true);
     }
 
     selectionStore.observable.run('updated', selections);
@@ -113,30 +111,10 @@ export const useCodes = () => {
 
   const selections = computed(() => {
     return [...selectionStore.all()].toSorted((a, b) => a.start - b.start);
-
-    return selections.map((entry) => {
-      const selection = { ...entry };
-      // xxx code duplicates might occur and we
-      // have to be forgiving and support these
-      const type = typeof selection.code;
-      if (type === 'string') {
-        selection.code = codeStore.entry(selection.code);
-      }
-      return selection;
-    });
   });
 
   const overlaps = computed(() => {
-    const selections = [...selectionStore.all()];
-    const entries = [
-      {
-        ids: ['foo', 'bar'],
-        colors: [],
-        start: 400,
-        length: 20,
-      },
-    ];
-    return entries;
+      return []
   });
 
   const selectionsByIndex = (index) => {
@@ -157,7 +135,6 @@ export const useCodes = () => {
     }
   };
 
-  const byCodebook = (cb) => {};
 
   return {
     codes: computedCodes,

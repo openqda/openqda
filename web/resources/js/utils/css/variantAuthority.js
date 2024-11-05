@@ -1,4 +1,4 @@
-import { cva } from 'class-variance-authority'
+import { cva } from 'class-variance-authority';
 
 /**
  * Creates a resolver tailwind classes for a component with a given set of variances.
@@ -7,9 +7,13 @@ import { cva } from 'class-variance-authority'
  * @param defaultVariants
  * @return {(props?: (Props<unknown> | undefined)) => string}
  */
-export const variantAuthority = ({ class: defaultClasses, variants, defaultVariants }) => {
-    if (!variants || !defaultVariants) {
-        return () => defaultClasses
-    }
-    return cva(defaultClasses, { variants, defaultVariants })
-}
+export const variantAuthority = ({
+  class: defaultClasses,
+  variants,
+  defaultVariants,
+}) => {
+  if (!variants || !defaultVariants) {
+    return () => defaultClasses;
+  }
+  return cva(defaultClasses, { variants, defaultVariants });
+};

@@ -18,13 +18,14 @@ export const transformSchema = (value, name) => {
   schema.required = schema.optional !== true || schema.required !== false;
   delete schema.optional;
   schema.formType = getFormType(schema);
-  schema.formElement = FormElements.get(schema.formType) ?? FormElements.default();
+  schema.formElement =
+    FormElements.get(schema.formType) ?? FormElements.default();
   schema.label = getLabel(schema);
   schema.options = getOptions(schema);
-  schema.validate = getValidator(schema)
+  schema.validate = getValidator(schema);
   const data = ((_schema) => {
     const { type, formType, formElement, data, ...rest } = _schema;
-    return { type: formType, ...rest, };
+    return { type: formType, ...rest };
   })(schema);
 
   return {
@@ -89,6 +90,6 @@ const getOptions = ({ formType, options, allowedValues }) => {
   }
 };
 
-const getValidator = (schema) => {
-    return () => ({ valid: true, errors: [] })
-}
+const getValidator = () => {
+  return () => ({ valid: true, errors: [] });
+};

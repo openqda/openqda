@@ -15,9 +15,9 @@ const props = defineProps({
     type: Function,
   },
   emptyAllowed: {
-      type: Boolean,
-      required: false,
-      default: false
+    type: Boolean,
+    required: false,
+    default: false,
   },
   title: { type: String, required: false },
 });
@@ -48,10 +48,10 @@ const submit = async () => {
   error.value = false; // Clear any previous error
   complete.value = false;
 
-  const shouldPassEmpty = props.emptyAllowed || newName.value?.length > 0
+  const shouldPassEmpty = props.emptyAllowed || newName.value?.length > 0;
   if (!shouldPassEmpty) {
-      error.value = 'An empty value is not allowed';
-      return;
+    error.value = 'An empty value is not allowed';
+    return;
   }
 
   if (!shouldPassEmpty || newName.value === props.target.name) {
@@ -134,9 +134,7 @@ const cancel = () => {
             error
           }}</ActionMessage>
         </span>
-        <Button @click="submit" :disabled="submitting">
-            Save
-        </Button>
+        <Button @click="submit" :disabled="submitting"> Save </Button>
       </div>
     </template>
   </DialogBase>

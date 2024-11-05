@@ -40,34 +40,34 @@ Selections.store = async ({ projectId, sourceId, code, text, start, end }) => {
 };
 
 Selections.reassign = async ({ projectId, source, code, selection }) => {
-    const oldCode = selection.code
-    const newCode = code
-    console.debug(oldCode)
-    console.debug(newCode)
-    const selectionId = selection.id
-    const { response, error } = await request({
-        url: `/projects/${projectId}/sources/${source.id}/codes/${newCode.id}/selections/${selectionId}/change-code`,
-        type: 'post',
-        body: {
-            oldCodeId: oldCode.id,
-            newCodeId: newCode.id,
-        },
-    });
-    if (!error && response.status < 400) {
-        Selections.by(projectId).update(selectionId, { code: newCode });
+  const oldCode = selection.code;
+  const newCode = code;
+  console.debug(oldCode);
+  console.debug(newCode);
+  const selectionId = selection.id;
+  const { response, error } = await request({
+    url: `/projects/${projectId}/sources/${source.id}/codes/${newCode.id}/selections/${selectionId}/change-code`,
+    type: 'post',
+    body: {
+      oldCodeId: oldCode.id,
+      newCodeId: newCode.id,
+    },
+  });
+  if (!error && response.status < 400) {
+    Selections.by(projectId).update(selectionId, { code: newCode });
 
-        // remove from old code
-        const index = oldCode.text.findIndex((i) => i.id === selectionId);
-        oldCode.text.splice(index, 1);
+    // remove from old code
+    const index = oldCode.text.findIndex((i) => i.id === selectionId);
+    oldCode.text.splice(index, 1);
 
-        // add to new code
-        if (!newCode.text?.length) {
-            newCode.text = []
-        }
-        newCode.text.push(selection)
+    // add to new code
+    if (!newCode.text?.length) {
+      newCode.text = [];
     }
-    return { response, error };
-}
+    newCode.text.push(selection);
+  }
+  return { response, error };
+};
 
 Selections.delete = async ({ projectId, sourceId, code, selection }) => {
   const codeId = code.id;

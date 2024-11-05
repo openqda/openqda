@@ -122,7 +122,9 @@ const closeModal = () => {
       </div>
 
       <div class="flex items-center mt-5">
-        <Button @click="confirmLogout" variant="outline"> Log Out Other Browser Sessions </Button>
+        <Button @click="confirmLogout" variant="outline">
+          Log Out Other Browser Sessions
+        </Button>
 
         <ActionMessage :on="form.recentlySuccessful" class="ml-3">
           Done.

@@ -6,7 +6,6 @@ import {
 } from '@heroicons/vue/20/solid/index.js';
 import { Routes } from './Routes.js';
 import { UserCircleIcon } from '@heroicons/vue/20/solid';
-import route from '../../../vendor/tightenco/ziggy/src/js/index.js';
 
 /**
  * Single-point-of truth definition for which

@@ -9,7 +9,7 @@ const props = defineProps({
   label: String,
   validation: Object,
 });
-console.debug(atts)
+console.debug(atts);
 </script>
 
 <template>

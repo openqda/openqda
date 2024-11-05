@@ -34,7 +34,7 @@ const state = reactive({
  */
 export const useWebSocketConnection = () => {
   const { connected, connecting, unavailable, failed, status } = toRefs(state);
-  return { connected, connecting, unavailable, failed, status }
+  return { connected, connecting, unavailable, failed, status };
 };
 
 window.Echo.connector.pusher.connection.bind('connecting', (payload) => {
@@ -76,7 +76,7 @@ window.Echo.connector.pusher.connection.bind('failed', (payload) => {
    */
   console.log('failed', payload);
   state.failed = true;
-    state.connecting = false;
+  state.connecting = false;
   state.status = `Failed: ${payload}`;
 });
 

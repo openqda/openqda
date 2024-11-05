@@ -35,7 +35,9 @@
                   leave-from="opacity-100"
                   leave-to="opacity-0"
                 >
-                  <div class="absolute left-full top-0 flex w-12 justify-center pt-5">
+                  <div
+                    class="absolute left-full top-0 flex w-12 justify-center pt-5"
+                  >
                     <button
                       type="button"
                       class="-m-2.5 p-2.5"
@@ -49,7 +51,9 @@
                     </button>
                   </div>
                 </TransitionChild>
-                <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-surface/95 px-6 pb-2 ring-1 ring-white/10 shadow-sm">
+                <div
+                  class="flex grow flex-col gap-y-5 overflow-y-auto bg-surface/95 px-6 pb-2 ring-1 ring-white/10 shadow-sm"
+                >
                   <div class="flex h-16 shrink-0 items-center">
                     <Link
                       :href="Routes.projects.path()"
@@ -96,7 +100,9 @@
       </TransitionRoot>
 
       <!-- Static sidebar for desktop -->
-      <div class="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:block lg:w-20 lg:overflow-y-auto lg:bg-background lg:pb-4">
+      <div
+        class="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-50 lg:block lg:w-20 lg:overflow-y-auto lg:bg-background lg:pb-4"
+      >
         <div class="flex h-16 shrink-0 items-center justify-center">
           <Link
             :href="Routes.projects.path()"
@@ -141,19 +147,28 @@
               </Link>
             </li>
           </ul>
-            <div class="p-3 text-center" :title="`Collaboration: ${websocket.status.value}`">
-                <SignalIcon
-                    :class="cn(
-                        'h-5 w-5 mx-auto',
-                        websocket.connected.value ? 'text-secondary' : 'text-foreground/50')"
-                />
-            </div>
+          <div
+            class="p-3 text-center"
+            :title="`Collaboration: ${websocket.status.value}`"
+          >
+            <SignalIcon
+              :class="
+                cn(
+                  'h-5 w-5 mx-auto',
+                  websocket.connected.value
+                    ? 'text-secondary'
+                    : 'text-foreground/50'
+                )
+              "
+            />
+          </div>
         </nav>
       </div>
 
       <!-- sticky top sidebar for mobile -->
       <div
-        class="sticky top-0 z-40 flex items-center gap-x-6 bg-surface-l dark:bg-surface-d px-4 py-4 shadow-sm sm:px-6 lg:hidden">
+        class="sticky top-0 z-40 flex items-center gap-x-6 bg-surface-l dark:bg-surface-d px-4 py-4 shadow-sm sm:px-6 lg:hidden"
+      >
         <button
           type="button"
           class="-m-2.5 p-2.5 text-foreground/50 lg:hidden"
@@ -180,7 +195,13 @@
           <slot name="menu" />
         </aside>
 
-        <main :class="cn('h-screen overflow-y-auto bg-surface text-surface-foreground flex-grow')">
+        <main
+          :class="
+            cn(
+              'h-screen overflow-y-auto bg-surface text-surface-foreground flex-grow'
+            )
+          "
+        >
           <Transition>
             <slot name="main" />
           </Transition>
@@ -206,22 +227,22 @@ import LayoutContainer from './LayoutContainer.vue';
 import { NavRoutes } from '../routes/NavRoutes.js';
 import { Project } from '../state/Project.js';
 import FlashMessage from '../Components/notification/FlashMessage.vue';
-import { useWebSocketConnection } from '../startup/echo.js'
+import { useWebSocketConnection } from '../startup/echo.js';
 
-const websocket = useWebSocketConnection()
+const websocket = useWebSocketConnection();
 const navigation = ref([]);
 const sidebarOpen = ref(false);
 
 defineProps({
-    title: String,
-    menu: {
-        type: Boolean,
-        required: false,
-    },
-    showFooter: {
-        type: Boolean,
-        required: false,
-    },
+  title: String,
+  menu: {
+    type: Boolean,
+    required: false,
+  },
+  showFooter: {
+    type: Boolean,
+    required: false,
+  },
 });
 
 onMounted(() => {

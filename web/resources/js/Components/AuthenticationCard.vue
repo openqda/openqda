@@ -29,27 +29,27 @@
         <ImageCarousel
           class="self-center"
           :sources="[
-    {
-        img: $page.props.bgtl,
-        name: 'Data Collection',
-        description: 'Data collection description foobar baz',
-    },
-    {
-        img: $page.props.bgbl,
-        name: 'Data Preparation',
-        description: 'Data preparation',
-    },
-    {
-        img: $page.props.bgtr,
-        name: 'Coding',
-        description: 'Coding description foobar baz',
-    },
-    {
-        img: $page.props.bgbr,
-        name: 'Analysis',
-        description: 'Data analysis description foobar baz',
-    },
-]"
+            {
+              img: $page.props.bgtl,
+              name: 'Data Collection',
+              description: 'Data collection description foobar baz',
+            },
+            {
+              img: $page.props.bgbl,
+              name: 'Data Preparation',
+              description: 'Data preparation',
+            },
+            {
+              img: $page.props.bgtr,
+              name: 'Coding',
+              description: 'Coding description foobar baz',
+            },
+            {
+              img: $page.props.bgbr,
+              name: 'Analysis',
+              description: 'Data analysis description foobar baz',
+            },
+          ]"
         />
       </div>
     </div>

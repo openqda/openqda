@@ -18,10 +18,6 @@ const { close, isOpen } = useContextMenu();
 const { codes } = useCodes();
 const { toDelete, deleteSelection } = useSelections();
 const emit = defineEmits(['code-selected', 'code-deleted', 'close']);
-const props = defineProps({
-  visible: Boolean,
-});
-
 const query = ref('');
 const toDeleteSize = ref();
 watch(toDelete, (entries) => {
@@ -55,7 +51,7 @@ const filteredCodes = computed(() => {
   >
     <div v-if="toDeleteSize" class="mb-6 space-y-2">
       <div class="block w-full text-xs font-semibold">Linked selections</div>
-      <div class="text-sm space-y-2" v-for="selection in toDelete">
+      <div class="text-sm space-y-2" v-for="selection in toDelete" :key="selection.id">
         <div class="contents" v-if="reassign ? reassign === selection : true">
           <div class="border-border border-t">
             <div class="flex items-baseline my-2">
@@ -103,7 +99,7 @@ const filteredCodes = computed(() => {
         </div>
       </div>
     </div>
-    <div v-if="!toDeleteSize || reassign">
+    <div v-if="filteredCodes?.length && (!toDeleteSize || reassign)">
       <div class="block w-full text-xs font-semibold">
         {{
           reassign
@@ -120,7 +116,6 @@ const filteredCodes = computed(() => {
       />
       <ul>
         <CodingContextMenuItem
-          v-if="filteredCodes?.length"
           v-for="code in filteredCodes"
           :reassign="reassign"
           :key="code.id"

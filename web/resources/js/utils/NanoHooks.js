@@ -32,16 +32,16 @@ export class Observable {
     return () => n.off(name, fn);
   }
 
-    /**
-     * Unregister a hook by given name and function.
-     * Note that reference check is strict equal,
-     * so it needs to be the exact same function.
-     * If you create dynamic functions a lot, you
-     * may rather use the returned function from `on`
-     * to unregister the given functions.
-     * @param name {string}
-     * @param fn {function}
-     */
+  /**
+   * Unregister a hook by given name and function.
+   * Note that reference check is strict equal,
+   * so it needs to be the exact same function.
+   * If you create dynamic functions a lot, you
+   * may rather use the returned function from `on`
+   * to unregister the given functions.
+   * @param name {string}
+   * @param fn {function}
+   */
   off(name, fn) {
     let a = this.src.get(name);
     let i = a.findIndex((f) => f === fn);
@@ -57,6 +57,6 @@ export class Observable {
    * @param args {...[]=}
    */
   run(name, ...args) {
-    ;(this.src.get(name) ?? []).forEach(fn => fn(...args));
+    (this.src.get(name) ?? []).forEach((fn) => fn(...args));
   }
 }

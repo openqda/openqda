@@ -5,7 +5,7 @@ import FormSection from '../../../Components/FormSection.vue';
 import InputError from '../../../form/InputError.vue';
 import InputLabel from '../../../form/InputLabel.vue';
 import InputField from '../../../form/InputField.vue';
-import Button from '../../../Components/interactive/Button.vue'
+import Button from '../../../Components/interactive/Button.vue';
 
 const props = defineProps(['projectId']);
 const form = useForm({

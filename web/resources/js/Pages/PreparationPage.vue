@@ -1,13 +1,13 @@
 <template>
   <AuthenticatedLayout :menu="true" :showFooter="false" :title="pageTitle">
     <template #menu>
-        <BaseContainer>
-      <FilesManager
-        :initialFile="initialFile"
-        @fileSelected="loadFileIntoEditor($event)"
-        @documentDeleted="onDocumentDeleted"
-      />
-        </BaseContainer>
+      <BaseContainer>
+        <FilesManager
+          :initialFile="initialFile"
+          @fileSelected="loadFileIntoEditor($event)"
+          @documentDeleted="onDocumentDeleted"
+        />
+      </BaseContainer>
     </template>
     <template #main>
       <div ref="rightSide" class="overflow-auto w-full h-full">
@@ -41,13 +41,17 @@
             <template #actions>
               <div class="flex items-center space-x-2 me-2">
                 <Button
-                  v-if="editorSourceRef.CanUnlock && !editorSourceRef.hasSelections"
+                  v-if="
+                    editorSourceRef.CanUnlock && !editorSourceRef.hasSelections
+                  "
                   variant="outline-secondary"
                   :icon="LockOpenIcon"
-                  @click="toConfirm({
-                    text: 'Are you sure you want to unlock the source? This will affect all codes and analysis, applied to this source.',
-                    fn: unlockSource
-                  })"
+                  @click="
+                    toConfirm({
+                      text: 'Are you sure you want to unlock the source? This will affect all codes and analysis, applied to this source.',
+                      fn: unlockSource,
+                    })
+                  "
                   class="px-1 mx-3 rounded-xl"
                   >Unlock
                 </Button>
@@ -57,10 +61,12 @@
                   "
                   variant="outline-secondary"
                   :icon="LockClosedIcon"
-                  @click="toConfirm({
-                    text: 'Are you sure you want to lock the source and start coding?',
-                    fn: lockAndCode
-                  })"
+                  @click="
+                    toConfirm({
+                      text: 'Are you sure you want to lock the source and start coding?',
+                      fn: lockAndCode,
+                    })
+                  "
                   class="px-1 py-2 mx-3 rounded-xl"
                   >Lock
                 </Button>
@@ -118,7 +124,7 @@ import { request } from '../utils/http/BackendRequest.js';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import { asyncTimeout } from '../utils/asyncTimeout.js';
 import ConfirmDialog from '../dialogs/ConfirmDialog.vue';
-import BaseContainer from '../Layouts/BaseContainer.vue'
+import BaseContainer from '../Layouts/BaseContainer.vue';
 
 const editorSourceRef = ref({
   content: 'select to display',
@@ -135,7 +141,7 @@ const focus = ref(false);
 const editorComponent = ref();
 const props = defineProps(['sources', 'newDocument']);
 const documents = ref([]);
-const pageTitle = ref('Preparation')
+const pageTitle = ref('Preparation');
 
 watch(
   () => props.newDocument,
@@ -152,15 +158,17 @@ watch(
 /*---------------------------------------------------------------------------*/
 const confirm = ref({});
 const toConfirm = (data) => {
-    confirm.value = data ? data : {}
-}
+  confirm.value = data ? data : {};
+};
 const onConfirm = async () => {
-    await confirm.value.fn()
-    toConfirm(null)
-}
+  await confirm.value.fn();
+  toConfirm(null);
+};
 
-const lockAndCode = () => router.post(route('source.lock', editorSourceRef.value.id));
-const codeThisFile = () => router.get(route('source.go-and-code', editorSourceRef.value.id))
+const lockAndCode = () =>
+  router.post(route('source.lock', editorSourceRef.value.id));
+const codeThisFile = () =>
+  router.get(route('source.go-and-code', editorSourceRef.value.id));
 const unlockSource = async () => {
   const { response, error } = await request({
     url: `/sources/${editorSourceRef.value.id}/unlock`,

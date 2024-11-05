@@ -7,12 +7,12 @@
  * @return {function(): void} a cleanup function to force-stop the interval (for example on unmount)
  */
 export const retry = (fn, cycles = 1, timeout = 300) => {
-    let count = 0
-    const timer = setInterval(() => {
-        if (fn() || count++ === cycles) {
-          clear()
-        }
-    }, timeout)
-    const clear = () => clearInterval(timer)
-    return clear
-}
+  let count = 0;
+  const timer = setInterval(() => {
+    if (fn() || count++ === cycles) {
+      clear();
+    }
+  }, timeout);
+  const clear = () => clearInterval(timer);
+  return clear;
+};

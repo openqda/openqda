@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Button from '../Components/interactive/Button.vue';
 import DialogBase from './DialogBase.vue';
-import {ref, watch} from 'vue';
+import { ref, watch } from 'vue';
 
 const emit = defineEmits(['confirmed', 'cancelled']);
 const open = ref(false);
@@ -12,22 +12,22 @@ const props = defineProps({
 });
 
 watch(
-    () => props.text,
-    () => start()
+  () => props.text,
+  () => start()
 );
 
 const start = () => {
-    open.value = true;
+  open.value = true;
 };
 
 const confirm = () => {
-    open.value = false;
-    emit('confirmed');
-}
+  open.value = false;
+  emit('confirmed');
+};
 
 const cancel = () => {
-    open.value = false;
-    emit('cancelled');
+  open.value = false;
+  emit('cancelled');
 };
 </script>
 

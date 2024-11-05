@@ -19,7 +19,7 @@ const props = defineProps({
   dependants: { type: Array, required: false },
 });
 
-const challenge = ref(null);
+const currentChallenge = ref(null);
 const challengeEntered = ref(null);
 const error = ref(null);
 const complete = ref(false);
@@ -43,49 +43,49 @@ const start = (file) => {
   switch (props.challenge) {
     case 'random':
       challengeEntered.value = '';
-      challenge.value = randomString(4, 'random');
+      currentChallenge.value = randomString(4, 'random');
       break;
     case 'name':
       challengeEntered.value = '';
-      challenge.value = props.target.name;
+      currentChallenge.value = props.target.name;
       break;
     default:
-      challenge.value = null;
+      currentChallenge.value = null;
   }
 };
 
 const submit = async () => {
-    submitting.value = true
-    const onError = e => {
-        console.error(e)
+  submitting.value = true;
+  const onError = (e) => {
+    console.error(e);
+  };
+  const options = { id: id.value, name: name.value };
+  try {
+    const response = await props.submit(options);
+    if (response?.error) {
+      return onError(response.error);
     }
-    const options = { id: id.value, name: name.value }
-    try {
-        const response = await props.submit(options)
-        if (response?.error) {
-            return onError(response.error)
-        }
-        emit('deleted', options)
-        reset()
-    } catch (e) {
-        onError(e)
-    } finally {
-        submitting.value = false
-    }
+    emit('deleted', options);
+    reset();
+  } catch (e) {
+    onError(e);
+  } finally {
+    submitting.value = false;
+  }
 };
 
 const reset = () => {
-    open.value = false;
-    id.value = null;
-    name.value = null;
-    error.value = null;
-    submitting.value = false;
-    complete.value = false;
-}
+  open.value = false;
+  id.value = null;
+  name.value = null;
+  error.value = null;
+  submitting.value = false;
+  complete.value = false;
+};
 
 const cancel = () => {
   emit('cancelled');
-  reset()
+  reset();
 };
 </script>
 
@@ -94,22 +94,23 @@ const cancel = () => {
     <template #title>
       <div class="w-full text-center">
         Sure you want to delete
-        <span class="text-secondary/80">{{ target?.name }}</span>?
+        <span class="text-secondary/80">{{ target?.name }}</span
+        >?
       </div>
     </template>
     <template #body>
-      <div v-if="!!challenge">
+      <div v-if="!!currentChallenge">
         <p class="text-center text-foreground/60">
           If so, please enter the following code to confirm deletion
         </p>
         <p
           class="w-full text-center font-semibold text-xl font-mono tracking-widest text-foreground py-2"
         >
-          {{ challenge }}
+          {{ currentChallenge }}
         </p>
         <TextInput
           v-model="challengeEntered"
-          :placeholder="`Enter ${challenge} to confirm`"
+          :placeholder="`Enter ${currentChallenge} to confirm`"
           type="text"
           class="w-full text-center font-semibold text-xl font-mono tracking-widest text-foreground"
           @keydown.enter="submit"
@@ -135,7 +136,12 @@ const cancel = () => {
             error
           }}</ActionMessage>
         </span>
-        <Button variant="destructive" @click="submit" :disabled="submitting || (challenge && challengeEntered !== challenge)"
+        <Button
+          variant="destructive"
+          @click="submit"
+          :disabled="
+            submitting || (currentChallenge && challengeEntered !== challenge)
+          "
           >Delete
         </Button>
       </div>

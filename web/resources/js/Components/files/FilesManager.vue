@@ -148,19 +148,12 @@ const props = defineProps({
   },
 });
 
-let renamingDocumentId = null;
 const documents = inject('sources');
 const url = window.location.pathname;
 const segments = url.split('/');
 const projectId = segments[2]; // Assuming project id is the third segment in URL path
 const audioFile = ref(null);
 const audioIsUploading = ref(false);
-
-function handleFileAdded({ files }) {
-  audioFile.value = files[0];
-  transcribeFile();
-}
-
 const { downloadSource } = useFiles();
 
 async function transcribeFile() {

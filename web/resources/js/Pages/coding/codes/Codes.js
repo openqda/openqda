@@ -1,7 +1,7 @@
 import { AbstractStore } from '../../../state/AbstractStore.js';
 import { createStoreRepository } from '../../../state/StoreRepository.js';
-import { request } from '../../../utils/http/BackendRequest.js'
-import { randomUUID } from '../../../utils/randomUUID.js'
+import { request } from '../../../utils/http/BackendRequest.js';
+import { randomUUID } from '../../../utils/randomUUID.js';
 
 class CodeStore extends AbstractStore {
   toggle(codeId) {
@@ -32,26 +32,26 @@ export const Codes = createStoreRepository({
   factory: (options) => new CodeStore(options),
 });
 
-Codes.create = async ({ projectId, title, description, codebookId, color  }) => {
-    const store = Codes.by(projectId)
-    const code = {
-        id: randomUUID(),
-        text: [],
-        color,
-        description,
-        editable: true,
-        codebook: parseInt(codebookId, 10), //somehow int works and not string
-        title,
-        children: [],
-        order: store.size,
-        // showText: false,
-        // visibleInEditor: true,
-        // dropdownOpen: false,
-        // justOpened: false,
-        // showEditDescription: false,
-        // showDescription: false,
-    }
-    store.add(code)
+Codes.create = async ({ projectId, title, description, codebookId, color }) => {
+  const store = Codes.by(projectId);
+  const code = {
+    id: randomUUID(),
+    text: [],
+    color,
+    description,
+    editable: true,
+    codebook: parseInt(codebookId, 10), //somehow int works and not string
+    title,
+    children: [],
+    order: store.size,
+    // showText: false,
+    // visibleInEditor: true,
+    // dropdownOpen: false,
+    // justOpened: false,
+    // showEditDescription: false,
+    // showDescription: false,
+  };
+  store.add(code);
 
   const { response, error } = await request({
     url: `/projects/${projectId}/codes`,
@@ -59,62 +59,62 @@ Codes.create = async ({ projectId, title, description, codebookId, color  }) => 
     body: code,
   });
 
-    if (response.status >= 400 || error) {
-        store.remove(code.id);
-    } else {
-        code.id = response.data.id;
-    }
+  if (response.status >= 400 || error) {
+    store.remove(code.id);
+  } else {
+    code.id = response.data.id;
+  }
 
-    return { response, error }
+  return { response, error };
 };
 
-Codes.delete = ({ projectId, source, code}) => {
-    return request({
-        url: `/projects/${projectId}/sources/${source.id}/codes/${code.id}`,
-        type: 'delete',
-    })
-}
+Codes.delete = ({ projectId, source, code }) => {
+  return request({
+    url: `/projects/${projectId}/sources/${source.id}/codes/${code.id}`,
+    type: 'delete',
+  });
+};
 
 Codes.updateTitle = ({ projectId, code, title }) => {
-    return request({
-        url: `/projects/${projectId}/codes/${code.id}/update-title`,
-        type: 'post',
-        body: { title, },
-    })
-}
+  return request({
+    url: `/projects/${projectId}/codes/${code.id}/update-title`,
+    type: 'post',
+    body: { title },
+  });
+};
 
 Codes.updateColor = ({ projectId, code, color }) => {
-    return request({
-        url: `/projects/${projectId}/codes/${code.id}/update-color`,
-        type: 'post',
-        body: { color, },
-    })
-}
+  return request({
+    url: `/projects/${projectId}/codes/${code.id}/update-color`,
+    type: 'post',
+    body: { color },
+  });
+};
 
 Codes.updateDescription = ({ projectId, source, code, description }) => {
-    return request({
-        url: `/projects/${projectId}/sources/${source.id}/codes/${code.id}/description`,
-        type: 'post',
-        body: { description, },
-    })
-}
+  return request({
+    url: `/projects/${projectId}/sources/${source.id}/codes/${code.id}/description`,
+    type: 'post',
+    body: { description },
+  });
+};
 
 Codes.removeParent = ({ projectId, code, source }) => {
-    return request({
-        url: `/projects/${projectId}/sources/${source.id}/codes/${code.id}/remove-parent`,
-        type: 'post'
-    })
-}
+  return request({
+    url: `/projects/${projectId}/sources/${source.id}/codes/${code.id}/remove-parent`,
+    type: 'post',
+  });
+};
 
-Codes.upHierarchy = ({ projectId, code }) => {
-    return request({
-        url: `/projects/${projectId}/sources/${source.id}/codes/${code.id}/up-hierarchy`,
-        type: 'post',
-    })
-}
+Codes.upHierarchy = ({ projectId, source, code }) => {
+  return request({
+    url: `/projects/${projectId}/sources/${source.id}/codes/${code.id}/up-hierarchy`,
+    type: 'post',
+  });
+};
 
 Codes.addChild = ({ projectId, child }) => {
-    /**
+  /**
      id: localId,
      title: title,
      color: currentCode.color,
@@ -130,12 +130,12 @@ Codes.addChild = ({ projectId, child }) => {
      showEditDescription: false,
      showDescription: false,
      */
-    return request({
-        url: `/projects/${projectId}/codes`,
-        type: 'post',
-        body: child,
-    })
-}
+  return request({
+    url: `/projects/${projectId}/codes`,
+    type: 'post',
+    body: child,
+  });
+};
 
 Codes.entries = (projectId) => Codes.by(projectId).all();
 
