@@ -71,8 +71,8 @@
     "quill-cursors": "^4.0.2",
     "quill-delta": "^5.0.0",
     "tailwind-merge": "^2.5.2",
-    "vue3-plotly": "^0.0.7",
-    "vuedraggable": "^4.1.0"
+    "vue-draggable-plus": "^0.5.6",
+    "vue3-plotly": "^0.0.7"
   },
   "eslintConfig": {
     "extends": [
