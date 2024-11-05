@@ -33,22 +33,27 @@ const submit = async (document) => {
     submitting.value = true
     await asyncTimeout(300);
 
-    let created
+    let created = null
     try {
         created = await props.submit(document);
-        complete.value = true;
     } catch (e) {
         console.error('Error during form submission:', e);
         error.value =
             e.response?.data?.message ??
             e.message ??
             'An unknown error occurred while submitting.';
+        created = null
     } finally {
         submitting.value = false;
     }
 
-    if (!created && !error.value) {
-        error.value = 'Cannot create, response missing.';
+    if (!created) {
+        if (!error.value) {
+            error.value = 'Create failed due to unknown reasons';
+        }
+        return
+    } else {
+        complete.value = true;
     }
 
     if (complete.value) {

@@ -1,11 +1,11 @@
 /**
- * Minimal hooks to register and run for any given names.
- * As opposed to Events (i.e. nanoevents) these will run
+ * Minimal observable to register and run for any given names.
+ * As opposed to Events (i.e. nanoevents) these also run
  * in sync mode and thus in registered order.
  * If you need async functionality then you might
  * consider an event emitter like nanoevents instead.
  */
-export class NanoHooks {
+export class Observable {
   /**
    * The underlying data structure is a map
    * of function arrays. It's a public
@@ -57,6 +57,6 @@ export class NanoHooks {
    * @param args {...[]=}
    */
   run(name, ...args) {
-    (this.src.get(name) ?? []).forEach((fn) => fn(...args));
+    ;(this.src.get(name) ?? []).forEach(fn => fn(...args));
   }
 }

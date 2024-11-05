@@ -1,39 +1,50 @@
 <script setup lang="ts">
-import { TrashIcon, ArrowsRightLeftIcon } from '@heroicons/vue/24/solid';
+import {
+  TrashIcon,
+  ArrowsRightLeftIcon,
+  XMarkIcon,
+} from '@heroicons/vue/24/solid';
 import Button from '../../../Components/interactive/Button.vue';
 import { cn } from '../../../utils/css/cn';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import InputField from '../../../form/InputField.vue';
 import { vClickOutside } from '../../../Components/coding/clickOutsideDirective';
 import CodingContextMenuItem from './CodingContextMenuItem.vue';
-import {useSelections} from "../selections/useSelections";
-import { useContextMenu } from './useContextMenu'
+import { useSelections } from '../selections/useSelections';
+import { useContextMenu } from './useContextMenu';
+import { useCodes } from '../useCodes';
 
 const { close, isOpen } = useContextMenu();
-const { current, toDelete, deleteSelection } = useSelections();
-const emit = defineEmits(['code-selected','code-deleted']);
+const { codes } = useCodes();
+const { toDelete, deleteSelection } = useSelections();
+const emit = defineEmits(['code-selected', 'code-deleted', 'close']);
 const props = defineProps({
-  codes: Array,
   visible: Boolean,
 });
 
 const query = ref('');
-const reassign = ref(null)
-let filteredCodes = computed(() =>
-  query.value === ''
-    ? props.codes
-    : props.codes.filter((code) =>
+const toDeleteSize = ref();
+watch(toDelete, (entries) => {
+  const len = entries?.length;
+  toDeleteSize.value = len ?? 0;
+  reassign.value = len === 1 ? entries[0] : null;
+});
+const reassign = ref(null);
+const filteredCodes = computed(() => {
+  return query.value === ''
+    ? codes.value
+    : codes.value.filter((code) =>
         code.name
           .toLowerCase()
           .replace(/\s+/g, '')
           .includes(query.value.toLowerCase().replace(/\s+/g, ''))
-      )
-);
+      );
+});
 </script>
 
 <template>
   <div
-    v-click-outside="{ callback: close }"
+    v-click-outside="{ callback: () => isOpen && close() && emit('close') }"
     id="contextMenu"
     :class="
       cn(
@@ -42,32 +53,63 @@ let filteredCodes = computed(() =>
       )
     "
   >
-      <p>{{current?.text}}</p>
-    <div v-if="toDelete?.length" class="mb-6">
-      <div class="block w-full text-xs font-semibold">Linked codes</div>
-        <div class="flex items-baseline space-x-2 text-sm"  v-for="code in toDelete">
-            <span class="flex-grow p-2 my-1 rounded-md" :style="`background: ${code.color};`">{{ code.name }}</span>
-            <Button
-                title="Reassign another code"
+    <div v-if="toDeleteSize" class="mb-6 space-y-2">
+      <div class="block w-full text-xs font-semibold">Linked selections</div>
+      <div class="text-sm space-y-2" v-for="selection in toDelete">
+        <div class="contents" v-if="reassign ? reassign === selection : true">
+          <div class="border-border border-t">
+            <div class="flex items-baseline my-2">
+              <span class="text-xs font-semibold font-mono flex-grow">
+                {{ selection.start }}:{{ selection.end }}
+              </span>
+              <Button
+                v-if="toDeleteSize > 1"
+                size="sm"
+                :title="
+                  reassign
+                    ? 'Cancel reassign for this selection'
+                    : 'Reassign another code to this selection'
+                "
                 variant="outline"
                 class="p-2"
-                @click.prevent="(e) => e.stopPropagation()"
-            >
-                <ArrowsRightLeftIcon class="w-4 h-4" />
-            </Button>
-            <Button
-                title="Delete selection with this code"
+                @click.prevent="
+                  reassign = reassign === selection ? null : selection
+                "
+              >
+                <XMarkIcon v-show="selection === reassign" class="w-4 h-4" />
+                <ArrowsRightLeftIcon
+                  v-show="selection !== reassign"
+                  class="w-4 h-4"
+                />
+              </Button>
+              <Button
+                size="sm"
+                title="Delete this selection"
                 variant="destructive"
                 class="p-2"
-                @click.prevent="deleteSelection(current) && close() && emit('code-deleted', current)"
-            >
+                @click.prevent="deleteSelection(selection) && close()"
+              >
                 <TrashIcon class="w-4 h-4" />
-            </Button>
+              </Button>
+            </div>
+            <p class="line-clamp-2">{{ selection.text }}</p>
+          </div>
+          <div
+            class="w-full p-2 my-1 rounded-md line-clamp-1"
+            :style="`background: ${selection.code.color};`"
+          >
+            {{ selection.code.name }}
+          </div>
         </div>
+      </div>
     </div>
-      <div v-if="!toDelete?.length || reassign">
+    <div v-if="!toDeleteSize || reassign">
       <div class="block w-full text-xs font-semibold">
-        {{ toDelete.length ? 'Reassign new code' : 'Assign code' }}
+        {{
+          reassign
+            ? `Reassign new code to ${reassign.start}:${reassign.end}`
+            : 'Assign code'
+        }}
       </div>
 
       <!-- text input field to filter by name -->
@@ -78,7 +120,9 @@ let filteredCodes = computed(() =>
       />
       <ul>
         <CodingContextMenuItem
+          v-if="filteredCodes?.length"
           v-for="code in filteredCodes"
+          :reassign="reassign"
           :key="code.id"
           :code="code"
           :parent="null"

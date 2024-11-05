@@ -4,6 +4,11 @@ export const createStoreRepository = ({ key, factory }) => {
     const strKey = String(key)
     const repository = { key: strKey }
 
+    /**
+     *
+     * @param projectId
+     * @return {AbstractStore}
+     */
     repository.by = (projectId) => {
         if ([undefined, null, ''].includes(projectId)) {
             throw new Error(`Expected projectId, got ${projectId}`)

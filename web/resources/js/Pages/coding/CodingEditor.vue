@@ -2,7 +2,7 @@
   <!-- editor toolbar -->
   <div
     v-show="false"
-    class="block xl:flex lg:justify-center sticky top-0 py-2 z-40 bg-surface"
+    class="block xl:flex lg:justify-center sticky top-0 py-2 z-40 bg-surface leading-10"
   >
     <div
       id="toolbar"
@@ -24,15 +24,17 @@
       @drop.prevent="console.debug"
     ></div>
   </div>
-  <div class="absolute bottom-10 right-10" style="z-index: 999">
-    <slot name="status"></slot>
+  <div class="absolute flex items-end bottom-10 right-16" style="z-index: 999">
+      <span class="text-foreground/60 w-4 h-4 animate-spin" v-show="updating">
+          <ArrowPathIcon class="w-4 h-4" />
+      </span>
     <span
       id="selection-hash"
-      class="w-6 h-6 text-center text-xs text-foreground/60 border-0 bg-surface p-2"
+      class="w-6 h-6 text-center text-xs ArrowPathIcon border-0 bg-surface p-2 float-end"
       >0:0</span
     >
   </div>
-  <CodingContextMenu :codes="activeCodes" @code-deleted="selection => quillInstance.getModule('highlight').highlight(selection)" />
+  <CodingContextMenu @close="contextMenuClosed" />
 </template>
 
 <script setup>
@@ -46,22 +48,22 @@ import { SelectionHighlightBG } from './editor/SelectionHighlightBG.js';
 import { SelectionHash } from '../../editor/SelectionHash.js';
 import EditorToolbar from '../../editor/EditorToolbar.vue';
 import CodingContextMenu from './contextMenu/CodingContextMenu.vue';
-import { Selections } from './Selections.js';
+import { Selections } from './selections/Selections.js';
 import { flashMessage } from '../../Components/notification/flashMessage.js';
 import { useCodes } from './useCodes.js';
 import { useRange } from './useRange.js';
 import { useSelections } from './selections/useSelections.js';
 import { useCodingEditor } from './useCodingEditor.js';
-import { useContextMenu } from './contextMenu/useContextMenu.js'
+import { useContextMenu } from './contextMenu/useContextMenu.js';
+import { ArrowPathIcon } from '@heroicons/vue/20/solid'
 
 let quillInstance;
 const Delta = Quill.import('delta');
 const editorContent = ref('');
-const contextMenu = useContextMenu()
-const { selected, select, markToDelete, markCurrentByCodeId } = useSelections();
-const { codes, selections, codesInRange } = useCodes();
+const contextMenu = useContextMenu();
+const { selected, select, markToDelete } = useSelections();
+const { observe, overlaps, selections, selectionsByIndex } = useCodes();
 const { prevRange, setRange } = useRange();
-const activeCodes = computed(() => codes.value.filter((c) => c.active));
 const { setInstance, dispose } = useCodingEditor();
 Quill.register('modules/lineNumber', LineNumber, true);
 Quill.register('modules/selectionHash', SelectionHash, true);
@@ -78,10 +80,12 @@ const props = defineProps({
   CanUnlock: Boolean,
 });
 const projectId = props.project.id;
+const disposables = new Set();
+
 onMounted(() => {
   quillInstance = new Quill('#editor', {
     theme: 'snow',
-    formats: formats.concat(['id']),
+    formats: formats.concat(['id', 'title', 'class']),
     placeholder: 'Start writing or paste content...',
     modules: {
       syntax: false,
@@ -116,32 +120,81 @@ onMounted(() => {
   /*
    * Update selected range to shared state
    */
-  quillInstance.on('selection-change', setRange);
-  const highlight = quillInstance.getModule('highlight');
+  quillInstance.on('selection-change', data => {
+      const text = data
+        ? quillInstance.getText(data)
+        : ''
+      setRange(data, text)
+  });
+  const hl = quillInstance.getModule('highlight');
 
-  watch(
-    selections,
-    (entries) => {
-        console.debug('recompute entries', entries)
-      entries.forEach((selection) =>
-        highlight.highlight({
-          id: selection.code.id,
-          color: selection.code.color,
-          start: selection.start,
-          length: selection.length,
-          active: selection.code.active,
+  const disposeSelectionObserver = observe('store/selections', {
+    // added: (selections) => {
+    //   console.debug('Editor: add selections', selections);
+    //   selections.forEach((selection) => {
+    //     hl.highlight({
+    //       id: selection.code.id,
+    //       color: selection.code.color,
+    //       title: selection.code.name,
+    //       start: selection.start,
+    //       length: selection.length,
+    //       active: selection.code.active,
+    //     });
+    //   });
+    // },
+    // updated: (docs) => {
+    //   console.debug('Editor: update selections', docs.length);
+    //     docs.forEach((selection) => {
+    //         hl.highlight({
+    //             id: selection.code.id,
+    //             color: selection.code.color,
+    //             title: selection.code.name,
+    //             start: selection.start,
+    //             length: selection.length,
+    //             active: selection.code.active,
+    //         });
+    //     });
+    // },
+    // removed: (docs) => {
+    //   console.debug('Editor: remove selections', docs.length);
+    //   docs.forEach(selection => hl.remove(selection))
+    // }
+  });
+  disposables.add(disposeSelectionObserver);
+window.quill = quillInstance
+
+    watch(selections, entries => {
+        updating.value = true
+        requestAnimationFrame(() => {
+            entries.forEach((selection) => {
+                hl.highlight({
+                    id: selection.code.id,
+                    color: selection.code.color,
+                    title: selection.code.name,
+                    start: selection.start,
+                    length: selection.length,
+                    active: selection.code.active,
+                });
+            });
+            requestAnimationFrame(() => {
+                updating.value = false
+            })
         })
-      );
-    },
-    { deep: true, immediate: true }
-  );
+    }, { deep: true, immediate: true })
+
+  watch(overlaps, (entries) => {
+    entries.forEach((entry) => hl.overlap(entry));
+  });
 });
+
+const updating = ref(false)
 
 onUnmounted(() => {
   if (quillInstance) {
     quillInstance = null;
     dispose();
   }
+  disposables.forEach((fn) => fn());
 });
 
 watch(
@@ -162,7 +215,32 @@ watch(selected, async ({ code, parent }) => {
   const start = index;
   const end = start + length;
   const text = quillInstance.getText(start, length);
-  const { error } = await Selections.store({
+  quillInstance.setSelection(null);
+
+  // optimistic UI
+  // we add the selection on the ui,
+  // even if we don't know if it will work out
+  // and remove it only in case it didn't work
+  const selection = {
+    id: 'unknown',
+    start,
+    end,
+    length,
+    text,
+    code,
+  };
+  const editorEntry = {
+    id: selection.code.id,
+    color: selection.code.color,
+    title: selection.code.name,
+    start: selection.start,
+    length: selection.length,
+    active: selection.code.active,
+  };
+  const h = quillInstance.getModule('highlight');
+  h.highlight(editorEntry);
+
+  const { response, error } = await Selections.store({
     projectId: props.project.id,
     sourceId: props.source.id,
     code,
@@ -170,12 +248,18 @@ watch(selected, async ({ code, parent }) => {
     end,
     text,
   });
-  // flash message if error
-  if (error) {
-    flashMessage(error.message, { type: 'error' });
-  } else {
-    quillInstance.setSelection(null);
 
+  if (error || response.status >= 400) {
+    const s = response.data.selection;
+    selection.id = s.id; // update missing id
+    flashMessage(error?.message ?? 'Failed to create code', { type: 'error' });
+    h.remove(editorEntry);
+  } else {
+    Selections.by(projectId).add(selection);
+    if (!code.text) {
+      code.text = [];
+    }
+    code.text.push(selection);
   }
 });
 
@@ -187,21 +271,37 @@ const showContextMenu = (event) => {
   }
   event.preventDefault();
 
-  const selectedCode = quillInstance.getSelection();
-  const hasSelection = selectedCode?.length;
+  const selectedArea = quillInstance.getSelection();
+  const hasSelection = selectedArea?.length;
   const linkedCodeId = event.target.getAttribute('data-code-id');
-  const { codes, selection } = codesInRange(selectedCode?.index, linkedCodeId);
-  if (!hasSelection && !codes.length) {
+  const currentSelections = selectionsByIndex(selectedArea?.index, linkedCodeId);
+
+  if (!hasSelection && !currentSelections.length) {
     return;
   }
-  markCurrentByCodeId(selection);
-  markToDelete(codes);
+  markToDelete(currentSelections);
+
+  let lowest = selectedArea.index
+  let highest = selectedArea.index + selectedArea.length
+
+  if (currentSelections.length) {
+      currentSelections.forEach(selection => {
+          if (selection.start < lowest) lowest = selection.start
+          if (selection.end > highest) highest = selection.end
+      })
+  }
+
+  const hm = quillInstance.getModule('highlight');
+  hm.current({ index: lowest, length: highest - lowest })
+
+  const rect = quillInstance.getBounds(lowest, highest - lowest);
 
   contextMenu.open();
   const contextMenuElement = document.getElementById('contextMenu');
   const windowHeight = window.innerHeight;
 
-  contextMenuElement.style.left = `${event.clientX + 100}px`;
+  contextMenuElement.style.left = `${event.clientX}px`;
+  contextMenuElement.style.maxHeight = `${windowHeight / 3}px`;
   contextMenuElement.classList.remove('hidden');
 
   // Force a slight layout update so we can measure the contextMenu's dimensions
@@ -214,6 +314,11 @@ const showContextMenu = (event) => {
     contextMenuElement.style.top = `${event.clientY}px`;
   }
 };
+
+const contextMenuClosed = () => {
+    const hm = quillInstance.getModule('highlight');
+    hm.current()
+}
 
 defineExpose({ editorContent });
 </script>

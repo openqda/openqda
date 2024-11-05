@@ -3,11 +3,18 @@
         <template #menu>
             <BaseContainer>
                 <div class="flex items-baseline justify-between">
-                <Button variant="outline-secondary">
+                <Button variant="outline-secondary" @click="openCreateDialog(codesView)">
                     <PlusIcon class="w-4 h-4 me-1" />
                     <span v-if="codesView === 'codes' && range?.length">Create In-Vivo</span>
                     <span v-else>Create</span>
                 </Button>
+                <CreateDialog
+                    :schema="createSchema"
+                    :title="`Create a new ${codesView === 'codes' ? 'Code' : 'Codebook'}`"
+                    :submit="onCreateSubmit"
+                    @created="onCreated"
+                    @cancelled="createSchema = null"
+                />
                 <ResponsiveTabList
                     :tabs="codesTabs"
                     :initial="codesView"
@@ -18,7 +25,10 @@
                     <p class="my-0 text-xs">{{range?.length ? 'Click a code to assign to selection' : 'Manage codes'}}</p>
                     <div class="text-xs">Sort by name</div>
                 </div>
-                <CodeList v-if="codesView === 'codes'" />
+                <CodeList
+                    v-for="codebook in codebooks"
+                    :codebook="codebook"
+                    v-if="codesView === 'codes'" />
                 <CodebookList v-if="codesView === 'codebooks'" />
             </BaseContainer>
         </template>
@@ -44,6 +54,11 @@ import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue'
 import CodebookList from './coding/CodebookList.vue'
 import Button from '../Components/interactive/Button.vue'
 import { useRange } from './coding/useRange.js'
+import CreateDialog from '../dialogs/CreateDialog.vue'
+import { Codes } from './coding/codes/Codes.js'
+import { randomColor } from '../utils/random/randomColor.js'
+
+const props = defineProps(['source', 'sources', 'codebooks', 'allCodes', 'projectId']);
 
 //------------------------------------------------------------------------
 // RANGE / SELECTION
@@ -54,14 +69,57 @@ const { range } = useRange()
 // CODES / CODEBOOKS
 //------------------------------------------------------------------------
 const { codebooks, initCodebooks } = useCodes()
+const { text } = useRange()
 const codesTabs = [
     { value: 'codes', label: 'Codes' },
     { value: 'codebooks', label: 'Codebooks' },
 ]
 const codesView = ref(codesTabs[0].value)
+const createSchema = ref(null)
+const openCreateDialog = view => {
+    if (view === 'codes') {
+        createSchema.value = {
+            title: {
+                type: String,
+                placeholder: 'Name of the code',
+                defaultValue: text.value
+            },
+            description: {
+                type: String,
+                placeholder: 'Code description, optional'
+            },
+            color: {
+                type: String,
+                formType: 'color',
+                defaultValue: randomColor({ type: 'hex' })
+            },
+            codebookId: {
+                type: Number,
+                label: 'Codebook',
+                defaultValue: codebooks.value?.[0]?.id,
+                options: codebooks.value.map(c => ({
+                    value: c.id,
+                    label: c.name
+                }))
+            }
+        }
+    }
+}
+const onCreateSubmit = async (options) => {
+    ['title', 'color', 'codebookId'].forEach(key => {
+        if (!options[key]) {
+            throw new Error(`${key} is required!`)
+        }
+    })
+    const { error } = await Codes.create({ projectId, ...options })
+    if (error) throw error
+}
+const onCreated = () => {}
 
+//------------------------------------------------------------------------
+// PAGE
+//------------------------------------------------------------------------
 const pageTitle = ref('Coding')
-const props = defineProps(['source', 'sources', 'codebooks', 'allCodes']);
 const url = window.location.pathname;
 const segments = url.split('/');
 const projectId = segments[2]; // Assuming project id is the third segment in URL path

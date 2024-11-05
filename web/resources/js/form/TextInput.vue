@@ -6,14 +6,14 @@ import InputError from '../../../vendor/laravel/jetstream/stubs/inertia/resource
 
 const atts = useAttrs();
 const props = defineProps({
-  type: String,
   label: String,
   validation: Object,
 });
+console.debug(atts)
 </script>
 
 <template>
-  <div class="input-group group">
+  <div class="input-group group contents">
     <InputLabel :value="props.label" />
     <InputField v-bind="$attrs" />
     <InputError

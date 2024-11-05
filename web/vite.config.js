@@ -24,6 +24,24 @@ export default defineConfig({
     build: {
         sourcemap: true
     },
+    server: {
+        watch: {
+            ignored: [
+                '.idea',
+                '.deploy',
+                'app/**',
+                'vendor/**',
+                'bootstrap/**',
+                'config/**',
+                'data/**',
+                'database/**',
+                'docker/**',
+                'routes/**',
+                'storage/**',
+                'stories/**'
+            ]
+        }
+    },
     test: {
         include: ['resources/js/**/*.{test,spec}.?(c|m)[jt]s?(x)'],
         exclude: [

@@ -1,6 +1,6 @@
 import { reactive, toRefs } from 'vue'
 import { usePage } from '@inertiajs/vue3'
-import { Selections } from '../Selections.js'
+import { Selections } from './Selections.js'
 
 const state = reactive({
     selected: null,
@@ -27,6 +27,9 @@ export const useSelections = () => {
     const markCurrentByCodeId = (selection) => {
         state.current = selection
     }
+    const reassignCode = async ({ selection, code }) => {
+        await Selections.reassign({ projectId, selection, code, source })
+    }
     return {
         selected,
         select,
@@ -35,5 +38,6 @@ export const useSelections = () => {
         toDelete,
         markToDelete,
         markCurrentByCodeId,
+        reassignCode,
     }
 }

@@ -48,6 +48,7 @@ const validateForm = (e) => {
   e.preventDefault();
   e.stopPropagation();
   const formData = new FormData(e.target);
+  console.debug(formData)
   const data = [...formData.entries()];
   const validation = {};
   let isValid = true;
@@ -78,6 +79,7 @@ const validateForm = (e) => {
       :label="data.label"
       :name="data.name"
       :value="data.defaultValue"
+      :options="data.options"
       :validation="validationErrors[data.name]"
       class="mb-4"
     ></component>
