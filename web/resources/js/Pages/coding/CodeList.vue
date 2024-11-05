@@ -56,24 +56,9 @@ const dragOptions = ref({
     <p class="text-foreground/50" v-if="byCodebook && byCodebook.length === 0">
       No codes available, please activate at least one codebook.
     </p>
-      <draggable
-          class="list-group"
-          tag="transition-group"
-          :component-data="{
-          tag: 'ul',
-          type: 'transition-group',
-          name: !drag ? 'flip-list' : null
-        }"
-          v-model="byCodebook"
-          v-bind="dragOptions"
-          @start="drag = true"
-          item-key="order"
-          @end="drag = false"
-          >
-          <template #item="{ element }">
-            <CodeListItem :code="element" ::key="element.order" />
-          </template>
-     </draggable>
+      <ul>
+            <CodeListItem v-for="code in byCodebook" :code="code" :key="code.id" />
+    </ul>
   </div>
 </template>
 
