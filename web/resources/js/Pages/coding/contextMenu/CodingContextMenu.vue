@@ -3,6 +3,7 @@ import {
   TrashIcon,
   ArrowsRightLeftIcon,
   XMarkIcon,
+    PlusIcon
 } from '@heroicons/vue/24/solid';
 import Button from '../../../Components/interactive/Button.vue';
 import { cn } from '../../../utils/css/cn';
@@ -13,17 +14,18 @@ import CodingContextMenuItem from './CodingContextMenuItem.vue';
 import { useSelections } from '../selections/useSelections';
 import { useContextMenu } from './useContextMenu';
 import { useCodes } from '../useCodes';
+import {useRange} from "../useRange";
 
+const { prevRange } = useRange()
 const { close, isOpen } = useContextMenu();
 const { codes } = useCodes();
 const { toDelete, deleteSelection } = useSelections();
 const emit = defineEmits(['code-selected', 'code-deleted', 'close']);
 const query = ref('');
-const toDeleteSize = ref();
+const toDeleteSize = ref(0);
 watch(toDelete, (entries) => {
   const len = entries?.length;
   toDeleteSize.value = len ?? 0;
-  reassign.value = len === 1 ? entries[0] : null;
 });
 const reassign = ref(null);
 const filteredCodes = computed(() => {
@@ -36,21 +38,29 @@ const filteredCodes = computed(() => {
           .includes(query.value.toLowerCase().replace(/\s+/g, ''))
       );
 });
+const onClose = () => {
+    if (isOpen) {
+        reassign.value = null
+        query.value = ''
+        close()
+        emit('close')
+    }
+}
 </script>
 
 <template>
   <div
-    v-click-outside="{ callback: () => isOpen && close() && emit('close') }"
+    v-click-outside="{ callback: onClose  }"
     id="contextMenu"
     :class="
       cn(
-        'fixed p-3 z-50 bg-surface border-background border-4 max-h-screen w-min-64 w-1/5 mt-1 overflow-auto rounded-md shadow-lg overflow-y-scroll',
+        'fixed p-3 z-50 bg-surface border-background border-4 max-h-screen mt-1 overflow-auto rounded-md shadow-lg overflow-y-scroll',
         isOpen !== true && 'hidden'
       )
     "
   >
-    <div v-if="toDeleteSize" class="mb-6 space-y-2">
-      <div class="block w-full text-xs font-semibold">Linked selections</div>
+    <div v-if="toDeleteSize && !prevRange?.length" class="mb-6 space-y-2">
+      <div class="block w-full text-xs font-semibold">Edit linked selections</div>
       <div class="text-sm space-y-2" v-for="selection in toDelete" :key="selection.id">
         <div class="contents" v-if="reassign ? reassign === selection : true">
           <div class="border-border border-t">
@@ -59,7 +69,7 @@ const filteredCodes = computed(() => {
                 {{ selection.start }}:{{ selection.end }}
               </span>
               <Button
-                v-if="toDeleteSize > 1"
+                v-if="toDeleteSize > 0"
                 size="sm"
                 :title="
                   reassign
@@ -68,9 +78,9 @@ const filteredCodes = computed(() => {
                 "
                 variant="outline"
                 class="p-2"
-                @click.prevent="
-                  reassign = reassign === selection ? null : selection
-                "
+                @click.prevent="() => {
+                    reassign = reassign === selection ? null : selection
+                }"
               >
                 <XMarkIcon v-show="selection === reassign" class="w-4 h-4" />
                 <ArrowsRightLeftIcon
@@ -99,12 +109,13 @@ const filteredCodes = computed(() => {
         </div>
       </div>
     </div>
-    <div v-if="filteredCodes?.length && (!toDeleteSize || reassign)">
+
+    <div v-if="filteredCodes?.length && (!toDeleteSize || reassign || prevRange?.length)">
       <div class="block w-full text-xs font-semibold">
         {{
           reassign
-            ? `Reassign new code to ${reassign.start}:${reassign.end}`
-            : 'Assign code'
+            ? `Reassign another code to ${reassign.start}:${reassign.end}`
+            : 'Assign a new code to selection'
         }}
       </div>
 

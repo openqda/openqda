@@ -302,9 +302,22 @@ const showContextMenu = (event) => {
 
   contextMenu.open();
   const contextMenuElement = document.getElementById('contextMenu');
-  const windowHeight = window.innerHeight;
 
-  contextMenuElement.style.left = `${event.clientX}px`;
+  const windowHeight = window.innerHeight;
+  const windowWidth = window.innerWidth;
+
+  let menuWidth = windowWidth / 4;
+  if (menuWidth < 320) menuWidth = 320;
+
+  let mouseX = event.clientX
+  if (mouseX < menuWidth / 2) mouseX = menuWidth / 2
+
+  let menuX = mouseX - (menuWidth / 2);
+  const offsetX = windowWidth - (mouseX + menuWidth / 2)
+  if (offsetX < 0) menuX += offsetX
+
+  contextMenuElement.style.left = `${menuX}px`;
+  contextMenuElement.style.width = `${menuWidth}px`;
   contextMenuElement.style.maxHeight = `${windowHeight / 3}px`;
   contextMenuElement.classList.remove('hidden');
 
@@ -315,7 +328,7 @@ const showContextMenu = (event) => {
     // If the context menu would go out of bounds, adjust its top position
     contextMenuElement.style.top = `${windowHeight - contextMenuElement.offsetHeight}px`;
   } else {
-    contextMenuElement.style.top = `${event.clientY}px`;
+    contextMenuElement.style.top = `${event.clientY + 20}px`;
   }
 };
 
