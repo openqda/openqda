@@ -40,7 +40,7 @@ export const useProjects = () => {
     }
 
     const updateProjects = () => {
-        sortedProjects.value = projects.filter(projectsFilter).sort(byConfig)
+        sortedProjects.value = (projects ?? []).filter(projectsFilter).sort(byConfig)
     }
     const updateSorter = sorter => {
         sortBy.value = sorter
