@@ -28,7 +28,10 @@ export class SelectionHighlightBG extends Module {
   }
 
   current(range) {
-    const { index, length } = range ?? this.active;
+
+    const { index, length } = range ?? this.active ?? {};
+    if (!length) return
+
     const show = !!range;
     if (show) {
       this.active.index = index;

@@ -26,19 +26,6 @@
             @change="(value) => (codesView = value)"
           />
         </div>
-        <div
-          class="flex justify-between text-foreground/60"
-          v-if="codesView === 'codes'"
-        >
-          <p class="my-0 text-xs">
-            {{
-              range?.length
-                ? 'Click a code to assign to selection'
-                : 'Manage codes'
-            }}
-          </p>
-          <div class="text-xs">Sort by name</div>
-        </div>
         <CodeList
           v-for="codebook in codebooks"
           :codebook="codebook"

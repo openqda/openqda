@@ -1,5 +1,5 @@
 <script setup>
-import { onUnmounted, ref } from 'vue'
+import { onUnmounted, ref, watch } from 'vue'
 import CodeListItem from './CodeListItem.vue';
 import { useCodes } from './useCodes.js';
 import Headline3 from '../../Components/layout/Headline3.vue';
@@ -11,7 +11,9 @@ import {
 } from '@heroicons/vue/24/solid/index.js';
 import Button from '../../Components/interactive/Button.vue';
 import { useDraggable } from 'vue-draggable-plus'
+import { useRange } from './useRange.js'
 
+const { range } = useRange()
 const { codes, toggleCodebook } = useCodes();
 const props = defineProps({
   codebook: Object,
@@ -37,13 +39,20 @@ const draggable = useDraggable(draggableRef, byCodebook, {
         console.log('updated', e)
     }
 })
+watch(range, value => {
+    if (value?.length) {
+      draggable.pause()
+    } else {
+      draggable.resume()
+    }
+})
 onUnmounted(() => {
     draggable.destroy()
 })
 </script>
 
 <template>
-  <div class="flex align-center">
+  <div class="flex items-center">
     <Button
       :title="open ? 'Close code list' : 'Open code list'"
       variant="outline"
@@ -54,6 +63,7 @@ onUnmounted(() => {
       <ChevronRightIcon :class="cn('w-4 h-4', open && 'rotate-90')" />
     </Button>
     <headline3 class="ms-4 flex-grow me-2">{{ codebook.name }}</headline3>
+      <span class="text-foreground/50 text-xs mx-2">{{ byCodebook?.length ?? 0}} codes</span>
     <button
       class="p-0 m-0 text-foreground/80"
       @click="toggleCodebook(codebook)"
@@ -75,7 +85,7 @@ onUnmounted(() => {
       No codes available, please activate at least one codebook.
     </p>
     <ul ref="draggableRef">
-      <CodeListItem v-for="code in byCodebook" :code="code" :key="code.id" />
+      <CodeListItem v-for="code in byCodebook" :code="code" :key="code.id" :can-sort="!range?.length" />
     </ul>
   </div>
 </template>

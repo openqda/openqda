@@ -1,4 +1,5 @@
 <template>
+    <div class="contents">
   <!-- editor toolbar -->
   <div
     v-show="false"
@@ -35,6 +36,7 @@
     >
   </div>
   <CodingContextMenu @close="contextMenuClosed" />
+    </div>
 </template>
 
 <script setup>
@@ -206,6 +208,7 @@ watch(
 );
 
 watch(selected, async ({ code }) => {
+    // FIXME move this into composable!
   // skip if no usable selection was made
   if (!prevRange.value?.length || !code?.id) {
     return;

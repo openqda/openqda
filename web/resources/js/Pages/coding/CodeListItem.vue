@@ -26,6 +26,7 @@ const props = defineProps({
   parent: Object,
   liclass: String,
   selections: Array,
+    canSort: Boolean
 });
 
 const { range } = useRange();
@@ -83,7 +84,7 @@ const selections = (code) => {
         }}</span>
       </Button>
       <div
-        class="flex-grow tracking-wide rounded-md px-2 py-1 text-sm text-foreground dark:text-background group"
+        :class="cn('flex-grow tracking-wide rounded-md px-2 py-1 text-sm text-foreground dark:text-background group hover:shadow', props.canSort && 'cursor-grab')"
         :style="`background: ${changeRGBOpacity(code.color, 1)};`"
       >
         <button
@@ -96,7 +97,7 @@ const selections = (code) => {
               'w-full h-full text-left flex',
               code.active
                 ? 'hover:font-semibold'
-                : 'cursor-not-allowed text-opacity-20'
+                : 'cursor-not-allowed text-opacity-20',
             )
           "
         >
@@ -171,6 +172,7 @@ const selections = (code) => {
         :key="child.id"
         :code="child"
         :parent="code"
+        :can-sort="canSort"
         liclass="ps-3"
       />
     </ul>
