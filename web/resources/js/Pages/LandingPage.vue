@@ -8,7 +8,7 @@
  | Authenticated users should be redirected to
  | the projects list
  */
-import Login from './Auth/Login.vue';
+import LoginForm from './Auth/components/LoginForm.vue';
 import AuthenticationCard from '../Components/AuthenticationCard.vue';
 
 defineProps({
@@ -22,7 +22,7 @@ defineProps({
 
 <template>
   <AuthenticationCard>
-    <Login v-if="!$page.props.auth.user" class="my-5" can-reset-password />
+    <LoginForm v-if="!$page.props.auth.user" class="my-5" can-reset-password />
     <div v-else>
       <p class="text-secondary-foreground">You are already logged in.</p>
       <a

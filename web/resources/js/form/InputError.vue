@@ -9,7 +9,7 @@ defineProps({
   <p
     v-show="message"
     :class="[
-      'text-sm text-danger-l dark:text-danger-d text-left',
+      'text-sm text-destructive text-left',
       $props.class,
     ]"
   >

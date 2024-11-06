@@ -1,6 +1,6 @@
 <template>
   <Head :title="title" />
-  <div class="h-screen bg-background overflow-hidden">
+  <div class="min-h-screen bg-background overflow-hidden">
     <slot />
   </div>
   <Footer v-if="$props.showFooter ?? shouldShowFooter" />

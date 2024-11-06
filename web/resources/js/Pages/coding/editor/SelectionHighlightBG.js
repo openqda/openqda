@@ -48,6 +48,8 @@ export class SelectionHighlightBG extends Module {
     });
   }
 
+
+
   highlight({ id, title, color, start, length, active }, { opacity } = {}) {
     if (!active) {
       this.quill.formatText(start, length, {

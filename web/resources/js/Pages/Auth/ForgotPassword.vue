@@ -95,5 +95,4 @@ const submit = () => {
       </div>
     </form>
   </AuthenticationCard>
-  <Footer />
 </template>

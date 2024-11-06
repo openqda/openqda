@@ -4,11 +4,8 @@ import AuthenticationCard from '../../Components/AuthenticationCard.vue';
 import AuthenticationCardLogo from '../../Components/AuthenticationCardLogo.vue';
 import InputError from '../../form/InputError.vue';
 import InputLabel from '../../form/InputLabel.vue';
-import PrimaryButton from '../../Components/PrimaryButton.vue';
 import InputField from '../../form/InputField.vue';
 import Altcha from '../../Components/Altcha.vue';
-import Headline2 from '../../Components/layout/Headline2.vue';
-import Footer from '../../Layouts/Footer.vue';
 import 'altcha';
 import Button from '../../Components/interactive/Button.vue';
 import Headline1 from '../../Components/layout/Headline1.vue';
@@ -20,10 +17,10 @@ const form = useForm({
   password_confirmation: '',
   altcha: '',
 });
-
 const submit = () => {
+  const reset = () => form.reset('password', 'password_confirmation')
   form.post(route('register'), {
-    onFinish: () => form.reset('password', 'password_confirmation'),
+    onFinish: reset,
   });
 };
 </script>
@@ -136,6 +133,7 @@ const submit = () => {
         </span>
 
         <Button
+          type="submit"
           class="rounded-full border-2 border-secondary-foreground uppercase font-bold ms-6 py-3 text-secondary-foreground my-5 bg-transparent hover:bg-secondary-foreground hover:text-secondary"
           :class="{ 'opacity-25': form.processing }"
           :disabled="form.processing"
@@ -146,3 +144,11 @@ const submit = () => {
     </form>
   </AuthenticationCard>
 </template>
+<style scoped>
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active{
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+}
+</style>
