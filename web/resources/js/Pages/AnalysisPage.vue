@@ -1,10 +1,148 @@
 <template>
-  <AppLayout>
-    <div class="lg:flex">
-      <!-- left - content preview -->
-      <div class="w-full lg:w-2/3 p-4" id="analysis-root">
-        <Headline2>Output</Headline2>
+  <AuthenticatedLayout :menu="true" :showFooter="false" :title="pageTitle">
+      <template #menu>
+          <div class="w-full lg:w-1/3 p-4">
+              <Headline2 class="mb-3">
+                  <span>Code Selections</span>
+                  <span class="float-right">
+            <Button
+                @click="saveCSV()"
+                color="cerulean"
+                :disabled="!hasSelections"
+                :icon="ArrowDownTrayIcon"
+                :label="'CSV'"
+            />
+          </span>
+              </Headline2>
+              <p class="mt-1 text-sm leading-6 mb-4">
+                  Select the files and codes to display your code selections.
+              </p>
 
+                  <SelectField
+                      id="location"
+                      name="location"
+                      :default-option="true"
+                      class=""
+                      @change="selectVisualizerPlugin($event.target)">
+                      <template #options>
+                          <option
+                              v-for="(plugin, pluginIndex) in availablePlugins"
+                              :value="plugin.name"
+                              :key="pluginIndex"
+                          >
+                              {{ plugin.title }}
+                          </option>
+                      </template>
+                  </SelectField>
+
+              <table class="w-full mt-4 border-collapse border-0">
+                  <thead>
+                  <tr>
+                      <th style="width: 3rem"></th>
+                      <th
+                          scope="col"
+                          class="p-2 text-xs text-left font-medium uppercase tracking-wide text-silver-300 sm:pl-0"
+                      >
+                          Files
+                      </th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr class="text-sm hover:bg-silver-300">
+                      <td class="py-2 text-center tracking-wide">
+                          <input
+                              id="all_files"
+                              type="checkbox"
+                              class="cursor-pointer"
+                              :checked="checkedFiles.get('all_files')"
+                              @change="checkFile($event, 'all_files')"
+                          />
+                      </td>
+                      <td class="py-2 tracking-wide">
+                          <label for="all_files" class="cursor-pointer select-none"
+                          >All files</label
+                          >
+                      </td>
+                  </tr>
+                  <tr
+                      v-for="file in files"
+                      :key="file.id"
+                      class="text-sm hover:bg-silver-300"
+                  >
+                      <td class="py-2 text-center tracking-wide">
+                          <input
+                              type="checkbox"
+                              class="cursor-pointer"
+                              :checked="checkedFiles.get(file.id)"
+                              @change="checkFile($event, file.id)"
+                          />
+                      </td>
+                      <td
+                          class="py-2 tracking-wide"
+                          @click="checkFile($event, file.id)"
+                      >
+                          <label :for="file.id" class="cursor-pointer select-none">{{
+                                  file.name
+                              }}</label>
+                      </td>
+                  </tr>
+                  </tbody>
+              </table>
+
+              <table class="w-full mt-4 border-collapse border-0">
+                  <thead>
+                  <tr class="border-0">
+                      <th style="width: 3rem"></th>
+                      <th
+                          scope="col"
+                          class="p-2 text-left text-xs font-medium uppercase tracking-wide text-silver-300 sm:pl-0"
+                      >
+                          Codes
+                      </th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr class="text-sm border-0 hover:bg-silver-300">
+                      <td class="py-2 text-center tracking-wide">
+                          <input
+                              id="all_codes"
+                              type="checkbox"
+                              :checked="checkedCodes.get('all_codes')"
+                              @change="checkCode($event, 'all_codes')"
+                          />
+                      </td>
+                      <td class="py-2 tracking-wide">
+                          <label for="all_codes">All Codes</label>
+                      </td>
+                  </tr>
+                  <tr
+                      v-for="code in allCodes"
+                      :key="code.id"
+                      class="text-sm border-0 hover:bg-silver-300"
+                  >
+                      <td class="py-2 text-center tracking-wide border-0">
+                          <input
+                              :id="code.id"
+                              type="checkbox"
+                              :checked="checkedCodes.get(code.id)"
+                              @change="checkCode($event, code.id)"
+                              class="cursor-pointer"
+                          />
+                      </td>
+                      <td
+                          class="py-2 tracking-wide border-0"
+                          :style="{ backgroundColor: code.color }"
+                      >
+                          <label :for="code.id" class="cursor-pointer select-none">{{
+                                  code.name
+                              }}</label>
+                      </td>
+                  </tr>
+                  </tbody>
+              </table>
+          </div>
+      </template>
+      <template #main>
         <component
           :is="visualizerComponent"
           :files="files"
@@ -15,150 +153,8 @@
           :checkedFiles="checkedFiles"
           @remove="(id) => checkFile(undefined, id)"
         />
-      </div>
-      <!-- right side -->
-      <div class="w-full lg:w-1/3 p-4">
-        <Headline2 class="mb-3">
-          <span>Code Selections</span>
-          <span class="float-right">
-            <Button
-              @click="saveCSV()"
-              color="cerulean"
-              :disabled="!hasSelections"
-              :icon="ArrowDownTrayIcon"
-              :label="'CSV'"
-            />
-          </span>
-        </Headline2>
-        <p class="mt-1 text-sm leading-6 mb-4">
-          Select the files and codes to display your code selections.
-        </p>
-
-        <div>
-          <select
-            id="location"
-            name="location"
-            @change="selectVisualizerPlugin($event.target)"
-            class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
-          >
-            <option
-              v-for="(plugin, pluginIndex) in availablePlugins"
-              :value="plugin.name"
-              :key="pluginIndex"
-            >
-              {{ plugin.title }}
-            </option>
-          </select>
-        </div>
-
-        <table class="w-full mt-4 border-collapse border-0">
-          <thead>
-            <tr>
-              <th style="width: 3rem"></th>
-              <th
-                scope="col"
-                class="p-2 text-xs text-left font-medium uppercase tracking-wide text-silver-300 sm:pl-0"
-              >
-                Files
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="text-sm hover:bg-silver-300">
-              <td class="py-2 text-center tracking-wide">
-                <input
-                  id="all_files"
-                  type="checkbox"
-                  class="cursor-pointer"
-                  :checked="checkedFiles.get('all_files')"
-                  @change="checkFile($event, 'all_files')"
-                />
-              </td>
-              <td class="py-2 tracking-wide">
-                <label for="all_files" class="cursor-pointer select-none"
-                  >All files</label
-                >
-              </td>
-            </tr>
-            <tr
-              v-for="file in files"
-              :key="file.id"
-              class="text-sm hover:bg-silver-300"
-            >
-              <td class="py-2 text-center tracking-wide">
-                <input
-                  type="checkbox"
-                  class="cursor-pointer"
-                  :checked="checkedFiles.get(file.id)"
-                  @change="checkFile($event, file.id)"
-                />
-              </td>
-              <td
-                class="py-2 tracking-wide"
-                @click="checkFile($event, file.id)"
-              >
-                <label :for="file.id" class="cursor-pointer select-none">{{
-                  file.name
-                }}</label>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <table class="w-full mt-4 border-collapse border-0">
-          <thead>
-            <tr class="border-0">
-              <th style="width: 3rem"></th>
-              <th
-                scope="col"
-                class="p-2 text-left text-xs font-medium uppercase tracking-wide text-silver-300 sm:pl-0"
-              >
-                Codes
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="text-sm border-0 hover:bg-silver-300">
-              <td class="py-2 text-center tracking-wide">
-                <input
-                  id="all_codes"
-                  type="checkbox"
-                  :checked="checkedCodes.get('all_codes')"
-                  @change="checkCode($event, 'all_codes')"
-                />
-              </td>
-              <td class="py-2 tracking-wide">
-                <label for="all_codes">All Codes</label>
-              </td>
-            </tr>
-            <tr
-              v-for="code in allCodes"
-              :key="code.id"
-              class="text-sm border-0 hover:bg-silver-300"
-            >
-              <td class="py-2 text-center tracking-wide border-0">
-                <input
-                  :id="code.id"
-                  type="checkbox"
-                  :checked="checkedCodes.get(code.id)"
-                  @change="checkCode($event, code.id)"
-                  class="cursor-pointer"
-                />
-              </td>
-              <td
-                class="py-2 tracking-wide border-0"
-                :style="{ backgroundColor: code.color }"
-              >
-                <label :for="code.id" class="cursor-pointer select-none">{{
-                  code.name
-                }}</label>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </AppLayout>
+      </template>
+  </AuthenticatedLayout>
 </template>
 
 <script setup>
@@ -172,6 +168,8 @@ import { debounce } from '../utils/dom/debounce.js';
 import { unfoldCodes } from './analysis/unfoldCodes.js';
 import Headline2 from '../Components/layout/Headline2.vue';
 import { createByPropertySorter } from '../utils/array/createByPropertySorter.js';
+import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue'
+import SelectField from '../form/SelectField.vue'
 
 // TODO: https://www.npmjs.com/package/html-to-rtf
 const hasSelections = ref(false);

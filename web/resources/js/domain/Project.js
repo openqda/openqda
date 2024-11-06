@@ -23,10 +23,10 @@ Project.create = {
    * @param description
    * @return {Promise<*>}
    */
-  call: async ({ name, description }) => {
+  method: async ({ name, description }) => {
     // Validate the project details. For example, check if the name is empty.
     if (!name) {
-      throw new Error('Project name is required.');
+      throw new Error('A project name is required.');
     }
 
     const { response, error } = await request({
@@ -44,6 +44,7 @@ Project.create = {
       const message = `Failed to create a new project: ${response.data.message}`;
       throw new Error(message);
     }
-    return response.data;
+
+    return { response, error }
   },
 };

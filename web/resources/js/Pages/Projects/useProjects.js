@@ -1,6 +1,8 @@
-import { usePage } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3'
 import { reactive, ref, toRef, watch } from 'vue';
 import { debounce } from '../../utils/dom/debounce.js';
+import { Project  } from '../../domain/Project.js'
+import { Routes } from '../../routes/Routes.js'
 
 const state = reactive({
   sortBy: {
@@ -19,6 +21,12 @@ export const useProjects = () => {
   const { projects, project } = usePage().props;
   const sortedProjects = ref([]);
   const sortBy = toRef(state.sortBy);
+  const createSchema = Project.create.schema
+    const open = projectId => {
+        router.visit(Routes.project.path(projectId), {
+            preserveScroll: true,
+        })
+    }
   // ---------------------------------------------------------------
   // SORTING
   // ---------------------------------------------------------------
@@ -120,6 +128,9 @@ export const useProjects = () => {
     projects: sortedProjects,
     searchTerm,
     sortOptions,
+    createSchema,
+    createProject: Project.create.method,
+    open,
     updateSorter,
     sortBy,
   };

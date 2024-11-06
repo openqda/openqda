@@ -14,6 +14,8 @@ import DropdownLink from '../../Components/DropdownLink.vue';
 import InputField from '../../form/InputField.vue';
 import { cn } from '../../utils/css/cn.js';
 import Headline3 from '../../Components/layout/Headline3.vue';
+import { onMounted, ref } from 'vue'
+import { isInViewport } from '../../utils/dom/isInViewport.js'
 
 defineEmits(['create-project']);
 
@@ -25,6 +27,27 @@ const {
   updateSorter,
   searchTerm,
 } = useProjects();
+
+const scrollRefs = ref()
+const focusCurrent = () => {
+    console.debug('focus current')
+    if (currentProject?.name && scrollRefs.value) {
+        const li = scrollRefs.value.find(item => {
+            return item.getAttribute('data-id') == (currentProject.id)
+        })
+
+        if (!isInViewport(li)) {
+            setTimeout(() => {
+               li.scrollIntoView({ behavior: "instant", block: "start", inline: "start" });
+            }, 100)
+        }
+    }
+}
+onMounted(() => {
+    try {
+        focusCurrent()
+    } catch {}
+})
 </script>
 
 <template>
@@ -71,9 +94,11 @@ const {
 
   <InputField type="search" placeholder="Search..." v-model="searchTerm" />
 
-  <ul>
+  <ul class="pb-12">
     <li
       v-for="entry in projects"
+      ref="scrollRefs"
+      :data-id="entry.id"
       :class="
         cn(
           'group/li w-full px-2 py-3 rounded-md bg-transparent hover:bg-secondary/20 dark:hover:bg-foreground/20 text-foreground',

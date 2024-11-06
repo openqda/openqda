@@ -9,6 +9,7 @@ const props = defineProps({
   options: Array,
   label: String,
   id: String,
+    defaultOption: Boolean
 });
 const current = ref(props.value);
 </script>
@@ -24,10 +25,11 @@ const current = ref(props.value);
       class="block w-full rounded-md focus:border-secondary focus:ring-secondary bg-surface text-foreground"
       @change="(e) => (current = e.target.value)"
     >
-      <option disabled value="">(Select one)</option>
-      <option v-for="opt in props.options" :key="opt.value" :value="opt.value">
+      <option v-if="props.options || props.defaultOption" disabled value="">(Select one)</option>
+      <option v-if="props.options" v-for="opt in props.options" :key="opt.value" :value="opt.value">
         {{ opt.label }}
       </option>
+        <slot name="options"></slot>
     </select>
     <InputError
       v-if="props.validation?.isValid === false"

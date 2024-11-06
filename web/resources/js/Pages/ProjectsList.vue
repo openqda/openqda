@@ -9,21 +9,16 @@
 import { ref } from 'vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import ProjectsListMenu from './Projects/ProjectsListMenu.vue';
-import CreateProjectForm from './Projects/CreateProjectForm.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
+import CreateDialog from '../dialogs/CreateDialog.vue';
+import { useProjects } from './Projects/useProjects.js'
 
 const props = defineProps(['audits']);
-const newProjectForm = ref(false);
-const showContent = ref(false);
-
 sessionStorage.clear();
 
-const projectForm = (value) => {
-  showContent.value = value;
-  newProjectForm.value = value;
-};
-
 const projectSelected = async () => {};
+const { createProject, createSchema, open } = useProjects()
+const createProjectSchema = ref(null);
 </script>
 
 <template>
@@ -32,21 +27,22 @@ const projectSelected = async () => {};
       <BaseContainer>
         <ProjectsListMenu
           @selected="projectSelected"
-          @create-project="() => projectForm(true)"
+          @create-project="
+            createProjectSchema = createSchema
+          "
+        />
+        <CreateDialog
+          title="Create a new project"
+          :schema="createProjectSchema"
+          :submit="createProject"
+          @cancelled="createProjectSchema = null"
+          @created="({ response }) => open(response.data.project.id)"
         />
       </BaseContainer>
     </template>
     <template #main>
       <BaseContainer>
-        <CreateProjectForm
-          v-if="newProjectForm"
-          class="w-100 block"
-          @cancelled="() => projectForm(false)"
-        />
-        <div
-          v-else
-          class="flex items-center justify-center h-full text-foreground/50"
-        >
+        <div class="flex items-center justify-center h-full text-foreground/50">
           <span>Select a project from the list or create a new one</span>
         </div>
       </BaseContainer>
