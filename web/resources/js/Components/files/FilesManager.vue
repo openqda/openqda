@@ -29,7 +29,7 @@
     title="Import file(s)"
     @files-selected="importFiles"
   />
-  <FilesList
+  <FilesList v-if="documents?.length"
     class="mt-5"
     :documents="documents"
     :actions="[
@@ -98,6 +98,9 @@
     @select="fetchAndRenderDocument"
   >
   </FilesList>
+    <p v-else class="text-sm text-foreground/60">
+        You have not added any files. Bets is to do it now.
+    </p>
   <RenameDialog
     title="Rename File"
     :target="toRename"

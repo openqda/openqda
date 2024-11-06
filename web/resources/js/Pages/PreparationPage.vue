@@ -11,6 +11,16 @@
     </template>
     <template #main>
       <div ref="rightSide" class="overflow-auto w-full h-full">
+          <div class="flex items-center justify-center h-full text-foreground/50" v-show="!editorSourceRef.selected">
+              <div>
+              <Headline2>Preparation</Headline2>
+              <div class="my-4 block">
+                  In order to code any sources you either create
+                  a new empty file or import existing ones.
+              </div>
+              <HelpResources class="space-y-4" />
+              </div>
+          </div>
         <div v-show="editorSourceRef.selected === true" class="mt-3">
           <PreparationsEditor
             ref="editorComponent"
@@ -68,7 +78,7 @@
                     })
                   "
                   class="px-1 py-2 mx-3 rounded-xl"
-                  >Lock
+                  >Lock for coding
                 </Button>
                 <Button
                   v-if="
@@ -125,6 +135,8 @@ import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import { asyncTimeout } from '../utils/asyncTimeout.js';
 import ConfirmDialog from '../dialogs/ConfirmDialog.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
+import Headline2 from '../Components/layout/Headline2.vue'
+import HelpResources from '../Components/HelpResources.vue'
 
 const editorSourceRef = ref({
   content: 'select to display',

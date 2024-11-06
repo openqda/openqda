@@ -12,6 +12,8 @@ import ProjectsListMenu from './Projects/ProjectsListMenu.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
 import CreateDialog from '../dialogs/CreateDialog.vue';
 import { useProjects } from './Projects/useProjects.js'
+import HelpResources from '../Components/HelpResources.vue'
+import Headline2 from '../Components/layout/Headline2.vue'
 
 const props = defineProps(['audits']);
 sessionStorage.clear();
@@ -43,7 +45,11 @@ const createProjectSchema = ref(null);
     <template #main>
       <BaseContainer>
         <div class="flex items-center justify-center h-full text-foreground/50">
-          <span>Select a project from the list or create a new one</span>
+        <div>
+            <Headline2>Your projects</Headline2>
+          <div class="my-4 block">Select a project from the list or create a new one</div>
+            <HelpResources class="space-y-4" />
+        </div>
         </div>
       </BaseContainer>
     </template>

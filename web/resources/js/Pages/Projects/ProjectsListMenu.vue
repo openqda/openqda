@@ -61,7 +61,7 @@ onMounted(() => {
       New Project
     </Button>
 
-    <Dropdown>
+    <Dropdown v-if="projects?.length">
       <template #trigger>
         <a
           href=""
@@ -92,9 +92,11 @@ onMounted(() => {
     </Dropdown>
   </div>
 
-  <InputField type="search" placeholder="Search..." v-model="searchTerm" />
-
-  <ul class="pb-12">
+  <InputField v-if="projects?.length" type="search" placeholder="Search..." v-model="searchTerm" />
+  <p v-else class="text-sm text-foreground/50">
+      You have not created any project. Best, you create one now.
+  </p>
+  <ul class="pb-12" v-if="projects?.length">
     <li
       v-for="entry in projects"
       ref="scrollRefs"

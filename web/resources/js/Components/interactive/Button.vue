@@ -1,12 +1,13 @@
 <template>
   <button
-    :type="$props.type ?? 'button'"
+     v-bind="$attrs"
+    :type="props.type ?? 'button'"
     :disabled="disabled ? 'disabled' : false"
     :class="
       cn(
         resolve({
-          variant: $props.variant ?? 'default',
-          size: $props.size ?? 'default',
+          variant: props.variant ?? 'default',
+          size: props.size ?? 'default',
         }),
         props.class
       )

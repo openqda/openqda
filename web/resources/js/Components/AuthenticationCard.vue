@@ -1,3 +1,9 @@
+<script setup>
+import LayoutContainer from '../Layouts/LayoutContainer.vue';
+import ImageCarousel from './image/ImageCarousel.vue';
+import Link from './Link.vue'
+import HelpResources from './HelpResources.vue'
+</script>
 <template>
   <LayoutContainer :title="$page.props.slogan">
     <div class="grid grid-cols-1 lg:grid-cols-2 items-stretch min-h-screen">
@@ -52,25 +58,8 @@
             },
           ]"
         />
-          <ul class="self-center space-y-4" v-else>
-              <li>
-                  📔 In case you need help, please consult our <Link href="https://openqda.github.io/user-docs/" :external="true">OpenQDA user documentation</Link>
-              </li>
-              <li>
-                  🗣️ You can give technical <Link href="https://github.com/openqda/feedback" :external="true">feedback directly to our developers</Link>
-              </li>
-              <li>
-                  📧 Contact us directly via email: <Link href="mailto:openqda@uni-bremen.de" :external="true">openqda@uni-bremen.de</Link>
-              </li>
-          </ul>
+          <HelpResources class="self-center space-y-4" v-else />
       </div>
     </div>
   </LayoutContainer>
 </template>
-<script setup>
-import LayoutContainer from '../Layouts/LayoutContainer.vue';
-import ImageCarousel from './image/ImageCarousel.vue';
-import Link from './Link.vue'
-</script>
-
-<style scoped></style>
