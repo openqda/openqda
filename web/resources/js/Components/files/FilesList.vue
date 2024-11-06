@@ -36,7 +36,7 @@
         <th
           scope="col"
           v-show="$props.actions?.length"
-          class="w-1/5 text-center text-xs font-medium uppercase text-foreground/50 sm:pl-0"
+          class="w-6 text-end text-xs font-medium uppercase text-foreground/50 sm:pl-0"
         >
           <span class="sr-only">Actions</span>
         </th>
@@ -156,11 +156,12 @@
           {{ document.date }}
         </td>
         <td
-          class="py-2 text-center tracking-wider w-8 h-8"
+          class="py-2 text-center tracking-wider"
           v-if="hover !== index"
         >
           <ProfileImage
             v-if="document.userPicture"
+            class="w-3 h-3"
             :name="document.user"
             :email="document.userEmail"
             :src="document.userPicture"
@@ -248,7 +249,7 @@ const headerFields = ref([
     label: 'File',
     key: 'name',
     title: 'Sort by name',
-    class: 'w-3/5',
+    class: 'w-4/6',
   },
   {
     label: 'Type',
@@ -260,14 +261,14 @@ const headerFields = ref([
     label: 'Date',
     key: 'date',
     title: 'Sort by last edited date',
-    class: 'w-1/5',
+    class: 'w-2/6',
   },
-  {
-    label: 'By',
-    key: 'user',
-    title: 'Sort by uploader',
-    class: 'w-2',
-  },
+    {
+        label: 'By',
+        key: 'user',
+        title: 'Sort by uploader',
+        class: 'w-3',
+    },
 ]);
 
 const hover = ref(-1);

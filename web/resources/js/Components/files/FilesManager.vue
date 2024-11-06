@@ -73,6 +73,7 @@
       {
         id: 'rename-document',
         title: 'Rename this document',
+        class: 'text-secondary',
         icon: PencilSquareIcon,
         onClick({ document }) {
           toRename = document;
@@ -84,6 +85,7 @@
       {
         id: 'delete-document',
         title: 'Delete this document',
+        class: 'text-destructive',
         icon: XCircleIcon,
         onClick({ document, index }) {
           toDelete = document;
