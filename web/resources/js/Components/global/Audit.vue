@@ -317,13 +317,10 @@
   </div>
 </template>
 <script setup>
-import { ref, computed, onMounted, watch, onUnmounted, nextTick } from 'vue';
+import { ref, onMounted, watch, onUnmounted, nextTick } from 'vue';
 import {
-  ChevronDownIcon,
   UserCircleIcon,
-  XCircleIcon,
 } from '@heroicons/vue/20/solid';
-import Button from '../interactive/Button.vue';
 import Checkbox from '../Checkbox.vue';
 const searchInput = ref(null);
 const props = defineProps({
@@ -470,10 +467,6 @@ const handleSearch = debounce(async () => {
     isSearching.value = false;
   }
 }, 300);
-
-const handleModelFilter = () => {
-  fetchAudits(1);
-};
 
 const changePage = (page) => {
   if (!isLoading.value) {
