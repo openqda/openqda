@@ -30,7 +30,6 @@ const {
 
 const scrollRefs = ref()
 const focusCurrent = () => {
-    console.debug('focus current')
     if (currentProject?.name && scrollRefs.value) {
         const li = scrollRefs.value.find(item => {
             return item.getAttribute('data-id') == (currentProject.id)

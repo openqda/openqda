@@ -336,6 +336,7 @@ const showContextMenu = (event) => {
 };
 
 const contextMenuClosed = () => {
+  if (!quillInstance) return
   const hm = quillInstance.getModule('highlight');
   hm.current();
 };

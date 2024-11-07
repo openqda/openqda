@@ -32,7 +32,7 @@ export const Codes = createStoreRepository({
   factory: (options) => new CodeStore(options),
 });
 
-Codes.create = async ({ projectId, title, description, codebookId, color }) => {
+Codes.create = async ({ projectId, title, name, description, codebookId, color }) => {
   const store = Codes.by(projectId);
   const code = {
     id: randomUUID(),
@@ -41,18 +41,13 @@ Codes.create = async ({ projectId, title, description, codebookId, color }) => {
     description,
     editable: true,
     codebook: parseInt(codebookId, 10), //somehow int works and not string
-    title,
+    title, // backwards-compat
+    name: name ?? title,
     children: [],
-    order: store.size,
-    // showText: false,
-    // visibleInEditor: true,
-    // dropdownOpen: false,
-    // justOpened: false,
-    // showEditDescription: false,
-    // showDescription: false,
+    order: store.size
   };
   store.add(code);
-
+  console.debug('create new code', code)
   const { response, error } = await request({
     url: `/projects/${projectId}/codes`,
     type: 'post',
@@ -62,10 +57,10 @@ Codes.create = async ({ projectId, title, description, codebookId, color }) => {
   if (response.status >= 400 || error) {
     store.remove(code.id);
   } else {
-    code.id = response.data.id;
+    store.update(code.id, { id: response.data.id }, { updateId: true });
   }
 
-  return { response, error };
+  return { response, error, code };
 };
 
 Codes.delete = ({ projectId, source, code }) => {

@@ -75,7 +75,7 @@ export class AbstractStore {
     this.observable.run('changed', { type: 'added', docs });
   }
 
-  update(docIdOrFn, value) {
+  update(docIdOrFn, value, { updateId = false } = {}) {
     if (typeof docIdOrFn === 'function') {
       // nested changes are applied directly by
       // consumer and this reflected in a function
@@ -86,9 +86,11 @@ export class AbstractStore {
         this.observable.run('changed', { type: 'updated', docs: updatedDocs });
       }
     } else {
-      // never change id...
-      const { id, ...values } = value;
       const entry = this.entries[docIdOrFn];
+      const { id, ...values } = value
+      if (updateId) {
+          values.id = id
+      }
       Object.assign(entry, values);
       this.observable.run('updated', [entry]);
       this.observable.run('changed', { type: 'updated', docs: [entry] });

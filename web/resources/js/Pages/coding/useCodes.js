@@ -68,6 +68,24 @@ export const useCodes = () => {
     state.loaded = true;
   };
 
+  //---------------------------------------------------------------------------
+  // CREATE
+  //---------------------------------------------------------------------------
+    const createCode = async (options) => {
+        ['title', 'color', 'codebookId'].forEach((key) => {
+            if (!options[key]) {
+                throw new Error(`${key} is required!`);
+            }
+        });
+
+        const { response, error, code } = await Codes.create({ projectId, ...options });
+        if (error) throw error;
+        if (response.status < 400) {
+            return code
+        }
+    };
+
+
   const computedCodes = computed(() => {
     return codeStore.all().filter((c) => !c.parent);
   });
@@ -137,6 +155,7 @@ export const useCodes = () => {
 
 
   return {
+      createCode,
     codes: computedCodes,
     getCode: (id) => codeStore.entry(id),
     observe,

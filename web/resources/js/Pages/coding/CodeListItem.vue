@@ -52,7 +52,7 @@ const selections = (code) => {
 </script>
 
 <template>
-  <li :class="cn('rounded-md py-2', open && 'bg-background/20', props.liclass)">
+  <li :class="cn('rounded-md py-2', open && 'bg-background/20', props.liclass)" :data-code="code.id">
     <div class="flex items-center w-auto space-x-3">
       <Button
         :title="open ? 'Hide children' : 'Show children'"

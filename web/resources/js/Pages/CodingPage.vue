@@ -16,8 +16,8 @@
           <CreateDialog
             :schema="createSchema"
             :title="`Create a new ${codesView === 'codes' ? 'Code' : 'Codebook'}`"
-            :submit="onCreateSubmit"
-            @created="onCreated"
+            :submit="createCode"
+            @created="onCodeCreated"
             @cancelled="createSchema = null"
           />
           <ResponsiveTabList
@@ -29,6 +29,7 @@
         <CodeList
           v-for="codebook in codebooks"
           :codebook="codebook"
+          :codes="codes.filter((code) => code.codebook === codebook.id)"
           v-if="codesView === 'codes'"
         />
         <CodebookList v-if="codesView === 'codebooks'" />
@@ -76,7 +77,7 @@ const { range } = useRange();
 //------------------------------------------------------------------------
 // CODES / CODEBOOKS
 //------------------------------------------------------------------------
-const { codebooks, initCodebooks } = useCodes();
+const { codes, codebooks, initCodebooks, createCode } = useCodes();
 const { text } = useRange();
 const codesTabs = [
   { value: 'codes', label: 'Codes' },
@@ -113,16 +114,7 @@ const openCreateDialog = (view) => {
     };
   }
 };
-const onCreateSubmit = async (options) => {
-  ['title', 'color', 'codebookId'].forEach((key) => {
-    if (!options[key]) {
-      throw new Error(`${key} is required!`);
-    }
-  });
-  const { error } = await Codes.create({ projectId, ...options });
-  if (error) throw error;
-};
-const onCreated = () => {};
+
 
 //------------------------------------------------------------------------
 // PAGE
