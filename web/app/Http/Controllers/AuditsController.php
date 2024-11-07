@@ -2,59 +2,93 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AuditFilterRequest;
 use App\Models\Project;
 use App\Services\AuditService;
-use Auth;
-use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
+/**
+ * Class AuditsController
+ *
+ * Handles the retrieval and filtering of audit logs for both user-wide
+ * and project-specific contexts.
+ */
 class AuditsController extends Controller
 {
     /**
-     * @return \Illuminate\Http\JsonResponse
+     * @var AuditService
      */
-    public function index(Request $request)
+    protected $auditService;
+
+    /**
+     * AuditsController constructor.
+     */
+    public function __construct(AuditService $auditService)
     {
-        // Get all audits from all projects.
-        $allAudits = Auth::user()->getAllAudits();
-
-        // Set pagination variables
-        $perPage = 2;
-        $currentPage = $request->get('page', 1);
-        $total = count($allAudits);
-
-        // Get the current page data
-        $start = ($currentPage - 1) * $perPage;
-        $currentData = $allAudits->slice($start, $perPage);
-
-        // Create a paginator instance
-        $paginator = new LengthAwarePaginator($currentData, $total, $perPage, $currentPage, [
-            'path' => $request->url(),
-            'query' => $request->query(),
-        ]);
-
-        return response()->json(['audits' => $paginator]);
+        $this->auditService = $auditService;
     }
 
     /**
-     * @return \Illuminate\Http\JsonResponse
+     * Retrieve filtered and paginated audits for the authenticated user.
      */
-    public function loadMoreAudits(Request $request, Project $project)
+    public function index(AuditFilterRequest $request): JsonResponse
     {
+        try {
+            $user = Auth::user();
+            $filters = $request->getFilters();
 
-        $allAudits = app(AuditService::class)->getAudits($project);
+            $allAudits = $user->getAllAudits($filters);
+            $paginator = $this->auditService->paginateAudit($allAudits, $request);
 
-        $perPage = 20;
-        $currentPage = $request->get('page', 1);
-        $total = count($allAudits);
-        $start = ($currentPage - 1) * $perPage;
-        $currentData = $allAudits->slice($start, $perPage);
+            return response()->json([
+                'success' => true,
+                'audits' => $paginator,
+            ]);
 
-        $paginator = new LengthAwarePaginator($currentData, $total, $perPage, $currentPage, [
-            'path' => $request->url(),
-            'query' => $request->query(),
-        ]);
+        } catch (\Exception $e) {
+            Log::error('Error fetching user audits', [
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+                'data' => $filters,
+                'trace' => $e->getTraceAsString(),
+            ]);
 
-        return response()->json(['audits' => $paginator]);
+            return response()->json([
+                'success' => false,
+                'message' => __('Unable to fetch audit history. Please try again.'),
+            ], 500);
+        }
+    }
+
+    /**
+     * Retrieve filtered and paginated audits for a specific project.
+     */
+    public function projectAudits(AuditFilterRequest $request, Project $project): JsonResponse
+    {
+        try {
+            $allAudits = $this->auditService->getProjectAudits($project);
+            $filteredAudits = $this->auditService->filterAudits($allAudits, $request->getFilters());
+            $paginator = $this->auditService->paginateAudit($filteredAudits, $request);
+
+            return response()->json([
+                'success' => true,
+                'audits' => $paginator,
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error fetching project audits', [
+                'project_id' => $project->id,
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => __('Unable to fetch project audit history. Please try again.'),
+            ], 500);
+        }
     }
 }

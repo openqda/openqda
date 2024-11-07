@@ -230,11 +230,11 @@ const lockAndCode = async () => {
   ) {
     return;
   }
-  router.post(route('source.lock', editorSourceRef.value.id));
+  router.post(route('source.code', editorSourceRef.value.id));
 };
 
 function codeThisFile() {
-  router.get(route('source.go-and-code', editorSourceRef.value.id));
+  router.get(route('source.code', editorSourceRef.value.id));
 }
 
 const unlockSource = async () => {

@@ -11,7 +11,7 @@ class UpdateProjectRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        $project = $this->route('project'); // Assuming the project is being passed in the route
+        $project = $this->route('project');
 
         return auth()->check() && auth()->id() === $project->creating_user_id;
     }

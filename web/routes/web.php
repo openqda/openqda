@@ -101,11 +101,11 @@ Route::middleware([
     Route::post('/projects/update/{project}', [ProjectController::class, 'updateProjectAttributes'])->name('project.update');
     Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('project.destroy');
 
-    /**
-     * Audits
-     */
-    Route::get('/audits/index', [AuditsController::class, 'index']);
-    Route::get('/audits/{project}/load-more', [AuditsController::class, 'loadMoreAudits']);
+    // For homepage/user audits
+    Route::get('/audits', [AuditsController::class, 'index']);
+
+    // For project-specific audits
+    Route::get('/audits/{project}', [AuditsController::class, 'projectAudits']);
 
     /**
      * Coding
@@ -149,9 +149,11 @@ Route::middleware([
     Route::get('/files/{id}', [SourceController::class, 'fetchDocument']);
     Route::post('/source/update', [SourceController::class, 'update'])->name('source.update');
     Route::post('/sources/{source}', [SourceController::class, 'rename'])->name('source.rename');
-    Route::post('/sources/{sourceId}/lock-and-code', [SourceController::class, 'lockAndCode'])->name('source.lock');
     Route::post('/sources/{sourceId}/unlock', [SourceController::class, 'unlock'])->name('source.unlock');
-    Route::get('/sources/{source}/', [SourceController::class, 'goAndCode'])->name('source.go-and-code');
+    Route::match(['get', 'post'], '/sources/{sourceId}/code', [SourceController::class, 'lockAndCode'])
+        ->name('source.code');
+    // Route::post('/sources/{sourceId}/lock-and-code', [SourceController::class, 'lockAndCode'])->name('source.lock');
+    // Route::get('/sources/{source}/', [SourceController::class, 'lockAndCode'])->name('source.go-and-code');
     Route::post('/sources/{sourceId}/linenumbers', [SourceController::class, 'saveLineNumbers'])->name('sources.linenumbers');
     Route::post('/sources/{sourceId}/download', [SourceController::class, 'download'])->name('sources.download');
 

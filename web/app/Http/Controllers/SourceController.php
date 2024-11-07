@@ -3,6 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Events\ConversionCompleted;
+use App\Http\Requests\DownloadSourceRequest;
+use App\Http\Requests\FetchSourceRequest;
+use App\Http\Requests\IndexSourceRequest;
+use App\Http\Requests\LockSourceRequest;
+use App\Http\Requests\RenameSourceRequest;
+use App\Http\Requests\StoreSourceRequest;
+use App\Http\Requests\TranscribeSourceRequest;
+use App\Http\Requests\UpdateSourceRequest;
 use App\Jobs\ConvertFileToHtmlJob;
 use App\Jobs\TranscriptionJob;
 use App\Models\Project;
@@ -11,16 +19,15 @@ use App\Models\SourceStatus;
 use App\Models\Variable;
 use DB;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 use OwenIt\Auditing\Models\Audit;
+use Storage;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
@@ -30,17 +37,12 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 class SourceController extends Controller
 {
     /**
+     * View of the preparation page with the Sources (Documents)
+     *
      * @return JsonResponse|Response
      */
-    public function index(Request $request, $projectId)
+    public function index(IndexSourceRequest $request, $projectId)
     {
-
-        $project = Project::findOrFail($projectId);
-
-        // Use ProjectPolicy to authorize the action
-        if (! Gate::allows('view', $project)) {
-            return response()->json(['success' => false, 'message' => 'Not allowed'], 403);
-        }
 
         return Inertia::render('PreparationPage', [
             'sources' => $this->fetchAndTransformSources($projectId),
@@ -49,39 +51,42 @@ class SourceController extends Controller
     }
 
     /**
+     * Store a new source file
+     *
      * @return JsonResponse|string
      *
      * @throws \Exception
      */
-    public function store(Request $request)
+    public function store(StoreSourceRequest $request)
     {
-        $request->validate([
-            'file' => 'required|file|extensions:rtf,txt',
-        ]);
-
-        if (RateLimiter::tooManyAttempts('upload-limit:'.optional($request->user())->id ?: $request->ip(), $perMinute = 5)) {
-            $seconds = RateLimiter::availableIn('send-message:'.optional($request->user())->id ?: $request->ip());
-
-            return 'You may try again in '.$seconds.' seconds.';
-        }
-
         $file = $request->file('file');
         $projectId = $request->input('projectId');
 
-        // Generate a unique filename with a timestamp
-        // then store the file
+        // Generate filename without timestamp
         $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $filename = str_replace(' ', '_', $filename);
         $extension = $file->getClientOriginalExtension();
-        $uniqueFilename = $filename.'_'.time().'.'.$extension;
-        $relativeFilePath = $file->storeAs('projects/'.$projectId.'/sources', $uniqueFilename);
+
+        // Check if file exists and generate sequential number if needed
+        $baseFilename = $filename;
+        $counter = 1;
+        $uniqueFilename = $filename.'.'.$extension;
+        $relativePath = 'projects/'.$projectId.'/sources';
+
+        while (Storage::exists($relativePath.'/'.$uniqueFilename)) {
+            $uniqueFilename = $baseFilename.'_'.$counter.'.'.$extension;
+            $counter++;
+        }
+
+        $relativeFilePath = $file->storeAs($relativePath, $uniqueFilename);
         $path = storage_path("app/{$relativeFilePath}");
 
         // Check for the keyword and wipe the content if found
         $fileContent = file_get_contents($path);
         $keyword = 'Llanfair­pwllgwyngyll­gogery­chwyrn­drobwll­llan­tysilio­gogo­goch';
-        // Append the timestamp to the HTML file as well
-        $htmlOutputPath = storage_path('app/projects/'.$projectId."/sources/{$filename}_".time().'.html');
+
+        // Use the same filename pattern for HTML output
+        $htmlOutputPath = storage_path('app/'.$relativePath.'/'.pathinfo($uniqueFilename, PATHINFO_FILENAME).'.html');
 
         $source = Source::updateOrCreate(
             ['id' => $request->input('sourceId', Str::uuid()->toString())],
@@ -98,26 +103,21 @@ class SourceController extends Controller
             ['path' => $htmlOutputPath, 'status' => 'converted:html']
         );
 
-        // create an empty new file
+        // Rest of your code remains the same
         if (trim($fileContent) === $keyword) {
             file_put_contents($htmlOutputPath, config('app.layoutBaseHtml'));
             $htmlContent = config('app.layoutBaseHtml');
         } else {
-            // elaborate the uploaded file
             if ($extension === 'txt') {
-                // Convert TXT file to HTML
                 $htmlContent = $this->convertTxtToHtml($path, $projectId);
             } elseif ($extension === 'rtf') {
                 if (App::environment(['production', 'staging'])) {
                     $this->convertFileToHtml($path, $projectId, $source->id);
                 } else {
-
                     $htmlContent = $this->convertFileToHtmlLocally($path, $projectId);
                     event(new ConversionCompleted($projectId, $source->id));
                 }
-
             } else {
-                // Handle other file types or throw an error
                 return response()->json(['error' => 'Unsupported file type'], 400);
             }
         }
@@ -130,10 +130,8 @@ class SourceController extends Controller
                 'user' => auth()->user()->name,
                 'content' => $htmlContent ?? '',
                 'converted' => File::exists($htmlOutputPath),
-
             ],
         ]);
-
     }
 
     /**
@@ -158,123 +156,57 @@ class SourceController extends Controller
     }
 
     /**
-     * Redirects the user to the coding page for the specified source
+     * Redirects the user to the coding page for the specified source. This is used when a file is already locked.
      *
-     * @return \Illuminate\Http\RedirectResponse|never
-     */
-    public function goAndCode(Request $request, $sourceId)
+     **/
+    public function lockAndCode(LockSourceRequest $request, $sourceId)
     {
-
-        $source = Source::findOrFail($sourceId);
-        if (! Gate::allows('view', $source->project)) {
-            return abort('Not allowed');
-        }
-
-        return to_route('coding.show', ['project' => $source->project_id, 'source' => $source]);
-    }
-
-    /**
-     * @return JsonResponse|\Illuminate\Http\RedirectResponse
-     */
-    public function lockAndCode(Request $request, $sourceId)
-    {
-
         try {
-            // Find the source by its ID
             $source = Source::findOrFail($sourceId);
 
-            // Find the "isLocked" variable for the source
-            $isLockedVariable = Variable::where('source_id', $sourceId)
-                ->where('name', 'isLocked')
-                ->first();
-
-            if ($isLockedVariable) {
-                // If the "isLocked" variable exists, set it to true
-                $isLockedVariable->boolean_value = true;
-                $isLockedVariable->save();
-            } else {
-                // If the "isLocked" variable doesn't exist, create it and set it to true
-                Variable::create([
-                    'source_id' => $sourceId,
-                    'name' => 'isLocked',
-                    'type_of_variable' => 'boolean',
-                    'boolean_value' => true,
-                ]);
-            }
-
-            $audit = new Audit([
-                'user_type' => 'App\Models\User',
-                'user_id' => auth()->id(),
-                'event' => 'content updated',
-                'auditable_id' => $source->id,
-                'auditable_type' => get_class($source),
-                'new_values' => ['message' => $source->name.' has been locked'],
-            ]);
-
-            $audit->save();
+            // Lock the source (if not already locked)
+            $source->lock();
+            $source->createAudit(Source::AUDIT_LOCKED, ['message' => $source->name.' has been locked']);
 
             return to_route('coding.show', ['project' => $source->project_id, 'source' => $source]);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: '.$e->getMessage(),
+            ]);
         }
     }
 
     /**
+     * Unlock a source by setting the isLocked variable to false.
+     *
      * @return JsonResponse
      */
-    public function unlock(Request $request, $sourceId)
+    public function unlock(LockSourceRequest $request, $sourceId)
     {
-
         try {
-            // Find the source by its ID
             $source = Source::findOrFail($sourceId);
 
-            // Find the "isLocked" variable for the source
-            $isLockedVariable = Variable::where('source_id', $sourceId)
-                ->where('name', 'isLocked')
-                ->first();
-
-            // If the "isLocked" variable exists, set it to false
-            if ($isLockedVariable) {
-                $isLockedVariable->boolean_value = false;
-                $isLockedVariable->save();
-            }
-            $audit = new Audit([
-                'user_type' => 'App\Models\User',
-                'user_id' => auth()->id(),
-                'event' => 'content updated',
-                'auditable_id' => $source->id,
-                'auditable_type' => get_class($source),
-                'new_values' => ['message' => $source->name.' has been unlocked'],
-            ]);
-
-            $audit->save();
+            $source->unlock();
+            $source->createAudit(Source::AUDIT_UNLOCKED, ['message' => $source->name.' has been unlocked']);
 
             return response()->json(['success' => true, 'message' => 'Source unlocked successfully']);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred: '.$e->getMessage(),
+            ]);
         }
     }
 
     /**
      * @return JsonResponse
      */
-    public function fetchDocument($id)
+    public function fetchDocument(FetchSourceRequest $request, $id)
     {
-        // Find the document
-        $source = Source::with('variables')->findOrFail($id);  // This throws a 404 if the model is not found
-
-        // It will automatically look for a method named 'update' in the policy for the Source model
-        if (! Gate::allows('delete', $source)) {
-            return response()->json(['success' => false, 'message' => 'Not allowed'], 403);
-        }
-
+        $source = Source::with('variables')->findOrFail($id);
         $content = file_get_contents($source->converted->path);
-
-        // Complete source model with content
         $source->content = $content;
-
-        // Add transformed variables
         $source->variables = $source->transformVariables();
 
         return response()->json($source);
@@ -285,17 +217,12 @@ class SourceController extends Controller
      *
      * @return JsonResponse
      */
-    public function update(Request $request)
+    public function update(UpdateSourceRequest $request)
     {
         $content = $request->input('content');
         $id = $request->input('id');
 
         $source = Source::findOrFail($id);  // This throws a 404 if the model is not found
-
-        // It will automatically look for a method named 'update' in the policy for the Source model
-        if (! Gate::allows('update', $source)) {
-            return response()->json(['success' => false, 'message' => 'Not allowed'], 403);
-        }
 
         try {
 
@@ -343,6 +270,8 @@ class SourceController extends Controller
     }
 
     /**
+     * This uses a python script to convert a file from RTF to HTML
+     *
      * @return false|string
      *
      * @throws \Exception
@@ -384,42 +313,30 @@ class SourceController extends Controller
     }
 
     /**
+     * Rename a Document
+     *
      * @return JsonResponse
      */
-    public function rename(Request $request, $sourceId)
+    public function rename(RenameSourceRequest $request, $sourceId)
     {
-        // Validate the new name
-        $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        // Find the source by ID
         $source = Source::findOrFail($sourceId);
 
-        // Check if the user is authorized to update the source
-        if (! Gate::allows('update', $source)) {
-            return response()->json(['success' => false, 'message' => 'Not authorized to rename this source'], 403);
-        }
-
         try {
-            // Update the source name
             $source->name = $request->input('name');
             $source->save();
 
-            // Log the action
-            $audit = new Audit([
-                'user_type' => 'App\Models\User',
-                'user_id' => auth()->id(),
-                'event' => 'updated',
-                'auditable_id' => $source->id,
-                'auditable_type' => get_class($source),
-                'new_values' => ['name' => $source->name],
-            ]);
-            $audit->save();
+            $source->createAudit(Source::AUDIT_RENAMED, ['name' => $source->name]);
 
-            return response()->json(['success' => true, 'message' => 'Source renamed successfully', 'source' => $source]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Source renamed successfully',
+                'source' => $source,
+            ]);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'An error occurred while renaming the source: '.$e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while renaming the source: '.$e->getMessage(),
+            ]);
         }
     }
 
@@ -511,7 +428,7 @@ class SourceController extends Controller
     /**
      * @throws \Exception
      */
-    public function getHtmlContent(string $path, mixed $projectId, Source $source, bool $fromAdminPanel = false): string|false
+    private function getHtmlContent(string $path, mixed $projectId, Source $source, bool $fromAdminPanel = false): string|false
     {
 
         // Existing conversion logic
@@ -534,6 +451,11 @@ class SourceController extends Controller
 
     public function retryConversion(Project $project, Source $source)
     {
+        // Check if the user can view the source
+        if (! Gate::allows('view', $source)) {
+            return response()->json(['message' => 'Not authorized to view this source'], 403);
+        }
+
         $this->getHtmlContent($source->upload_path, $project->id, $source, true);
 
         return response()->json(['message' => 'Conversion in progress']);
@@ -543,28 +465,17 @@ class SourceController extends Controller
      * Requests a transcription from the external example service.
      * Handle database transactions and error handling, leave file processing to the job.
      */
-    public function transcribe(Request $request)
+    public function transcribe(TranscribeSourceRequest $request)
     {
-
-        $request->validate([
-            'file' => 'required|file|extensions:mpeg,mpga,mp3,wav,aac,ogg,m4a,flac|max:100000',
-            'model' => 'required|string',
-            'language' => 'required|string',
-        ]);
-
         $user = Auth::user();
         $file = $request->file('file');
-        $model = $request->input('model');
-        $language = $request->input('language');
 
         try {
-            // Generate a unique filename and store the file
             $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
             $projectId = $request->input('project_id');
             $relativeFilePath = $file->storeAs('projects/'.$projectId.'/sources', $filename);
             $path = storage_path("app/{$relativeFilePath}");
 
-            // Create the source record for the audio
             $source = Source::create([
                 'name' => $file->getClientOriginalName(),
                 'creating_user_id' => $user->id,
@@ -572,7 +483,7 @@ class SourceController extends Controller
                 'type' => 'audio',
                 'upload_path' => $path,
             ]);
-            // Create the source status record
+
             SourceStatus::create([
                 'source_id' => $source->id,
                 'status' => 'converting',
@@ -580,15 +491,17 @@ class SourceController extends Controller
 
             TranscriptionJob::dispatch($path, $projectId, $source->id)->onQueue('conversion');
 
-            return response()->json(['message' => 'File uploaded and processing started', 'newDocument' => [
-                'id' => $source->id,
-                'name' => $source->name,
-                'type' => 'audio',
-                'user' => auth()->user()->name,
-                'content' => '',
-                'converted' => false,
-
-            ], ], 200);
+            return response()->json([
+                'message' => 'File uploaded and processing started',
+                'newDocument' => [
+                    'id' => $source->id,
+                    'name' => $source->name,
+                    'type' => 'audio',
+                    'user' => auth()->user()->name,
+                    'content' => '',
+                    'converted' => false,
+                ],
+            ], 200);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -622,17 +535,11 @@ class SourceController extends Controller
      * @param  $source
      * @return BinaryFileResponse|JsonResponse
      */
-    public function download($sourceId)
+    public function download(DownloadSourceRequest $request, $sourceId)
     {
         $source = Source::findOrFail($sourceId);
-        $project = $source->project;
-        // Use ProjectPolicy to authorize the action
-        if (! Gate::allows('view', $project)) {
-            return response()->json(['success' => false, 'message' => 'Not allowed'], 403);
-        }
-        $path = $source->upload_path;
-        $name = $source->name;
+        $source->createAudit(Source::AUDIT_DOWNLOADED, ['message' => $source->name.' was downloaded']);
 
-        return response()->download($path, $name);
+        return response()->download($source->upload_path, $source->name);
     }
 }

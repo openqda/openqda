@@ -104,7 +104,7 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
             ->get();
     }
 
-    public function getAllAudits()
+    public function getAllAudits($filters = [])
     {
         $auditService = app(AuditService::class); // manually resolving the service from the container
 
@@ -156,10 +156,7 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
             }
         }
 
-        // Filter out null values
-        $allAudits = $allAudits->filter();
-
-        $allAudits = $allAudits->map([$auditService, 'formatAuditDates']);
+        $allAudits = $auditService->filterAudits($allAudits, $filters);
 
         return $allAudits->sortByDesc('created_at');
     }

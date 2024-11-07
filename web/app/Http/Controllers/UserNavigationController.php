@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\UserNavigated;
+use App\Http\Requests\SendFeedbackRequest;
 use App\Mail\UserFeedback;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -36,23 +37,11 @@ class UserNavigationController extends Controller
      *
      * @throws \Exception
      */
-    public function feedback(Request $request)
+    public function feedback(SendFeedbackRequest $request)
     {
-        $data = $request->validate([
-            'title' => 'required|string',
-            'problem' => 'required|string',
-            'contact' => 'required|bool',
-            'projectId' => 'required|string',
-            'location' => 'required|url',
-        ]);
 
-        $user = Auth::user();
-        $userId = $user->id;
-        $data['userId'] = $userId;
-
-        if ($data['contact'] == true) {
-            $data['contact'] = $user->email;
-        }
+        $data = $request->feedbackData();
+        $userId = $data['userId'];
 
         // In order to avoid spam and mail flooding
         // we rate-limit message sending

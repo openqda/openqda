@@ -1,10 +1,5 @@
 <template>
-  <div v-if="!localAudits || localAudits.length === 0" class="text-center py-4">
-    <p>No history to display.</p>
-  </div>
-
   <div
-    v-else
     :class="
       context === 'homePage'
         ? 'flow-root w-full ml-auto mr-auto'
@@ -12,33 +7,67 @@
     "
   >
     <div class="pb-1.5 mt-2 rounded-md">
-      <!-- First line: Search Input -->
-      <div class="flex items-center gap-x-1.5 mb-2">
+      <!-- Search Input with loading indicator -->
+      <div class="flex items-center gap-x-1.5 mb-2 relative">
         <input
-          v-model="searchQuery"
+          v-model="filters.query"
+          ref="searchInput"
           placeholder="Search..."
           type="text"
           name="searchQuery"
           id="searchQuery"
+          @input="handleSearch"
+          :disabled="isLoading"
           class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
         />
+        <!-- Search loading indicator -->
+        <div
+          v-if="isSearching || isLoading"
+          class="absolute right-3 top-1/2 transform -translate-y-1/2"
+        >
+          <svg
+            class="animate-spin h-4 w-4 text-gray-500"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            />
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            />
+          </svg>
+        </div>
       </div>
+
       <!-- Date Filters -->
       <div class="flex justify-center space-x-4 mb-4">
         <div>
           <label class="block text-sm font-medium text-gray-700">Before</label>
           <input
             type="date"
-            v-model="beforeDate"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+            v-model="filters.before_date"
+            @change="handleDateChange"
+            :disabled="isLoading"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm disabled:bg-gray-100"
           />
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700">After</label>
           <input
             type="date"
-            v-model="afterDate"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+            v-model="filters.after_date"
+            @change="handleDateChange"
+            :disabled="isLoading"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm disabled:bg-gray-100"
           />
         </div>
         <div>
@@ -46,289 +75,301 @@
           <div class="flex space-x-2">
             <input
               type="date"
-              v-model="startDate"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              v-model="filters.start_date"
+              @change="handleDateChange"
+              :disabled="isLoading"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm disabled:bg-gray-100"
             />
             <input
               type="date"
-              v-model="endDate"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+              v-model="filters.end_date"
+              @change="handleDateChange"
+              :disabled="isLoading"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm disabled:bg-gray-100"
             />
           </div>
         </div>
       </div>
 
-      <!-- Second line: Filters -->
-      <div class="filters flex space-x-4 w-full justify-center">
-        <label class="flex items-center">
+      <!-- Model Type Filters -->
+      <div class="filters flex space-x-4 w-full justify-center mb-4">
+        <label
+          v-for="type in modelTypes"
+          :key="type"
+          class="flex items-center"
+          :class="{ 'opacity-50': isLoading }"
+        >
           <Checkbox
-            v-model="filterDocuments"
-            :checked="filterDocuments"
+            :value="type"
+            :checked="filters.models.includes(type)"
+            @change="toggleModelFilter(type)"
+            :disabled="isLoading"
             class="mr-2"
-          ></Checkbox>
-          Documents
-          <span class="text-xs text-gray-500">({{ documentCount }})</span>
-        </label>
-        <label class="flex items-center">
-          <Checkbox
-            v-model="filterSelections"
-            :checked="filterSelections"
-            class="mr-2"
-          ></Checkbox>
-          Selections
-          <span class="text-xs text-gray-500">({{ selectionCount }})</span>
-        </label>
-        <label class="flex items-center">
-          <Checkbox
-            v-model="filterCodes"
-            :checked="filterCodes"
-            class="mr-2"
-          ></Checkbox>
-          Codes
-          <span class="text-xs text-gray-500">({{ codeCount }})</span>
-        </label>
-        <label class="flex items-center">
-          <Checkbox
-            v-model="filterProjects"
-            :checked="filterProjects"
-            class="mr-2"
-          ></Checkbox>
-          Projects
-          <span class="text-xs text-gray-500">({{ projectCount }})</span>
-        </label>
-        <label class="flex items-center">
-          <Checkbox
-            v-model="filterCodebooks"
-            :checked="filterCodebooks"
-            class="mr-2"
-          ></Checkbox>
-          Codebooks
-          <span class="text-xs text-gray-500">({{ codebookCount }})</span>
+          />
+
+          {{ type }}
+          <span class="text-xs text-gray-500">
+            ({{ getModelCount(type) }})
+          </span>
         </label>
       </div>
     </div>
-
-    <ul role="list" class="-mb-8 mt-4">
-      <!-- Loop through audit logs -->
-
-      <li
-        v-for="(audit, auditIdx) in filteredAudits.data || []"
-        :key="audit.id"
+    <!-- Audit List with loading overlay -->
+    <div class="relative">
+      <!-- Loading overlay -->
+      <div
+        v-if="isLoading && audits.data.length"
+        class="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center z-10"
       >
-        <div class="relative pb-8">
-          <span
-            v-if="auditIdx !== filteredAudits.data.length - 1"
-            class="absolute left-5 top-5 -ml-px h-full w-0.5 bg-gray-200"
-            aria-hidden="true"
-          >
-          </span>
-          <div class="relative flex items-start space-x-3">
-            <div>
-              <div class="relative px-1">
-                <div
-                  class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 ring-8 ring-white"
-                >
+        <svg
+          class="animate-spin h-8 w-8 text-cerulean-600"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          />
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          />
+        </svg>
+      </div>
+
+      <ul role="list" class="-mb-8 mt-4">
+        <li v-for="(audit, auditIdx) in audits.data" :key="audit.id">
+          <div class="relative pb-8">
+            <span
+              v-if="auditIdx !== audits.data.length - 1"
+              class="absolute left-5 top-5 -ml-px h-full w-0.5 bg-gray-200"
+              aria-hidden="true"
+            ></span>
+            <div class="relative flex items-start space-x-3">
+              <div>
+                <div class="relative px-1">
                   <div
-                    v-if="audit.user_profile_picture"
-                    class="flex text-sm relative overflow-hidden transition w-8 h-8 border-2 border-transparent focus:outline-none focus:border-gray-300"
+                    class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 ring-8 ring-white"
                   >
-                    <img
-                      class="object-cover w-full h-auto rounded-full"
-                      :src="audit.user_profile_picture"
-                      :alt="audit.user_id"
+                    <div
+                      v-if="audit.user_profile_picture"
+                      class="flex text-sm relative overflow-hidden transition w-8 h-8 border-2 border-transparent focus:outline-none focus:border-gray-300"
+                    >
+                      <img
+                        class="object-cover w-full h-auto rounded-full"
+                        :src="audit.user_profile_picture"
+                        :alt="audit.user_id"
+                      />
+                    </div>
+                    <UserCircleIcon
+                      v-else
+                      class="h-5 w-5 text-gray-500"
+                      aria-hidden="true"
                     />
                   </div>
-                  <UserCircleIcon
-                    v-else
-                    class="h-5 w-5 text-gray-500"
-                    aria-hidden="true"
-                  />
                 </div>
               </div>
-            </div>
-            <div class="min-w-0 flex-1 py-1">
-              <div class="text-sm text-gray-500">
-                <span class="font-medium text-gray-900">
-                  {{ audit.user_id }}
-                </span>
-                performed at {{ audit.created_at }}
-              </div>
-              <div class="mt-2 text-sm text-gray-700">
-                <ul>
-                  <template v-if="audit.event !== 'deleted'">
-                    <li v-for="(value, key) in audit.new_values" :key="key">
-                      <template v-if="audit.event === 'created'">
-                        <span
-                          v-if="
-                            audit.model === 'Codebook' &&
-                            key === 'description' &&
-                            value === null
-                          "
-                        ></span>
-                        <span v-else
-                          >Created
-                          <span class="font-semibold text-porsche-400">{{
-                            audit.model
-                          }}</span>
-                          with
-                          <span class="font-semibold">{{ key }}</span>
-                          set to
-                        </span>
-                        <span
-                          class="px-1 rounded font-semibold font-mono"
-                          v-if="audit.model === 'Code'"
-                          :style="'background-color:' + value"
-                          >{{ value }}</span
-                        >
-                        <span
-                          v-else-if="audit.model === 'Selection'"
-                          class="font-semibold font-mono"
-                        >
-                          {{
-                            value.length > 50
-                              ? value.substring(0, 50) + '...'
-                              : value
-                          }}
-                        </span>
-                        <span
-                          v-else-if="audit.model === 'Codebook' && value !== ''"
-                        >
-                          <span v-if="key === 'properties'">
-                            public:
-                            {{ JSON.parse(value).sharedWithPublic }}
-                          </span>
-                          <span v-else class="font-semibold font-mono">
-                            {{ value }}
-                          </span>
-                        </span>
-                        <span v-else class="font-semibold font-mono">{{
-                          value
-                        }}</span>
-                      </template>
-                      <template v-else-if="audit.event === 'updated'">
-                        <span v-if="key === 'team_id'">Created team</span>
-                        <span
-                          v-if="
-                            audit.model === 'Codebook' &&
-                            key === 'description' &&
-                            value === null
-                          "
-                        ></span>
-                        <span v-else
-                          >Modified {{ audit.model }} {{ key }} to
+              <div class="min-w-0 flex-1 py-1">
+                <div class="text-sm text-gray-500">
+                  <span class="font-medium text-gray-900">
+                    {{ audit.user_id }}
+                  </span>
+                  performed at {{ audit.created_at }}
+                </div>
+                <div class="mt-2 text-sm text-gray-700">
+                  <ul>
+                    <template v-if="audit.event !== 'deleted'">
+                      <li v-for="(value, key) in audit.new_values" :key="key">
+                        <template v-if="audit.event === 'created'">
                           <span
+                            v-if="
+                              audit.model === 'Codebook' &&
+                              key === 'description' &&
+                              value === null
+                            "
+                          ></span>
+                          <span v-else
+                            >Created
+                            <span class="font-semibold text-porsche-400">{{
+                              audit.model
+                            }}</span>
+                            with
+                            <span class="font-semibold">{{ key }}</span>
+                            set to
+                          </span>
+                          <span
+                            class="px-1 rounded font-semibold font-mono"
                             v-if="audit.model === 'Code'"
                             :style="'background-color:' + value"
                             >{{ value }}</span
                           >
-                          <span v-if="audit.model === 'Codebook'">
-                            <span v-if="isJSON(value) === true">
-                              public:
-                              {{ JSON.parse(value).sharedWithPublic }}
+                          <span
+                            v-else-if="audit.model === 'Selection'"
+                            class="font-semibold font-mono"
+                          >
+                            {{
+                              value.length > 50
+                                ? value.substring(0, 50) + '...'
+                                : value
+                            }}
+                          </span>
+                          <span
+                            v-else-if="
+                              audit.model === 'Codebook' && value !== ''
+                            "
+                          >
+                            <span v-if="key === 'properties'">
+                              public: {{ JSON.parse(value).sharedWithPublic }}
                             </span>
-                            <span v-else>
+                            <span v-else class="font-semibold font-mono">
                               {{ value }}
                             </span>
                           </span>
-                          <span v-else>{{ value }}</span></span
-                        >
-                      </template>
-                      <template v-else-if="audit.event === 'content updated'">
-                        {{ value }}
-                      </template>
-                      <template v-else>
-                        <!-- Handle other cases -->
-                        {{ audit.event }} on {{ audit.model }} for key
-                        {{ key }} with value {{ value }}
-                      </template>
-                    </li>
-                  </template>
-                  <template v-else-if="audit.event === 'deleted'">
-                    <!-- Directly loop on old_values for 'deleted' events -->
-                    <li>{{ audit.old_values.name }} was deleted</li>
-                  </template>
-                </ul>
+                          <span v-else class="font-semibold font-mono">{{
+                            value
+                          }}</span>
+                        </template>
+                        <template v-else-if="audit.event === 'updated'">
+                          <span v-if="key === 'team_id'">Created team</span>
+                          <span
+                            v-else-if="
+                              audit.model === 'Codebook' &&
+                              key === 'description' &&
+                              value === null
+                            "
+                          ></span>
+                          <span v-else
+                            >Modified {{ audit.model }} {{ key }} to
+                            <span
+                              v-if="audit.model === 'Code'"
+                              :style="'background-color:' + value"
+                              >{{ value }}</span
+                            >
+                            <span v-if="audit.model === 'Codebook'">
+                              <span v-if="isJSON(value)">
+                                public: {{ JSON.parse(value).sharedWithPublic }}
+                              </span>
+                              <span v-else>{{ value }}</span>
+                            </span>
+                            <span v-else>{{ value }}</span>
+                          </span>
+                        </template>
+                        <template v-else-if="audit.event === 'content updated'">
+                          {{ value }}
+                        </template>
+                        <template v-else>
+                          {{ audit.event }} on {{ audit.model }} for key
+                          {{ key }} with value {{ value }}
+                        </template>
+                      </li>
+                    </template>
+                    <template v-else-if="audit.event === 'deleted'">
+                      <li>{{ audit.old_values.name }} was deleted</li>
+                    </template>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </li>
-      <Button
-        v-if="localAudits.current_page < localAudits.last_page"
-        @click="loadMore"
-        color="cerulean"
-        :icon="ChevronDownIcon"
-        class="mt-2"
-        label="Load more"
-      />
-    </ul>
+        </li>
+      </ul>
+
+      <!-- Pagination -->
+      <div v-if="audits.last_page > 1" class="mt-4 flex justify-center">
+        <nav
+          class="flex items-center justify-between"
+          :class="{ 'opacity-50': isLoading }"
+        >
+          <button
+            :disabled="audits.current_page === 1 || isLoading"
+            @click="changePage(audits.current_page - 1)"
+            class="px-3 py-1 rounded-md bg-white border"
+            :class="{
+              'opacity-50 cursor-not-allowed':
+                audits.current_page === 1 || isLoading,
+            }"
+          >
+            Previous
+          </button>
+          <span class="mx-4">
+            Page {{ audits.current_page }} of {{ audits.last_page }}
+          </span>
+          <button
+            :disabled="audits.current_page === audits.last_page || isLoading"
+            @click="changePage(audits.current_page + 1)"
+            class="px-3 py-1 rounded-md bg-white border"
+            :class="{
+              'opacity-50 cursor-not-allowed':
+                audits.current_page === audits.last_page || isLoading,
+            }"
+          >
+            Next
+          </button>
+        </nav>
+      </div>
+    </div>
   </div>
 </template>
-
 <script setup>
-import { computed, onMounted, ref, watch } from 'vue';
-import { ChevronDownIcon, UserCircleIcon } from '@heroicons/vue/20/solid';
+import { ref, computed, onMounted, watch, onUnmounted, nextTick } from 'vue';
+import {
+  ChevronDownIcon,
+  UserCircleIcon,
+  XCircleIcon,
+} from '@heroicons/vue/20/solid';
 import Button from '../interactive/Button.vue';
 import Checkbox from '../Checkbox.vue';
-
-const localAudits = ref({ data: [] });
-const searchQuery = ref('');
-
+const searchInput = ref(null);
 const props = defineProps({
   audits: Object,
   projectId: {
     type: String,
-    default: null, // or an empty string '' if you prefer
+    default: null,
   },
   context: String,
 });
 
-const beforeDate = ref(null);
-const afterDate = ref(null);
-const startDate = ref(null);
-const endDate = ref(null);
+// Constants
+const modelTypes = ['Source', 'Selection', 'Code', 'Project', 'Codebook'];
+const PER_PAGE = 20;
 
-const filterDocuments = ref(true); // 'sources'
-const filterSelections = ref(true); // 'Selection'
-const filterCodes = ref(true); // 'Code'
-const filterProjects = ref(true); // 'Project'
-const filterCodebooks = ref(true); // 'Codebooks'
+// State
+const filters = ref({
+  query: '',
+  models: modelTypes, // All selected by default
+  before_date: null,
+  after_date: null,
+  start_date: null,
+  end_date: null,
+  per_page: PER_PAGE,
+  project_id: props.projectId,
+});
+const isLoading = ref(false);
+const isSearching = ref(false);
+const error = ref(null);
+let searchTimeout = null;
 
-const documentCount = computed(() => {
-  return localAudits.value.data.filter((audit) => audit.model === 'Source')
-    .length;
-});
-const selectionCount = computed(() => {
-  return localAudits.value.data.filter((audit) => audit.model === 'Selection')
-    .length;
-});
-const codeCount = computed(() => {
-  return localAudits.value.data.filter((audit) => audit.model === 'Code')
-    .length;
-});
-const projectCount = computed(() => {
-  return localAudits.value.data.filter((audit) => audit.model === 'Project')
-    .length;
-});
-
-const codebookCount = computed(() => {
-  return localAudits.value.data.filter((audit) => audit.model === 'Codebook')
-    .length;
+// Initialize audits with empty array
+const audits = ref({
+  data: [],
+  current_page: 1,
+  last_page: 1,
 });
 
-function parseCustomDate(dateString) {
-  const parts = dateString.split(' ');
-  const dateParts = parts[0].split('.');
-  const timeParts = parts[1].split(':');
-  const year = dateParts[2];
-  const month = dateParts[1] - 1; // Month is 0-indexed in JavaScript Date
-  const day = dateParts[0];
-  const hours = timeParts[0];
-  const minutes = timeParts[1];
+const getModelCount = (type) => {
+  if (!Array.isArray(audits.value.data)) {
+    return 0;
+  }
+  return audits.value.data.filter((audit) => audit.model === type).length;
+};
 
-  return new Date(year, month, day, hours, minutes);
-}
-
+// Utility functions
 function isJSON(str) {
   try {
     JSON.parse(str);
@@ -338,114 +379,138 @@ function isJSON(str) {
   }
 }
 
-const filteredAudits = computed(() => {
-  const query = searchQuery.value.toLowerCase();
+// Vanilla JS debounce
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
 
-  // Make a shallow copy of the original object
-  const auditCopy = { ...localAudits.value };
-
-  // Filter only the data array based on model type filters and date filters
-  auditCopy.data = auditCopy.data.filter((audit) => {
-    // Apply model type filters here
-    if (
-      (audit.model === 'Source' && !filterDocuments.value) ||
-      (audit.model === 'Selection' && !filterSelections.value) ||
-      (audit.model === 'Code' && !filterCodes.value) ||
-      (audit.model === 'Project' && !filterProjects.value) ||
-      (audit.model === 'Codebook' && !filterProjects.value)
-    ) {
-      return false;
-    }
-
-    // Apply date filtering logic
-    const auditTimestamp = parseCustomDate(audit.created_at).getTime();
-    let dateFilterPass = true;
-
-    if (beforeDate.value) {
-      const beforeTimestamp = new Date(beforeDate.value).getTime();
-      dateFilterPass = dateFilterPass && auditTimestamp <= beforeTimestamp;
-    }
-
-    if (afterDate.value) {
-      const afterTimestamp = new Date(afterDate.value).getTime();
-      dateFilterPass = dateFilterPass && auditTimestamp >= afterTimestamp;
-    }
-
-    if (startDate.value && endDate.value) {
-      const startTimestamp = new Date(startDate.value).getTime();
-      const endTimestamp = new Date(endDate.value).getTime();
-      dateFilterPass =
-        dateFilterPass &&
-        auditTimestamp >= startTimestamp &&
-        auditTimestamp <= endTimestamp;
-    }
-
-    return dateFilterPass;
-  });
-
-  // Apply text search query filter
-  auditCopy.data = auditCopy.data.filter((audit) => {
-    const newValuesStr = audit.new_values?.message || '';
-    const oldValuesStr = audit.old_values?.message || '';
-
-    return (
-      audit.created_at.toLowerCase().includes(query) ||
-      newValuesStr.toLowerCase().includes(query) ||
-      oldValuesStr.toLowerCase().includes(query) ||
-      audit.event.toLowerCase().includes(query) ||
-      audit.model.toLowerCase().includes(query) ||
-      audit.user_id.toLowerCase().includes(query)
+// Methods
+const toggleModelFilter = (type) => {
+  if (filters.value.models.includes(type)) {
+    // Remove the type from the models array if it's already there
+    filters.value.models = filters.value.models.filter(
+      (model) => model !== type
     );
-  });
-
-  return auditCopy;
-});
-
-// Watch for changes in props.audits and update localAudits accordingly
-watch(
-  () => props.audits,
-  (newVal) => {
-    localAudits.value = newVal;
+  } else {
+    // Add the type to the models array if it's not there
+    filters.value.models.push(type);
   }
-);
+  fetchAudits(1);
+};
 
-const loadMore = async () => {
-  localAudits.value.current_page += 1;
+const handleDateChange = () => {
+  fetchAudits(1); // Reset to page 1 on date change
+};
 
-  let apiUrl = `audits/index?page=${localAudits.value.current_page}`; // default for homepage
-
-  // If the context is projectPage, adjust the apiUrl
-  if (props.context === 'projectPage') {
-    apiUrl = `/audits/${props.projectId}/load-more?page=${localAudits.value.current_page}`;
-  }
-
+const fetchAudits = async (page = 1) => {
+  console.log(page);
   try {
-    const response = await axios.get(apiUrl);
-    console.log(response);
-    const newAudits = response.data.audits.data;
-    // Convert object to array
-    const newAuditsArray = Object.values(newAudits);
+    isLoading.value = true;
+    error.value = null;
+    const wasSearchFocused = document.activeElement === searchInput.value;
+    const params = new URLSearchParams();
 
-    // Merge arrays
-    if (localAudits.value && Array.isArray(localAudits.value.data)) {
-      localAudits.value.data = [...localAudits.value.data, ...newAuditsArray];
-    } else {
-      if (localAudits.value) {
-        localAudits.value.data = newAudits;
-      } else {
-        localAudits.value = { data: newAudits };
+    Object.entries(filters.value).forEach(([key, value]) => {
+      if (value !== null && value !== '') {
+        if (Array.isArray(value)) {
+          value.forEach((v) => params.append(`${key}[]`, v));
+        } else {
+          params.append(key, value);
+        }
       }
+    });
+
+    params.append('page', page);
+
+    const endpoint =
+      props.context === 'projectPage'
+        ? `/audits/${props.projectId}`
+        : '/audits';
+
+    const response = await axios.get(`${endpoint}?${params.toString()}`);
+    if (response.data.success) {
+      audits.value = {
+        ...response.data.audits,
+        data: Array.isArray(response.data.audits.data)
+          ? response.data.audits.data
+          : Object.values(response.data.audits.data || {}),
+      };
+    } else {
+      throw new Error(response.data.message || 'Failed to fetch audits');
     }
 
-    // If you need to notify the parent component, you can emit an event
-    // $emit('update:audits', localAudits.value);
-  } catch (error) {
-    console.error('An error occurred:', error);
+    // After successful fetch, restore focus if it was on search
+    if (wasSearchFocused) {
+      nextTick(() => {
+        searchInput.value?.focus();
+      });
+    }
+  } catch (err) {
+    console.error('Error fetching audits:', err);
+    error.value = err.message || 'An error occurred while fetching audit data';
+    audits.value = { data: [], current_page: 1, last_page: 1 };
+  } finally {
+    isLoading.value = false;
   }
 };
 
+const handleSearch = debounce(async () => {
+  try {
+    isSearching.value = true;
+    await fetchAudits(1);
+  } finally {
+    isSearching.value = false;
+  }
+}, 300);
+
+const handleModelFilter = () => {
+  fetchAudits(1);
+};
+
+const changePage = (page) => {
+  if (!isLoading.value) {
+    fetchAudits(page);
+  }
+};
+
+// Lifecycle
 onMounted(() => {
-  localAudits.value = props.audits;
+  if (props.audits) {
+    audits.value = {
+      ...props.audits,
+      data: Array.isArray(props.audits.data)
+        ? props.audits.data
+        : Object.values(props.audits.data || {}),
+    };
+  }
+  // Fetch initial data if no props provided
+  else {
+    fetchAudits(1);
+  }
+});
+
+// Watch for prop changes
+watch(
+  () => props.projectId,
+  () => {
+    filters.value.project_id = props.projectId;
+    fetchAudits(1);
+  }
+);
+
+// Cleanup
+onUnmounted(() => {
+  if (searchTimeout) {
+    clearTimeout(searchTimeout);
+  }
 });
 </script>
 

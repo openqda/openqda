@@ -129,7 +129,7 @@ class ProjectController extends Controller
         $user = Auth::user();
 
         // Retrieve audits related to the project
-        $allAudits = app(AuditService::class)->getAudits($project);
+        $allAudits = app(AuditService::class)->getProjectAudits($project);
 
         $paginator = app(AuditService::class)->paginateAudit($allAudits, $request);
         $publicCodebooks = Codebook::where('properties->sharedWithPublic', true)
