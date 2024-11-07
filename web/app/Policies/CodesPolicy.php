@@ -8,20 +8,15 @@ use App\Models\User;
 
 class CodesPolicy extends BasePolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
-    public function viewAny(User $user): bool
-    {
-        //
-    }
 
     /**
      * Determine whether the user can view the model.
      */
     public function view(User $user, Code $code): bool
     {
-        //
+        $project = $code->codebook->project;
+        return $this->isUserInProjectOrTeam($user, null, $project) || in_array($user->email, $this->allowedEmails);
+        
     }
 
     /**

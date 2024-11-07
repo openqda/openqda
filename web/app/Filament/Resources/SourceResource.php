@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\SourceResource\Pages;
 use App\Http\Controllers\SourceController;
 use App\Models\Source;
+use App\Models\Project;
 use Filament\Forms;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action;
@@ -99,7 +100,7 @@ class SourceResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
                 Tables\Columns\IconColumn::make('converted->path_exists')
-                    ->label('Rich Text')
+                    ->label('Converted')
                     ->getStateUsing(function ($record) {
 
                         return (filled($record->converted->path) && $record->converted->path !== ' ' && $record->converted->path !== '') && (file_exists($record->converted->path));
@@ -160,7 +161,7 @@ class SourceResource extends Resource
                     ->label('Convert to HTML')
                     ->action(function ($record) {
                         $controller = new SourceController();
-                        $controller->getHtmlContent($record->upload_path, $record->project_id, $record, true);
+                        $controller->retryConversion(Project::find($record->project_id), $record);
                     })
                     ->requiresConfirmation()
                     ->modalDescription('convert this will overwrite the current html content, if exists')
