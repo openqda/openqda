@@ -3,7 +3,11 @@ import { request } from '../../../utils/http/BackendRequest.js';
 import { createStoreRepository } from '../../../state/StoreRepository.js';
 import { AbstractStore } from '../../../state/AbstractStore.js';
 
-class SelectionsStore extends AbstractStore {}
+class SelectionsStore extends AbstractStore {
+    getIntersections (selections) {
+        const intersections = []
+    }
+}
 
 export const Selections = createStoreRepository({
   key: 'store/selections',

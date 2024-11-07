@@ -8,6 +8,7 @@ import ActionMessage from '../Components/ActionMessage.vue';
 import { asyncTimeout } from '../utils/asyncTimeout';
 
 const props = defineProps({
+    id: String,
   target: {
     type: Object,
   },
@@ -34,6 +35,7 @@ watch(
   () => props.target,
   (newFile) => newFile && start(newFile)
 );
+
 
 const start = (file) => {
   id.value = file.id;

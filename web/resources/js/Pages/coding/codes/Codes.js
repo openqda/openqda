@@ -12,7 +12,6 @@ class CodeStore extends AbstractStore {
   active(codeId, value) {
     const docs = [];
     const setActive = (id) => {
-      console.debug('set active', id);
       const entry = this.entry(id);
       entry.active = value;
       docs.push(entry);
@@ -38,6 +37,7 @@ Codes.create = async ({ projectId, title, name, description, codebookId, color }
     id: randomUUID(),
     text: [],
     color,
+    active: true, // TODO respect coebook active state
     description,
     editable: true,
     codebook: parseInt(codebookId, 10), //somehow int works and not string
@@ -70,11 +70,11 @@ Codes.delete = ({ projectId, source, code }) => {
   });
 };
 
-Codes.updateTitle = ({ projectId, code, title }) => {
+Codes.updateTitle = ({ projectId, code, title, name }) => {
   return request({
     url: `/projects/${projectId}/codes/${code.id}/update-title`,
     type: 'post',
-    body: { title },
+    body: { title: title ?? name },
   });
 };
 

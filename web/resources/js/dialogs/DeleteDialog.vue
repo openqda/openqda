@@ -6,6 +6,8 @@ import TextInput from '../form/TextInput.vue';
 import InputError from '../form/InputError.vue';
 import ActionMessage from '../Components/ActionMessage.vue';
 import { randomString } from '../utils/randomString';
+import Headline3 from "../Components/layout/Headline3.vue";
+import { asyncTimeout } from '../utils/asyncTimeout';
 
 const emit = defineEmits(['deleted', 'cancelled']);
 const props = defineProps({
@@ -17,6 +19,7 @@ const props = defineProps({
   },
   challenge: { type: String, required: false },
   dependants: { type: Array, required: false },
+    message: String
 });
 
 const currentChallenge = ref(null);
@@ -55,23 +58,42 @@ const start = (file) => {
 };
 
 const submit = async () => {
-  submitting.value = true;
-  const onError = (e) => {
-    console.error(e);
-  };
-  const options = { id: id.value, name: name.value };
-  try {
-    const response = await props.submit(options);
-    if (response?.error) {
-      return onError(response.error);
+    error.value = false; // Clear any previous error
+    complete.value = false;
+    submitting.value = true;
+    await asyncTimeout(300);
+
+    let deleted = null;
+    try {
+        deleted = await props.submit(props.target);
+    } catch (e) {
+        console.error('Error during form submission:', e);
+        error.value =
+            e.response?.data?.message ??
+            e.message ??
+            'An unknown error occurred while submitting.';
+        deleted = null;
+    } finally {
+        submitting.value = false;
     }
-    emit('deleted', options);
-    reset();
-  } catch (e) {
-    onError(e);
-  } finally {
-    submitting.value = false;
-  }
+
+    if (!deleted) {
+        if (!error.value) {
+            error.value = 'Create failed due to unknown reasons';
+        }
+        return;
+    } else {
+        complete.value = true;
+    }
+
+    if (complete.value) {
+        setTimeout(() => {
+            complete.value = false;
+            open.value = false;
+            submitting.value = false;
+            emit('created', deleted);
+        }, 300);
+    }
 };
 
 const reset = () => {
@@ -92,6 +114,10 @@ const cancel = () => {
 <template>
   <DialogBase :show="open">
     <template #title>
+        <p v-if="props.message" class="text-center py-6 px-2 bg-destructive/20 rounded-md mb-4">
+            <Headline3 class="block bold text-destructive text-xl">Attention!</Headline3>
+            <span class="font-normal">{{props.message}}</span>
+        </p>
       <div class="w-full text-center">
         Sure you want to delete
         <span class="text-secondary/80">{{ target?.name }}</span
@@ -113,7 +139,7 @@ const cancel = () => {
           :placeholder="`Enter ${currentChallenge} to confirm`"
           type="text"
           class="w-full text-center font-semibold text-xl font-mono tracking-widest text-foreground"
-          @keydown.enter="submit"
+          @keydown.enter="submit()"
           autofocus
         />
         <InputError v-if="error">{{ error }}</InputError>
@@ -140,7 +166,7 @@ const cancel = () => {
           variant="destructive"
           @click="submit"
           :disabled="
-            submitting || (currentChallenge && challengeEntered !== challenge)
+            submitting || (currentChallenge && challengeEntered !== currentChallenge)
           "
           >Delete
         </Button>

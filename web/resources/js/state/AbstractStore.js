@@ -39,16 +39,16 @@ export class AbstractStore {
    */
   observe(callbacks) {
     const removeAdded = callbacks.added
-      ? this.observable.on('added', (docs) => callbacks.added(docs))
+      ? this.observable.on('added', callbacks.added)
       : noop;
     const removeUpdated = callbacks.updated
-      ? this.observable.on('updated', (docs) => callbacks.updated(docs))
+      ? this.observable.on('updated', callbacks.updated)
       : noop;
     const removeDeleted = callbacks.removed
-      ? this.observable.on('removed', (docs) => callbacks.removed(docs))
+      ? this.observable.on('removed', callbacks.removed)
       : noop;
     const removeChanged = callbacks.changed
-      ? this.observable.on('changed', (docs) => callbacks.changed(docs))
+      ? this.observable.on('changed', callbacks.changed)
       : noop;
 
     // call on dispose/unmount
@@ -80,9 +80,10 @@ export class AbstractStore {
       // nested changes are applied directly by
       // consumer and this reflected in a function
       // that returns all ids of updated docs
-      const updatedDocs = docIdOrFn();
+      const allDocs = this.all()
+      const updatedDocs = docIdOrFn(allDocs);
       if (updatedDocs) {
-        this.observable.run('updated', updatedDocs);
+        this.observable.run('updated', updatedDocs, allDocs);
         this.observable.run('changed', { type: 'updated', docs: updatedDocs });
       }
     } else {
@@ -92,7 +93,7 @@ export class AbstractStore {
           values.id = id
       }
       Object.assign(entry, values);
-      this.observable.run('updated', [entry]);
+      this.observable.run('updated', [entry], this.all());
       this.observable.run('changed', { type: 'updated', docs: [entry] });
     }
   }

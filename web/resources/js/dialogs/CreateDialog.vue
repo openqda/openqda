@@ -10,6 +10,7 @@ const props = defineProps({
   schema: { type: Object },
   submit: { type: Function },
   title: { type: String, required: false },
+    buttonTitle: String
 });
 
 const emit = defineEmits(['created', 'cancelled']);
@@ -106,7 +107,7 @@ const cancel = () => {
           }}</ActionMessage>
         </span>
         <Button type="submit" form="create-custom-form" :disabled="submitting"
-          >Create</Button
+          >{{ props.buttonTitle ?? 'Create' }}</Button
         >
       </div>
     </template>

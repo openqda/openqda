@@ -5,6 +5,7 @@ import {
   EyeIcon,
   EyeSlashIcon,
   BarsArrowDownIcon,
+    PencilIcon,
 } from '@heroicons/vue/24/solid/index.js';
 import { TrashIcon } from '@heroicons/vue/24/outline';
 import { ChatBubbleBottomCenterTextIcon } from '@heroicons/vue/24/outline/index.js';
@@ -15,10 +16,16 @@ import { useCodes } from './useCodes.js';
 import { useRange } from './useRange.js';
 import { useSelections } from './selections/useSelections';
 import { changeRGBOpacity } from '../../utils/color/changeRGBOpacity.js';
+import { useRenameDialog } from '../../dialogs/useRenameDialog.js'
 import { useCodingEditor } from './useCodingEditor.js';
+import { useDeleteDialog } from '../../dialogs/useDeleteDialog.js'
+import Dropdown from '../../Components/Dropdown.vue'
+import DropdownLink from '../../Components/DropdownLink.vue'
 
+const { open:openDeleteDialog } = useDeleteDialog()
+const { open:openRenameDialog } = useRenameDialog()
 const Selections = useSelections();
-const { toggleCode } = useCodes();
+const { toggleCode, createCodeSchema } = useCodes();
 const { focusSelection } = useCodingEditor();
 const open = ref(false);
 const props = defineProps({
@@ -28,7 +35,6 @@ const props = defineProps({
   selections: Array,
     canSort: Boolean
 });
-
 const { range } = useRange();
 const showTexts = ref(false);
 const hasTexts = computed(() => props.code.text?.length);
@@ -49,6 +55,16 @@ const selections = (code) => {
 
   return count;
 };
+const editCode = (target) => {
+    const schema = createCodeSchema({
+        title: target.name,
+        description: target.description,
+        color: target.color
+    })
+    schema.id = { type: String, formType: 'hidden', defaultValue: target.id }
+    delete schema.codebookId
+    openRenameDialog({ id: 'edit-code', target, schema  })
+}
 </script>
 
 <template>
@@ -128,11 +144,34 @@ const selections = (code) => {
         <ChatBubbleBottomCenterTextIcon class="w-4 h-4" />
         <span class="text-xs">2</span>
       </button>
-      <button class="p-0 m-0">
-        <EllipsisVerticalIcon class="w-4 h-4" />
-      </button>
+
+        <!-- code menu -->
+        <Dropdown>
+            <template #trigger>
+                <button class="p-0 m-0">
+                    <EllipsisVerticalIcon class="w-4 h-4" />
+                </button>
+            </template>
+            <template #content>
+                <DropdownLink as="button"
+                              @click.prevent="editCode(code)"
+                >
+                    <div class="flex items-center">
+                        <PencilIcon class="w-4 h-4 me-2" />
+                        <span>Edit code</span>
+                    </div>
+                </DropdownLink>
+                <DropdownLink as="button" @click.prevent="openDeleteDialog({ target: code, challenge: 'name', message: 'This will also delete ALL selections in ALL sources within this project that are related to this code!' })">
+                    <div class="flex">
+                        <TrashIcon class="w-4 h-4 me-2 text-destructive" />
+                        <span>Delete this code</span>
+                    </div>
+                </DropdownLink>
+            </template>
+        </Dropdown>
     </div>
 
+      <!-- TEXT Selections -->
     <div
       v-if="hasTexts && showTexts"
       :style="`border-color: ${changeRGBOpacity(code.color, 1)};`"

@@ -13,6 +13,7 @@ import Button from '../../Components/interactive/Button.vue';
 import { useDraggable } from 'vue-draggable-plus'
 import { useRange } from './useRange.js'
 
+
 const { range } = useRange()
 const { toggleCodebook, observe } = useCodes();
 const props = defineProps({
