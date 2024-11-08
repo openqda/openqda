@@ -5,18 +5,6 @@ import {Codes} from './codes/Codes.js'
 import {Selections} from './selections/Selections.js'
 import {randomColor} from '../../utils/random/randomColor.js'
 
-const state = reactive({
-    loaded: false
-})
-
-const orders = {}
-const getOrder = (codebook) => {
-    if (!(codebook in orders)) {
-        orders[codebook] = 0
-    }
-    return orders[codebook]++
-}
-
 const createCodeSchema = ({ title, description, color, codebooks }) => ({
     title: {
         type: String,
@@ -46,53 +34,17 @@ const createCodeSchema = ({ title, description, color, codebooks }) => ({
 })
 
 export const useCodes = () => {
-    const { allCodes, codebooks, projectId, source } = usePage().props
+    const page = usePage()
+    const { allCodes, codebooks, projectId, source } = page.props
+    const sourceId = source.id
+    const key = `${projectId}-${sourceId}`
     const codeStore = Codes.by(projectId)
     const codebookStore = Codebooks.by(projectId)
-    const selectionStore = Selections.by(projectId)
+    const selectionStore = Selections.by(key)
 
-    /**
-     * To lazy load codes and codebooks
-     */
-    const initCodebooks = () => {
-        if (state.loaded) {
-            return
-        }
-        codebooks.forEach((book) => {
-            book.active = true
-        })
-
-        const selections = []
-        const codeList = []
-        const parseCodes = (codes, parent = null) => {
-            codes.forEach((code) => {
-                code.active = true
-                code.parent = parent
-                code.order = getOrder(code.codebook)
-
-                // parse selections
-                if (code.text?.length) {
-                    code.text.forEach((selection) => {
-                        selection.start = Number(selection.start)
-                        selection.end = Number(selection.end)
-                        selection.length = selection.end - selection.start
-                        selection.code = code
-                        selections.push(selection)
-                    })
-                }
-                codeList.push(code)
-                if (code.children?.length) {
-                    parseCodes(code.children, code)
-                }
-            })
-        }
-        parseCodes(allCodes)
-
-        codebookStore.add(...codebooks)
-        codeStore.add(...codeList)
-        selectionStore.add(...selections)
-        state.loaded = true
-    }
+    codebookStore.init(codebooks)
+    codeStore.init(allCodes)
+    selectionStore.init(source.selections, id => codeStore.entry(id))
 
     //---------------------------------------------------------------------------
     // CREATE
@@ -282,7 +234,6 @@ export const useCodes = () => {
         selectionStore,
         toggleCodebook,
         toggleCode,
-        initCodebooks,
         selectionsByIndex,
         sorter: {
             byIndex: useCodes

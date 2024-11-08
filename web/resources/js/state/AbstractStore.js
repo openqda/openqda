@@ -62,17 +62,19 @@ export class AbstractStore {
   }
 
   add(...docs) {
-    const document = {};
+    const documents = {};
     docs.forEach((doc) => {
       // skip existing docs / avoid duplicates
       if (!(doc.id in this.entries)) {
-        document[doc.id] = doc;
+        documents[doc.id] = doc;
         this.size.value++;
       }
     });
-    Object.assign(this.entries, document);
-    this.observable.run('added', docs);
-    this.observable.run('changed', { type: 'added', docs });
+    Object.assign(this.entries, documents);
+    const added = Object.values(documents)
+    this.observable.run('added', added);
+    this.observable.run('changed', { type: 'added', docs:added });
+    return added
   }
 
   update(docIdOrFn, value, { updateId = false } = {}) {

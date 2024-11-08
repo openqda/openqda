@@ -24,6 +24,35 @@ class CodeStore extends AbstractStore {
     setActive(codeId);
     return docs;
   }
+
+  init(docs) {
+      if (this.size.value === 0 && docs.length > 0) {
+          const codeList = []
+          const parseCodes = (codes, parent = null) => {
+              codes.forEach((code) => {
+                  code.active = true
+                  code.parent = parent
+                  code.order = getOrder(code.codebook)
+                  code.order = getOrder(code.codebook)
+
+                  codeList.push(code)
+                  if (code.children?.length) {
+                      parseCodes(code.children, code)
+                  }
+              })
+          }
+          parseCodes(docs)
+          this.add(...codeList)
+      }
+  }
+}
+
+const orders = {}
+const getOrder = (codebook) => {
+    if (!(codebook in orders)) {
+        orders[codebook] = 0
+    }
+    return orders[codebook]++
 }
 
 export const Codes = createStoreRepository({

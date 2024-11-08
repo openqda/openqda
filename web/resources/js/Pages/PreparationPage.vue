@@ -196,7 +196,6 @@ const unlockSource = async () => {
     flashMessage(response.data.message);
   } else {
     const msg = `Failed to unlock the source. (${response.data.message})`;
-    console.error(msg);
     flashMessage(msg, { type: 'error' });
   }
 };

@@ -2,7 +2,7 @@
     <AuthenticatedLayout :title="pageTitle" :menu="true" :showFooter="false">
         <template #menu>
             <BaseContainer>
-                <div class="flex items-baseline justify-between">
+                <div class="flex items-center justify-between">
                     <Button
                         variant="outline-secondary"
                         @click="openCreateDialog(codesView)"
@@ -44,7 +44,12 @@
                     :codes="codes.filter((code) => code.codebook === codebook.id)"
                     v-if="codesView === 'codes'"
                 />
-                <CodebookList v-if="codesView === 'codebooks'"/>
+                <FilesList
+                    v-if="codesView === 'sources'"
+                    :documents="sourceDocuments"
+                    :actions="[]"
+                    @select="switchFile"
+                />
             </BaseContainer>
         </template>
         <template #main>
@@ -75,6 +80,9 @@ import CreateDialog from '../dialogs/CreateDialog.vue'
 import {Codes} from './coding/codes/Codes.js'
 import DeleteDialog from '../dialogs/DeleteDialog.vue'
 import {useSelections} from './coding/selections/useSelections.js'
+import FilesList from '../Components/files/FilesList.vue'
+import {router} from '@inertiajs/vue3'
+import {request} from '../utils/http/BackendRequest.js'
 
 const props = defineProps([
     'source',
@@ -84,6 +92,25 @@ const props = defineProps([
     'projectId'
 ])
 
+//------------------------------------------------------------------------
+// SOURCES
+//------------------------------------------------------------------------
+const sourceDocuments = ref(props.sources.filter(source => {
+    if (source.id === props.source.id) return false
+    if (source.isLocked) return true
+    return (source.variables ?? []).find(({ name, boolean_value }) => name === 'isLocked' && boolean_value === 1)
+}).map(source => {
+    const copy = { ...source }
+    copy.date = new Date(source.updated_at).toLocaleDateString()
+    copy.variables = { isLocked: true }
+    copy.isConverting = false
+    copy.failed = false
+    copy.converted = true
+    return copy
+}))
+const switchFile = (file) => {
+    router.get(route('source.go-and-code', file.id));
+}
 //------------------------------------------------------------------------
 // GENERIC EDIT DIALOG
 //------------------------------------------------------------------------
@@ -101,7 +128,7 @@ const { createSelection } = useSelections()
 const { codes, codebooks, initCodebooks, createCode, createCodeSchema, updateCode, deleteCode } = useCodes()
 const codesTabs = [
     { value: 'codes', label: 'Codes' },
-    { value: 'codebooks', label: 'Codebooks' }
+    { value: 'sources', label: 'Sources' }
 ]
 const codesView = ref(codesTabs[0].value)
 const createSchema = ref(null)
@@ -146,8 +173,6 @@ onMounted(async () => {
         // relocate?
     }
     onSourceSelected(props.source)
-
-    await initCodebooks()
 })
 
 const onSourceSelected = (file) => {

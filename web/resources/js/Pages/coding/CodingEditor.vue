@@ -62,7 +62,6 @@ import {ArrowPathIcon} from '@heroicons/vue/20/solid'
 import Headline1 from '../../Components/layout/Headline1.vue'
 import {createDelta} from './editor/createDelta.js'
 
-let quillInstance
 const editorContent = ref('')
 const contextMenu = useContextMenu()
 const { selected, markToDelete } = useSelections()
@@ -78,13 +77,16 @@ const props = defineProps({
     project: Object,
     projectId: String,
     source: Object,
+    sources: Array,
     codes: Array,
     locked: Boolean,
     CanUnlock: Boolean
 })
 const projectId = props.project.id
+const sourceId = props.source.id
 const disposables = new Set()
 
+let quillInstance
 onMounted(() => {
     quillInstance = new Quill('#editor', {
         theme: 'snow',
@@ -194,12 +196,17 @@ onMounted(() => {
             })
         })
     }
-    //
-    // watch(
-    //   selections,
-    //   addSelections,
-    //   { deep: true, immediate: true }
-    // );
+
+    let initialWatcher
+    initialWatcher = watch(
+      selections, entries => {
+          if (entries?.length){
+              addSelections(entries)
+              //initialWatcher.stop()
+          }
+        },
+      { deep: true, immediate: true }
+    );
 
     watch(overlaps, (entries) => {
         entries.forEach((entry) => hl.overlap(entry))
@@ -275,7 +282,8 @@ watch(selected, async ({ code }) => {
         flashMessage(error?.message ?? 'Failed to create code', { type: 'error' })
         h.remove(editorEntry)
     } else {
-        Selections.by(projectId).add(selection)
+        const key = `${projectId}-${sourceId}`
+        Selections.by(key).add(selection)
         if (!code.text) {
             code.text = []
         }

@@ -15,7 +15,7 @@ import {
 
 defineProps({
   title: String,
-  description: { type: String, required: false },
+  description: { type: String, formType: 'textarea', required: false },
   show: { type: Boolean, required: false },
 });
 </script>
