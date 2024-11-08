@@ -64,7 +64,7 @@ import {createDelta} from './editor/createDelta.js'
 
 const editorContent = ref('')
 const contextMenu = useContextMenu()
-const { selected, markToDelete } = useSelections()
+const { selected, createSelection, markToDelete } = useSelections()
 const { observe, overlaps, selections, selectionsByIndex } = useCodes()
 const { prevRange, setRange } = useRange()
 const { setInstance, dispose } = useCodingEditor()
@@ -166,8 +166,10 @@ onMounted(() => {
     disposables.add(disposeSelectionObserver)
     window.quill = quillInstance
 
+    console.debug('start observing selections')
     observe('store/selections', {
         added: docs => {
+            console.debug('added docs', docs)
             addSelections(docs)
         },
         updated: (docs, allDocs) => {
@@ -175,7 +177,7 @@ onMounted(() => {
             addSelections(docs)
         },
         removed: docs => {
-            console.debug(docs)
+            console.debug('remove docs', docs)
             docs.forEach(doc => hl.remove(doc))
             addSelections(selections.value.filter(sel => {
                 return !docs.some(doc => doc.id === sel.id)
@@ -184,7 +186,8 @@ onMounted(() => {
     })
 
     const addSelections = (entries) => {
-        console.debug('recompute editor highlights', createDelta(entries))
+        console.debug('recompute editor highlights', entries.length)
+        // createDelta(entries)
         entries.forEach((selection) => {
             hl.highlight({
                 id: selection.code.id,
@@ -201,12 +204,14 @@ onMounted(() => {
     initialWatcher = watch(
       selections, entries => {
           if (entries?.length){
+          console.debug('selection watcher', entries.length, initialWatcher)
               addSelections(entries)
-              //initialWatcher.stop()
           }
-        },
-      { deep: true, immediate: true }
-    );
+          if (typeof initialWatcher !== 'undefined') {
+              console.debug('stop watching')
+              initialWatcher.stop()
+          }
+        }, { deep: false, immediate: true });
 
     watch(overlaps, (entries) => {
         entries.forEach((entry) => hl.overlap(entry))
@@ -238,56 +243,19 @@ watch(selected, async ({ code }) => {
         return
     }
 
+
+
     const { index, length } = prevRange.value
-    const start = index
-    const end = start + length
-    const text = quillInstance.getText(start, length)
+    const text = quillInstance.getText(index, length)
     quillInstance.setSelection(null)
 
-    // optimistic UI
-    // we add the selection on the ui,
-    // even if we don't know if it will work out
-    // and remove it only in case it didn't work
-    const selection = {
-        id: 'unknown',
-        start,
-        end,
-        length,
-        text,
-        code
-    }
-    const editorEntry = {
-        id: selection.code.id,
-        color: selection.code.color,
-        title: selection.code.name,
-        start: selection.start,
-        length: selection.length,
-        active: selection.code.active
-    }
-    const h = quillInstance.getModule('highlight')
-    h.highlight(editorEntry)
-
-    const { response, error } = await Selections.store({
-        projectId: props.project.id,
-        sourceId: props.source.id,
-        code,
-        start,
-        end,
-        text
+    const selection = await createSelection({
+        code, index, length, text
     })
 
-    if (error || response.status >= 400) {
-        const s = response.data.selection
-        selection.id = s.id // update missing id
+    if (!selection) {
         flashMessage(error?.message ?? 'Failed to create code', { type: 'error' })
-        h.remove(editorEntry)
-    } else {
-        const key = `${projectId}-${sourceId}`
-        Selections.by(key).add(selection)
-        if (!code.text) {
-            code.text = []
-        }
-        code.text.push(selection)
+        h.remove({ index, end: index + length })
     }
 })
 

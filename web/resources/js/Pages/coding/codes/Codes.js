@@ -4,25 +4,31 @@ import { request } from '../../../utils/http/BackendRequest.js';
 import { randomUUID } from '../../../utils/randomUUID.js';
 
 class CodeStore extends AbstractStore {
+  withChildren(codeId) {
+      const codes = []
+      const code = this.entry(codeId)
+      codes.push(code)
+      if (code.children?.length) {
+          code.children.forEach(child => {
+              codes.push(...this.withChildren(child.id))
+          })
+      }
+      return codes
+  }
+
   toggle(codeId) {
     const entry = this.entry(codeId);
     return this.active(codeId, !entry.active);
   }
 
   active(codeId, value) {
-    const docs = [];
-    const setActive = (id) => {
-      const entry = this.entry(id);
-      entry.active = value;
-      docs.push(entry);
-      if (entry.children?.length) {
-        entry.children.forEach((child) => setActive(child.id));
-      }
-      this.observable.run('updated', docs);
-      this.observable.run('changed', { type: 'updated', docs });
-    };
-    setActive(codeId);
-    return docs;
+    const codes = this.withChildren(codeId);
+    codes.forEach(code => {
+        code.active = value;
+    })
+    this.observable.run('updated', codes);
+    this.observable.run('changed', { type: 'updated', docs: codes });
+    return codes;
   }
 
   init(docs) {

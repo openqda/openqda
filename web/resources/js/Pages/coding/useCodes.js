@@ -35,7 +35,8 @@ const createCodeSchema = ({ title, description, color, codebooks }) => ({
 
 export const useCodes = () => {
     const page = usePage()
-    const { allCodes, codebooks, projectId, source } = page.props
+    const { allCodes, codebooks, projectId, source, auth } = page.props
+    const userId = auth.user.id
     const sourceId = source.id
     const key = `${projectId}-${sourceId}`
     const codeStore = Codes.by(key)
@@ -44,7 +45,7 @@ export const useCodes = () => {
 
     codebookStore.init(codebooks)
     codeStore.init(allCodes)
-    selectionStore.init(source.selections, id => codeStore.entry(id))
+    selectionStore.init(source.selections.filter(s => s.creating_user_id === userId), id => codeStore.entry(id))
 
     //---------------------------------------------------------------------------
     // CREATE
@@ -56,7 +57,7 @@ export const useCodes = () => {
             }
         })
 
-        const { response, error, code } = await Codes.create({ projectId, ...options })
+        const { response, error, code } = await Codes.create({ projectId, source, ...options })
         if (error) throw error
         if (response.status < 400) {
             return code
@@ -157,12 +158,12 @@ export const useCodes = () => {
         codebookStore.active(codebook.id, active)
         codeStore.all().forEach((code) => {
             if (code.codebook === codebook.id && code.active !== active) {
-                code.active = active
+                toggleCode(code)
             }
         })
     }
 
-    const toggleCode = async (code) => {
+    const toggleCode = (code) => {
         const codes = codeStore.toggle(code.id)
 
         // notify selections updated
@@ -182,18 +183,14 @@ export const useCodes = () => {
             codebookStore.active(codebook.id, true)
         }
 
-        const intersecting = selectionStore.all().filter(s => {
-
-        })
-
         selectionStore.observable.run('updated', updatedSelections)
     }
 
     const selections = computed(() => {
         return selectionStore.all().toSorted((a, b) => {
-            const length = a.length - b.length
+            const length = b.length - a.length
             const start = a.start - b.start
-            return length + start
+            return length !== 0 ? length : start
         })
     })
 

@@ -61,7 +61,7 @@ export class SelectionHighlightBG extends Module {
       this.quill.formatText(start, length, {
         background,
         class:
-          'my-0.5 py-0.5 border-b border-t border-transparent hover:border-secondary hover:shadow-xl',
+          'my-0 py-0 border-b border-t border-transparent hover:border-secondary hover:shadow-xl',
         title: selectionTitle,
         id,
       });
