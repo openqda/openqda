@@ -38,7 +38,7 @@ export const useCodes = () => {
     const { allCodes, codebooks, projectId, source } = page.props
     const sourceId = source.id
     const key = `${projectId}-${sourceId}`
-    const codeStore = Codes.by(projectId)
+    const codeStore = Codes.by(key)
     const codebookStore = Codebooks.by(projectId)
     const selectionStore = Selections.by(key)
 

@@ -60,8 +60,8 @@ export const Codes = createStoreRepository({
   factory: (options) => new CodeStore(options),
 });
 
-Codes.create = async ({ projectId, title, name, description, codebookId, color }) => {
-  const store = Codes.by(projectId);
+Codes.create = async ({ projectId, source, title, name, description, codebookId, color }) => {
+  const store = Codes.by(`${projectId}-${source.id}`);
   const code = {
     id: randomUUID(),
     text: [],
@@ -160,7 +160,5 @@ Codes.addChild = ({ projectId, child }) => {
     body: child,
   });
 };
-
-Codes.entries = (projectId) => Codes.by(projectId).all();
 
 Codes.sort = (a, b) => Number(a.active) - Number(b.active);
