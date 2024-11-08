@@ -317,11 +317,10 @@
   </div>
 </template>
 <script setup>
-import { ref, onMounted, watch, onUnmounted, nextTick } from 'vue';
-import {
-  UserCircleIcon,
-} from '@heroicons/vue/20/solid';
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
+import { UserCircleIcon } from '@heroicons/vue/20/solid';
 import Checkbox from '../Checkbox.vue';
+
 const searchInput = ref(null);
 const props = defineProps({
   audits: Object,

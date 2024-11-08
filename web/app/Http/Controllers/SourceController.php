@@ -18,6 +18,7 @@ use App\Models\Source;
 use App\Models\SourceStatus;
 use App\Models\Variable;
 use DB;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
@@ -25,7 +26,6 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
-use Inertia\Response;
 use OwenIt\Auditing\Models\Audit;
 use Storage;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -38,8 +38,6 @@ class SourceController extends Controller
 {
     /**
      * View of the preparation page with the Sources (Documents)
-     *
-     * @return JsonResponse|Response
      */
     public function index(IndexSourceRequest $request, $projectId)
     {
@@ -53,9 +51,8 @@ class SourceController extends Controller
     /**
      * Store a new source file
      *
-     * @return JsonResponse|string
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function store(StoreSourceRequest $request)
     {
@@ -169,7 +166,7 @@ class SourceController extends Controller
             $source->createAudit(Source::AUDIT_LOCKED, ['message' => $source->name.' has been locked']);
 
             return to_route('coding.show', ['project' => $source->project_id, 'source' => $source]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred: '.$e->getMessage(),
@@ -191,7 +188,7 @@ class SourceController extends Controller
             $source->createAudit(Source::AUDIT_UNLOCKED, ['message' => $source->name.' has been unlocked']);
 
             return response()->json(['success' => true, 'message' => 'Source unlocked successfully']);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred: '.$e->getMessage(),
@@ -249,7 +246,7 @@ class SourceController extends Controller
             $audit->save();
 
             return response()->json(['success' => true, 'message' => 'Document successfully saved']);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
 
             return response()->json(['success' => false, 'message' => 'An error occurred while saving']);
         }
@@ -258,7 +255,7 @@ class SourceController extends Controller
     /**
      * Converts a file to HTML
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function convertFileToHtml($filePath, $projectId, $sourceId)
     {
@@ -274,7 +271,7 @@ class SourceController extends Controller
      *
      * @return false|string
      *
-     * @throws \Exception
+     * @throws Exception
      */
     private function convertFileToHtmlLocally($filePath, $projectId)
     {
@@ -291,7 +288,7 @@ class SourceController extends Controller
 
         // Check if the Python script file exists
         if (! file_exists($scriptPath)) {
-            throw new \Exception('Python script not found at: '.$scriptPath);
+            throw new Exception('Python script not found at: '.$scriptPath);
         }
 
         try {
@@ -305,10 +302,10 @@ class SourceController extends Controller
             if (file_exists($outputHtmlPath)) {
                 return file_get_contents($outputHtmlPath);
             } else {
-                throw new \Exception('Conversion failed. Script output: '.$output);
+                throw new Exception('Conversion failed. Script output: '.$output);
             }
-        } catch (\Exception $e) {
-            throw new \Exception('Script execution failed: '.$e->getMessage());
+        } catch (Exception $e) {
+            throw new Exception('Script execution failed: '.$e->getMessage());
         }
     }
 
@@ -332,7 +329,7 @@ class SourceController extends Controller
                 'message' => 'Source renamed successfully',
                 'source' => $source,
             ]);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while renaming the source: '.$e->getMessage(),
@@ -420,13 +417,13 @@ class SourceController extends Controller
             $source->delete();
 
             return response()->json(['success' => true, 'message' => 'Document deleted successfully']);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()]);
         }
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     private function getHtmlContent(string $path, mixed $projectId, Source $source, bool $fromAdminPanel = false): string|false
     {
@@ -503,7 +500,7 @@ class SourceController extends Controller
                 ],
             ], 200);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
 
             return response()->json(['message' => $e->getMessage()], 500);
@@ -532,8 +529,7 @@ class SourceController extends Controller
     /**
      * Downloads the source file
      *
-     * @param  $source
-     * @return BinaryFileResponse|JsonResponse
+     * @return BinaryFileResponse
      */
     public function download(DownloadSourceRequest $request, $sourceId)
     {
