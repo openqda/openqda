@@ -5,27 +5,27 @@ import {
   EyeIcon,
   EyeSlashIcon,
   BarsArrowDownIcon,
-    PencilIcon,
-    ArrowTurnDownRightIcon
+  PencilIcon,
+  ArrowTurnDownRightIcon,
 } from '@heroicons/vue/24/solid/index.js';
 import { TrashIcon } from '@heroicons/vue/24/outline';
 import { ChatBubbleBottomCenterTextIcon } from '@heroicons/vue/24/outline/index.js';
-import { computed, ref } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { cn } from '../../utils/css/cn.js';
 import Button from '../../Components/interactive/Button.vue';
 import { useCodes } from './useCodes.js';
 import { useRange } from './useRange.js';
 import { useSelections } from './selections/useSelections';
 import { changeRGBOpacity } from '../../utils/color/changeRGBOpacity.js';
-import { useRenameDialog } from '../../dialogs/useRenameDialog.js'
+import { useRenameDialog } from '../../dialogs/useRenameDialog.js';
 import { useCodingEditor } from './useCodingEditor.js';
-import { useDeleteDialog } from '../../dialogs/useDeleteDialog.js'
-import Dropdown from '../../Components/Dropdown.vue'
-import DropdownLink from '../../Components/DropdownLink.vue'
-import {useDraggable} from 'vue-draggable-plus'
+import { useDeleteDialog } from '../../dialogs/useDeleteDialog.js';
+import Dropdown from '../../Components/Dropdown.vue';
+import DropdownLink from '../../Components/DropdownLink.vue';
+import { useDraggable } from 'vue-draggable-plus';
 
-const { open:openDeleteDialog } = useDeleteDialog()
-const { open:openRenameDialog } = useRenameDialog()
+const { open: openDeleteDialog } = useDeleteDialog();
+const { open: openRenameDialog } = useRenameDialog();
 const Selections = useSelections();
 const { toggleCode, createCodeSchema } = useCodes();
 const { focusSelection } = useCodingEditor();
@@ -33,10 +33,10 @@ const open = ref(false);
 const props = defineProps({
   code: Object,
   parent: Object,
-  isDragging:Boolean,
+  isDragging: Boolean,
   liclass: String,
   selections: Array,
-    canSort: Boolean
+  canSort: Boolean,
 });
 const { range } = useRange();
 const showTexts = ref(false);
@@ -59,49 +59,68 @@ const selections = (code) => {
   return count;
 };
 
-const indent = code => console.debug('indent', code)
+const indent = (code) => console.debug('indent', code);
 const editCode = (target) => {
-    const schema = createCodeSchema({
-        title: target.name,
-        description: target.description,
-        color: target.color
-    })
-    schema.id = { type: String, formType: 'hidden', defaultValue: target.id }
-    delete schema.codebookId
-    openRenameDialog({ id: 'edit-code', target, schema  })
-}
+  const schema = createCodeSchema({
+    title: target.name,
+    description: target.description,
+    color: target.color,
+  });
+  schema.id = { type: String, formType: 'hidden', defaultValue: target.id };
+  delete schema.codebookId;
+  openRenameDialog({ id: 'edit-code', target, schema });
+};
 
-const draggableRef = ref(false)
-const sortable = ref(props.codes ?? [])
-const draggable = useDraggable(draggableRef, sortable, {
+const draggableRef = ref(false);
+const sortable = ref(props.codes ?? []);
+let draggable;
+
+onMounted(() => {
+  draggable = useDraggable(draggableRef, sortable, {
     animation: 150,
     scroll: true,
     group: `group-${props.code.id}`,
     clone: (element) => {
-        if (element === undefined || element === null) return element
-        const elementStr = JSON.stringify(element, (key, value) => {
-            if (value === element) return '$cyclic';
-            return value
-        })
-        return JSON.parse(elementStr)
+      if (element === undefined || element === null) {
+        return element;
+      }
+      const elementStr = JSON.stringify(element, (key, value) => {
+        if (value === element) {
+          return '$cyclic';
+        }
+        return value;
+      });
+      return JSON.parse(elementStr);
     },
-    onMove (e) {
-        console.debug('drag end', e)
+    onMove(e) {
+      console.debug('drag end', e);
     },
     onStart(e) {
-        console.debug('drag start', e)
+      console.debug('drag start', e);
     },
     onUpdate(e) {
-        console.debug('drag update', e)
+      console.debug('drag update', e);
     },
-    onEnd (e) {
-        console.debug('drag end', e)
-    }
-})
+    onEnd(e) {
+      console.debug('drag end', e);
+    },
+  });
+});
+
+onBeforeUnmount(() => {});
 </script>
 
 <template>
-  <li :class="cn('rounded-md py-2 border border-transparent', open && 'bg-background/20', dragenter && 'border-secondary bold', props.liclass)" :data-code="code.id">
+  <li
+    :class="
+      cn(
+        'rounded-md py-2 border border-transparent',
+        open && 'bg-background/20',
+        props.liclass
+      )
+    "
+    :data-code="code.id"
+  >
     <div class="flex items-center w-auto space-x-3">
       <Button
         :title="open ? 'Hide children' : 'Show children'"
@@ -133,7 +152,12 @@ const draggable = useDraggable(draggableRef, sortable, {
         }}</span>
       </Button>
       <div
-        :class="cn('flex-grow tracking-wide rounded-md px-2 py-1 text-sm text-foreground dark:text-background group hover:shadow', props.canSort && 'cursor-grab')"
+        :class="
+          cn(
+            'flex-grow tracking-wide rounded-md px-2 py-1 text-sm text-foreground dark:text-background group hover:shadow',
+            props.canSort && 'cursor-grab'
+          )
+        "
         :style="`background: ${changeRGBOpacity(code.color, 1)};`"
       >
         <button
@@ -146,7 +170,7 @@ const draggable = useDraggable(draggableRef, sortable, {
               'w-full h-full text-left flex',
               code.active
                 ? 'hover:font-semibold'
-                : 'cursor-not-allowed text-opacity-20',
+                : 'cursor-not-allowed text-opacity-20'
             )
           "
         >
@@ -156,10 +180,14 @@ const draggable = useDraggable(draggableRef, sortable, {
           >
         </button>
         <div v-else class="w-full group flex">
-            <span class="line-clamp-1 flex-grow items-center">{{ code.name }}</span>
-            <div v-show="isDragging" class="bg-background rounded px-3 py-1 h-full text-foreground/60 hover:text-foreground">
-                <ArrowTurnDownRightIcon class="w-4 h-4" />
-            </div>
+          <span class="line-clamp-1 flex-grow items-center">{{
+            code.name
+          }}</span>
+          <div
+            class="bg-background rounded px-3 py-1 h-full text-foreground/60 hover:text-foreground"
+          >
+            <ArrowTurnDownRightIcon class="w-4 h-4" />
+          </div>
         </div>
       </div>
       <button
@@ -183,33 +211,41 @@ const draggable = useDraggable(draggableRef, sortable, {
         <span class="text-xs">2</span>
       </button>
 
-        <!-- code menu -->
-        <Dropdown>
-            <template #trigger>
-                <button class="p-0 m-0">
-                    <EllipsisVerticalIcon class="w-4 h-4" />
-                </button>
-            </template>
-            <template #content>
-                <DropdownLink as="button"
-                              @click.prevent="editCode(code)"
-                >
-                    <div class="flex items-center">
-                        <PencilIcon class="w-4 h-4 me-2" />
-                        <span>Edit code</span>
-                    </div>
-                </DropdownLink>
-                <DropdownLink as="button" @click.prevent="openDeleteDialog({ target: code, challenge: 'name', message: 'This will also delete ALL selections in ALL sources within this project that are related to this code!' })">
-                    <div class="flex">
-                        <TrashIcon class="w-4 h-4 me-2 text-destructive" />
-                        <span>Delete this code</span>
-                    </div>
-                </DropdownLink>
-            </template>
-        </Dropdown>
+      <!-- code menu -->
+      <Dropdown>
+        <template #trigger>
+          <button class="p-0 m-0">
+            <EllipsisVerticalIcon class="w-4 h-4" />
+          </button>
+        </template>
+        <template #content>
+          <DropdownLink as="button" @click.prevent="editCode(code)">
+            <div class="flex items-center">
+              <PencilIcon class="w-4 h-4 me-2" />
+              <span>Edit code</span>
+            </div>
+          </DropdownLink>
+          <DropdownLink
+            as="button"
+            @click.prevent="
+              openDeleteDialog({
+                target: code,
+                challenge: 'name',
+                message:
+                  'This will also delete ALL selections in ALL sources within this project that are related to this code!',
+              })
+            "
+          >
+            <div class="flex">
+              <TrashIcon class="w-4 h-4 me-2 text-destructive" />
+              <span>Delete this code</span>
+            </div>
+          </DropdownLink>
+        </template>
+      </Dropdown>
     </div>
 
-      <!-- TEXT Selections -->
+    <!-- TEXT Selections -->
     <div
       v-if="hasTexts && showTexts"
       :style="`border-color: ${changeRGBOpacity(code.color, 1)};`"
@@ -243,9 +279,9 @@ const draggable = useDraggable(draggableRef, sortable, {
     </div>
 
     <!-- children -->
-    <ul ref="draggableRef" v-if="code.children">
+    <ul ref="draggableRef" v-if="open && code.children">
       <CodeListItem
-        v-for="child in (code.children ?? [])"
+        v-for="child in code.children ?? []"
         :key="child.id"
         :code="child"
         :can-sort="canSort"
