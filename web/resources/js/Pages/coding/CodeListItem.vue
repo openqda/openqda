@@ -22,31 +22,57 @@ import { useCodingEditor } from './useCodingEditor.js';
 import { useDeleteDialog } from '../../dialogs/useDeleteDialog.js';
 import Dropdown from '../../Components/Dropdown.vue';
 import DropdownLink from '../../Components/DropdownLink.vue';
-import { useDraggable } from 'vue-draggable-plus';
 
-const { open: openDeleteDialog } = useDeleteDialog();
-const { open: openRenameDialog } = useRenameDialog();
+//------------------------------------------------------------------------
+// DATA / PROPS
+//------------------------------------------------------------------------
 const Selections = useSelections();
+const props = defineProps({
+    code: Object,
+    parent: Object,
+    isDragging: Boolean,
+    liclass: String,
+    selections: Array,
+    canSort: Boolean,
+});
+
+//------------------------------------------------------------------------
+// OPEN CLOSE
+//------------------------------------------------------------------------
 const { toggleCode, createCodeSchema } = useCodes();
 const { focusSelection } = useCodingEditor();
 const open = ref(false);
-const props = defineProps({
-  code: Object,
-  parent: Object,
-  isDragging: Boolean,
-  liclass: String,
-  selections: Array,
-  canSort: Boolean,
-});
+
+//------------------------------------------------------------------------
+// RANGE
+//------------------------------------------------------------------------
 const { range } = useRange();
+
+//------------------------------------------------------------------------
+// TEXTS (SELECTIONS)
+//------------------------------------------------------------------------
 const showTexts = ref(false);
 const hasTexts = computed(() => props.code.text?.length);
+const openTexts = () => {
+    showTexts.value = true
+}
+const closeTexts = () => {
+    showTexts.value = false
+}
+
+//------------------------------------------------------------------------
+// RANGE
+//------------------------------------------------------------------------
 const toggle = () => {
   open.value = !open.value;
   if (!open.value) {
     showTexts.value = false;
   }
 };
+
+//------------------------------------------------------------------------
+// RANGE
+//------------------------------------------------------------------------
 const selections = (code) => {
   let count = hasTexts.value ?? 0;
 
@@ -60,6 +86,12 @@ const selections = (code) => {
 };
 
 const indent = (code) => console.debug('indent', code);
+
+//------------------------------------------------------------------------
+// DIALOGS
+//------------------------------------------------------------------------
+const { open: openDeleteDialog } = useDeleteDialog();
+const { open: openRenameDialog } = useRenameDialog();
 const editCode = (target) => {
   const schema = createCodeSchema({
     title: target.name,
@@ -70,44 +102,6 @@ const editCode = (target) => {
   delete schema.codebookId;
   openRenameDialog({ id: 'edit-code', target, schema });
 };
-
-const draggableRef = ref(false);
-const sortable = ref(props.codes ?? []);
-let draggable;
-
-onMounted(() => {
-  draggable = useDraggable(draggableRef, sortable, {
-    animation: 150,
-    scroll: true,
-    group: `group-${props.code.id}`,
-    clone: (element) => {
-      if (element === undefined || element === null) {
-        return element;
-      }
-      const elementStr = JSON.stringify(element, (key, value) => {
-        if (value === element) {
-          return '$cyclic';
-        }
-        return value;
-      });
-      return JSON.parse(elementStr);
-    },
-    onMove(e) {
-      console.debug('drag end', e);
-    },
-    onStart(e) {
-      console.debug('drag start', e);
-    },
-    onUpdate(e) {
-      console.debug('drag update', e);
-    },
-    onEnd(e) {
-      console.debug('drag end', e);
-    },
-  });
-});
-
-onBeforeUnmount(() => {});
 </script>
 
 <template>
@@ -144,7 +138,7 @@ onBeforeUnmount(() => {});
           )
         "
         :disabled="!hasTexts"
-        @click.prevent="showTexts = !showTexts"
+        @click.prevent="showTexts ? closeTexts() : openTexts()"
       >
         <BarsArrowDownIcon class="w-4 -h-4" />
         <span class="text-xs">{{
@@ -206,7 +200,7 @@ onBeforeUnmount(() => {});
         <EyeIcon v-else class="w-4 h-4" />
       </button>
       <!-- memo icon -->
-      <button class="p-0 m-0 flex" v-if="false">
+      <button class="p-0 m-0 flex">
         <ChatBubbleBottomCenterTextIcon class="w-4 h-4" />
         <span class="text-xs">2</span>
       </button>
@@ -279,7 +273,7 @@ onBeforeUnmount(() => {});
     </div>
 
     <!-- children -->
-    <ul ref="draggableRef" v-if="open && code.children">
+    <ul v-if="open && code.children">
       <CodeListItem
         v-for="child in code.children ?? []"
         :key="child.id"
