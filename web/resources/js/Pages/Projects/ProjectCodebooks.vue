@@ -60,44 +60,43 @@ const importCodebook = async (codebook) => {
 };
 
 const handleFileUpload = (event) => {
-  selectedFile.value = event.target.files[0];
+    selectedFile.value = event.target.files[0];
 };
 
 const importXmlFile = async () => {
-  if (!selectedFile.value) {
-    alert('Please select a file first.');
-    return;
-  }
-  y;
-  const formData = new FormData();
-  formData.append('file', selectedFile.value);
-  formData.append('project_id', project.id);
+    if (!selectedFile.value) {
+        alert('Please select a file first.');
+        return;
+    }
 
-  const { response, error } = await request({
-    url: '/codebook/import',
-    body: formData,
-    type: 'post',
-    headers: { 'Content-Type': 'multipart/form-data' },
-  });
+    const formData = new FormData();
+    formData.append('file', selectedFile.value);
+    formData.append('project_id', projectId);
 
-  if (error) {
-    console.error('Failed to import XML:', error);
-    const message = response?.data?.error
-      ? response.data.error
-      : 'Failed to import XML. An unexpected error occurred.';
-    flashMessage(message, { type: 'error' });
-  } else {
-    flashMessage(response.data.message);
-    setTimeout(() => {
-      // Refresh the page or update the relevant data
-      router.get(
-        route('project.show', {
-          project: project.id,
-          codebookstab: true,
-        })
-      );
-    }, 1000);
-  }
+    try {
+        const response = await axios.post(
+            route('codebook-codes.import', { project: projectId }),
+            formData,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            }
+        );
+
+        alert(response.data.message);
+        // Refresh the page or update the relevant data
+        router.get(
+            route('project.show', { project: projectId, codebookstab: true })
+        );
+    } catch (error) {
+        console.error('Failed to import XML:', error);
+        if (error.response && error.response.data && error.response.data.error) {
+            alert(error.response.data.error);
+        } else {
+            alert('Failed to import XML. An unexpected error occurred.');
+        }
+    }
 };
 </script>
 

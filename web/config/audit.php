@@ -166,4 +166,21 @@ return [
     */
 
     'console' => false,
+    // Default number of items per page
+    'per_page' => env('AUDIT_PER_PAGE', 20),
+
+    // Cache settings
+    'cache' => [
+        // Cache duration in minutes
+        'duration' => env('AUDIT_CACHE_DURATION', 60),
+
+        // Cache key prefix
+        'prefix' => 'audit_',
+
+        // Whether to enable caching
+        'enabled' => env('AUDIT_CACHE_ENABLED', true),
+    ],
+
+    // Date format for display
+    'date_format' => 'd.m.Y H:i',
 ];

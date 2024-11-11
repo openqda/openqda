@@ -70,7 +70,6 @@ import CodeList from './coding/CodeList.vue'
 import CodingEditor from './coding/CodingEditor.vue'
 import BaseContainer from '../Layouts/BaseContainer.vue'
 import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue'
-import CodebookList from './coding/CodebookList.vue'
 import Button from '../Components/interactive/Button.vue'
 import {useCodes} from './coding/useCodes.js'
 import {useRange} from './coding/useRange.js'
@@ -82,7 +81,6 @@ import DeleteDialog from '../dialogs/DeleteDialog.vue'
 import {useSelections} from './coding/selections/useSelections.js'
 import FilesList from '../Components/files/FilesList.vue'
 import {router} from '@inertiajs/vue3'
-import {request} from '../utils/http/BackendRequest.js'
 
 const props = defineProps([
     'source',
@@ -183,6 +181,7 @@ const onSourceSelected = (file) => {
     }
     pageTitle.value = `Coding: ${file.name}`
 }
+
 </script>
 
 <style scoped>
@@ -290,34 +289,3 @@ const onSourceSelected = (file) => {
 }
 </style>
 
-<style lang="postcss" scoped>
-#editor :deep(h1) {
-    @apply text-2xl;
-}
-
-#editor :deep(h2) {
-    @apply text-xl;
-}
-
-#editor :deep(h3) {
-    @apply text-lg;
-}
-
-/*
-  Enter and leave animations can use different
-  durations and timing functions.
-*/
-.slide-fade-enter-active {
-    transition: all 0.3s ease-out;
-}
-
-.slide-fade-leave-active {
-    transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
-}
-
-.slide-fade-enter-from,
-.slide-fade-leave-to {
-    transform: translateX(20px);
-    opacity: 0;
-}
-</style>

@@ -2,72 +2,51 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ShowAnalysisPage;
 use App\Models\Code;
 use App\Models\Project;
 use App\Models\Source;
-use App\Models\User;
-use Illuminate\Http\Request;
+use App\Traits\BuildsNestedCode;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Inertia\Response;
+use Throwable;
 
 class AnalysisController extends Controller
 {
-    public function index()
-    {
-
-    }
-
-    public function show(Request $request, Project $project)
-    {
-        $sources = Source::where('project_id', $project->id)->get();
-        $codebooks = $project->codebooks()->get();
-
-        // Fetch only root codes for all codebooks, including necessary relationships
-        $rootCodes = Code::with(['childrenRecursive', 'codebook'])
-            ->whereIn('codebook_id', $codebooks->pluck('id'))
-            ->get();
-
-        // Build nested structure for each root code
-        $allCodes = $rootCodes->map(function ($rootCode) {
-            return $this->buildNestedCode($rootCode);
-        });
-
-        return Inertia::render('AnalysisPage', [
-            'sources' => $sources,
-            'codes' => $allCodes,
-            'codebooks' => $codebooks,
-        ]);
-    }
+    use BuildsNestedCode;
 
     /**
-     * @return array
+     * Show analysis page for a specific project.
      */
-    private function buildNestedCode($code)
+    public function show(ShowAnalysisPage $request, Project $project): Response
     {
-        $nestedCode = [
-            'id' => $code->id,
-            'name' => $code->name,
-            'color' => $code->color,
-            'codebook' => $code->codebook->id,
-            'description' => $code->description ?? '',
-            'children' => [],
-            'text' => $code->selections()->get()->map(function ($s) {
-                return [
-                    'id' => $s->id,
-                    'text' => $s->text,
-                    'start' => $s->start_position,
-                    'end' => $s->end_position,
-                    'createdBy' => $s->creating_user_id, // resolve: User::find($s->creating_user_id)->name,
-                    'createdAt' => $s->created_at,
-                    'updatedAt' => $s->updated_at,
-                    'source_id' => $s->source_id, // Assuming you have a source_id field
-                ];
-            })->toArray(),
-        ];
+        try {
+            $sources = Source::where('project_id', $project->id)->get();
+            $codebooks = $project->codebooks()->get();
 
-        foreach ($code->children as $child) {
-            $nestedCode['children'][] = $this->buildNestedCode($child);
+            // Fetch and build nested codes structure
+            $rootCodes = Code::with(['childrenRecursive', 'codebook', 'selections'])
+                ->whereIn('codebook_id', $codebooks->pluck('id'))
+                ->get();
+
+            $allCodes = $rootCodes->map(fn ($code) => $this->buildNestedCode($code));
+
+            return Inertia::render('AnalysisPage', [
+                'sources' => $sources,
+                'codes' => $allCodes,
+                'codebooks' => $codebooks,
+            ]);
+
+        } catch (Throwable $e) {
+            Log::error('Error loading analysis page', [
+                'project_id' => $project->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return Inertia::render('Error', [
+                'message' => 'Failed to load analysis page. Please try again.',
+            ]);
         }
-
-        return $nestedCode;
     }
 }

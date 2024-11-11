@@ -178,9 +178,10 @@ const onConfirm = async () => {
 };
 
 const lockAndCode = () =>
-  router.post(route('source.lock', editorSourceRef.value.id));
+  router.post(route('source.code', editorSourceRef.value.id));
 const codeThisFile = () =>
-  router.get(route('source.go-and-code', editorSourceRef.value.id));
+  router.get(route('source.code', editorSourceRef.value.id));
+
 const unlockSource = async () => {
   const { response, error } = await request({
     url: `/sources/${editorSourceRef.value.id}/unlock`,

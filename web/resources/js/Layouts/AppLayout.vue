@@ -75,7 +75,8 @@ function cleanup() {
 }
 
 onMounted(() => {
-  if (getSharedTeam()) {
+  const sharedTeam = getSharedTeam();
+  if (sharedTeam && Object.keys(sharedTeam).length > 0) {
     userInAteam = true;
     setPresence();
     document.addEventListener('beforeunload', cleanup);

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ChangeCodeRequest;
+use App\Http\Requests\DeleteSelectionRequest;
+use App\Http\Requests\StoreSelectionRequest;
 use App\Models\Code;
 use App\Models\Project;
 use App\Models\Selection;
@@ -16,15 +19,15 @@ class SelectionController extends Controller
 
     }
 
-    public function store(Request $request, Project $project, Source $source, Code $code)
+    /**
+     * Store a newly created selection.
+     *
+     * @param  Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function store(StoreSelectionRequest $request, Project $project, Source $source, Code $code)
     {
-        $data = $request->validate([
-            'text' => 'required|string',
-            'start_position' => 'required|integer',
-            'end_position' => 'required|integer',
-            'description' => 'sometimes|string', // optional
-        ]);
-
+        $data = $request->validated();
         $data['id'] = $request->input('textId');
         $data['code_id'] = $code->id;
         $data['source_id'] = $source->id;
@@ -36,12 +39,15 @@ class SelectionController extends Controller
         return response()->json(['message' => 'Selection saved successfully!', 'selection' => $selection]);
     }
 
-    public function changeCode(Request $request, Project $project, Source $source, Code $code, Selection $selection)
+    /**
+     * Edit the selection to a new code.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function changeCode(ChangeCodeRequest $request, Project $project, Source $source, Code $code, Selection $selection)
     {
-        // Validate the request data
-        $validatedData = $request->validate([
-            'newCodeId' => 'required|exists:codes,id', // Assuming "codes" is the table name for the codes.
-        ]);
+        // Get the validated data from the request
+        $validatedData = $request->validated();
 
         // Update the selection's code_id with the newCodeId from the request
         $selection->code_id = $validatedData['newCodeId'];
@@ -53,20 +59,19 @@ class SelectionController extends Controller
         return response()->json(['success' => true, 'message' => 'Code updated successfully']);
     }
 
-    public function destroy(Request $request, Project $project, Source $source, Code $code, Selection $selection)
+    /**
+     * Remove the specified selection.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy(DeleteSelectionRequest $request, Project $project, Source $source, Code $code, Selection $selection)
     {
 
-        /*
-        I need source id - code id - and selection id
-        This is because I need to delete a selection that is belonging to a code, that is belonging to a document
-        This is good practice so you're SURE you delete a precise selection
-        TODO create policy for selection
-        // It will automatically look for a method named 'delete' in the policy for the Source model
-        if (!Gate::allows('delete', $source)) {
-            return response()->json(['success' => false, 'message' => 'Not allowed'], 403);
-        }
-        */
         try {
+            // Ensure that the selection belongs to the correct code and source
+            if ($selection->source_id != $source->id || $selection->code_id != $code->id) {
+                return response()->json(['success' => false, 'message' => 'Selection does not match the given source or code'], 400);
+            }
 
             // Delete the database record
             $selection->delete();
@@ -75,6 +80,5 @@ class SelectionController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()]);
         }
-
     }
 }
