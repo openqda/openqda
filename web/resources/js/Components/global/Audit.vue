@@ -118,7 +118,7 @@
     <div class="relative">
       <!-- Loading overlay -->
       <div
-        v-if="isLoading && audits.data.length"
+        v-if="isLoading && localAudits.data.length"
         class="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center z-10"
       >
         <svg
@@ -144,10 +144,10 @@
       </div>
 
       <ul role="list" class="-mb-8 mt-4">
-        <li v-for="(audit, auditIdx) in audits.data" :key="audit.id">
+        <li v-for="(audit, auditIdx) in localAudits.data" :key="audit.id">
           <div class="relative pb-8">
             <span
-              v-if="auditIdx !== audits.data.length - 1"
+              v-if="auditIdx !== localAudits.data.length - 1"
               class="absolute left-5 top-5 -ml-px h-full w-0.5 bg-gray-200"
               aria-hidden="true"
             ></span>
@@ -281,32 +281,34 @@
       </ul>
 
       <!-- Pagination -->
-      <div v-if="audits.last_page > 1" class="mt-4 flex justify-center">
+      <div v-if="localAudits.last_page > 1" class="mt-4 flex justify-center">
         <nav
           class="flex items-center justify-between"
           :class="{ 'opacity-50': isLoading }"
         >
           <button
-            :disabled="audits.current_page === 1 || isLoading"
-            @click="changePage(audits.current_page - 1)"
+            :disabled="localAudits.current_page === 1 || isLoading"
+            @click="changePage(localAudits.current_page - 1)"
             class="px-3 py-1 rounded-md bg-white border"
             :class="{
               'opacity-50 cursor-not-allowed':
-                audits.current_page === 1 || isLoading,
+                localAudits.current_page === 1 || isLoading,
             }"
           >
             Previous
           </button>
           <span class="mx-4">
-            Page {{ audits.current_page }} of {{ audits.last_page }}
+            Page {{ localAudits.current_page }} of {{ localAudits.last_page }}
           </span>
           <button
-            :disabled="audits.current_page === audits.last_page || isLoading"
-            @click="changePage(audits.current_page + 1)"
+            :disabled="
+              localAudits.current_page === localAudits.last_page || isLoading
+            "
+            @click="changePage(localAudits.current_page + 1)"
             class="px-3 py-1 rounded-md bg-white border"
             :class="{
               'opacity-50 cursor-not-allowed':
-                audits.current_page === audits.last_page || isLoading,
+                localAudits.current_page === localAudits.last_page || isLoading,
             }"
           >
             Next
@@ -351,18 +353,18 @@ const isSearching = ref(false);
 const error = ref(null);
 let searchTimeout = null;
 
-// Initialize audits with empty array
-const audits = ref({
+// Initialize localAudits with empty array
+const localAudits = ref({
   data: [],
   current_page: 1,
   last_page: 1,
 });
 
 const getModelCount = (type) => {
-  if (!Array.isArray(audits.value.data)) {
+  if (!Array.isArray(localAudits.value.data)) {
     return 0;
   }
-  return audits.value.data.filter((audit) => audit.model === type).length;
+  return localAudits.value.data.filter((audit) => audit.model === type).length;
 };
 
 // Utility functions
@@ -433,14 +435,14 @@ const fetchAudits = async (page = 1) => {
 
     const response = await axios.get(`${endpoint}?${params.toString()}`);
     if (response.data.success) {
-      audits.value = {
+      localAudits.value = {
         ...response.data.audits,
         data: Array.isArray(response.data.audits.data)
           ? response.data.audits.data
           : Object.values(response.data.audits.data || {}),
       };
     } else {
-      throw new Error(response.data.message || 'Failed to fetch audits');
+      throw new Error(response.data.message || 'Failed to fetch localAudits');
     }
 
     // After successful fetch, restore focus if it was on search
@@ -450,9 +452,9 @@ const fetchAudits = async (page = 1) => {
       });
     }
   } catch (err) {
-    console.error('Error fetching audits:', err);
+    console.error('Error fetching localAudits:', err);
     error.value = err.message || 'An error occurred while fetching audit data';
-    audits.value = { data: [], current_page: 1, last_page: 1 };
+    localAudits.value = { data: [], current_page: 1, last_page: 1 };
   } finally {
     isLoading.value = false;
   }
@@ -476,7 +478,7 @@ const changePage = (page) => {
 // Lifecycle
 onMounted(() => {
   if (props.audits) {
-    audits.value = {
+    localAudits.value = {
       ...props.audits,
       data: Array.isArray(props.audits.data)
         ? props.audits.data
