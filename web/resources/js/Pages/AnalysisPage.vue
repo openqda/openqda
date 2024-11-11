@@ -1,123 +1,129 @@
 <template>
   <AuthenticatedLayout :menu="true" :showFooter="false" :title="pageTitle">
-      <template #menu>
-          <BaseContainer>
-          <div class="flex justify-end">
-              <ResponsiveTabList
-                  :tabs="views"
-                  :initial="view"
-                  @change="(value) => (view = value)"
-              />
-          </div>
-              <div v-if="view === 'export'">
-                <Button
-                    @click="exportToCSV(selection)"
-                    :disabled="!hasSelections"
+    <template #menu>
+      <BaseContainer>
+        <div class="flex justify-end">
+          <ResponsiveTabList
+            :tabs="views"
+            :initial="view"
+            @change="(value) => (view = value)"
+          />
+        </div>
+        <div v-if="view === 'export'">
+          <Button @click="exportToCSV(selection)" :disabled="!hasSelections">
+            Export to CSV
+          </Button>
+        </div>
+
+        <div v-show="view === 'visualize'" class="space-y-4">
+          <SelectField
+            id="location"
+            name="location"
+            class="text-foreground"
+            value="list"
+            :options="availablePlugins"
+            @change="selectVisualizerPlugin($event.target)"
+          >
+          </SelectField>
+
+          <FilesList
+            :focus-on-hover="false"
+            :fields="{
+              lock: false,
+              file: true,
+              type: true,
+              date: false,
+              user: false,
+            }"
+            :documents="files"
+            :fixed="false"
+            @select="(doc) => checkFile(doc.id)"
+          >
+            <template #custom-head>
+              <th class="w-6 text-right">
+                <input
+                  id="all_files"
+                  type="checkbox"
+                  :checked="checkedFiles.get('all_files')"
+                  @change="checkFile('all_files')"
+                />
+              </th>
+            </template>
+            <template  v-slot:custom-cells="{ source }">
+              <td class="text-right">
+                <input
+                  :id="source.id"
+                  type="checkbox"
+                  :checked="checkedFiles.get(source.id)"
+                  @change="checkFile(source.id)"
+                  class="cursor-pointer"
+                />
+              </td>
+            </template>
+          </FilesList>
+          <table class="w-full mt-4 border-collapse border-0">
+            <thead>
+              <tr class="border-0">
+                <th style="width: 3rem"></th>
+                <th
+                  scope="col"
+                  class="p-2 text-left text-xs font-medium uppercase tracking-wide text-silver-300 sm:pl-0"
                 >
-                    Export to CSV
-                </Button>
-              </div>
-
-              <div v-show="view === 'visualize'" class="space-y-4">
-                  <SelectField
-                      id="location"
-                      name="location"
-                      class="text-foreground"
-                      value="list"
-                      :options="availablePlugins"
-                      @change="selectVisualizerPlugin($event.target)">
-                  </SelectField>
-
-                  <FilesList
-                      :fields="{ lock: false, file: true, type: true, date: false, user: false }"
-                      :documents="files"
-                      :fixed="false"
-                  >
-                      <template #custom-head>
-                          <th class="w-6 text-right">
-                              <input
-                                  id="all_files"
-                                  type="checkbox"
-                                  :checked="checkedFiles.get('all_files')"
-                                  @change="checkFile('all_files')"
-                              >
-                          </th>
-                      </template>
-                      <template #custom-cells v-slot="{ document, index }">
-                          <td :data-index="index">
-                              <input
-                                  :id="document.id"
-                                  type="checkbox"
-                                  :checked="checkedFiles.get(document.id)"
-                                  @change="checkFile(document.id)"
-                                  class="cursor-pointer"
-                              >
-                          </td>
-                      </template>
-                  </FilesList>
-              <table class="w-full mt-4 border-collapse border-0">
-                  <thead>
-                  <tr class="border-0">
-                      <th style="width: 3rem"></th>
-                      <th
-                          scope="col"
-                          class="p-2 text-left text-xs font-medium uppercase tracking-wide text-silver-300 sm:pl-0"
-                      >
-                          Codes
-                      </th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr class="text-sm border-0 hover:bg-silver-300">
-                      <td class="py-2 text-center tracking-wide">
-                          <input
-                              id="all_codes"
-                              type="checkbox"
-                              :checked="checkedCodes.get('all_codes')"
-                              @change="checkCode('all_codes')"
-                          />
-                      </td>
-                      <td class="py-2 tracking-wide">
-                          <label for="all_codes">All Codes</label>
-                      </td>
-                  </tr>
-                  <tr
-                      v-for="code in allCodes"
-                      :key="code.id"
-                      class="text-sm border-0 hover:bg-silver-300"
-                  >
-                      <td class="py-2 text-center tracking-wide border-0">
-                          <input
-                              :id="code.id"
-                              type="checkbox"
-                              :checked="checkedCodes.get(code.id)"
-                              @change="checkCode(code.id)"
-                              class="cursor-pointer"
-                          />
-                      </td>
-                      <td
-                          class="py-2 tracking-wide border-0"
-                          :style="{ backgroundColor: code.color }"
-                      >
-                          <label :for="code.id" class="cursor-pointer select-none">{{
-                                  code.name
-                              }}</label>
-                      </td>
-                  </tr>
-                  </tbody>
-              </table>
-              </div>
-          </BaseContainer>
-      </template>
-      <template #main>
-          <BaseContainer>
-              <AutoForm
-                  v-if="optionsSchema"
-                  :schema="optionsSchema"
-                  class="flex w-full items-center"
-                  :show-cancel="false"
-                  :show-submit="false"
-              />
+                  Codes
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="text-sm border-0 hover:bg-silver-300">
+                <td class="py-2 text-center tracking-wide">
+                  <input
+                    id="all_codes"
+                    type="checkbox"
+                    :checked="checkedCodes.get('all_codes')"
+                    @change="checkCode('all_codes')"
+                  />
+                </td>
+                <td class="py-2 tracking-wide">
+                  <label for="all_codes">All Codes</label>
+                </td>
+              </tr>
+              <tr
+                v-for="code in allCodes"
+                :key="code.id"
+                class="text-sm border-0 hover:bg-silver-300"
+              >
+                <td class="py-2 text-center tracking-wide border-0">
+                  <input
+                    :id="code.id"
+                    type="checkbox"
+                    :checked="checkedCodes.get(code.id)"
+                    @change="checkCode(code.id)"
+                    class="cursor-pointer"
+                  />
+                </td>
+                <td
+                  class="py-2 tracking-wide border-0"
+                  :style="{ backgroundColor: code.color }"
+                >
+                  <label :for="code.id" class="cursor-pointer select-none">{{
+                    code.name
+                  }}</label>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </BaseContainer>
+    </template>
+    <template #main>
+      <BaseContainer>
+        <AutoForm
+          v-if="optionsSchema"
+          :schema="optionsSchema"
+          class="flex w-full items-center"
+          :show-cancel="false"
+          :show-submit="false"
+        />
         <component
           :is="visualizerComponent"
           :files="files"
@@ -128,8 +134,8 @@
           :checkedFiles="checkedFiles"
           @remove="(id) => checkFile(undefined, id)"
         />
-          </BaseContainer>
-      </template>
+      </BaseContainer>
+    </template>
   </AuthenticatedLayout>
 </template>
 
@@ -139,53 +145,55 @@ import Button from '../Components/interactive/Button.vue';
 import { debounce } from '../utils/dom/debounce.js';
 import { unfoldCodes } from './analysis/unfoldCodes.js';
 import { createByPropertySorter } from '../utils/array/createByPropertySorter.js';
-import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue'
-import SelectField from '../form/SelectField.vue'
-import BaseContainer from '../Layouts/BaseContainer.vue'
-import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue'
-import AutoForm from '../form/AutoForm.vue'
-import FilesList from '../Components/files/FilesList.vue'
-import { useExport } from '../exchange/useExport.js'
-import Checkbox from '../form/Checkbox.vue'
-import { trunc } from '../utils/string/trunc.js'
-import Index from './API/Index.vue'
+import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
+import SelectField from '../form/SelectField.vue';
+import BaseContainer from '../Layouts/BaseContainer.vue';
+import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue';
+import AutoForm from '../form/AutoForm.vue';
+import FilesList from '../Components/files/FilesList.vue';
+import { useExport } from '../exchange/useExport.js';
+import Checkbox from '../form/Checkbox.vue';
+import { trunc } from '../utils/string/trunc.js';
+import Index from './API/Index.vue';
 
 //------------------------------------------------------------------------
 // DATA / PROPS
 //------------------------------------------------------------------------
 const props = defineProps(['sources', 'codes', 'codeBooks', 'project']);
-console.debug(props.project)
+console.debug(props.project);
 //------------------------------------------------------------------------
 // VIEWS / TABS
 //------------------------------------------------------------------------
 const views = [
-    { value: 'visualize', label: 'Visualize' },
-    { value: 'analyze', label: 'Analyze' },
-    { value: 'export', label: 'Export' }
-]
-const view = ref(views[0].value)
+  { value: 'visualize', label: 'Visualize' },
+  { value: 'analyze', label: 'Analyze' },
+  { value: 'export', label: 'Export' },
+];
+const view = ref(views[0].value);
 
 // TODO: https://www.npmjs.com/package/html-to-rtf
 const hasSelections = ref(false);
-const pageTitle = ref(`Analysis - ${trunc(props.project.name, 50)}`)
+const pageTitle = ref(`Analysis - ${trunc(props.project.name, 50)}`);
 const byName = createByPropertySorter('name');
 
 const files = ref(
-    props.sources
-        .filter(f => {
-            return true
-        })
-        .map(source => {
-            const isLocked = (source.variables ?? []).some(({ name, boolean_value }) => name === 'isLocked' && boolean_value === 1)
-            const copy = { ...source }
-            copy.date = new Date(source.updated_at).toLocaleDateString()
-            copy.variables = { isLocked }
-            copy.isConverting = false
-            copy.failed = false
-            copy.converted = true
-            return copy
-        })
-        .toSorted(byName)
+  props.sources
+    .filter((f) => {
+      return true;
+    })
+    .map((source) => {
+      const isLocked = (source.variables ?? []).some(
+        ({ name, boolean_value }) => name === 'isLocked' && boolean_value === 1
+      );
+      const copy = { ...source };
+      copy.date = new Date(source.updated_at).toLocaleDateString();
+      copy.variables = { isLocked };
+      copy.isConverting = false;
+      copy.failed = false;
+      copy.converted = true;
+      return copy;
+    })
+    .toSorted(byName)
 );
 const allCodes = ref([]);
 const checkedFiles = ref(new Map());
@@ -233,10 +241,10 @@ const getCodesForFile = (file) => {
   );
 };
 
-const optionsSchema = ref(null)
+const optionsSchema = ref(null);
 const defineOptions = (schema) => {
-    optionsSchema.value = schema
-}
+  optionsSchema.value = schema;
+};
 
 // TODO move to external module, make functions "pure" and injectable etc.
 const VisualizationPluginAPI = {
@@ -247,7 +255,7 @@ const VisualizationPluginAPI = {
   getAllSelections,
   getCodesForFile,
   debounce,
-  defineOptions
+  defineOptions,
 };
 
 let visualizerComponent = ref(null);
@@ -360,12 +368,12 @@ const updateHasSelection = debounce(() => {
 //------------------------------------------------------------------------
 // EXPORTS
 //------------------------------------------------------------------------
-const { exportToCSV } = useExport()
+const { exportToCSV } = useExport();
 
 onMounted(async () => {
   allCodes.value = unfoldCodes(props.codes).sort(byName);
   selectVisualizerPlugin({ value: 'list' });
-  checkFile('all_files')
-  checkCode('all_codes')
+  checkFile('all_files');
+  checkCode('all_codes');
 });
 </script>

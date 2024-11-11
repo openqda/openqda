@@ -36,6 +36,13 @@ class AnalysisController extends Controller
                 'sources' => $sources,
                 'codes' => $allCodes,
                 'codebooks' => $codebooks,
+                'project' => [
+                    'name' => $project->name,
+                    'description' => $project->description,
+                    'created_at' => $project->created_at,
+                    'id' => $project->id,
+                    'projectId' => $project->id
+                ]
             ]);
 
         } catch (Throwable $e) {

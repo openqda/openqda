@@ -79,17 +79,17 @@
               hover === index ? 'break-all' : 'truncate'
             )
           "
-          :colspan="hover === index ? 5 : undefined"
+          :colspan="hover === index ? props.colspan ?? 5 : undefined"
         >
           <a
-            @mouseenter="hover = index"
-            @mouseleave="hover = -1"
-            @touchstart="hover = index"
-            @touchend="hover = -1"
+            @mouseenter="props.focusOnHover && (hover = index)"
+            @mouseleave="focusOnHover && (hover = -1)"
+            @touchstart="focusOnHover && (hover = index)"
+            @touchend="focusOnHover && (hover = -1)"
             @click="
               document.converted &&
                 !document.selected &&
-                emit('select', document)
+                emit('select', document, index)
             "
             :title="
               hover === index
@@ -211,10 +211,11 @@
             </span>
           </div>
         </td>
-        <slot v-if="$slots['custom-cells']" name="custom-cells"
-              :document="document"
+        <slot v-if="$slots['custom-cells']"
+              name="custom-cells"
+              :source="document"
               :index="index"
-              :id="'foo'" />
+        />
       </tr>
     </tbody>
   </table>
@@ -246,7 +247,7 @@ import { cn } from '../../utils/css/cn.js';
 import ProfileImage from '../user/ProfileImage.vue';
 
 const emit = defineEmits(['select', 'delete']);
-const props = defineProps(['documents', 'actions', 'rowClass', 'fields', 'fixed']);
+const props = defineProps(['documents', 'actions', 'rowClass', 'fields', 'fixed', 'colspan', 'focusOnHover']);
 const docs = ref(props.documents);
 const sorter = ref({ key: null, ascending: false });
 const openMenuId = ref(null);
