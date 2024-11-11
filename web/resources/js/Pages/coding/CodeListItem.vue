@@ -6,11 +6,12 @@ import {
   EyeSlashIcon,
   BarsArrowDownIcon,
   PencilIcon,
-  ArrowTurnDownRightIcon,
+  ArrowTurnUpRightIcon,
+    PlusIcon
 } from '@heroicons/vue/24/solid/index.js';
 import { TrashIcon } from '@heroicons/vue/24/outline';
 import { ChatBubbleBottomCenterTextIcon } from '@heroicons/vue/24/outline/index.js';
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { cn } from '../../utils/css/cn.js';
 import Button from '../../Components/interactive/Button.vue';
 import { useCodes } from './useCodes.js';
@@ -174,13 +175,11 @@ const editCode = (target) => {
           >
         </button>
         <div v-else class="w-full group flex">
-          <span class="line-clamp-1 flex-grow items-center">{{
-            code.name
-          }}</span>
+          <span class="line-clamp-1 flex-grow items-center">{{code.name}}</span>
           <div
-            class="bg-background rounded px-3 py-1 h-full text-foreground/60 hover:text-foreground"
+            class="bg-background rounded px-1 h-full text-foreground hidden group-hover:inline"
           >
-            <ArrowTurnDownRightIcon class="w-4 h-4" />
+            <ArrowTurnUpRightIcon class="w-4 h-4" />
           </div>
         </div>
       </div>
@@ -219,6 +218,12 @@ const editCode = (target) => {
               <span>Edit code</span>
             </div>
           </DropdownLink>
+            <DropdownLink as="button" @click.prevent="addSubcode(code)">
+                <div class="flex items-center">
+                    <PlusIcon class="w-4 h-4 me-2" />
+                    <span>Add subcode</span>
+                </div>
+            </DropdownLink>
           <DropdownLink
             as="button"
             @click.prevent="
