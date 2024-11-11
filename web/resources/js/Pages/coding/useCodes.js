@@ -183,19 +183,18 @@ export const useCodes = () => {
             codebookStore.active(codebook.id, true)
         }
 
+        const interSections = selectionStore.getIntersecting(updatedSelections)
+        if (interSections.length) updatedSelections.push(...interSections)
+
         selectionStore.observable.run('updated', updatedSelections)
     }
 
     const selections = computed(() => {
-        return selectionStore.all().toSorted((a, b) => {
-            const length = b.length - a.length
-            const start = a.start - b.start
-            return length !== 0 ? length : start
-        })
+        return selectionStore.all().toSorted(Selections.sort.byRange)
     })
 
     const overlaps = computed(() => {
-        return []
+        return selectionStore.getIntersections(selectionStore.all())
     })
 
     const selectionsByIndex = (index) => {

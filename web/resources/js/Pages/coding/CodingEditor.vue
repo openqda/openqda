@@ -213,9 +213,7 @@ onMounted(() => {
           }
         }, { deep: false, immediate: true });
 
-    watch(overlaps, (entries) => {
-        entries.forEach((entry) => hl.overlap(entry))
-    })
+    watch(overlaps, (entries) => hl.overlap(entries))
 })
 
 const updating = ref(false)

@@ -1,9 +1,5 @@
-import { createStoreRepository } from '../../../state/StoreRepository.js';
-import { AbstractStore } from '../../../state/AbstractStore.js';
+export const Intersections = {}
 
-class IntersectionsStore extends AbstractStore {}
+Intersections.isOverlapping = (a, b, c, d) => (b - c >= 0 && d - a >= 0)
 
-export const Intersections = createStoreRepository({
-  key: 'store/intersections',
-  factory: (options) => new IntersectionsStore(options),
-});
+Intersections.getIntersection = (a, b, c, d) => [Math.max(a, c), Math.min(b, d)]

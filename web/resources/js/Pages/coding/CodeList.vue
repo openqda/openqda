@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, onUnmounted, ref, watch} from 'vue'
+import {onMounted, onUnmounted, reactive, ref, watch} from 'vue'
 import CodeListItem from './CodeListItem.vue';
 import { useCodes } from './useCodes.js';
 import Headline3 from '../../Components/layout/Headline3.vue';
@@ -8,24 +8,51 @@ import {
   ChevronRightIcon,
   EyeIcon,
   EyeSlashIcon,
+    ArrowPathIcon
 } from '@heroicons/vue/24/solid/index.js';
 import Button from '../../Components/interactive/Button.vue';
 import { useDraggable } from 'vue-draggable-plus'
 import { useRange } from './useRange.js'
+import {asyncTimeout} from '../../utils/asyncTimeout.js'
 
-
-const { range } = useRange()
-const { toggleCodebook, observe } = useCodes();
 const props = defineProps({
-  codebook: Object,
+    codebook: Object,
     codes: Array,
 });
 
+//------------------------------------------------------------------------
+// Range
+//------------------------------------------------------------------------
+const { range } = useRange()
+
+//------------------------------------------------------------------------
+// TOGGLE
+//------------------------------------------------------------------------
+const { toggleCodebook, observe } = useCodes();
+const toggling = reactive({})
+const handleTogglingCodebook = async codebook => {
+    toggling[codebook.id] = true
+    await asyncTimeout(300)
+    await toggleCodebook(codebook)
+    toggling[codebook.id] = false
+}
+
+//------------------------------------------------------------------------
+// TEXTS
+//------------------------------------------------------------------------
 const open = ref(true);
+
+//------------------------------------------------------------------------
+// SORTABLE / DRAGGABLE
+//------------------------------------------------------------------------
 const draggableRef = ref()
 const sortable = ref(props.codes ?? [])
+const isDragging = ref(false)
 const draggable = useDraggable(draggableRef, sortable, {
     animation: 150,
+    swapThreshold: 0.1,
+    scroll: true,
+    group: 'g1',
     clone: (element) => {
         if (element === undefined || element === null) return element
         const elementStr = JSON.stringify(element, (key, value) => {
@@ -35,12 +62,16 @@ const draggable = useDraggable(draggableRef, sortable, {
         return JSON.parse(elementStr)
     },
     onStart(e) {
+        isDragging.value = true
     },
-    onUpdate(e) {
-        console.debug(e)
+    onEnd (e) {
+        isDragging.value = false
     }
 })
 
+//------------------------------------------------------------------------
+// OBSERVERS / WATCHERS
+//------------------------------------------------------------------------
 observe('store/codes', {
     added: docs => {
         docs.forEach(doc => {
@@ -69,11 +100,6 @@ watch(range, value => {
     }
 })
 
-onMounted(() => {
-    watch(() => props.codes, ({ value }) => {
-        console.debug('codes changed', value)
-    })
-})
 onUnmounted(() => {
     draggable.destroy()
 })
@@ -94,15 +120,18 @@ onUnmounted(() => {
       <span class="text-foreground/50 text-xs mx-2">{{ props.codes?.length ?? 0}} codes</span>
     <button
       class="p-0 m-0 text-foreground/80"
-      @click="toggleCodebook(codebook)"
+      @click="handleTogglingCodebook(codebook)"
       :title="
         codebook.active
           ? 'Codebook enabled, click to disable'
           : 'Codebook disabled, click to enable'
       "
     >
+        <ArrowPathIcon
+            v-if="toggling[codebook.id]"
+            class="w-4 h-4 animate-spin text-foreground/50" />
       <EyeSlashIcon
-        v-if="codebook.active === false"
+        v-else-if="codebook.active === false"
         class="w-4 h-4 text-foreground/50"
       />
       <EyeIcon v-else class="w-4 h-4" />
@@ -113,7 +142,11 @@ onUnmounted(() => {
       No codes available, please activate at least one codebook.
     </p>
     <ul ref="draggableRef">
-      <CodeListItem v-for="code in sortable" :code="code" :key="code.id" :can-sort="!range?.length" />
+      <CodeListItem v-for="(code, i) in sortable"
+                    :isDragging="isDragging"
+                    :code="code"
+                    :key="code.id"
+                    :can-sort="!range?.length" />
     </ul>
   </div>
 </template>

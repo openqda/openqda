@@ -6,6 +6,7 @@ import {
   EyeSlashIcon,
   BarsArrowDownIcon,
     PencilIcon,
+    ArrowTurnDownRightIcon
 } from '@heroicons/vue/24/solid/index.js';
 import { TrashIcon } from '@heroicons/vue/24/outline';
 import { ChatBubbleBottomCenterTextIcon } from '@heroicons/vue/24/outline/index.js';
@@ -21,6 +22,7 @@ import { useCodingEditor } from './useCodingEditor.js';
 import { useDeleteDialog } from '../../dialogs/useDeleteDialog.js'
 import Dropdown from '../../Components/Dropdown.vue'
 import DropdownLink from '../../Components/DropdownLink.vue'
+import {useDraggable} from 'vue-draggable-plus'
 
 const { open:openDeleteDialog } = useDeleteDialog()
 const { open:openRenameDialog } = useRenameDialog()
@@ -31,6 +33,7 @@ const open = ref(false);
 const props = defineProps({
   code: Object,
   parent: Object,
+  isDragging:Boolean,
   liclass: String,
   selections: Array,
     canSort: Boolean
@@ -55,6 +58,8 @@ const selections = (code) => {
 
   return count;
 };
+
+const indent = code => console.debug('indent', code)
 const editCode = (target) => {
     const schema = createCodeSchema({
         title: target.name,
@@ -65,10 +70,38 @@ const editCode = (target) => {
     delete schema.codebookId
     openRenameDialog({ id: 'edit-code', target, schema  })
 }
+
+const draggableRef = ref(false)
+const sortable = ref(props.codes ?? [])
+const draggable = useDraggable(draggableRef, sortable, {
+    animation: 150,
+    scroll: true,
+    group: `group-${props.code.id}`,
+    clone: (element) => {
+        if (element === undefined || element === null) return element
+        const elementStr = JSON.stringify(element, (key, value) => {
+            if (value === element) return '$cyclic';
+            return value
+        })
+        return JSON.parse(elementStr)
+    },
+    onMove (e) {
+        console.debug('drag end', e)
+    },
+    onStart(e) {
+        console.debug('drag start', e)
+    },
+    onUpdate(e) {
+        console.debug('drag update', e)
+    },
+    onEnd (e) {
+        console.debug('drag end', e)
+    }
+})
 </script>
 
 <template>
-  <li :class="cn('rounded-md py-2', open && 'bg-background/20', props.liclass)" :data-code="code.id">
+  <li :class="cn('rounded-md py-2 border border-transparent', open && 'bg-background/20', dragenter && 'border-secondary bold', props.liclass)" :data-code="code.id">
     <div class="flex items-center w-auto space-x-3">
       <Button
         :title="open ? 'Hide children' : 'Show children'"
@@ -92,7 +125,7 @@ const editCode = (target) => {
           )
         "
         :disabled="!hasTexts"
-        @click="showTexts = !showTexts"
+        @click.prevent="showTexts = !showTexts"
       >
         <BarsArrowDownIcon class="w-4 -h-4" />
         <span class="text-xs">{{
@@ -105,7 +138,7 @@ const editCode = (target) => {
       >
         <button
           v-if="range?.length"
-          @click="Selections.select({ code, parent })"
+          @click.prevent="Selections.select({ code, parent })"
           :disabled="!code.active"
           :title="`Assign ${code.name} to selection ${range.start}:${range.end}`"
           :class="
@@ -117,16 +150,21 @@ const editCode = (target) => {
             )
           "
         >
-          <span class="">{{ code.name }}</span>
+          <span class="line-clamp-1">{{ code.name }}</span>
           <span class="text-xs ms-auto font-normal hidden group-hover:inline"
             >Assign to selection {{ range.start }}:{{ range.end }}</span
           >
         </button>
-        <span v-else class="w-full">{{ code.name }}</span>
+        <div v-else class="w-full group flex">
+            <span class="line-clamp-1 flex-grow items-center">{{ code.name }}</span>
+            <div v-show="isDragging" class="bg-background rounded px-3 py-1 h-full text-foreground/60 hover:text-foreground">
+                <ArrowTurnDownRightIcon class="w-4 h-4" />
+            </div>
+        </div>
       </div>
       <button
         class="p-0 m-0 text-foreground/80"
-        @click="toggleCode(code)"
+        @click.prevent="toggleCode(code)"
         :title="
           code.active
             ? 'Code visible, click to hide'
@@ -205,12 +243,11 @@ const editCode = (target) => {
     </div>
 
     <!-- children -->
-    <ul v-if="code.children?.length && open">
+    <ul ref="draggableRef" v-if="code.children">
       <CodeListItem
-        v-for="child in code.children"
+        v-for="child in (code.children ?? [])"
         :key="child.id"
         :code="child"
-        :parent="code"
         :can-sort="canSort"
         liclass="ps-3"
       />
