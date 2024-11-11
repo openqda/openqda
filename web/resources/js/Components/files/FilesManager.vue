@@ -31,6 +31,7 @@
   />
   <FilesList v-if="documents?.length"
     class="mt-5"
+    :fixed="true"
     :documents="documents"
     :actions="[
       {

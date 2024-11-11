@@ -49,14 +49,14 @@ const getFormType = ({ formType, type, options, allowedValues }) => {
     case Number:
       return 'number';
     case Boolean:
-      return 'select-radio';
+      return 'checkbox';
     default:
       throw new Error(`unknown type ${type}`);
   }
 };
 
 const getLabel = ({ label, name }) => {
-  if (label) return label;
+  if (label || label === null) return label;
   return (
     name
       // remove whitespace

@@ -17,6 +17,6 @@ defineProps({
     "
   >
     <span v-if="value">{{ value }}</span>
-    <span v-else><slot /></span>
+    <slot v-else />
   </label>
 </template>

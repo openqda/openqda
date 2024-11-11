@@ -47,9 +47,14 @@
                 <FilesList
                     v-if="codesView === 'sources'"
                     :documents="sourceDocuments"
+                    :fixed="true"
                     :actions="[]"
                     @select="switchFile"
                 />
+                <p v-if="codesView === 'sources' && !sourceDocuments?.length"
+                    class="p-3 text-foreground/60">
+                    No other sources locked for coding
+                </p>
             </BaseContainer>
         </template>
         <template #main>

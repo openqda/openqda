@@ -139,7 +139,7 @@ onUnmounted(() => {
   </div>
   <div v-if="open">
     <p class="text-foreground/50" v-if="props.codes && props.codes.length === 0">
-      No codes available, please activate at least one codebook.
+      No codes available, please create a code and have at least one codebook activated.
     </p>
     <ul ref="draggableRef">
       <CodeListItem v-for="(code, i) in sortable"

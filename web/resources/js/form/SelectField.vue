@@ -2,20 +2,24 @@
 import { ref } from 'vue';
 import InputLabel from './InputLabel.vue';
 import InputError from '../../../vendor/laravel/jetstream/stubs/inertia/resources/js/Components/InputError.vue';
+import {cn } from "../utils/css/cn";
 
 const props = defineProps({
   value: String,
   name: String,
+  class: String,
+  groupClass: String,
   options: Array,
   label: String,
   id: String,
     defaultOption: Boolean
 });
 const current = ref(props.value);
+console.debug(props.label)
 </script>
 
 <template>
-  <div class="input-group group contents">
+  <div :class="cn('input-group group contents', props.groupClass)">
     <InputLabel :for="props.name" :value="props.label" />
     <!-- Use an "onChange" listener to redirect the user to the selected tab URL. -->
     <select

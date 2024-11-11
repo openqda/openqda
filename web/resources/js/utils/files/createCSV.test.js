@@ -1,13 +1,13 @@
 import { expect, test } from 'vitest';
-import { createCSV, className } from './createCSV.js';
+import { createCSVBuilder, className } from './createCSVBuilder.js';
 
 test('it creates a new CSVBuilder', () => {
-  const builder = createCSV();
+  const builder = createCSVBuilder();
   expect(builder.constructor.name).toBe(className);
 });
 
 test('it generates a csv by given rows for given header', () => {
-  const builder = createCSV({
+  const builder = createCSVBuilder({
     header: ['foo', 'bar'],
   });
   builder.addRow([1, 2]);
@@ -20,7 +20,7 @@ test('it generates a csv by given rows for given header', () => {
 });
 
 it('throws on incompatible row length', () => {
-  const builder = createCSV({
+  const builder = createCSVBuilder({
     header: ['foo', 'bar'],
   });
 

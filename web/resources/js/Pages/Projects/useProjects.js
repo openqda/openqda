@@ -77,8 +77,7 @@ export const useProjects = () => {
   };
 
   const updateProjects = () => {
-      console.debug('compute sorted projects', projects)
-    sortedProjects.value = (projects ?? [])
+    sortedProjects.value = (Array.isArray(projects) ? projects : [])
       .filter(projectsFilter)
       .sort(byConfig);
   };

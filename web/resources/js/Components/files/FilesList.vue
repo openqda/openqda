@@ -1,10 +1,10 @@
 <template>
-  <table class="table-fixed w-full border-collapse">
+  <table :class="cn('w-full border-collapse', props.fixed && 'table-fixed')">
     <thead>
       <tr class="align-middle" :class="props.rowClass">
-        <th class="w-5"></th>
+        <th class="w-5" v-if="fieldsVisible.lock"></th>
         <th
-          v-for="field in headerFields"
+          v-for="field in headerFields.filter(field => fieldsVisible[field.key])"
           :key="field.key"
           scope="col"
           :class="
@@ -35,11 +35,13 @@
         </th>
         <th
           scope="col"
+          v-if="fieldsVisible.actions"
           v-show="$props.actions?.length"
           class="w-6 text-end text-xs font-medium uppercase text-foreground/50 sm:pl-0"
         >
           <span class="sr-only">Actions</span>
         </th>
+          <slot name="custom-head" />
       </tr>
     </thead>
     <tbody>
@@ -59,7 +61,7 @@
           )
         "
       >
-        <td class="text-center">
+        <td class="text-center" v-if="fieldsVisible.lock">
           <LockOpenIcon
             v-if="!document.variables?.isLocked"
             class="w-4 h-4 text-foreground/20"
@@ -70,6 +72,7 @@
           />
         </td>
         <td
+            v-if="fieldsVisible.file"
           :class="
             cn(
               'py-4 w-auto rounded-xl',
@@ -107,7 +110,7 @@
           </a>
         </td>
 
-        <td class="py-2" v-if="hover !== index">
+        <td class="py-2" v-if="fieldsVisible.type && hover !== index">
           <div
             v-if="
               !document.converted && !document.isConverting && !document.failed
@@ -152,12 +155,12 @@
             />
           </div>
         </td>
-        <td class="py-2 text-center" v-if="hover !== index">
+        <td class="py-2 text-center" v-if="fieldsVisible.date && hover !== index">
           {{ document.date }}
         </td>
         <td
           class="py-2 text-center tracking-wider"
-          v-if="hover !== index"
+          v-if="fieldsVisible.user && hover !== index"
         >
           <ProfileImage
             v-if="document.userPicture"
@@ -208,6 +211,10 @@
             </span>
           </div>
         </td>
+        <slot v-if="$slots['custom-cells']" name="custom-cells"
+              :document="document"
+              :index="index"
+              :id="'foo'" />
       </tr>
     </tbody>
   </table>
@@ -239,11 +246,10 @@ import { cn } from '../../utils/css/cn.js';
 import ProfileImage from '../user/ProfileImage.vue';
 
 const emit = defineEmits(['select', 'delete']);
-const props = defineProps(['documents', 'actions', 'rowClass']);
+const props = defineProps(['documents', 'actions', 'rowClass', 'fields', 'fixed']);
 const docs = ref(props.documents);
 const sorter = ref({ key: null, ascending: false });
 const openMenuId = ref(null);
-
 const headerFields = ref([
   {
     label: 'File',
@@ -270,7 +276,14 @@ const headerFields = ref([
         class: 'w-3',
     },
 ]);
-
+const fieldsVisible = ref({
+    lock: true,
+    name: true,
+    type: true,
+    date: true,
+    user: true,
+    ...props.fields
+})
 const hover = ref(-1);
 
 function toggleMenu(id) {

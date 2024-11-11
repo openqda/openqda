@@ -8,7 +8,7 @@
  * @param {string} options.newline character for linebreaks
  * @return {CSVBuilder}
  */
-export const createCSV = (options) => new CSVBuilder(options);
+export const createCSVBuilder = (options) => new CSVBuilder(options);
 
 class CSVBuilder {
   rows = [];
