@@ -6,7 +6,6 @@ import {
   EyeSlashIcon,
   BarsArrowDownIcon,
   PencilIcon,
-  ArrowTurnUpRightIcon,
     PlusIcon
 } from '@heroicons/vue/24/solid/index.js';
 import { TrashIcon /*, ChatBubbleBottomCenterTextIcon */ } from '@heroicons/vue/24/outline';
@@ -175,11 +174,6 @@ const editCode = (target) => {
         </button>
         <div v-else class="w-full group flex">
           <span class="line-clamp-1 flex-grow items-center">{{code.name}}</span>
-          <div
-            class="bg-background rounded px-1 h-full text-foreground hidden group-hover:inline"
-          >
-            <ArrowTurnUpRightIcon class="w-4 h-4" />
-          </div>
         </div>
       </div>
       <button

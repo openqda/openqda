@@ -1,21 +1,21 @@
 <template>
     <div
-    v-for="(file, index) in $props.files"
+    v-for="(source, index) in $props.sources"
     class="my-10 border-l border-l-border"
-    :key="`${file.id}-${index}`"
+    :key="`${source.id}-${index}`"
   >
-    <div v-if="!!$props.checkedFiles.get(file.id)">
+    <div v-if="!!$props.checkedSources.get(source.id) && (codesList.get(source.id)?.length || options.showEmpty)">
       <Headline3 class="ms-3">
-        <span>{{ file.name }}</span>
+        <span>{{ source.name }}</span>
         <button
             title="Hide this source"
-            @click="$emit('remove', file.id)"
+            @click="$emit('remove', source.id)"
             class="float-right">
           <XMarkIcon class="h-5 w-5" />
         </button>
       </Headline3>
       <div
-        v-for="code in codesList.get(file.id)"
+        v-for="code in codesList.get(source.id)"
         :key="code.id"
         :style="{ borderColor: code.color }"
         class="border-l border-r ml-2 mt-3"
@@ -25,7 +25,7 @@
         </div>
         <div v-for="selection in code.text" :key="selection.source_id">
           <div
-            v-if="file.id === selection.source_id"
+            v-if="source.id === selection.source_id"
             class="my-1 border-b"
             :style="{ borderBottomColor: code.color }"
           >
@@ -45,7 +45,7 @@
           </div>
         </div>
       </div>
-      <div v-if="!codesList.has(file.id)" class="ml-2 mt-2 p-2 bg-silver-100">
+      <div v-if="!codesList.has(source.id)" class="ml-2 mt-2 p-2 bg-silver-100">
         No selections found in this source
       </div>
     </div>
@@ -53,16 +53,16 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { XMarkIcon } from '@heroicons/vue/24/solid';
-import Headline3 from '../../Components/layout/Headline3.vue'
-import Button from '../../Components/interactive/Button.vue'
+import Headline3 from '../../../Components/layout/Headline3.vue'
+import Button from '../../../Components/interactive/Button.vue'
 
 defineEmits(['remove']);
 const props = defineProps([
-  'files',
+  'sources',
   'codes',
-  'checkedFiles',
+  'checkedSources',
   'checkedCodes',
   'hasSelections',
   'api',
@@ -70,10 +70,11 @@ const props = defineProps([
 const codesList = ref(new Map());
 const API = props.api;
 
-const options = reactive({
-    showEmpty: false
+const options = ref({
+    showEmpty: true
 })
 
+/*
 API.defineOptions({
     showEmpty: {
         type: Boolean,
@@ -94,15 +95,16 @@ API.defineOptions({
         ]
     }
 })
+*/
 
-const rebuildList = () => {
-  props.files.forEach((file) => {
-    const c = API.getCodesForFile(file);
+const rebuildList = (options) => {
+  props.sources.forEach((source) => {
+    const c = API.getCodesForSource(source);
 
     if (c.length) {
-      codesList.value.set(file.id, c);
+      codesList.value.set(source.id, c);
     } else {
-      codesList.value.delete(file.id);
+      codesList.value.delete(source.id);
     }
   });
 };

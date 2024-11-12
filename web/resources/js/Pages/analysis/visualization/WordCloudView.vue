@@ -5,31 +5,31 @@
         <tr>
           <th
             scope="col"
-            class="text-left text-xs font-medium uppercase text-silver-500"
+            class="text-left text-xs font-medium uppercase "
           >
             Height
           </th>
           <th
             scope="col"
-            class="text-left text-xs font-medium uppercase text-silver-500"
+            class="text-left text-xs font-medium uppercase "
           >
             Min word length
           </th>
           <th
             scope="col"
-            class="text-left text-xs font-medium uppercase text-silver-500"
+            class="text-left text-xs font-medium uppercase "
           >
             Scale
           </th>
           <th
             scope="col"
-            class="text-left text-xs font-medium uppercase text-silver-500"
+            class="text-left text-xs font-medium uppercase "
           >
             + Size
           </th>
           <th
             scope="col"
-            class="text-left text-xs font-medium uppercase text-silver-500"
+            class="text-left text-xs font-medium uppercase "
           >
             <Cog6ToothIcon
               v-if="generating"
@@ -62,11 +62,9 @@
           </td>
           <td>
             <Button
-              color="cerulean"
               @click="rebuild"
-              label="Refresh"
               :disabled="generating"
-            />
+            >Refresh</Button>
           </td>
         </tr>
       </tbody>
@@ -97,19 +95,19 @@
  * https://github.com/jasondavies/d3-cloud
  *-----------------------------------------------------------------------*/
 import { onMounted, ref, watch, watchEffect } from 'vue';
-import { debounce } from '../../utils/dom/debounce.js';
+import { debounce } from '../../../utils/dom/debounce.js';
 import * as d3Module from 'd3';
 import * as cloudModule from 'd3-cloud';
-import { useResizeObserver } from './resizeObserver.js';
-import Button from '../../Components/interactive/Button.vue';
+import { useResizeObserver } from '../resizeObserver.js';
+import Button from '../../../Components/interactive/Button.vue';
 import { Cog6ToothIcon } from '@heroicons/vue/20/solid';
 
 const d3 = d3Module.default ?? d3Module;
 const cloud = cloudModule.default ?? cloudModule;
 const props = defineProps([
-  'files',
+  'sources',
   'codes',
-  'checkedFiles',
+  'checkedSources',
   'checkedCodes',
   'hasSelections',
   'api',
@@ -220,18 +218,18 @@ onMounted(() => {
   });
 
   watchEffect(() => {
-    const { files, codes, checkedFiles, checkedCodes } = props;
+    const { sources, codes, checkedSources, checkedCodes } = props;
     words.value.clear();
 
-    for (const file of files) {
-      if (checkedFiles.get(file.id)) {
+    for (const source of sources) {
+      if (checkedSources.get(source.id)) {
         for (const code of codes) {
           if (
             checkedCodes.get(code.id) &&
-            code.text.some((t) => t.source_id === file.id)
+            code.text.some((t) => t.source_id === source.id)
           ) {
             for (const selection of code.text) {
-              if (file.id === selection.source_id) {
+              if (source.id === selection.source_id) {
                 selection.text
                   .replace(/[^\w\s]+/g, '')
                   .split(/\s+/g)

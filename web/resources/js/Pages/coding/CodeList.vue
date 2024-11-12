@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, onUnmounted, reactive, ref, watch} from 'vue'
+import { onUnmounted, reactive, ref, watch} from 'vue'
 import CodeListItem from './CodeListItem.vue';
 import { useCodes } from './useCodes.js';
 import Headline3 from '../../Components/layout/Headline3.vue';

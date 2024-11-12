@@ -12,7 +12,7 @@ const props = defineProps({
   options: Array,
   label: String,
   id: String,
-    defaultOption: Boolean
+  defaultOption: Boolean
 });
 const current = ref(props.value);
 console.debug(props.label)
