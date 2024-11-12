@@ -73,7 +73,7 @@
 
 <script setup>
 import {PlusIcon} from '@heroicons/vue/24/solid'
-import { onMounted, onUpdated, ref } from 'vue'
+import { onMounted, onUpdated, ref, watch } from 'vue'
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue'
 import CodeList from './coding/CodeList.vue'
 import CodingEditor from './coding/CodingEditor.vue'
@@ -127,7 +127,7 @@ const switchFile = (file) => {
 const { schema: createSchema, open:openCreateDialog } = useCreateDialog()
 const { schema: editSchema, target: editTarget } = useRenameDialog()
 const { target: deleteTarget, challenge: deleteChallenge, message: deleteMessage } = useDeleteDialog()
-
+watch(createSchema, console.debug)
 //------------------------------------------------------------------------
 // RANGE / SELECTION
 //------------------------------------------------------------------------
@@ -147,10 +147,10 @@ const codesView = ref(codesTabs[0].value)
 const openCreateDialogHandler = (view) => {
     if (view === 'codes') {
         openCreateDialog({
-            schema: {
+            schema: createCodeSchema({
                 title: text?.value,
                 codebooks: codebooks.value,
-            }
+            })
         })
     }
 }

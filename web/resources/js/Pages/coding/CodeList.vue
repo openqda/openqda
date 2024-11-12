@@ -75,7 +75,7 @@ const draggable = useDraggable(draggableRef, sortable, {
 observe('store/codes', {
     added: docs => {
         docs.forEach(doc => {
-            if (doc.codebook === props.codebook.id) {
+            if (doc.codebook === props.codebook.id && !doc.parent) {
                 sortable.value.push(doc)
             }
         })

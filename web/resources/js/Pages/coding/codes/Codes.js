@@ -5,15 +5,15 @@ import { randomUUID } from '../../../utils/randomUUID.js';
 
 class CodeStore extends AbstractStore {
   withChildren(codeId) {
-      const codes = []
-      const code = this.entry(codeId)
-      codes.push(code)
-      if (code.children?.length) {
-          code.children.forEach(child => {
-              codes.push(...this.withChildren(child.id))
-          })
-      }
-      return codes
+    const codes = [];
+    const code = this.entry(codeId);
+    codes.push(code);
+    if (code.children?.length) {
+      code.children.forEach((child) => {
+        codes.push(...this.withChildren(child.id));
+      });
+    }
+    return codes;
   }
 
   toggle(codeId) {
@@ -23,50 +23,59 @@ class CodeStore extends AbstractStore {
 
   active(codeId, value) {
     const codes = this.withChildren(codeId);
-    codes.forEach(code => {
-        code.active = value;
-    })
+    codes.forEach((code) => {
+      code.active = value;
+    });
     this.observable.run('updated', codes);
     this.observable.run('changed', { type: 'updated', docs: codes });
     return codes;
   }
 
   init(docs) {
-      if (this.size.value === 0 && docs.length > 0) {
-          const codeList = []
-          const parseCodes = (codes, parent = null) => {
-              codes.forEach((code) => {
-                  code.active = true
-                  code.parent = parent
-                  code.order = getOrder(code.codebook)
-                  code.order = getOrder(code.codebook)
+    if (this.size.value === 0 && docs.length > 0) {
+      const codeList = [];
+      const parseCodes = (codes, parent = null) => {
+        codes.forEach((code) => {
+          code.active = true;
+          code.parent = parent;
+          code.order = getOrder(code.codebook);
+          code.order = getOrder(code.codebook);
 
-                  codeList.push(code)
-                  if (code.children?.length) {
-                      parseCodes(code.children, code)
-                  }
-              })
+          codeList.push(code);
+          if (code.children?.length) {
+            parseCodes(code.children, code);
           }
-          parseCodes(docs)
-          this.add(...codeList)
-      }
+        });
+      };
+      parseCodes(docs);
+      this.add(...codeList);
+    }
   }
 }
 
-const orders = {}
+const orders = {};
 const getOrder = (codebook) => {
-    if (!(codebook in orders)) {
-        orders[codebook] = 0
-    }
-    return orders[codebook]++
-}
+  if (!(codebook in orders)) {
+    orders[codebook] = 0;
+  }
+  return orders[codebook]++;
+};
 
 export const Codes = createStoreRepository({
   key: 'store/codes',
   factory: (options) => new CodeStore(options),
 });
 
-Codes.create = async ({ projectId, source, title, name, description, codebookId, parentId, color }) => {
+Codes.create = async ({
+  projectId,
+  source,
+  title,
+  name,
+  description,
+  codebookId,
+  parentId,
+  color,
+}) => {
   const store = Codes.by(`${projectId}-${source.id}`);
   const code = {
     id: randomUUID(),
@@ -82,36 +91,28 @@ Codes.create = async ({ projectId, source, title, name, description, codebookId,
     order: store.size,
   };
 
+  const body = { ...code };
   if (parentId) {
-    code.parent = store.entry(parentId)
-    code.active = code.parent.active
+    body.parent_id = parentId;
   }
-
-  store.add(code);
-  const entry = store.entry(code.id)
-
-  if (parentId) {
-      code.parent.children.push(entry)
-  }
-
-  const body = (({ parent, ...rest }) => rest)(code)
-    if (parentId) {
-        body.parent_id = parentId
-    }
 
   const { response, error } = await request({
     url: `/projects/${projectId}/codes`,
     type: 'post',
     body,
   });
-console.debug(response, error)
-  if (error || response.status >= 400) {
-    store.remove(code.id);
-    return { response, error, code };
+
+  if (!error && response?.status < 400) {
+    code.id = response.data.id;
+    if (parentId) {
+      console.debug(parentId);
+      code.parent = store.entry(parentId);
+      code.active = code.parent.active;
+      code.parent.children.push(code);
+    }
+
+    store.add(code);
   }
-
-  store.update(code.id, { id: response.data.id }, { updateId: true });
-
   return { response, error, code };
 };
 
@@ -183,6 +184,5 @@ Codes.addChild = ({ projectId, child }) => {
     body: child,
   });
 };
-
 
 Codes.sort = (a, b) => Number(a.active) - Number(b.active);

@@ -131,43 +131,12 @@ onMounted(() => {
     })
     const hl = quillInstance.getModule('highlight')
 
-    const disposeSelectionObserver = observe('store/selections', {
-        // added: (selections) => {
-        //   console.debug('Editor: add selections', selections);
-        //   selections.forEach((selection) => {
-        //     hl.highlight({
-        //       id: selection.code.id,
-        //       color: selection.code.color,
-        //       title: selection.code.name,
-        //       start: selection.start,
-        //       length: selection.length,
-        //       active: selection.code.active,
-        //     });
-        //   });
-        // },
-        // updated: (docs) => {
-        //   console.debug('Editor: update selections', docs.length);
-        //     docs.forEach((selection) => {
-        //         hl.highlight({
-        //             id: selection.code.id,
-        //             color: selection.code.color,
-        //             title: selection.code.name,
-        //             start: selection.start,
-        //             length: selection.length,
-        //             active: selection.code.active,
-        //         });
-        //     });
-        // },
-        // removed: (docs) => {
-        //   console.debug('Editor: remove selections', docs.length);
-        //   docs.forEach(selection => hl.remove(selection))
-        // }
-    })
-    disposables.add(disposeSelectionObserver)
+
+
     window.quill = quillInstance
 
     console.debug('start observing selections')
-    observe('store/selections', {
+    const disposeSelectionObserver =  observe('store/selections', {
         added: docs => {
             console.debug('added docs', docs)
             addSelections(docs)
@@ -184,6 +153,8 @@ onMounted(() => {
             }))
         }
     })
+
+    disposables.add(disposeSelectionObserver)
 
     const addSelections = (entries) => {
         console.debug('recompute editor highlights', entries.length)
