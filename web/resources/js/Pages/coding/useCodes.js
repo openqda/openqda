@@ -5,33 +5,49 @@ import {Codes} from './codes/Codes.js'
 import {Selections} from './selections/Selections.js'
 import {randomColor} from '../../utils/random/randomColor.js'
 
-const createCodeSchema = ({ title, description, color, codebooks }) => ({
-    title: {
-        type: String,
-        placeholder: 'Name of the code',
-        defaultValue: title
-    },
-    description: {
-        type: String,
-        placeholder: 'Code description, optional',
-        formType: 'textarea',
-        defaultValue: description
-    },
-    color: {
-        type: String,
-        formType: 'color',
-        defaultValue: color ?? randomColor({ type: 'hex' })
-    },
-    codebookId: {
-        type: Number,
-        label: 'Codebook',
-        defaultValue: codebooks?.[0]?.id,
-        options: codebooks?.map((c) => ({
-            value: c.id,
-            label: c.name
-        }))
+const createCodeSchema = ({ title, description, color, codebooks, codes }) => {
+    const schema = {
+        title: {
+            type: String,
+            placeholder: 'Name of the code',
+            defaultValue: title
+        },
+        description: {
+            type: String,
+            placeholder: 'Code description, optional',
+            formType: 'textarea',
+            defaultValue: description
+        },
+        color: {
+            type: String,
+            formType: 'color',
+            defaultValue: color ?? randomColor({ type: 'hex' })
+        }
     }
-})
+    if (codebooks) {
+        schema.codebookId = {
+            type: Number,
+            label: 'Codebook',
+            defaultValue: codebooks?.[0]?.id,
+            options: codebooks?.map((c) => ({
+                value: c.id,
+                label: c.name
+            }))
+        }
+    }
+    if (codes) {
+        schema.parentId = {
+            type: String,
+            optional: true,
+            label: 'Parent code',
+            options: codes.map(c => ({
+                value: c.id,
+                label: c.name
+            }))
+        }
+    }
+    return schema
+}
 
 export const useCodes = () => {
     const page = usePage()
@@ -43,9 +59,11 @@ export const useCodes = () => {
     const codebookStore = Codebooks.by(projectId)
     const selectionStore = Selections.by(key)
 
-    codebookStore.init(codebooks)
-    codeStore.init(allCodes)
-    selectionStore.init(source.selections.filter(s => s.creating_user_id === userId), id => codeStore.entry(id))
+    const initCoding = async () => {
+        codebookStore.init(codebooks)
+        codeStore.init(allCodes)
+        selectionStore.init(source.selections.filter(s => s.creating_user_id === userId), id => codeStore.entry(id))
+    }
 
     //---------------------------------------------------------------------------
     // CREATE
@@ -221,6 +239,7 @@ export const useCodes = () => {
         createCodeSchema,
         updateCode,
         deleteCode,
+        initCoding,
         codes: computedCodes,
         getCode: (id) => codeStore.entry(id),
         observe,

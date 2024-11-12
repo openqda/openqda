@@ -2,7 +2,10 @@
     <AuthenticatedLayout :title="pageTitle" :menu="true" :showFooter="false">
         <template #menu>
             <BaseContainer>
-                <div class="flex items-center justify-between">
+                <ActivityIndicator v-if="!codingInitialized">
+                    Loading codes and selections...
+                </ActivityIndicator>
+                <div v-else class="flex items-center justify-between">
                     <Button
                         variant="outline-secondary"
                         @click="openCreateDialog(codesView)"
@@ -48,6 +51,7 @@
                     v-if="codesView === 'sources'"
                     :documents="sourceDocuments"
                     :fixed="true"
+                    :focus-on-hover="true"
                     :actions="[]"
                     @select="switchFile"
                 />
@@ -69,7 +73,7 @@
 
 <script setup>
 import {PlusIcon} from '@heroicons/vue/24/solid'
-import {onMounted, ref} from 'vue'
+import { onMounted, onUpdated, ref } from 'vue'
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue'
 import CodeList from './coding/CodeList.vue'
 import CodingEditor from './coding/CodingEditor.vue'
@@ -86,6 +90,8 @@ import DeleteDialog from '../dialogs/DeleteDialog.vue'
 import {useSelections} from './coding/selections/useSelections.js'
 import FilesList from '../Components/files/FilesList.vue'
 import {router} from '@inertiajs/vue3'
+import { asyncTimeout } from '../utils/asyncTimeout.js'
+import ActivityIndicator from '../Components/ActivityIndicator.vue'
 
 const props = defineProps([
     'source',
@@ -112,13 +118,14 @@ const sourceDocuments = ref(props.sources.filter(source => {
     return copy
 }))
 const switchFile = (file) => {
-    router.get(route('source.go-and-code', file.id));
+    router.get(route('source.code', file.id));
 }
 //------------------------------------------------------------------------
 // GENERIC EDIT DIALOG
 //------------------------------------------------------------------------
 const { schema: editSchema, target: editTarget } = useRenameDialog()
 const { target: deleteTarget, challenge: deleteChallenge, message: deleteMessage } = useDeleteDialog()
+
 //------------------------------------------------------------------------
 // RANGE / SELECTION
 //------------------------------------------------------------------------
@@ -128,7 +135,8 @@ const { createSelection } = useSelections()
 //------------------------------------------------------------------------
 // CODES / CODEBOOKS
 //------------------------------------------------------------------------
-const { codes, codebooks, initCodebooks, createCode, createCodeSchema, updateCode, deleteCode } = useCodes()
+const { codes, codebooks, createCode, createCodeSchema, updateCode, deleteCode, initCoding } = useCodes()
+const codingInitialized = ref(false)
 const codesTabs = [
     { value: 'codes', label: 'Codes' },
     { value: 'sources', label: 'Sources' }
@@ -139,7 +147,7 @@ const openCreateDialog = (view) => {
     if (view === 'codes') {
         createSchema.value = createCodeSchema({
             title: text?.value,
-            codebooks: codebooks.value
+            codebooks: codebooks.value,
         })
     }
 }
@@ -176,9 +184,13 @@ onMounted(async () => {
         // relocate?
     }
     onSourceSelected(props.source)
+    await asyncTimeout(500)
+    await initCoding()
+    codingInitialized.value = true
 })
 
 const onSourceSelected = (file) => {
+    codingInitialized.value = false
     const url = new URL(location.href)
     if (url.searchParams.get('source') !== file.id) {
         url.searchParams.set('source', file.id)

@@ -9,8 +9,7 @@ import {
   ArrowTurnUpRightIcon,
     PlusIcon
 } from '@heroicons/vue/24/solid/index.js';
-import { TrashIcon } from '@heroicons/vue/24/outline';
-import { ChatBubbleBottomCenterTextIcon } from '@heroicons/vue/24/outline/index.js';
+import { TrashIcon /*, ChatBubbleBottomCenterTextIcon */ } from '@heroicons/vue/24/outline';
 import { computed, ref } from 'vue'
 import { cn } from '../../utils/css/cn.js';
 import Button from '../../Components/interactive/Button.vue';
@@ -197,11 +196,6 @@ const editCode = (target) => {
           class="w-4 h-4 text-foreground/50"
         />
         <EyeIcon v-else class="w-4 h-4" />
-      </button>
-      <!-- memo icon -->
-      <button class="p-0 m-0 flex">
-        <ChatBubbleBottomCenterTextIcon class="w-4 h-4" />
-        <span class="text-xs">2</span>
       </button>
 
       <!-- code menu -->

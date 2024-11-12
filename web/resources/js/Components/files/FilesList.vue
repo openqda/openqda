@@ -72,7 +72,7 @@
           />
         </td>
         <td
-            v-if="fieldsVisible.file"
+            v-if="fieldsVisible.name"
           :class="
             cn(
               'py-4 w-auto rounded-xl',
@@ -82,7 +82,7 @@
           :colspan="hover === index ? props.colspan ?? 5 : undefined"
         >
           <a
-            @mouseenter="props.focusOnHover && (hover = index)"
+            @mouseenter="focusOnHover && (hover = index)"
             @mouseleave="focusOnHover && (hover = -1)"
             @touchstart="focusOnHover && (hover = index)"
             @touchend="focusOnHover && (hover = -1)"
@@ -283,7 +283,7 @@ const fieldsVisible = ref({
     type: true,
     date: true,
     user: true,
-    ...props.fields
+    ...(props.fields ?? {})
 })
 const hover = ref(-1);
 

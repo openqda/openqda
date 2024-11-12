@@ -213,7 +213,7 @@ onMounted(() => {
           }
         }, { deep: false, immediate: true });
 
-    watch(overlaps, (entries) => hl.overlap(entries))
+    // watch(overlaps, (entries) => hl.overlap(entries))
 })
 
 const updating = ref(false)

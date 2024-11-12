@@ -32,6 +32,7 @@
   <FilesList v-if="documents?.length"
     class="mt-5"
     :fixed="true"
+    :focus-on-hover="true"
     :documents="documents"
     :actions="[
       {
