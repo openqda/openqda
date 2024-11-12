@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ImportCodebookRequest;
+use App\Http\Requests\UpdateCodebookRequest;
 use App\Models\Code;
 use App\Models\Codebook;
 use App\Models\Project;
@@ -237,6 +238,35 @@ class CodebookCodesController extends Controller
                 }
                 $this->addCodesToXml($codeXml, $codes, $code->id);
             }
+        }
+    }
+
+    /**
+     * Update the code order of a codebook without affecting other properties.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $project
+     * @param  string  $codebookId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateCodeOrder(UpdateCodebookRequest $request, $project, $codebookId)
+    {
+        try {
+            $codebook = Codebook::findOrFail($codebookId);
+
+            // Retrieve the new code order from the request
+            $newCodeOrder = $request->input('code_order');
+            if (! is_array($newCodeOrder)) {
+                return response()->json(['error' => 'Invalid code order format. Expected an array.'], 422);
+            }
+
+            // Update only the code order while keeping other properties intact
+            $codebook->updateCodeOrder($newCodeOrder);
+
+            return response()->json(['message' => 'Code order updated successfully', 'code_order' => $codebook->getCodeOrder()]);
+
+        } catch (\Throwable $th) {
+            return response()->json(['error' => 'An error occurred while updating the code order: '.$th->getMessage()], 500);
         }
     }
 }

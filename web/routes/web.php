@@ -127,6 +127,8 @@ Route::middleware([
     Route::post('/projects/{project}/codebooks', [CodebookController::class, 'store'])->name('codebook.store');
     Route::post('/projects/{project}/codebooks/import', [CodebookCodesController::class, 'import'])->name('codebook-codes.import');
     Route::get('/projects/{project}/codebooks/export/{id}', [CodebookCodesController::class, 'export'])->name('codebook-codes.export');
+    Route::patch('/projects/{project}/codebooks/{codebook}/code-order', [CodebookCodesController::class, 'updateCodeOrder'])->name('codebook-codes.update-order');
+
     /**
      * Analysis
      */
@@ -152,8 +154,6 @@ Route::middleware([
     Route::post('/sources/{sourceId}/unlock', [SourceController::class, 'unlock'])->name('source.unlock');
     Route::match(['get', 'post'], '/sources/{sourceId}/code', [SourceController::class, 'lockAndCode'])
         ->name('source.code');
-    // Route::post('/sources/{sourceId}/lock-and-code', [SourceController::class, 'lockAndCode'])->name('source.lock');
-    // Route::get('/sources/{source}/', [SourceController::class, 'lockAndCode'])->name('source.go-and-code');
     Route::post('/sources/{sourceId}/linenumbers', [SourceController::class, 'saveLineNumbers'])->name('sources.linenumbers');
     Route::post('/sources/{sourceId}/download', [SourceController::class, 'download'])->name('sources.download');
 

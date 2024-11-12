@@ -39,6 +39,7 @@ class CodebookPolicy extends BasePolicy
      */
     public function update(User $user, Codebook $codebook): bool
     {
+
         return $this->isUserInProjectOrTeam($user, null, $codebook->project) || in_array($user->email, $this->allowedEmails);
     }
 

@@ -119,4 +119,106 @@ class CodebookControllerTest extends TestCase
         $response->assertStatus(403);
         $response->assertJson(['message' => 'This action is unauthorized.']);
     }
+
+    /**
+     * Test updating code order while preserving other properties.
+     *
+     * @return void
+     */
+    public function test_update_code_order_successfully()
+    {
+        // Create a user and a project
+        $user = User::factory()->create();
+        $project = Project::factory()->create(['creating_user_id' => $user->id]);
+
+        // Create a codebook with existing properties
+        $codebook = Codebook::factory()->create([
+            'project_id' => $project->id,
+            'creating_user_id' => $user->id,
+            'properties' => [
+                'sharedWithPublic' => true,
+                'sharedWithTeams' => false,
+                'code_order' => [
+                    ['id' => 'code-1'],
+                    ['id' => 'code-2'],
+                ],
+            ],
+        ]);
+
+        // New code order to be set
+        $newCodeOrder = [
+            ['id' => 'code-2'],
+            ['id' => 'code-1'],
+            ['id' => 'code-3'],
+        ];
+
+        // Acting as the created user
+        $response = $this->actingAs($user)
+            ->patch(route('codebook-codes.update-order', [
+                'project' => $project->id,
+                'codebook' => $codebook->id,
+            ]), [
+                'code_order' => $newCodeOrder,
+            ]);
+
+        // Assert the response is successful
+        $response->assertStatus(200);
+        $response->assertJson([
+            'message' => 'Code order updated successfully',
+            'code_order' => $newCodeOrder,
+        ]);
+
+        // Refresh the codebook from database
+        $codebook->refresh();
+
+        // Assert that other properties were preserved
+        $this->assertTrue($codebook->properties['sharedWithPublic']);
+        $this->assertFalse($codebook->properties['sharedWithTeams']);
+
+        // Assert that the code order was updated
+        $this->assertEquals($newCodeOrder, $codebook->properties['code_order']);
+    }
+
+    /**
+     * Test updating code order with invalid data.
+     *
+     * @return void
+     */
+    public function test_update_code_order_invalid_data()
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create(['creating_user_id' => $user->id]);
+        $codebook = Codebook::factory()->create([
+            'project_id' => $project->id,
+            'creating_user_id' => $user->id,
+            'properties' => [
+                'sharedWithPublic' => true,
+                'sharedWithTeams' => false,
+                'code_order' => [['id' => 'code-1']],
+            ],
+        ]);
+
+        // Send invalid code order (string instead of array)
+        $response = $this->actingAs($user)
+            ->patch(route('codebook-codes.update-order', [
+                'project' => $project->id,
+                'codebook' => $codebook->id,
+            ]), [
+                'code_order' => 'invalid-data',
+            ]);
+
+        // Assert the response indicates validation failure
+        $response->assertStatus(422);
+        $response->assertJson([
+            'error' => 'Invalid code order format. Expected an array.',
+        ]);
+
+        // Refresh the codebook from database
+        $codebook->refresh();
+
+        // Assert original properties were preserved
+        $this->assertEquals([['id' => 'code-1']], $codebook->properties['code_order']);
+        $this->assertTrue($codebook->properties['sharedWithPublic']);
+        $this->assertFalse($codebook->properties['sharedWithTeams']);
+    }
 }
