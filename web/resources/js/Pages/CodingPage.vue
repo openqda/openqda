@@ -8,7 +8,7 @@
                 <div v-else class="flex items-center justify-between">
                     <Button
                         variant="outline-secondary"
-                        @click="openCreateDialog(codesView)"
+                        @click="openCreateDialogHandler(codesView)"
                     >
                         <PlusIcon class="w-4 h-4 me-1"/>
                         <span v-if="codesView === 'codes' && range?.length"
@@ -92,6 +92,7 @@ import FilesList from '../Components/files/FilesList.vue'
 import {router} from '@inertiajs/vue3'
 import { asyncTimeout } from '../utils/asyncTimeout.js'
 import ActivityIndicator from '../Components/ActivityIndicator.vue'
+import {useCreateDialog} from '../dialogs/useCreateDialog.js'
 
 const props = defineProps([
     'source',
@@ -123,6 +124,7 @@ const switchFile = (file) => {
 //------------------------------------------------------------------------
 // GENERIC EDIT DIALOG
 //------------------------------------------------------------------------
+const { schema: createSchema, open:openCreateDialog } = useCreateDialog()
 const { schema: editSchema, target: editTarget } = useRenameDialog()
 const { target: deleteTarget, challenge: deleteChallenge, message: deleteMessage } = useDeleteDialog()
 
@@ -142,12 +144,13 @@ const codesTabs = [
     { value: 'sources', label: 'Sources' }
 ]
 const codesView = ref(codesTabs[0].value)
-const createSchema = ref(null)
-const openCreateDialog = (view) => {
+const openCreateDialogHandler = (view) => {
     if (view === 'codes') {
-        createSchema.value = createCodeSchema({
-            title: text?.value,
-            codebooks: codebooks.value,
+        openCreateDialog({
+            schema: {
+                title: text?.value,
+                codebooks: codebooks.value,
+            }
         })
     }
 }
@@ -155,6 +158,8 @@ const createCodeHandler = async (formData) => {
     const code = await createCode(formData)
     const txt = createSchema.value.title.defaultValue
     const { index, length } = prevRange.value ?? {}
+
+    // immediately apply in-vivo codes as selections
     if (code && txt && length) {
         try {
             await createSelection({
@@ -183,9 +188,13 @@ onMounted(async () => {
     if (fileId !== props.source.id) {
         // relocate?
     }
+    console.debug('select source')
     onSourceSelected(props.source)
-    await asyncTimeout(500)
+    console.debug('timeout')
+    await asyncTimeout(100)
+    console.debug('init coding')
     await initCoding()
+    console.debug('set init to true')
     codingInitialized.value = true
 })
 
@@ -194,9 +203,9 @@ const onSourceSelected = (file) => {
     const url = new URL(location.href)
     if (url.searchParams.get('source') !== file.id) {
         url.searchParams.set('source', file.id)
-        history.pushState(history.state, '', url)
+        history.pushState({ ...history.state }, '', url)
     }
-    pageTitle.value = `Coding: ${file.name}`
+    pageTitle.value = `Coding of ${file.name}`
 }
 
 </script>

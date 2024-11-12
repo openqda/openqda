@@ -204,12 +204,13 @@ onMounted(() => {
     initialWatcher = watch(
       selections, entries => {
           if (entries?.length){
-          console.debug('selection watcher', entries.length, initialWatcher)
-              addSelections(entries)
-          }
-          if (typeof initialWatcher !== 'undefined') {
-              console.debug('stop watching')
-              initialWatcher.stop()
+              setTimeout(() => {
+                  addSelections(entries)
+                  if (typeof initialWatcher !== 'undefined') {
+                      console.debug('stop watching')
+                      initialWatcher.stop()
+                  }
+              }, 300)
           }
         }, { deep: false, immediate: true });
 

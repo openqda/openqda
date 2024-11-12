@@ -66,7 +66,7 @@ export const Codes = createStoreRepository({
   factory: (options) => new CodeStore(options),
 });
 
-Codes.create = async ({ projectId, source, title, name, description, codebookId, color }) => {
+Codes.create = async ({ projectId, source, title, name, description, codebookId, parentId, color }) => {
   const store = Codes.by(`${projectId}-${source.id}`);
   const code = {
     id: randomUUID(),
@@ -79,21 +79,38 @@ Codes.create = async ({ projectId, source, title, name, description, codebookId,
     title, // backwards-compat
     name: name ?? title,
     children: [],
-    order: store.size
+    order: store.size,
   };
+
+  if (parentId) {
+    code.parent = store.entry(parentId)
+    code.active = code.parent.active
+  }
+
   store.add(code);
-  console.debug('create new code', code)
+  const entry = store.entry(code.id)
+
+  if (parentId) {
+      code.parent.children.push(entry)
+  }
+
+  const body = (({ parent, ...rest }) => rest)(code)
+    if (parentId) {
+        body.parent_id = parentId
+    }
+
   const { response, error } = await request({
     url: `/projects/${projectId}/codes`,
     type: 'post',
-    body: code,
+    body,
   });
-
-  if (response.status >= 400 || error) {
+console.debug(response, error)
+  if (error || response.status >= 400) {
     store.remove(code.id);
-  } else {
-    store.update(code.id, { id: response.data.id }, { updateId: true });
+    return { response, error, code };
   }
+
+  store.update(code.id, { id: response.data.id }, { updateId: true });
 
   return { response, error, code };
 };

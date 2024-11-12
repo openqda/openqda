@@ -204,27 +204,27 @@ const unlockSource = async () => {
 /*---------------------------------------------------------------------------*/
 // EDITING
 /*---------------------------------------------------------------------------*/
-function loadFileIntoEditor(file) {
-  if (!file?.content) {
+function loadFileIntoEditor(source) {
+  if (!source?.content) {
     return;
   }
-
-  editorSourceRef.value.content = file.content;
+console.debug(source)
+  editorSourceRef.value.content = source.content;
   editorSourceRef.value.selected = true;
-  editorSourceRef.value.id = file.id;
-  editorSourceRef.value.name = file.name;
-  editorSourceRef.value.locked = file.locked;
-  editorSourceRef.value.CanUnlock = file.CanUnlock;
-  editorSourceRef.value.hasSelections = file.hasSelections;
-  editorSourceRef.value.showLineNumbers = file.showLineNumbers ?? false;
-  editorSourceRef.value.charsXLine = file.charsXLine;
+  editorSourceRef.value.id = source.id;
+  editorSourceRef.value.name = source.name;
+  editorSourceRef.value.locked = source.locked;
+  editorSourceRef.value.CanUnlock = source.CanUnlock;
+  editorSourceRef.value.hasSelections = source.hasSelections;
+  editorSourceRef.value.showLineNumbers = source.showLineNumbers ?? false;
+  editorSourceRef.value.charsXLine = source.charsXLine;
 
   const url = new URL(location.href);
-  if (url.searchParams.get('file') !== file.id) {
-    url.searchParams.set('file', file.id);
+  if (url.searchParams.get('file') !== source.id) {
+    url.searchParams.set('file', source.id);
     history.pushState(history.state, '', url);
   }
-  pageTitle.value = `Preparation: ${file.name}`;
+  pageTitle.value = `Preparation: ${source.name}`;
 }
 
 // Parent Component Script

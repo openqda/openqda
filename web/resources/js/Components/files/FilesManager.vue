@@ -479,7 +479,7 @@ async function fetchAndRenderDocument(document) {
   try {
     const response = await axios.get(`/files/${document.id}`);
     const fetchedDocument = response.data;
-
+console.debug(fetchedDocument)
     // Call fileSelected with the fetched document
     fileSelected(fetchedDocument);
   } catch (error) {

@@ -19,8 +19,10 @@ import { changeRGBOpacity } from '../../utils/color/changeRGBOpacity.js';
 import { useRenameDialog } from '../../dialogs/useRenameDialog.js';
 import { useCodingEditor } from './useCodingEditor.js';
 import { useDeleteDialog } from '../../dialogs/useDeleteDialog.js';
+import { useCreateDialog } from '../../dialogs/useCreateDialog.js';
 import Dropdown from '../../Components/Dropdown.vue';
 import DropdownLink from '../../Components/DropdownLink.vue';
+import {rgbToHex} from '../../utils/color/toHex'
 
 //------------------------------------------------------------------------
 // DATA / PROPS
@@ -38,7 +40,7 @@ const props = defineProps({
 //------------------------------------------------------------------------
 // OPEN CLOSE
 //------------------------------------------------------------------------
-const { toggleCode, createCodeSchema } = useCodes();
+const { toggleCode, createCodeSchema, getCodebook } = useCodes();
 const { focusSelection } = useCodingEditor();
 const open = ref(false);
 
@@ -91,16 +93,27 @@ const indent = (code) => console.debug('indent', code);
 //------------------------------------------------------------------------
 const { open: openDeleteDialog } = useDeleteDialog();
 const { open: openRenameDialog } = useRenameDialog();
+const { open: openCreateDialog } = useCreateDialog();
 const editCode = (target) => {
   const schema = createCodeSchema({
     title: target.name,
     description: target.description,
     color: target.color,
   });
-  schema.id = { type: String, formType: 'hidden', defaultValue: target.id };
+  schema.id = { type: String, label: null, formType: 'hidden', defaultValue: target.id };
   delete schema.codebookId;
   openRenameDialog({ id: 'edit-code', target, schema });
 };
+const addSubcode = parent => {
+    const schema = createCodeSchema({
+        codebooks: [getCodebook(parent.codebook)],
+        codes: [parent],
+        parent,
+    })
+    schema.color.defaultValue = rgbToHex(parent.color)
+    console.debug(schema)
+    openCreateDialog({ id: 'edit-code', schema });
+}
 </script>
 
 <template>

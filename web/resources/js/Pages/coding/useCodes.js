@@ -5,7 +5,7 @@ import {Codes} from './codes/Codes.js'
 import {Selections} from './selections/Selections.js'
 import {randomColor} from '../../utils/random/randomColor.js'
 
-const createCodeSchema = ({ title, description, color, codebooks, codes }) => {
+const createCodeSchema = ({ title, description, color, codebooks, codes, parent }) => {
     const schema = {
         title: {
             type: String,
@@ -44,6 +44,9 @@ const createCodeSchema = ({ title, description, color, codebooks, codes }) => {
                 value: c.id,
                 label: c.name
             }))
+        }
+        if (parent) {
+            schema.parentId.defaultValue = parent.id
         }
     }
     return schema
@@ -171,6 +174,7 @@ export const useCodes = () => {
         return codebookStore.all()
     })
 
+    const getCodebook = id => codebookStore.entry(id)
     const toggleCodebook = async (codebook) => {
         const active = !codebook.active
         codebookStore.active(codebook.id, active)
@@ -242,6 +246,7 @@ export const useCodes = () => {
         initCoding,
         codes: computedCodes,
         getCode: (id) => codeStore.entry(id),
+        getCodebook,
         observe,
         codebooks: computedCodebooks,
         selections,
