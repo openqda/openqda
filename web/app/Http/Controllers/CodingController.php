@@ -159,7 +159,23 @@ class CodingController extends Controller
         // Update the parent_id from the code's parent
         $code->moveUpHierarchy();
 
-        // Return a success response
+        // Return a success responsep
         return response()->json(['message' => 'Change successfully made']);
+    }
+
+    /**
+     * Return the default codebook for a project.
+     *
+     * @return Codebook
+     */
+    private function createDefaultCodebook(Project $project, Request $request)
+    {
+        $codebook = new Codebook();
+        $codebook->name = 'Default Codebook';
+        $codebook->project_id = $project->id;
+        $codebook->creating_user_id = $request->user()->id;
+        $codebook->save();
+
+        return $codebook;
     }
 }

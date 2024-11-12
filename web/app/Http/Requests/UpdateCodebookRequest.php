@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Codebook;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 
 class UpdateCodebookRequest extends FormRequest
 {
@@ -11,7 +13,9 @@ class UpdateCodebookRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false; // Adjust authorization as needed
+        $codebook = Codebook::find($this->route('codebook'));
+
+        return Gate::allows('update', [Codebook::class, $codebook]);
     }
 
     /**
@@ -22,10 +26,11 @@ class UpdateCodebookRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|max:255',
+            'name' => 'string|max:255',
             'description' => 'nullable|string',
             'sharedWithPublic' => 'nullable|boolean',
             'sharedWithTeams' => 'nullable|boolean',
+            'code_order' => 'nullable',
         ];
     }
 }

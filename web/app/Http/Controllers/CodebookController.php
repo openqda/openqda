@@ -67,34 +67,39 @@ class CodebookController extends Controller
     /**
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(UpdateCodebookRequest $request, $project, $codebook)
+    public function update(UpdateCodebookRequest $request, $project, $codebookId)
     {
         try {
-            $codebook = Codebook::find($codebook);
+            $codebook = Codebook::findOrFail($codebookId);
 
-            // Get 'sharedWithPublic' and 'sharedWithTeams' from the request, default to false if not present
             $sharedWithPublic = $request->get('sharedWithPublic', false);
             $sharedWithTeams = $request->get('sharedWithTeams', false);
 
-            // Prepare properties data
-            $properties = [
-                'sharedWithPublic' => $sharedWithPublic,
-                'sharedWithTeams' => $sharedWithTeams,
-            ];
+            // Prepare updated properties, keeping existing code order if not provided
+            $properties = $codebook->properties ?? [];
+            $properties['sharedWithPublic'] = $sharedWithPublic;
+            $properties['sharedWithTeams'] = $sharedWithTeams;
 
-            // Update the codebook with validated data
+            // If 'code_order' is present in the request, update it, else keep the existing one
+            if ($request->has('code_order')) {
+                $newCodeOrder = $request->input('code_order'); // Expecting an array of UUIDs or code IDs
+                $properties['code_order'] = $newCodeOrder;
+            } else {
+                // Preserve existing 'code_order' if it's already set
+                $properties['code_order'] = $properties['code_order'] ?? [];
+            }
+
+            // Update the codebook's properties
             $codebook->update([
                 'name' => $request->name,
                 'description' => $request->description,
                 'properties' => $properties,
             ]);
 
-            // Return a successful response with the updated codebook data
             return response()->json(['message' => 'Codebook updated successfully', 'codebook' => $codebook]);
 
         } catch (\Throwable $th) {
-            // Handle any exceptions that occur during the update process
-            return response()->json(['error' => 'An error occurred while updating the codebook'], 500);
+            return response()->json(['error' => 'An error occurred while updating the codebook: '.$th->getMessage()], 500);
         }
     }
 
