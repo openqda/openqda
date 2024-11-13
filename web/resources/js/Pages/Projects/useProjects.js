@@ -107,7 +107,7 @@ export const useProjects = () => {
     );
   };
 
-  watch(
+  const initSearch = () => watch(
     searchTerm,
     debounce((value) => {
       if (value.trim() === '') {
@@ -127,6 +127,7 @@ export const useProjects = () => {
     currentProject: project,
     projects: sortedProjects,
     searchTerm,
+    initSearch,
     sortOptions,
     createSchema,
     createProject: Project.create.method,

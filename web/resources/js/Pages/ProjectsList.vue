@@ -47,7 +47,10 @@ const createProjectSchema = ref(null);
         <div class="flex items-center justify-center h-full text-foreground/50">
         <div>
             <Headline2>Your projects</Headline2>
-          <div class="my-4 block">Select a project from the list or create a new one</div>
+          <div class="mt-4 mb-8 block">
+              Select a project from the list or create a new one.
+              You can search for project titles, descriptions and ids.
+          </div>
             <HelpResources class="space-y-4" />
         </div>
         </div>

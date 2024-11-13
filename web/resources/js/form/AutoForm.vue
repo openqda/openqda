@@ -48,7 +48,6 @@ const validateForm = (e) => {
   e.preventDefault();
   e.stopPropagation();
   const formData = new FormData(e.target);
-  console.debug(formData);
   const data = [...formData.entries()];
   const validation = {};
   let isValid = true;
@@ -66,7 +65,8 @@ const validateForm = (e) => {
     return false;
   }
 
-  emit('submit', Object.fromEntries(data));
+  const toSubmit = Object.fromEntries(data)
+  emit('submit', toSubmit);
 };
 </script>
 

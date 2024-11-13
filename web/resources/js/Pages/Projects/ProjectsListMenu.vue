@@ -26,6 +26,7 @@ const {
   sortBy,
   updateSorter,
   searchTerm,
+  initSearch
 } = useProjects();
 
 const scrollRefs = ref()
@@ -42,6 +43,9 @@ const focusCurrent = () => {
         }
     }
 }
+
+initSearch()
+
 onMounted(() => {
     try {
         focusCurrent()
@@ -91,10 +95,16 @@ onMounted(() => {
     </Dropdown>
   </div>
 
-  <InputField v-if="projects?.length" type="search" placeholder="Search..." v-model="searchTerm" />
-  <p v-else class="text-sm text-foreground/50">
-      You have not created any project. Best, you create one now.
-  </p>
+  <InputField type="search" placeholder="Search..." v-model="searchTerm" />
+    <div v-if="!projects?.length" class="text-sm text-foreground/50">
+        <p v-if="searchTerm?.length">
+            No projects matched for your search.
+        </p>
+        <p v-else>
+            You have not created any project. Best, you create one now.
+        </p>
+    </div>
+
   <ul class="pb-12" v-if="projects?.length">
     <li
       v-for="entry in projects"

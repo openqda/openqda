@@ -79,7 +79,6 @@ const draggable = useDraggable(draggableRef, sortable, {
         isDragging.value = true
     },
     async onEnd (e) {
-        debugger
         const codeId = e.item.getAttribute('data-code')
         const parentId = dragTarget.value
         const to = e.to.getAttribute('data-id')
