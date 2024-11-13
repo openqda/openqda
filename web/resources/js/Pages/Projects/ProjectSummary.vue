@@ -31,9 +31,9 @@ const submitRename = async ({ name }) => {
 };
 
 const deleteProject = async () => {
-  localStorage.removeItem('text');
   const path = route('project.destroy', { project: project.id });
   router.delete(path);
+  return true
 };
 </script>
 
@@ -120,7 +120,7 @@ const deleteProject = async () => {
   />
   <DeleteDialog
     :target="deleteTarget"
-    @submit="deleteProject"
+    :submit="deleteProject"
     @cancelled="deleteTarget = null"
     challenge="name"
   >
