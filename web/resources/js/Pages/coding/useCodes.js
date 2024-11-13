@@ -197,16 +197,6 @@ export const useCodes = () => {
         return true
     }
 
-    const updateSortOrder = ({ root, codebook }) => {
-        const order = codebook.order ?? []
-
-        if (order) {
-
-        } else {
-
-        }
-    }
-
     const computedCodes = computed(() => {
         return codeStore.all().filter((c) => !c.parent)
     })
@@ -285,7 +275,6 @@ export const useCodes = () => {
         updateCode,
         deleteCode,
         initCoding,
-        updateSortOrder,
         codes: computedCodes,
         addCodeToParent,
         getCode: (id) => codeStore.entry(id),

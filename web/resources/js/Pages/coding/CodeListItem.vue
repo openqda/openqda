@@ -172,16 +172,20 @@ const initDraggable = () => {
       const codeId = e.item.getAttribute('data-code');
       const parentId = dragTarget.value;
       const to = e.to.getAttribute('data-id');
+
+      // clear after data retrieval
+      isDragging.value = false;
+      clearDrag();
+
       if (parentId && parentId !== codeId) {
         const moved = await addCodeToParent({ codeId, parentId });
+
         if (moved) {
           const index = props.code.children.findIndex((c) => c.id === codeId);
           index > -1 && props.code.children.splice(index, 1);
         }
       }
 
-      isDragging.value = false;
-      clearDrag();
     },
   });
 };
