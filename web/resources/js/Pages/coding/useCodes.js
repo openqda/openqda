@@ -158,12 +158,53 @@ export const useCodes = () => {
         // adding-back will destroy the code-order
         const { response, error } = await Codes.delete({ projectId, source, code })
         if (error) throw error
-        if (response.status >= 400) throw new Error(response.data.message)
+        if (response?.status >= 400) throw new Error(response.data.message)
 
         codeStore.remove(code.id)
         const selections = selectionStore.all().filter(selection => selection.code.id === code.id)
         selectionStore.remove(...selections.map(s => s.id))
         return true
+    }
+
+    const addCodeToParent = async ({ codeId, parentId }) => {
+        const code = codeStore.entry(codeId)
+        const parent = codeStore.entry(parentId)
+        const oldParent = code.parent
+
+        // optimistic UI
+        codeStore.update(code.id, { parent })
+        parent.children = parent.children ?? []
+        parent.children.push(code)
+
+        // TODO make optimistic UI procedures
+        //   a command-pattern that can be undone
+        const rollback = () => {
+            codeStore.update(code.id, { parent: oldParent })
+            parent.children.pop()
+        }
+
+        const { response, error } = await Codes.updateParent({ projectId, source, code, parent })
+
+        if (error) {
+            rollback()
+            throw error
+        }
+        if (response?.status >= 400) {
+            rollback()
+            throw new Error(response.data.message)
+        }
+
+        return true
+    }
+
+    const updateSortOrder = ({ root, codebook }) => {
+        const order = codebook.order ?? []
+
+        if (order) {
+
+        } else {
+
+        }
     }
 
     const computedCodes = computed(() => {
@@ -244,7 +285,9 @@ export const useCodes = () => {
         updateCode,
         deleteCode,
         initCoding,
+        updateSortOrder,
         codes: computedCodes,
+        addCodeToParent,
         getCode: (id) => codeStore.entry(id),
         getCodebook,
         observe,

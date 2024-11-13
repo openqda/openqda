@@ -16,6 +16,7 @@ class CodebookStore extends AbstractStore {
     init (docs) {
         if (this.size.value === 0 && docs.size !== 0) {
             docs.forEach((book) => {
+                book.code_order = book.code_order ?? []
                 book.active = true
             })
             this.add(...docs)

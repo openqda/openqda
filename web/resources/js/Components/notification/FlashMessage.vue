@@ -32,14 +32,14 @@ defineProps(['message', 'flash']);
 const widthPercentage = ref(100);
 const colors = new ColorMap({
   bg: {
-    success: 'bg-porsche-700',
-    error: 'bg-red-400',
-    default: 'bg-cerulean-500',
+    success: 'bg-confirmative/60',
+    error: 'bg-destructive/60',
+    default: 'bg-primary/60',
   },
   border: {
-    success: 'border-porsche-300',
-    error: 'border-red-600',
-    default: 'border-cerulean-700',
+    success: 'border-confirmative',
+    error: 'border-destructive',
+    default: 'border-primary',
   },
 });
 

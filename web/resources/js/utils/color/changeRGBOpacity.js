@@ -1,4 +1,7 @@
 export const changeRGBOpacity = (rgba, opacity) => {
+    if (typeof rgba === 'undefined' || rgba === null) {
+        throw new Error(`Expected color, got ${rgba}`)
+    }
   const rgbaValues = rgba.match(/[\d.]+/g);
   const resolved = opacity ?? rgbaValues[3] ?? 1;
   if (rgbaValues && rgbaValues.length >= 3) {

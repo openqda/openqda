@@ -14,6 +14,8 @@ import Button from '../../Components/interactive/Button.vue';
 import { useDraggable } from 'vue-draggable-plus'
 import { useRange } from './useRange.js'
 import {asyncTimeout} from '../../utils/asyncTimeout.js'
+import { useDragTarget } from './useDragTarget.js'
+import { attemptAsync } from '../../Components/notification/attemptAsync.js'
 
 const props = defineProps({
     codebook: Object,
@@ -28,12 +30,12 @@ const { range } = useRange()
 //------------------------------------------------------------------------
 // TOGGLE
 //------------------------------------------------------------------------
-const { toggleCodebook, observe } = useCodes();
+const { toggleCodebook, observe, addCodeToParent, updateSortOrder, getCode } = useCodes();
 const toggling = reactive({})
 const handleTogglingCodebook = async codebook => {
     toggling[codebook.id] = true
     await asyncTimeout(300)
-    await toggleCodebook(codebook)
+    await attemptAsync(() => toggleCodebook(codebook))
     toggling[codebook.id] = false
 }
 
@@ -48,24 +50,60 @@ const open = ref(true);
 const draggableRef = ref()
 const sortable = ref(props.codes ?? [])
 const isDragging = ref(false)
+const { dragTarget, setDragStart, clearDrag } = useDragTarget()
+
 const draggable = useDraggable(draggableRef, sortable, {
-    animation: 150,
-    swapThreshold: 0.1,
+    animation: 250,
+    swapThreshold: window.dragThreshold ?? 0.1,
     scroll: true,
     group: 'g1',
     clone: (element) => {
         if (element === undefined || element === null) return element
         const elementStr = JSON.stringify(element, (key, value) => {
-            if (value === element) return '$cyclic';
+            if (value === element) {
+                return `$element-${value.id}`;
+            }
             return value
         })
-        return JSON.parse(elementStr)
+        return JSON.parse(elementStr, (key, value) => {
+            if (typeof value === 'string' && value.startsWith('$el')) {
+                const [, id] = value.split('$element-')
+                return getCode(id)
+            }
+            return value
+        })
     },
     onStart(e) {
+        const id = e.item.getAttribute('data-code')
+        setDragStart(id)
         isDragging.value = true
     },
-    onEnd (e) {
+    async onEnd (e) {
+        debugger
+        const codeId = e.item.getAttribute('data-code')
+        const parentId = dragTarget.value
+        const to = e.to.getAttribute('data-id')
+
+        // clear after data retrieval
         isDragging.value = false
+        clearDrag()
+
+        const droppedIntoList = to !== 'root'
+        const droppedOnOther = parentId && parentId !== codeId
+
+        // code placed on another code (add as child)
+        if (droppedOnOther || droppedIntoList) {
+            const otherId = parentId ?? to
+            const moved = await attemptAsync(() => addCodeToParent({ codeId, parentId: otherId }))
+            if (moved) {
+                const index = sortable.value.findIndex(c => c.id === codeId)
+                index > -1 && sortable.value.splice(index, 1)
+            }
+        } else {
+
+            // else sorting within same list
+            await attemptAsync(() => updateSortOrder({ root: to, codebook: props.codebook }))
+        }
     }
 })
 
@@ -109,12 +147,12 @@ onUnmounted(() => {
   <div class="flex items-center">
     <Button
       :title="open ? 'Close code list' : 'Open code list'"
-      variant="outline"
+      variant="default"
       size="sm"
-      class="!px-1 !py-1 !mx-0 !my-0 bg-transparent"
+      class="!px-1 !py-1 !mx-0 !my-0 bg-transparent !text-foreground hover:text-background"
       @click.prevent="open = !open"
     >
-      <ChevronRightIcon :class="cn('w-4 h-4', open && 'rotate-90')" />
+      <ChevronRightIcon :class="cn('w-4 h-4 transition-all duration-300 transform', open && 'rotate-90')" />
     </Button>
     <headline3 class="ms-4 flex-grow me-2">{{ codebook.name }}</headline3>
       <span class="text-foreground/50 text-xs mx-2">{{ props.codes?.length ?? 0}} codes</span>
@@ -141,7 +179,7 @@ onUnmounted(() => {
     <p class="text-foreground/50" v-if="props.codes && props.codes.length === 0">
       No codes available, please create a code and have at least one codebook activated.
     </p>
-    <ul ref="draggableRef">
+    <ul ref="draggableRef" data-id="root">
       <CodeListItem v-for="(code, i) in sortable"
                     :isDragging="isDragging"
                     :code="code"

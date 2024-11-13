@@ -6,10 +6,13 @@ import {
   EyeSlashIcon,
   BarsArrowDownIcon,
   PencilIcon,
-    PlusIcon
+  MinusIcon,
+  PlusIcon,
 } from '@heroicons/vue/24/solid/index.js';
-import { TrashIcon /*, ChatBubbleBottomCenterTextIcon */ } from '@heroicons/vue/24/outline';
-import { computed, ref } from 'vue'
+import {
+  TrashIcon /*, ChatBubbleBottomCenterTextIcon */,
+} from '@heroicons/vue/24/outline';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { cn } from '../../utils/css/cn.js';
 import Button from '../../Components/interactive/Button.vue';
 import { useCodes } from './useCodes.js';
@@ -22,25 +25,29 @@ import { useDeleteDialog } from '../../dialogs/useDeleteDialog.js';
 import { useCreateDialog } from '../../dialogs/useCreateDialog.js';
 import Dropdown from '../../Components/Dropdown.vue';
 import DropdownLink from '../../Components/DropdownLink.vue';
-import {rgbToHex} from '../../utils/color/toHex'
+import { rgbToHex } from '../../utils/color/toHex';
+import { useDraggable } from 'vue-draggable-plus';
+import { useDragTarget } from './useDragTarget.js';
+import { debounce } from '../../utils/dom/debounce.js';
 
 //------------------------------------------------------------------------
 // DATA / PROPS
 //------------------------------------------------------------------------
 const Selections = useSelections();
 const props = defineProps({
-    code: Object,
-    parent: Object,
-    isDragging: Boolean,
-    liclass: String,
-    selections: Array,
-    canSort: Boolean,
+  code: Object,
+  parent: Object,
+  isDragging: Boolean,
+  liclass: String,
+  selections: Array,
+  canSort: Boolean,
 });
 
 //------------------------------------------------------------------------
 // OPEN CLOSE
 //------------------------------------------------------------------------
-const { toggleCode, createCodeSchema, getCodebook } = useCodes();
+const { toggleCode, createCodeSchema, getCodebook, addCodeToParent, getCode } =
+  useCodes();
 const { focusSelection } = useCodingEditor();
 const open = ref(false);
 
@@ -55,11 +62,11 @@ const { range } = useRange();
 const showTexts = ref(false);
 const hasTexts = computed(() => props.code.text?.length);
 const openTexts = () => {
-    showTexts.value = true
-}
+  showTexts.value = true;
+};
 const closeTexts = () => {
-    showTexts.value = false
-}
+  showTexts.value = false;
+};
 
 //------------------------------------------------------------------------
 // RANGE
@@ -100,45 +107,175 @@ const editCode = (target) => {
     description: target.description,
     color: target.color,
   });
-  schema.id = { type: String, label: null, formType: 'hidden', defaultValue: target.id };
+  schema.id = {
+    type: String,
+    label: null,
+    formType: 'hidden',
+    defaultValue: target.id,
+  };
   delete schema.codebookId;
   openRenameDialog({ id: 'edit-code', target, schema });
 };
-const addSubcode = parent => {
-    const schema = createCodeSchema({
-        codebooks: [getCodebook(parent.codebook)],
-        codes: [parent],
-        parent,
-    })
-    schema.color.defaultValue = rgbToHex(parent.color)
-    console.debug(schema)
-    openCreateDialog({ id: 'edit-code', schema });
-}
+const addSubcode = (parent) => {
+  const schema = createCodeSchema({
+    codebooks: [getCodebook(parent.codebook)],
+    codes: [parent],
+    parent,
+  });
+  schema.color.defaultValue = rgbToHex(parent.color);
+  console.debug(schema);
+  openCreateDialog({ id: 'edit-code', schema });
+};
+//------------------------------------------------------------------------
+// DRAG DROP
+//------------------------------------------------------------------------
+const draggableRef = ref();
+const dragEntered = ref();
+const isDragging = ref(false);
+const selfRef = ref();
+const { dragTarget, setDragTarget, clearDrag, setDragStart, dragStarter } =
+  useDragTarget();
+let draggable;
+const initDraggable = () => {
+  if (draggable) {
+    return;
+  }
+  draggable = useDraggable(draggableRef, props.code.children, {
+    animation: 250,
+    swapThreshold: window.dragThreshold ?? 0.1,
+    scroll: true,
+    group: 'g1',
+    clone: (element) => {
+      if (element === undefined || element === null) {
+        return element;
+      }
+      const elementStr = JSON.stringify(element, (key, value) => {
+        if (value === element) {
+          return `$element-${value.id}`;
+        }
+        return value;
+      });
+      return JSON.parse(elementStr, (key, value) => {
+        if (typeof value === 'string' && value.startsWith('$el')) {
+          const [, id] = value.split('$element-');
+          return getCode(id);
+        }
+        return value;
+      });
+    },
+    onStart(e) {
+      const id = e.item.getAttribute('data-code');
+      setDragStart(id);
+      isDragging.value = true;
+    },
+    async onEnd(e) {
+      debugger;
+      const codeId = e.item.getAttribute('data-code');
+      const parentId = dragTarget.value;
+      const to = e.to.getAttribute('data-id');
+      if (parentId && parentId !== codeId) {
+        const moved = await addCodeToParent({ codeId, parentId });
+        if (moved) {
+          const index = props.code.children.findIndex((c) => c.id === codeId);
+          index > -1 && props.code.children.splice(index, 1);
+        }
+      }
+
+      isDragging.value = false;
+      clearDrag();
+    },
+  });
+};
+
+const applyEnter = debounce((target) => {
+  if (!dragEntered.value) {
+    return;
+  }
+  const codeId = target.getAttribute('data-code');
+  setDragTarget(codeId);
+}, 500);
+
+const enter = (evt) => {
+  if (evt.currentTarget.contains(evt.relatedTarget)) {
+    return;
+  }
+  dragEntered.value = true;
+  applyEnter(evt.currentTarget);
+};
+const leave = (evt) => {
+  if (evt.currentTarget.contains(evt.relatedTarget)) {
+    return;
+  }
+  setDragTarget(null);
+  dragEntered.value = false;
+};
+const end = () => {
+  dragEntered.value = false;
+};
+watch(range, (value) => {
+  if (!draggable) {
+    return;
+  }
+  if (value?.length) {
+    draggable.pause();
+  } else {
+    draggable.resume();
+  }
+});
+
+watch(open, (value) => {
+  if (value) {
+    initDraggable();
+  }
+});
+
+onUnmounted(() => {
+  if (draggable) {
+    draggable.destroy();
+  }
+});
 </script>
 
 <template>
   <li
     :class="
       cn(
-        'rounded-md py-2 border border-transparent',
-        open && 'bg-background/20',
+        'rounded-lg py-2 border border-transparent',
+        code.parent && 'ms-2',
+        open && !dragStarter && 'border-l-background',
+        dragEntered &&
+          dragTarget &&
+          code.id !== dragStarter &&
+          'border-secondary',
         props.liclass
       )
     "
+    @dragenter="enter"
+    @dragleave="leave"
+    @drop="end"
+    ref="selfRef"
     :data-code="code.id"
   >
     <div class="flex items-center w-auto space-x-3">
       <Button
         :title="open ? 'Hide children' : 'Show children'"
-        variant="outline"
+        variant="default"
         size="sm"
-        class="!px-1 !py-1 !mx-0 !my-0 bg-transparent"
+        class="!px-1 !py-1 !mx-0 !my-0 bg-transparent !text-foreground hover:text-background"
         @click.prevent="toggle()"
-        v-if="code.children.length"
+        v-if="code.children?.length"
       >
-        <ChevronRightIcon :class="cn('w-4 h-4', open && 'rotate-90')" />
+        <ChevronRightIcon
+          :class="
+            cn(
+              'w-4 h-4 transition-all duration-300 transform',
+              open && 'rotate-90'
+            )
+          "
+        />
       </Button>
       <span class="w-4 h-4 p-1 m-1" v-else></span>
+
       <Button
         :title="showTexts ? 'Hide selections list' : 'Show selections list'"
         variant="ghost"
@@ -157,6 +294,7 @@ const addSubcode = parent => {
           open ? (hasTexts ?? 0) : selections(code)
         }}</span>
       </Button>
+
       <div
         :class="
           cn(
@@ -164,7 +302,7 @@ const addSubcode = parent => {
             props.canSort && 'cursor-grab'
           )
         "
-        :style="`background: ${changeRGBOpacity(code.color, 1)};`"
+        :style="`background: ${changeRGBOpacity(code.color ?? 'rgba(0,0,0,1)', 1)};`"
       >
         <button
           v-if="range?.length"
@@ -186,7 +324,9 @@ const addSubcode = parent => {
           >
         </button>
         <div v-else class="w-full group flex">
-          <span class="line-clamp-1 flex-grow items-center">{{code.name}}</span>
+          <span class="line-clamp-1 flex-grow items-center">{{
+            code.name
+          }}</span>
         </div>
       </div>
       <button
@@ -219,12 +359,12 @@ const addSubcode = parent => {
               <span>Edit code</span>
             </div>
           </DropdownLink>
-            <DropdownLink as="button" @click.prevent="addSubcode(code)">
-                <div class="flex items-center">
-                    <PlusIcon class="w-4 h-4 me-2" />
-                    <span>Add subcode</span>
-                </div>
-            </DropdownLink>
+          <DropdownLink as="button" @click.prevent="addSubcode(code)">
+            <div class="flex items-center">
+              <PlusIcon class="w-4 h-4 me-2" />
+              <span>Add subcode</span>
+            </div>
+          </DropdownLink>
           <DropdownLink
             as="button"
             @click.prevent="
@@ -247,8 +387,8 @@ const addSubcode = parent => {
 
     <!-- TEXT Selections -->
     <div
-      v-if="hasTexts && showTexts"
-      :style="`border-color: ${changeRGBOpacity(code.color, 1)};`"
+      v-if="code && hasTexts && showTexts"
+      :style="`border-color: ${changeRGBOpacity(code.color ?? 'rgba(0,0,0,1)', 1)};`"
       class="bg-surface border text-sm ms-8 me-1 my-1 rounded"
     >
       <ul class="divide-y divide-border">
@@ -279,13 +419,18 @@ const addSubcode = parent => {
     </div>
 
     <!-- children -->
-    <ul v-if="open && code.children">
+    <ul
+      v-if="open && code.children"
+      ref="draggableRef"
+      class="mt-2"
+      :data-id="code.id"
+    >
       <CodeListItem
         v-for="child in code.children ?? []"
         :key="child.id"
         :code="child"
         :can-sort="canSort"
-        liclass="ps-3"
+        :liclass="code.parent ? 'ps-1' : 'ps-1'"
       />
     </ul>
 

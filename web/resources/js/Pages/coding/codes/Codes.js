@@ -125,18 +125,26 @@ Codes.delete = ({ projectId, source, code }) => {
 
 Codes.updateTitle = ({ projectId, code, title, name }) => {
   return request({
-    url: `/projects/${projectId}/codes/${code.id}/update-title`,
-    type: 'post',
+    url: `/projects/${projectId}/codes/${code.id}`,
+    type: 'patch',
     body: { title: title ?? name },
   });
 };
 
 Codes.updateColor = ({ projectId, code, color }) => {
   return request({
-    url: `/projects/${projectId}/codes/${code.id}/update-color`,
-    type: 'post',
+    url: `/projects/${projectId}/codes/${code.id}`,
+    type: 'patch',
     body: { color },
   });
+};
+
+Codes.updateParent = ({ projectId, code, parent }) => {
+    return request({
+        url: `/projects/${projectId}/codes/${code.id}`,
+        type: 'patch',
+        body: { parent_id: parent.id },
+    });
 };
 
 Codes.updateDescription = ({ projectId, source, code, description }) => {
