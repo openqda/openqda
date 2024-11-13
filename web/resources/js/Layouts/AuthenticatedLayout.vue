@@ -190,7 +190,7 @@
       <div class="flex lg:pl-20">
         <aside
           v-show="$props.menu !== false"
-          class="bg-surface hidden lg:w-full xl:w-1/2 2xl:w-1/3 h-screen overflow-y-auto border-background lg:block border-r-background border-r-8 flex-shrink-0 max-w-[50%]"
+          class="bg-surface hidden md:w-2/5 xl:w-1/3 2xl:w-1/3 h-screen overflow-y-auto border-background lg:block border-r-background border-r-8 flex-shrink-0 max-w-[50%]"
         >
           <slot name="menu" />
         </aside>
