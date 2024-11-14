@@ -95,6 +95,7 @@
                 <ConfirmDialog
                   :text="confirm.text"
                   :show="!!confirm.text"
+                  :show-confirm="true"
                   @confirmed="onConfirm"
                   @cancelled="toConfirm(null)"
                 />
