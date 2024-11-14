@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ModelType;
 use App\Services\AuditService;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -79,6 +80,12 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
     public function projects(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(Project::class, 'creating_user_id');
+    }
+
+    public function settings()
+    {
+        return $this->hasMany(Setting::class, 'model_id')
+            ->where('model_type', ModelType::User->value); // or Project->value
     }
 
     /**

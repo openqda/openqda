@@ -8,6 +8,7 @@ use App\Http\Controllers\CodebookController;
 use App\Http\Controllers\CodingController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SelectionController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SourceController;
 use App\Http\Controllers\UserNavigationController;
 use Illuminate\Support\Facades\Route;
@@ -167,5 +168,11 @@ Route::middleware([
      * Teams
      */
     Route::post('/teams/change-owner', [AdditionalTeamController::class, 'makeOwner'])->name('team-members.make-owner');
+
+    /**
+     * Settings
+     */
+    Route::resource('settings', SettingsController::class);
+    Route::patch('settings/{setting}/value', [SettingsController::class, 'updateValue'])->name('settings.update-value');
 
 });
