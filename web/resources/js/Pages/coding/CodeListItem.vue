@@ -144,7 +144,7 @@ const initDraggable = () => {
     animation: 250,
     swapThreshold: window.dragThreshold ?? 0.1,
     scroll: true,
-    group: 'g1',
+    group: props.code.codebook,
     clone: (element) => {
       if (element === undefined || element === null) {
         return element;

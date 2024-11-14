@@ -52,9 +52,13 @@ class CodebookCodesController extends Controller
 
             DB::commit();
 
+            // xxx: investigate why this triggers
+            // the codes being present in the return codebook
+            $codebook->codes;
+
             return response()->json([
                 'message' => 'Codebook and codes imported successfully',
-                'codebook' => $codebook,
+                'codebook' => $codebook
             ]);
         } catch (Exception $e) {
             DB::rollBack();

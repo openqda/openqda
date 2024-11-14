@@ -1,6 +1,7 @@
 import { AbstractStore } from '../../../state/AbstractStore.js';
 import { createStoreRepository } from '../../../state/StoreRepository.js';
 import { request } from '../../../utils/http/BackendRequest.js';
+import { isDefined } from '@vueuse/core';
 
 class CodebookStore extends AbstractStore {
   active(codebookId, value) {
@@ -30,6 +31,42 @@ export const Codebooks = createStoreRepository({
   factory: (options) => new CodebookStore(options),
 });
 
+Codebooks.schemas = {};
+Codebooks.schemas.create = (codebook) => ({
+  name: {
+    type: String,
+    defaultValue: codebook?.name,
+  },
+  description: {
+    type: String,
+    formType: 'textarea',
+    defaultValue: codebook?.description,
+  },
+  shared: {
+    type: String,
+    label: 'Shared with others',
+    defaultValue: codebook?.sharedWithPublic
+      ? 'public'
+      : codebook?.sharedWithTeams
+        ? 'teams'
+        : 'private',
+    options: [
+      { value: 'private', label: 'Not shared' },
+      { value: 'teams', label: 'Shared with teams' },
+      { value: 'public', label: 'Shared with public' },
+    ],
+  },
+});
+Codebooks.schemas.update = (codebook) => ({
+  ...Codebooks.schemas.create(codebook),
+  codebookId: {
+    type: String,
+    label: null,
+    formType: 'hidden',
+    defaultValue: codebook.id,
+  },
+});
+
 Codebooks.toggle = (projectId, codebookId) => {
   const store = Codebooks.by(projectId);
   const book = store.entry(codebookId);
@@ -49,15 +86,67 @@ Codebooks.create = ({
   description,
   sharedWithPublic,
   sharedWithTeams,
+  codebookId,
 }) => {
+  const body = {
+    name,
+    description,
+    sharedWithPublic,
+    sharedWithTeams,
+  };
+
+  // importing another codebook is
+  // using the same endpoint with
+  // additional parameters
+  if (isDefined(codebookId)) {
+    body.import = true;
+    body.id = codebookId;
+  }
   return request({
     url: '/projects/' + projectId + '/codebooks',
     type: 'post',
-    body: {
-      name,
-      description,
-      sharedWithPublic,
-      sharedWithTeams,
-    },
+    body,
+  });
+};
+
+Codebooks.update = ({
+  projectId,
+  codebookId,
+  name,
+  description,
+  sharedWithPublic,
+  sharedWithTeams,
+}) => {
+  const body = {};
+  if (name) {
+    body.name = name;
+  }
+  if (description) {
+    body.description = description;
+  }
+  if (isDefined(sharedWithTeams)) {
+    body.sharedWithTeams = sharedWithTeams;
+  }
+  if (isDefined(sharedWithPublic)) {
+    body.sharedWithTeams = sharedWithPublic;
+  }
+
+  return request({
+    url: `/projects/${projectId}/codebooks/${codebookId}`,
+    type: 'patch',
+    body,
+  });
+};
+
+Codebooks.importFromFile = async ({ projectId, file }) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('project_id', projectId);
+  const uploadUrl = route('codebook-codes.import', { project: projectId });
+  return request({
+    url: uploadUrl,
+    type: 'post',
+    body: formData,
+    headers: { 'Content-Type': 'multipart/form-data' },
   });
 };

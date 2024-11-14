@@ -9,6 +9,13 @@ const open = ref(false);
 const props = defineProps({
   title: String,
   text: String,
+  showConfirm: Boolean,
+  cancelButtonLabel: String,
+  confirmButtonLabel: String,
+  static: {
+    type: Boolean,
+    defaultValue: true,
+  },
 });
 
 watch(
@@ -32,14 +39,19 @@ const cancel = () => {
 </script>
 
 <template>
-  <DialogBase :title="props.title ?? 'Confirm decision'" :show="open">
+  <DialogBase :title="props.title ?? 'Confirm decision'" :show="open" @close="cancel">
     <template #body>
       <p>{{ props.text }}</p>
+      <slot name="info"></slot>
     </template>
     <template #footer>
       <div class="flex justify-between items-center w-full">
-        <Button variant="outline" @click="cancel">Cancel</Button>
-        <Button @click="confirm">Confirm</Button>
+        <Button variant="outline" @click="cancel"
+          >{{ props.cancelButtonLabel ?? 'Cancel' }}
+        </Button>
+        <Button v-if="props.showConfirm" @click="confirm"
+          >{{ props.confirmButtonLabel ?? 'Confirm' }}
+        </Button>
       </div>
     </template>
   </DialogBase>

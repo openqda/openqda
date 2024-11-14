@@ -127,6 +127,7 @@
             />
             </div>
           <ResponsiveTabList
+              v-show="false"
             :tabs="contentTabs"
             :initial="contentView"
             @change="(value) => (contentView = value)"

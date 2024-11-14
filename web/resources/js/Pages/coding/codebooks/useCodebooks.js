@@ -1,61 +1,106 @@
 import { Codebooks } from './Codebooks.js';
 import { usePage } from '@inertiajs/vue3';
-import { computed } from 'vue'
+import { computed } from 'vue';
 
 export const useCodebooks = () => {
-    const { project, projectId, codebooks } = usePage().props
-    const codebookStore = Codebooks.by(projectId ?? project.id)
-    const initCodebooks = () => codebookStore.init(codebooks ?? project.codebooks);
+  const { project, projectId, codebooks } = usePage().props;
+  const codebookStore = Codebooks.by(projectId ?? project.id);
+  const initCodebooks = () =>
+    codebookStore.init(codebooks ?? project.codebooks);
 
-    const createCodebook = async ({ name, description, shared }) => {
-        if (!name) throw new Error('Name is required')
-        if (typeof shared === 'undefined') throw new Error('Select a share- option')
-        const { response, error } = await Codebooks.create({
-            projectId: projectId ?? project.id,
-            name, description,
-            sharedWithPublic: shared === 'public',
-            sharedWithTeams: shared === 'teams'
-        })
+  const importCodebook = async ({ file }) => {
+    const { response, error } = await Codebooks.importFromFile({
+      projectId: projectId ?? project.id,
+      file,
+    });
+    if (error) {
+      throw error;
+    }
+    if (response.status >= 400) {
+      throw new Error(response.data.message);
+    }
 
-        if (error) throw error
-        if (response.status > 400) throw new Error(response.data.message)
+    const { codebook } = response.data;
+    codebook.codes = codebook.codes ?? [];
+    codebookStore.add(codebook);
 
-        const codebook = response.data.codebook;
-        codebook.codes = [];
-        codebookStore.add(response.data)
+    return { codebook, file };
+  };
 
-        return codebook
-    };
+  const createCodebook = async ({ name, description, shared, codebookId }) => {
+    if (!name) {
+      throw new Error('Name is required');
+    }
+    if (typeof shared === 'undefined') {
+      throw new Error('Select a share- option');
+    }
+    const { response, error } = await Codebooks.create({
+      projectId: projectId ?? project.id,
+      name,
+      description,
+      sharedWithPublic: shared === 'public',
+      sharedWithTeams: shared === 'teams',
+        codebookId
+    });
 
-    const computedCodebooks = computed(() => codebookStore.all())
+    if (error) {
+      throw error;
+    }
+    if (response.status > 400) {
+      throw new Error(response.data.message);
+    }
+
+    const codebook = response.data.codebook;
+    codebook.codes = codebook.codes ?? [];
+    codebookStore.add(codebook);
+
+    return codebook;
+  };
+
+  const updateCodebook = async ({ name, description, codebookId, shared }) => {
+    const data = {
+        projectId: projectId ?? project.id,
+        codebookId: codebookId,
+        name,
+        description,
+        sharedWithPublic: shared === 'public',
+        sharedWithTeams: shared === 'teams',
+    }
+    const { response, error } = await Codebooks.update(data);
+    if (error) {
+      throw error;
+    }
+    if (response.status > 400) {
+      throw new Error(response.data.message);
+    }
+
+    const codebook = codebookStore.entry(codebookId)
+    codebookStore.update(codebookId, data)
+    return codebook;
+  };
+
+  const computedCodebooks = computed(() => codebookStore.all());
 
   return {
     codebooks: computedCodebooks,
     initCodebooks,
     updateSortOrder,
     getSortOrderBy,
-    createCodebookSchema,
+    createCodebookSchema: Codebooks.schemas.create,
+    importCodebookSchema,
+    updateCodebook,
     createCodebook,
+    importCodebook,
   };
 };
-
-const createCodebookSchema = () => ({
-  name: String,
-  description: {
-    type: String,
-    formType: 'textarea',
-  },
-  shared: {
-    type: String,
-    label: 'Shared with others',
-    defaultValue: 'private',
-    options: [
-      { value: 'private', label: 'Not shared' },
-      { value: 'teams', label: 'Shared with teams' },
-      { value: 'public', label: 'Shared with public' },
-    ],
+const importCodebookSchema = () => ({
+  file: {
+    type: Object,
+    formType: 'file',
+    accept: '.xml,.qdc',
   },
 });
+
 
 const updateSortOrder = async ({ order, codebook }) => {
   codebook.code_order = order;

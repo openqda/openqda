@@ -2,29 +2,32 @@
   <div :class="cn(props.class)">
    <div class="flex h-full">
       <div
-        class="flex w-16 flex-shrink-0 items-center justify-center rounded-tl-md rounded-bl-md text-sm font-normal text-white"
+        class="flex w-16 flex-shrink-0 items-center justify-center rounded-tl-md rounded-bl-md text-sm font-normal overflow-visible text-white border-t border-b border-l border-border"
         :style="getBackgroundStyle(codebook)"
       >
-          <span class="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">{{ getInitials(codebook.name) }}</span>
+          <button class="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)] hover:underline"
+                @click="openPreview({ codebook })">
+              {{ getInitials(codebook.name) }}
+          </button>
       </div>
       <div
-        class="relative flex-grow flex items-center justify-between rounded-tr-md rounded-br-md truncate border-b border-r border-t border-gray-200 bg-white"
+        class="relative flex-grow flex items-start justify-between rounded-tr-md rounded-br-md border-b border-r border-t border-gray-200 bg-surface text-foreground"
       >
-        <div class="flex-1 truncate px-4 py-2 text-sm">
+        <div class="flex-1 px-4 py-2 text-sm">
           <a
             :title="codebook.name"
             :href="codebook.href"
-            class="font-medium text-gray-900 hover:text-gray-600"
+            class="font-medium  line-clamp-1"
           >
             {{ codebook.name }}
           </a>
-          <p class="text-gray-500 italic">
+          <p class="text-foreground/60 line-clamp-1">
             {{ codebook.description }}
           </p>
-          <p class="text-gray-500 text-xs">
+          <p class="text-foreground/60 text-xs">
             {{ codebook.creatingUserEmail }}
           </p>
-          <p class="text-gray-500">
+          <p class="text-foreground/60">
             {{
               codebook.codes && codebook.codes.length
                 ? codebook.codes.length
@@ -49,114 +52,65 @@
           </div>
         </div>
 
-        <div class="flex-shrink-0 pr-2">
-          <button
-            v-click-outside="{
-              callback: () => (codebook.showMenu = false),
-            }"
-            @click="codebook.showMenu = !codebook.showMenu"
-            class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-400 hover:text-gray-500 focus:outline-none"
-          >
-            <span class="sr-only">Open options</span>
-            <EllipsisVerticalIcon class="h-5 w-5" aria-hidden="true" />
-          </button>
+        <div class="flex-shrink-0 pr-2 self-start mt-2">
+            <Dropdown>
+                <template #trigger>
+                    <button
+                        class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent text-foreground hover:text-secondary focus:outline-none"
+                    >
+                        <span class="sr-only">Open options</span>
+                        <EllipsisVerticalIcon class="h-5 w-5" aria-hidden="true" />
+                    </button>
+                </template>
+                <template #content>
+                    <DropdownLink as="button" @click="openEditForm(codebook)">
+                        Edit
+                    </DropdownLink>
+                    <DropdownLink as="button" @click="openPreview({ codebook })">
+                        Show Codes
+                    </DropdownLink>
+                    <DropdownLink
+                        v-if="isPublic"
+                        @click="openCreateForm(codebook)"
+                        as="button">
+                        Import into project
+                    </DropdownLink>
+                    <DropdownLink as="button"  @click="exportCodebook(codebook)">
+                        Export
+                    </DropdownLink>
+                    <DropdownLink
+                        v-if="!isPublic"
+                        @click="deleteCodebook(codebook)"
+                        as="button">
+                        Archive
+                    </DropdownLink>
+                </template>
+            </Dropdown>
         </div>
-      </div>
-    </div>
-    <div
-      v-if="localCodebooks.codes && codebook.showCodes"
-      class="absolute w-full left-0 border-gray-200 bg-white h-96 overflow-y-auto align-middle border-b border-r border-l z-50"
-    >
-      <ul>
-        <li
-          v-for="code in localCodebooks.codes"
-          :key="code.id"
-          class="flex items-center"
-        >
-          <div
-            class="flex w-16 h-16 flex-shrink-0 items-center justify-center text-sm font-medium text-white"
-            :style="'background-color: ' + code.color"
-          >
-            {{
-              code.name
-                .split(' ')
-                .reduce(
-                  (initials, namePart) =>
-                    (initials += namePart.substring(0, 1).toUpperCase()),
-                  ''
-                )
-            }}
-          </div>
-          <div class="ml-2">{{ code.name }}</div>
-        </li>
-      </ul>
-    </div>
-
-    <div
-      v-show="codebook.showMenu"
-      class="absolute top-0 left-auto z-50 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
-      style="min-width: max-content"
-    >
-      <div
-        class="py-1 cursor-pointer"
-        role="menu"
-        aria-orientation="vertical"
-        aria-labelledby="options-menu"
-      >
-        <a
-          v-if="!isPublic"
-          @click="editCodebook(codebook)"
-          class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-          role="menuitem"
-          >Edit</a
-        >
-        <a
-          @click="codebook.showCodes = !codebook.showCodes"
-          class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-          role="menuitem"
-          ><span v-if="codebook.showCodes">Hide codes</span
-          ><span v-else>Show Codes</span></a
-        >
-        <a
-          v-if="isPublic"
-          @click="importCodebook(codebook)"
-          class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-          role="menuitem"
-          >Import into project</a
-        >
-        <a
-          @click="exportCodebook(codebook)"
-          class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-          role="menuitem"
-          >Export</a
-        >
-        <a
-          v-if="!isPublic"
-          @click="deleteCodebook(codebook)"
-          class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-red-700"
-          role="menuitem"
-          >Delete</a
-        >
       </div>
     </div>
   </div>
 </template>
 <script setup>
 import { EllipsisVerticalIcon } from '@heroicons/vue/20/solid';
-import { vClickOutside } from '../../../Components/coding/clickOutsideDirective.js';
 import { onMounted, reactive, ref } from 'vue';
 import { cn } from '../../../utils/css/cn.js'
+import { useCodebookPreview } from './useCodebookPreview.js'
+import Dropdown from '../../../Components/Dropdown.vue';
+import DropdownLink from '../../../Components/DropdownLink.vue';
+import { useCodebookUpdate } from '../../../domain/codebooks/useCodebookUpdate.js'
+import { useCodebookCreate } from '../../../domain/codebooks/useCodebookCreate.js'
+
 const props = defineProps(['codebook', 'public', 'class']);
+const { open:openPreview } = useCodebookPreview()
+const { open:openEditForm } = useCodebookUpdate()
+const { open: openCreateForm} = useCodebookCreate()
 
 const isPublic = ref(props.public);
 const codebook = ref(props.codebook);
 
 // Reactive state for the dialog visibility and editable fields
 const showDialog = ref(false);
-const editableName = ref('');
-const editableDescription = ref('');
-const editableCodebook = ref(null);
-const sharedOption = ref('update-not-shared');
 const emit = defineEmits(['delete', 'importCodebook']);
 const url = window.location.pathname;
 const segments = url.split('/');
@@ -169,29 +123,6 @@ const localCodebooks = reactive({
 onMounted(() => {
   localCodebooks.codes = reorderCodes(localCodebooks.codes);
 });
-
-// Method to initiate editing of a codebook
-const editCodebook = (target) => {
-  showDialog.value = true;
-  // Store a reference to the original codebook
-  editableCodebook.value = target;
-  // Copy properties to editable fields
-  editableName.value = target.name;
-  editableDescription.value = target.description;
-  // Check if properties field exists and has the sharedWithPublic and sharedWithTeams keys
-  if (target.properties) {
-    if (target.properties.sharedWithPublic) {
-      sharedOption.value = 'update-public';
-    } else if (target.properties.sharedWithTeams) {
-      sharedOption.value = 'update-teams';
-    } else {
-      sharedOption.value = 'update-not-shared';
-    }
-  } else {
-    // Default to 'update-not-shared' if properties are not set
-    sharedOption.value = 'update-not-shared';
-  }
-};
 
 const getInitials = (name) => {
   const words = name.split(' ');
@@ -210,35 +141,6 @@ const getInitials = (name) => {
 
   // Limit the initials to the first five characters
   return initials.substring(0, 5);
-};
-
-const updateCodebook = async () => {
-  try {
-    await axios.patch(
-      `/projects/${editableCodebook.value.project_id}/codebooks/${editableCodebook.value.id}`,
-      {
-        name: editableName.value,
-        description: editableDescription.value,
-        sharedWithPublic: sharedOption.value === 'update-public',
-        sharedWithTeams: sharedOption.value === 'update-teams',
-      }
-    );
-
-    // Directly update the codebook in the interface
-    editableCodebook.value.name = editableName.value;
-    editableCodebook.value.description = editableDescription.value;
-    editableCodebook.value.properties.sharedWithPublic =
-      sharedOption.value === 'update-public';
-    editableCodebook.value.properties.sharedWithTeams =
-      sharedOption.value === 'update-teams';
-
-    // Close the dialog on success
-    showDialog.value = false;
-  } catch (error) {
-    console.error('Update failed:', error);
-    // Handle error...
-    // Existing error handling logic
-  }
 };
 
 // Function to reorder codes
@@ -263,11 +165,6 @@ const reorderCodes = (codesArray) => {
     code,
     ...(childCodesMap.get(code.id) || []),
   ]);
-};
-
-// Method to close the dialog without saving
-const closeDialog = () => {
-  showDialog.value = false;
 };
 
 async function importCodebook(target) {

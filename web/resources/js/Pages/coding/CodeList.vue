@@ -60,7 +60,7 @@ const draggable = useDraggable(draggableRef, sortable, {
   animation: 250,
   swapThreshold: window.dragThreshold ?? 0.1,
   scroll: true,
-  group: 'g1',
+  group: props.codebook.id,
   clone: (element) => {
     if (element === undefined || element === null) {
       return element;

@@ -21,6 +21,7 @@ const props = defineProps({
     default: false,
   },
   title: { type: String, required: false },
+    schema: Object
 });
 
 const emit = defineEmits(['renamed', 'cancelled']);
