@@ -88,6 +88,7 @@ const cancel = () => {
         :show-cancel="false"
         :show-submit="false"
       />
+        <slot name="info"></slot>
     </template>
     <template #footer>
       <div class="flex justify-between items-center w-full">

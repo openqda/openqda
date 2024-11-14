@@ -1,101 +1,14 @@
 <template>
-  <div>
-    <!-- Edit Codebook Dialog -->
-    <div
-      v-if="showDialog"
-      class="fixed z-50 inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center"
-    >
-      <!-- ... Modal contents ... -->
+  <div :class="cn(props.class)">
+   <div class="flex h-full">
       <div
-        class="z-50 bg-white rounded px-4 pt-5 pb-4 shadow-xl text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
-      >
-        <!-- Form for editing the codebook -->
-        <div class="mb-4">
-          <label
-            for="codebook-name"
-            class="block text-sm font-medium text-gray-700"
-            >Name:</label
-          >
-          <input
-            type="text"
-            id="codebook-name"
-            v-model="editableName"
-            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cerulean-700 focus:border-cerulean-700"
-          />
-        </div>
-        <div class="mb-4">
-          <label
-            for="codebook-description"
-            class="block text-sm font-medium text-gray-700"
-            >Description:</label
-          >
-          <textarea
-            id="codebook-description"
-            v-model="editableDescription"
-            rows="3"
-            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-cerulean-700 focus:border-cerulean-700"
-          ></textarea>
-        </div>
-        <div class="mb-4">
-          <div class="flex items-center">
-            <input
-              type="radio"
-              id="not-shared"
-              value="update-not-shared"
-              v-model="sharedOption"
-              class="h-4 w-4 text-cerulean-700 focus:ring-cerulean-700 border-gray-300 rounded"
-            />
-            <label for="not-shared" class="ml-2 text-sm text-gray-700"
-              >Not Shared</label
-            >
-          </div>
-          <div class="flex items-center mt-2">
-            <input
-              type="radio"
-              id="update-shared-with-public"
-              value="update-public"
-              v-model="sharedOption"
-              class="h-4 w-4 text-cerulean-700 focus:ring-cerulean-700 border-gray-300 rounded"
-            />
-            <label
-              for="update-shared-with-public"
-              class="ml-2 text-sm text-gray-700"
-              >Shared with Public</label
-            >
-          </div>
-        </div>
-        <div class="w-full italic text-gray-400 mb-4 text-sm">
-          When you set a codebook "public", anyone can import it on their
-          project. When you set a codebook "shared with your teams", only
-          members of your teams can import it on their projects.
-        </div>
-
-        <!-- Action buttons -->
-        <div class="flex justify-end space-x-2">
-          <button
-            @click="updateCodebook"
-            class="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-cerulean-700 text-base font-medium text-white hover:bg-cerulean-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cerulean-700 sm:text-sm"
-          >
-            Save
-          </button>
-          <button
-            @click="closeDialog"
-            class="mt-3 inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cerulean-700 sm:mt-0 sm:text-sm"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-    <div class="flex">
-      <div
-        class="flex w-16 flex-shrink-0 items-center justify-center rounded-tl-md text-sm font-medium text-white"
+        class="flex w-16 flex-shrink-0 items-center justify-center rounded-tl-md rounded-bl-md text-sm font-normal text-white"
         :style="getBackgroundStyle(codebook)"
       >
-        {{ getInitials(codebook.name) }}
+          <span class="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">{{ getInitials(codebook.name) }}</span>
       </div>
       <div
-        class="relative flex-grow flex items-center justify-between rounded-tr-md truncate border-b border-r border-t border-gray-200 bg-white"
+        class="relative flex-grow flex items-center justify-between rounded-tr-md rounded-br-md truncate border-b border-r border-t border-gray-200 bg-white"
       >
         <div class="flex-1 truncate px-4 py-2 text-sm">
           <a
@@ -230,10 +143,10 @@
 </template>
 <script setup>
 import { EllipsisVerticalIcon } from '@heroicons/vue/20/solid';
-import { vClickOutside } from '../coding/clickOutsideDirective.js';
+import { vClickOutside } from '../../../Components/coding/clickOutsideDirective.js';
 import { onMounted, reactive, ref } from 'vue';
-
-const props = defineProps(['codebook', 'public']);
+import { cn } from '../../../utils/css/cn.js'
+const props = defineProps(['codebook', 'public', 'class']);
 
 const isPublic = ref(props.public);
 const codebook = ref(props.codebook);
@@ -250,7 +163,7 @@ const segments = url.split('/');
 let projectId = segments[2]; // Assuming
 // Creating a reactive copy of the codes
 const localCodebooks = reactive({
-  codes: [...props.codebook.codes],
+  codes: props.codebook.codes ? [...props.codebook.codes] : [],
 });
 
 onMounted(() => {

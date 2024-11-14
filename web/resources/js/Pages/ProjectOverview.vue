@@ -60,7 +60,7 @@ import ProjectTeams from './Teams/ProjectTeams.vue';
 import ProjectsListMenu from './Projects/ProjectsListMenu.vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import ProjectSummary from './Projects/ProjectSummary.vue';
-import ProjectCodebooks from './Projects/ProjectCodebooks.vue';
+import ProjectCodebooks from './Projects/codebooks/ProjectCodebooks.vue';
 import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
 import CreateDialog from '../dialogs/CreateDialog.vue'

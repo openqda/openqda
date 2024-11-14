@@ -1,18 +1,25 @@
 <script setup lang="ts">
-import Codebook from '../../Components/project/Codebook.vue';
-import NewCodebookForm from '../../Components/project/NewCodebookForm.vue';
-import Headline2 from '../../Components/layout/Headline2.vue';
-import { request } from '../../utils/http/BackendRequest';
-import { flashMessage } from '../../Components/notification/flashMessage';
-import { router } from '@inertiajs/vue3';
 import { computed, inject, ref } from 'vue';
+import Codebook from './CodebookItem.vue';
+import Headline2 from '../../../Components/layout/Headline2.vue';
+import Button from "../../../Components/interactive/Button.vue";
+import { PlusIcon, ArrowUpTrayIcon } from "@heroicons/vue/24/solid";
+import { request } from '../../../utils/http/BackendRequest';
+import { flashMessage } from '../../../Components/notification/flashMessage';
+import { router } from '@inertiajs/vue3';
+import { useCodebooks } from "../../coding/codebooks/useCodebooks";
+import CreateDialog from "../../../dialogs/CreateDialog.vue";
 
+const { createCodebookSchema, createCodebook, codebooks, initCodebooks } = useCodebooks()
+const createSchema = ref(null)
+
+
+initCodebooks()
 // File handling for importing XML
 const selectedFile = ref(null);
 const project = inject('project');
 const userCodebooks = inject('userCodebooks');
 const publicCodebooks = inject('publicCodebooks');
-const codebooks = ref(project.codebooks);
 const searchQueryPublicCodebooks = ref('');
 
 const filteredPublicCodebooks = computed(() => {
@@ -23,10 +30,6 @@ const filteredPublicCodebooks = computed(() => {
   );
 });
 
-const onCodebookCreated = (newCodebook) => {
-  // Add the new codebook to the project's codebooks array
-  codebooks.value.push(newCodebook);
-};
 
 const deleteCodebookFromArray = (codebook) => {
   const index = codebooks.value.findIndex((cb) => cb.id === codebook.id);
@@ -101,6 +104,7 @@ const importXmlFile = async () => {
 </script>
 
 <template>
+    <!-- TODO use create modal
   <div class="">
     <div class="w-1/2 my-2">
       <NewCodebookForm
@@ -108,7 +112,7 @@ const importXmlFile = async () => {
         @codebookCreated="onCodebookCreated"
       />
     </div>
-    <div class="w-1/2 my-2">
+
       <Headline2>Import Codebook from</Headline2>
       <div class="w-full italic text-gray-400 my-4 text-sm">
         This import is intended for codebook exports that supports
@@ -152,8 +156,21 @@ const importXmlFile = async () => {
       </form>
     </div>
   </div>
+    -->
   <div>
-    <Headline2>Codebooks of current Project</Headline2>
+      <div class="flex items-center justify-between">
+        <Headline2>Codebooks of current Project</Headline2>
+          <span class="space-x-1">
+              <Button variant="outline-secondary" @click="createSchema = createCodebookSchema()">
+                <PlusIcon class="w-4 h-4" />
+              <span>Create</span>
+          </Button>
+              <Button variant="outline-secondary" @click="createSchema = createCodeSchema">
+                <ArrowUpTrayIcon class="w-4 h-4" />
+              <span>Import</span>
+          </Button>
+          </span>
+      </div>
     <ul
       v-if="codebooks.length > 0"
       role="list"
@@ -162,12 +179,13 @@ const importXmlFile = async () => {
       <li
         v-for="codebook in codebooks"
         :key="codebook.name"
-        class="col-span-1 flex flex-col relative"
+        class="col-span-1 flex flex-col relative h-full"
       >
         <Codebook
+          class="h-full"
           :codebook="codebook"
           @delete="deleteCodebookFromArray(codebook)"
-        ></Codebook>
+        />
       </li>
     </ul>
     <div v-else>
@@ -180,7 +198,7 @@ const importXmlFile = async () => {
     <ul
       v-if="userCodebooks.length > 0"
       role="list"
-      class="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4"
+      class="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3 2xl:grid-cols-4"
     >
       <li
         v-for="codebook in userCodebooks"
@@ -188,7 +206,8 @@ const importXmlFile = async () => {
         class="col-span-1 flex flex-col relative"
       >
         <Codebook
-          :codebook="codebook"
+            class="h-full"
+            :codebook="codebook"
           :public="true"
           @importCodebook="importCodebook(codebook)"
         ></Codebook>
@@ -221,7 +240,9 @@ const importXmlFile = async () => {
         class="col-span-1 flex flex-col relative"
       >
         <Codebook
-          :codebook="codebook"
+            class="h-full"
+
+            :codebook="codebook"
           :public="true"
           @importCodebook="importCodebook(codebook)"
         ></Codebook>
@@ -231,6 +252,21 @@ const importXmlFile = async () => {
       <p class="text-sm text-gray-500">No public codebooks available</p>
     </div>
   </div>
+
+    <CreateDialog
+        title="Create New Codebook"
+        :schema="createSchema"
+        :submit="createCodebook"
+        @cancelled="createSchema = null"
+        >
+        <template #info>
+            <div class="w-full block italic text-foreground/60 text-sm">
+                When you set a codebook "public", anyone can import it on their
+                project. When you set a codebook "shared with your teams", only
+                members of your teams can import it on their projects.
+            </div>
+        </template>
+    </CreateDialog>
 </template>
 
 <style scoped></style>

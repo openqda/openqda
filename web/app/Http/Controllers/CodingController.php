@@ -131,6 +131,10 @@ class CodingController extends Controller
             $code->description = $request->input('description');
         }
 
+        if ($request->has('parent_id')) {
+            $code->parent_id = $request->input('parent_id');
+        }
+
         $code->save();
 
         return response()->json(['message' => 'Code updated successfully', 'code' => $code]);
