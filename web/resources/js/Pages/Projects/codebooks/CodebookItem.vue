@@ -1,14 +1,16 @@
 <template>
   <div :class="cn(props.class)">
-   <div class="flex h-full">
+    <div class="flex h-full">
       <div
         class="flex w-16 flex-shrink-0 items-center justify-center rounded-tl-md rounded-bl-md text-sm font-normal overflow-visible text-white border-t border-b border-l border-border"
         :style="getBackgroundStyle(codebook)"
       >
-          <button class="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)] hover:underline"
-                @click="openPreview({ codebook })">
-              {{ getInitials(codebook.name) }}
-          </button>
+        <button
+          class="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)] hover:underline"
+          @click="openPreview({ codebook })"
+        >
+          {{ getInitials(codebook.name) }}
+        </button>
       </div>
       <div
         class="relative flex-grow flex items-start justify-between rounded-tr-md rounded-br-md border-b border-r border-t border-gray-200 bg-surface text-foreground"
@@ -17,7 +19,7 @@
           <a
             :title="codebook.name"
             :href="codebook.href"
-            class="font-medium  line-clamp-1"
+            class="font-medium line-clamp-1"
           >
             {{ codebook.name }}
           </a>
@@ -53,39 +55,41 @@
         </div>
 
         <div class="flex-shrink-0 pr-2 self-start mt-2">
-            <Dropdown>
-                <template #trigger>
-                    <button
-                        class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent text-foreground hover:text-secondary focus:outline-none"
-                    >
-                        <span class="sr-only">Open options</span>
-                        <EllipsisVerticalIcon class="h-5 w-5" aria-hidden="true" />
-                    </button>
-                </template>
-                <template #content>
-                    <DropdownLink as="button" @click="openEditForm(codebook)">
-                        Edit
-                    </DropdownLink>
-                    <DropdownLink as="button" @click="openPreview({ codebook })">
-                        Show Codes
-                    </DropdownLink>
-                    <DropdownLink
-                        v-if="isPublic"
-                        @click="openCreateForm(codebook)"
-                        as="button">
-                        Import into project
-                    </DropdownLink>
-                    <DropdownLink as="button"  @click="exportCodebook(codebook)">
-                        Export
-                    </DropdownLink>
-                    <DropdownLink
-                        v-if="!isPublic"
-                        @click="deleteCodebook(codebook)"
-                        as="button">
-                        Archive
-                    </DropdownLink>
-                </template>
-            </Dropdown>
+          <Dropdown>
+            <template #trigger>
+              <button
+                class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent text-foreground hover:text-secondary focus:outline-none"
+              >
+                <span class="sr-only">Open options</span>
+                <EllipsisVerticalIcon class="h-5 w-5" aria-hidden="true" />
+              </button>
+            </template>
+            <template #content>
+              <DropdownLink as="button" @click="openEditForm(codebook)">
+                Edit
+              </DropdownLink>
+              <DropdownLink as="button" @click="openPreview({ codebook })">
+                Show Codes
+              </DropdownLink>
+              <DropdownLink
+                v-if="isPublic"
+                @click="openCreateForm(codebook)"
+                as="button"
+              >
+                Import into project
+              </DropdownLink>
+              <DropdownLink as="button" @click="exportCodebook(codebook)">
+                Export
+              </DropdownLink>
+              <DropdownLink
+                v-if="!isPublic"
+                @click="deleteCodebook(codebook)"
+                as="button"
+              >
+                Archive
+              </DropdownLink>
+            </template>
+          </Dropdown>
         </div>
       </div>
     </div>
@@ -94,17 +98,17 @@
 <script setup>
 import { EllipsisVerticalIcon } from '@heroicons/vue/20/solid';
 import { onMounted, reactive, ref } from 'vue';
-import { cn } from '../../../utils/css/cn.js'
-import { useCodebookPreview } from './useCodebookPreview.js'
+import { cn } from '../../../utils/css/cn.js';
+import { useCodebookPreview } from './useCodebookPreview.js';
 import Dropdown from '../../../Components/Dropdown.vue';
 import DropdownLink from '../../../Components/DropdownLink.vue';
-import { useCodebookUpdate } from '../../../domain/codebooks/useCodebookUpdate.js'
-import { useCodebookCreate } from '../../../domain/codebooks/useCodebookCreate.js'
+import { useCodebookUpdate } from '../../../domain/codebooks/useCodebookUpdate.js';
+import { useCodebookCreate } from '../../../domain/codebooks/useCodebookCreate.js';
 
 const props = defineProps(['codebook', 'public', 'class']);
-const { open:openPreview } = useCodebookPreview()
-const { open:openEditForm } = useCodebookUpdate()
-const { open: openCreateForm} = useCodebookCreate()
+const { open: openPreview } = useCodebookPreview();
+const { open: openEditForm } = useCodebookUpdate();
+const { open: openCreateForm } = useCodebookCreate();
 
 const isPublic = ref(props.public);
 const codebook = ref(props.codebook);

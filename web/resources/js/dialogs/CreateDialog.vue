@@ -10,7 +10,7 @@ const props = defineProps({
   schema: { type: Object },
   submit: { type: Function },
   title: { type: String, required: false },
-    buttonTitle: String
+  buttonTitle: String,
 });
 
 const emit = defineEmits(['created', 'cancelled']);
@@ -88,7 +88,7 @@ const cancel = () => {
         :show-cancel="false"
         :show-submit="false"
       />
-        <slot name="info"></slot>
+      <slot name="info"></slot>
     </template>
     <template #footer>
       <div class="flex justify-between items-center w-full">
@@ -107,7 +107,10 @@ const cancel = () => {
             error
           }}</ActionMessage>
         </span>
-        <Button type="submit" form="create-custom-form" :disabled="submitting"
+        <Button
+          type="submit"
+          form="create-custom-form"
+          :disabled="submitting"
           >{{ props.buttonTitle ?? 'Create' }}</Button
         >
       </div>

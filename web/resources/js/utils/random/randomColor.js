@@ -1,4 +1,4 @@
-import { toHex } from '../color/toHex.js'
+import { toHex } from '../color/toHex.js';
 
 export const randomColor = ({ type = 'rgba', opacity = 1 } = {}) => {
   const r = color();
@@ -13,4 +13,3 @@ export const randomColor = ({ type = 'rgba', opacity = 1 } = {}) => {
 };
 
 const color = () => Math.floor(Math.random() * 128 + 128);
-

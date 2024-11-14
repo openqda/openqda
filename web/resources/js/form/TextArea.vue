@@ -15,14 +15,14 @@ const props = defineProps({
   isValid: Boolean,
   error: String,
   value: String,
-    defaultValue: String,
-    name: String,
+  defaultValue: String,
+  name: String,
 });
 
 defineEmits(['update:modelValue']);
 
 const input = ref(null);
-const value = ref(props.value ?? props.defaultValue ??  '')
+const value = ref(props.value ?? props.defaultValue ?? '');
 onMounted(() => {
   if (input.value.hasAttribute('autofocus')) {
     input.value.focus();

@@ -3,7 +3,7 @@ import {
   TrashIcon,
   ArrowsRightLeftIcon,
   XMarkIcon,
-    PlusIcon
+  PlusIcon,
 } from '@heroicons/vue/24/solid';
 import Button from '../../../Components/interactive/Button.vue';
 import { cn } from '../../../utils/css/cn';
@@ -14,9 +14,9 @@ import CodingContextMenuItem from './CodingContextMenuItem.vue';
 import { useSelections } from '../selections/useSelections';
 import { useContextMenu } from './useContextMenu';
 import { useCodes } from '../useCodes';
-import {useRange} from "../useRange";
+import { useRange } from '../useRange';
 
-const { prevRange } = useRange()
+const { prevRange } = useRange();
 const { close, isOpen } = useContextMenu();
 const { codes } = useCodes();
 const { toDelete, deleteSelection } = useSelections();
@@ -39,18 +39,18 @@ const filteredCodes = computed(() => {
       );
 });
 const onClose = () => {
-    if (isOpen) {
-        reassign.value = null
-        query.value = ''
-        close()
-        emit('close')
-    }
-}
+  if (isOpen) {
+    reassign.value = null;
+    query.value = '';
+    close();
+    emit('close');
+  }
+};
 </script>
 
 <template>
   <div
-    v-click-outside="{ callback: onClose  }"
+    v-click-outside="{ callback: onClose }"
     id="contextMenu"
     :class="
       cn(
@@ -60,8 +60,14 @@ const onClose = () => {
     "
   >
     <div v-if="toDeleteSize && !prevRange?.length" class="mb-6 space-y-2">
-      <div class="block w-full text-xs font-semibold">Edit linked selections</div>
-      <div class="text-sm space-y-2" v-for="selection in toDelete" :key="selection.id">
+      <div class="block w-full text-xs font-semibold">
+        Edit linked selections
+      </div>
+      <div
+        class="text-sm space-y-2"
+        v-for="selection in toDelete"
+        :key="selection.id"
+      >
         <div class="contents" v-if="reassign ? reassign === selection : true">
           <div class="border-border border-t">
             <div class="flex items-baseline my-2">
@@ -78,9 +84,11 @@ const onClose = () => {
                 "
                 variant="outline"
                 class="p-2"
-                @click.prevent="() => {
-                    reassign = reassign === selection ? null : selection
-                }"
+                @click.prevent="
+                  () => {
+                    reassign = reassign === selection ? null : selection;
+                  }
+                "
               >
                 <XMarkIcon v-show="selection === reassign" class="w-4 h-4" />
                 <ArrowsRightLeftIcon
@@ -110,7 +118,12 @@ const onClose = () => {
       </div>
     </div>
 
-    <div v-if="filteredCodes?.length && (!toDeleteSize || reassign || prevRange?.length)">
+    <div
+      v-if="
+        filteredCodes?.length &&
+        (!toDeleteSize || reassign || prevRange?.length)
+      "
+    >
       <div class="block w-full text-xs font-semibold">
         {{
           reassign

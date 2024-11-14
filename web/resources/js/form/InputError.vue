@@ -8,10 +8,7 @@ defineProps({
 <template>
   <p
     v-show="message"
-    :class="[
-      'text-sm text-destructive text-left',
-      $props.class,
-    ]"
+    :class="['text-sm text-destructive text-left', $props.class]"
   >
     {{ message }}
   </p>

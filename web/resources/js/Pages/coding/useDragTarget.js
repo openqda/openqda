@@ -24,15 +24,15 @@ export const useDragTarget = () => {
   };
 
   return {
-      /**
-       * The current target that is dragged over by
-       * the one, used to start dragging.
-       */
+    /**
+     * The current target that is dragged over by
+     * the one, used to start dragging.
+     */
     dragTarget: current,
-      /**
-       * The `id` of the item that was used to start
-       * the dragging.
-       */
+    /**
+     * The `id` of the item that was used to start
+     * the dragging.
+     */
 
     dragStarter: start,
     setDragTarget,

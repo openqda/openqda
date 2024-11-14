@@ -67,10 +67,7 @@ const deleteCodebookFromArray = (codebook) => {
     <div class="flex items-center justify-between">
       <Headline2>Codebooks of current Project</Headline2>
       <span class="space-x-1">
-        <Button
-          variant="outline-secondary"
-          @click="openCreateForm()"
-        >
+        <Button variant="outline-secondary" @click="openCreateForm()">
           <PlusIcon class="w-4 h-4" />
           <span>Create</span>
         </Button>
@@ -165,7 +162,11 @@ const deleteCodebookFromArray = (codebook) => {
   </div>
 
   <CreateDialog
-    :title="codebookToImport ? `Import \'${codebookToImport.name}\' into this project` : 'Create a new Codebook'"
+    :title="
+      codebookToImport
+        ? `Import \'${codebookToImport.name}\' into this project`
+        : 'Create a new Codebook'
+    "
     :schema="createCodebookSchema"
     :submit="createCodebook"
     @cancelled="closeCreateForm"

@@ -65,7 +65,7 @@ const validateForm = (e) => {
     return false;
   }
 
-  const toSubmit = Object.fromEntries(data)
+  const toSubmit = Object.fromEntries(data);
   emit('submit', toSubmit);
 };
 </script>

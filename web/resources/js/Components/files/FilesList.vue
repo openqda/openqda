@@ -4,7 +4,9 @@
       <tr class="align-middle" :class="props.rowClass">
         <th class="w-5" v-if="fieldsVisible.lock"></th>
         <th
-          v-for="field in headerFields.filter(field => fieldsVisible[field.key])"
+          v-for="field in headerFields.filter(
+            (field) => fieldsVisible[field.key]
+          )"
           :key="field.key"
           scope="col"
           :class="
@@ -41,7 +43,7 @@
         >
           <span class="sr-only">Actions</span>
         </th>
-          <slot name="custom-head" />
+        <slot name="custom-head" />
       </tr>
     </thead>
     <tbody>
@@ -72,14 +74,14 @@
           />
         </td>
         <td
-            v-if="fieldsVisible.name"
+          v-if="fieldsVisible.name"
           :class="
             cn(
               'py-4 w-auto rounded-xl',
               hover === index ? 'break-all' : 'truncate'
             )
           "
-          :colspan="hover === index ? props.colspan ?? 5 : undefined"
+          :colspan="hover === index ? (props.colspan ?? 5) : undefined"
         >
           <a
             @mouseenter="focusOnHover && (hover = index)"
@@ -155,7 +157,10 @@
             />
           </div>
         </td>
-        <td class="py-2 text-center" v-if="fieldsVisible.date && hover !== index">
+        <td
+          class="py-2 text-center"
+          v-if="fieldsVisible.date && hover !== index"
+        >
           {{ document.date }}
         </td>
         <td
@@ -211,10 +216,11 @@
             </span>
           </div>
         </td>
-        <slot v-if="$slots['custom-cells']"
-              name="custom-cells"
-              :source="document"
-              :index="index"
+        <slot
+          v-if="$slots['custom-cells']"
+          name="custom-cells"
+          :source="document"
+          :index="index"
         />
       </tr>
     </tbody>
@@ -247,7 +253,15 @@ import { cn } from '../../utils/css/cn.js';
 import ProfileImage from '../user/ProfileImage.vue';
 
 const emit = defineEmits(['select', 'delete']);
-const props = defineProps(['documents', 'actions', 'rowClass', 'fields', 'fixed', 'colspan', 'focusOnHover']);
+const props = defineProps([
+  'documents',
+  'actions',
+  'rowClass',
+  'fields',
+  'fixed',
+  'colspan',
+  'focusOnHover',
+]);
 const docs = ref(props.documents);
 const sorter = ref({ key: null, ascending: false });
 const openMenuId = ref(null);
@@ -270,21 +284,21 @@ const headerFields = ref([
     title: 'Sort by last edited date',
     class: 'w-2/6',
   },
-    {
-        label: 'By',
-        key: 'user',
-        title: 'Sort by uploader',
-        class: 'w-3',
-    },
+  {
+    label: 'By',
+    key: 'user',
+    title: 'Sort by uploader',
+    class: 'w-3',
+  },
 ]);
 const fieldsVisible = ref({
-    lock: true,
-    name: true,
-    type: true,
-    date: true,
-    user: true,
-    ...(props.fields ?? {})
-})
+  lock: true,
+  name: true,
+  type: true,
+  date: true,
+  user: true,
+  ...(props.fields ?? {}),
+});
 const hover = ref(-1);
 
 function toggleMenu(id) {

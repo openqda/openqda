@@ -8,7 +8,7 @@ import ActionMessage from '../Components/ActionMessage.vue';
 import { asyncTimeout } from '../utils/asyncTimeout';
 
 const props = defineProps({
-    id: String,
+  id: String,
   target: {
     type: Object,
   },
@@ -21,7 +21,7 @@ const props = defineProps({
     default: false,
   },
   title: { type: String, required: false },
-    schema: Object
+  schema: Object,
 });
 
 const emit = defineEmits(['renamed', 'cancelled']);
@@ -36,7 +36,6 @@ watch(
   () => props.target,
   (newFile) => newFile && start(newFile)
 );
-
 
 const start = (file) => {
   id.value = file.id;

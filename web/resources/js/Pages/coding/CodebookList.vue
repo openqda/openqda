@@ -9,7 +9,7 @@ const { codebooks, toggleCodebook } = useCodes();
 <template>
   <ul class="space-y-6">
     <li
-      v-for="(codebook) in codebooks"
+      v-for="codebook in codebooks"
       :key="codebook.id"
       class="flex justify-between hover:bg-foreground/10 py-4 px-2 rounded-md"
     >

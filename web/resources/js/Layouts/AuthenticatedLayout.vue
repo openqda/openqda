@@ -152,7 +152,7 @@
             :title="`Collaboration: ${websocket.status.value}`"
           >
             <SignalIcon
-                v-show="false"
+              v-show="false"
               :class="
                 cn(
                   'h-5 w-5 mx-auto',
