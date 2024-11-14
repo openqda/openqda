@@ -140,11 +140,11 @@ Codes.updateColor = ({ projectId, code, color }) => {
 };
 
 Codes.updateParent = ({ projectId, code, parent }) => {
-    return request({
-        url: `/projects/${projectId}/codes/${code.id}`,
-        type: 'patch',
-        body: { parent_id: parent.id },
-    });
+  return request({
+    url: `/projects/${projectId}/codes/${code.id}`,
+    type: 'patch',
+    body: { parent_id: parent.id },
+  });
 };
 
 Codes.updateDescription = ({ projectId, source, code, description }) => {

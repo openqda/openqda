@@ -1,5 +1,5 @@
 # Current Tests
-Last updated: 2024-11-13 14:03:20
+Last updated: 2024-11-14 11:44:56
 ## Api Token Permissions
     - api token permissions can be updated
 
@@ -17,6 +17,9 @@ Last updated: 2024-11-13 14:03:20
     - update code color
     - update code title
     - update code description
+    - create code with valid parent
+    - prevent self referential code creation
+    - prevent self referential code on create
 
 ## Codebook Controller
     - store codebook successfully

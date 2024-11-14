@@ -45,6 +45,6 @@ Project.create = {
       throw new Error(message);
     }
 
-    return { response, error }
+    return { response, error };
   },
 };

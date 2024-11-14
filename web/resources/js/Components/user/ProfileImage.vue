@@ -32,7 +32,12 @@ const hue = ref(getUserColor(props.email) || getUserColor(props.name));
 <template>
   <img
     v-if="showImage"
-    :class="cn('object-cover w-7 h-7 rounded-full overflow-hidden leading-loose', props.class)"
+    :class="
+      cn(
+        'object-cover w-7 h-7 rounded-full overflow-hidden leading-loose',
+        props.class
+      )
+    "
     :src="props.src"
     :alt="alt"
     :title="props.name"

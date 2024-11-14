@@ -20,7 +20,7 @@ defineProps({
     <a
       v-else-if="as === 'a'"
       :href="href"
-      class="block px-4 py-2 text-sm leading-5 text-foreground bg-surface focus:outline-none hover:bg-primary/20  hover:text-primary-foreground focus:text-primary-foreground focus:bg-primary/20 transition duration-150 ease-in-out"
+      class="block px-4 py-2 text-sm leading-5 text-foreground bg-surface focus:outline-none hover:bg-primary/20 hover:text-primary-foreground focus:text-primary-foreground focus:bg-primary/20 transition duration-150 ease-in-out"
     >
       <slot />
     </a>

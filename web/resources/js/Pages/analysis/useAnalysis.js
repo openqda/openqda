@@ -15,7 +15,8 @@ const byName = createByPropertySorter('name');
 
 export const useAnalysis = () => {
   const { sources, codes, codebooks } = usePage().props;
-  const { hasSelections, checkedCodes, checkedSources, selection } = toRefs(state);
+  const { hasSelections, checkedCodes, checkedSources, selection } =
+    toRefs(state);
   const activeCodebooks = {};
   codebooks.forEach((cb) => {
     if (cb.active !== false) {

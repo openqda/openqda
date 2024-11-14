@@ -3,34 +3,19 @@
     <table class="table-auto word-cloud-settings w-full">
       <thead>
         <tr>
-          <th
-            scope="col"
-            class="text-left text-xs font-medium uppercase "
-          >
+          <th scope="col" class="text-left text-xs font-medium uppercase">
             Height
           </th>
-          <th
-            scope="col"
-            class="text-left text-xs font-medium uppercase "
-          >
+          <th scope="col" class="text-left text-xs font-medium uppercase">
             Min word length
           </th>
-          <th
-            scope="col"
-            class="text-left text-xs font-medium uppercase "
-          >
+          <th scope="col" class="text-left text-xs font-medium uppercase">
             Scale
           </th>
-          <th
-            scope="col"
-            class="text-left text-xs font-medium uppercase "
-          >
+          <th scope="col" class="text-left text-xs font-medium uppercase">
             + Size
           </th>
-          <th
-            scope="col"
-            class="text-left text-xs font-medium uppercase "
-          >
+          <th scope="col" class="text-left text-xs font-medium uppercase">
             <Cog6ToothIcon
               v-if="generating"
               class="animate-spin h-6 w-6 text-cerulean-700"
@@ -61,10 +46,7 @@
             <span>{{ scaleAdd }}</span>
           </td>
           <td>
-            <Button
-              @click="rebuild"
-              :disabled="generating"
-            >Refresh</Button>
+            <Button @click="rebuild" :disabled="generating">Refresh</Button>
           </td>
         </tr>
       </tbody>

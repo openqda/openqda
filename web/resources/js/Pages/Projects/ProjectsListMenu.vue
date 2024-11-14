@@ -14,8 +14,8 @@ import DropdownLink from '../../Components/DropdownLink.vue';
 import InputField from '../../form/InputField.vue';
 import { cn } from '../../utils/css/cn.js';
 import Headline3 from '../../Components/layout/Headline3.vue';
-import { onMounted, ref } from 'vue'
-import { isInViewport } from '../../utils/dom/isInViewport.js'
+import { onMounted, ref } from 'vue';
+import { isInViewport } from '../../utils/dom/isInViewport.js';
 
 defineEmits(['create-project']);
 
@@ -26,31 +26,35 @@ const {
   sortBy,
   updateSorter,
   searchTerm,
-  initSearch
+  initSearch,
 } = useProjects();
 
-const scrollRefs = ref()
+const scrollRefs = ref();
 const focusCurrent = () => {
-    if (currentProject?.name && scrollRefs.value) {
-        const li = scrollRefs.value.find(item => {
-            return item.getAttribute('data-id') == (currentProject.id)
-        })
+  if (currentProject?.name && scrollRefs.value) {
+    const li = scrollRefs.value.find((item) => {
+      return item.getAttribute('data-id') == currentProject.id;
+    });
 
-        if (!isInViewport(li)) {
-            setTimeout(() => {
-               li.scrollIntoView({ behavior: "instant", block: "start", inline: "start" });
-            }, 100)
-        }
+    if (!isInViewport(li)) {
+      setTimeout(() => {
+        li.scrollIntoView({
+          behavior: 'instant',
+          block: 'start',
+          inline: 'start',
+        });
+      }, 100);
     }
-}
+  }
+};
 
-initSearch()
+initSearch();
 
 onMounted(() => {
-    try {
-        focusCurrent()
-    } catch {}
-})
+  try {
+    focusCurrent();
+  } catch {}
+});
 </script>
 
 <template>
@@ -96,14 +100,10 @@ onMounted(() => {
   </div>
 
   <InputField type="search" placeholder="Search..." v-model="searchTerm" />
-    <div v-if="!projects?.length" class="text-sm text-foreground/50">
-        <p v-if="searchTerm?.length">
-            No projects matched for your search.
-        </p>
-        <p v-else>
-            You have not created any project. Best, you create one now.
-        </p>
-    </div>
+  <div v-if="!projects?.length" class="text-sm text-foreground/50">
+    <p v-if="searchTerm?.length">No projects matched for your search.</p>
+    <p v-else>You have not created any project. Best, you create one now.</p>
+  </div>
 
   <ul class="pb-12" v-if="projects?.length">
     <li

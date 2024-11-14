@@ -65,7 +65,7 @@ class CodingController extends Controller
             $content = file_get_contents($source->converted->path);
             $source->content = $content;
         } else {
-            return redirect()->route('source.index', ['project' =>  $projectId]);
+            return redirect()->route('source.index', ['project' => $projectId]);
         }
 
         $source->variables = $source->transformVariables();
@@ -88,7 +88,7 @@ class CodingController extends Controller
             'sources' => $allSources,
             'codebooks' => $codebooks,
             'allCodes' => $allCodes,
-            'projectId' => $projectId
+            'projectId' => $projectId,
         ]);
     }
 
@@ -175,7 +175,7 @@ class CodingController extends Controller
     private function createDefaultCodebook(Project $project, Request $request)
     {
         $codebook = new Codebook();
-        $codebook->name = 'Default Codebook';
+        $codebook->name = $project->name.' Codebook';
         $codebook->project_id = $project->id;
         $codebook->creating_user_id = $request->user()->id;
         $codebook->save();

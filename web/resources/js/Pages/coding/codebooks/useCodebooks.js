@@ -1,33 +1,36 @@
 import { Codebooks } from './Codebooks.js';
 import { usePage } from '@inertiajs/vue3';
-import { computed } from 'vue'
+import { computed } from 'vue';
 
 export const useCodebooks = () => {
-    const { project, projectId, codebooks } = usePage().props
-    const codebookStore = Codebooks.by(projectId ?? project.id)
-    const initCodebooks = () => codebookStore.init(codebooks ?? project.codebooks);
+  const { project, projectId, codebooks } = usePage().props;
+  const codebookStore = Codebooks.by(projectId ?? project.id);
+  const initCodebooks = () =>
+    codebookStore.init(codebooks ?? project.codebooks);
 
-    const createCodebook = async ({ name, description, shared }) => {
-        if (!name) throw new Error('Name is required')
-        if (typeof shared === 'undefined') throw new Error('Select a share- option')
-        const { response, error } = await Codebooks.create({
-            projectId: projectId ?? project.id,
-            name, description,
-            sharedWithPublic: shared === 'public',
-            sharedWithTeams: shared === 'teams'
-        })
+  const createCodebook = async ({ name, description, shared }) => {
+    if (!name) throw new Error('Name is required');
+    if (typeof shared === 'undefined')
+      throw new Error('Select a share- option');
+    const { response, error } = await Codebooks.create({
+      projectId: projectId ?? project.id,
+      name,
+      description,
+      sharedWithPublic: shared === 'public',
+      sharedWithTeams: shared === 'teams',
+    });
 
-        if (error) throw error
-        if (response.status > 400) throw new Error(response.data.message)
+    if (error) throw error;
+    if (response.status > 400) throw new Error(response.data.message);
 
-        const codebook = response.data.codebook;
-        codebook.codes = [];
-        codebookStore.add(response.data)
+    const codebook = response.data.codebook;
+    codebook.codes = [];
+    codebookStore.add(response.data);
 
-        return codebook
-    };
+    return codebook;
+  };
 
-    const computedCodebooks = computed(() => codebookStore.all())
+  const computedCodebooks = computed(() => codebookStore.all());
 
   return {
     codebooks: computedCodebooks,

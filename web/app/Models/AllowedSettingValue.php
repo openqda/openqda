@@ -2,19 +2,18 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
 class AllowedSettingValue extends Model
 {
-
-use HasUuids;  
+    use HasUuids;
 
     protected $fillable = [
         'setting_key',
         'value',
-        'caption'
+        'caption',
     ];
 
     use HasFactory;

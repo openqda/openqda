@@ -11,7 +11,15 @@
         </div>
 
         <div v-if="menuView === 'export'">
-          <Button @click="exportToCSV(selection)" :disabled="!hasSelections" :title="hasSelections ? 'Export to CSV' : 'Select at least one File and Code to export'">
+          <Button
+            @click="exportToCSV(selection)"
+            :disabled="!hasSelections"
+            :title="
+              hasSelections
+                ? 'Export to CSV'
+                : 'Select at least one File and Code to export'
+            "
+          >
             Export to CSV
           </Button>
         </div>
@@ -61,16 +69,15 @@
                 <th
                   scope="col"
                   class="p-2 text-left text-xs font-medium uppercase tracking-wide text-silver-300 sm:pl-0"
-                >
-                </th>
+                ></th>
                 <th style="width: 3rem"></th>
               </tr>
             </thead>
             <tbody>
               <tr class="text-sm border-0 hover:bg-silver-300">
-                  <td class="py-2 tracking-wide text-right">
-                      <label for="all_codes">All Codes</label>
-                  </td>
+                <td class="py-2 tracking-wide text-right">
+                  <label for="all_codes">All Codes</label>
+                </td>
                 <td class="py-2 text-center tracking-wide">
                   <input
                     id="all_codes"
@@ -80,32 +87,32 @@
                   />
                 </td>
               </tr>
-              <tr
-                v-for="code in codes"
-                :key="code.id"
-                class="text-sm border-0"
-              >
-                <td
-                  class="tracking-wide border-0 rounded-md"
-                >
-                  <label :for="code.id" class="cursor-pointer select-none line-clamp-1 rounded-md p-2 my-2 flex"
-                         :style="{ backgroundColor: code.color, opacity: checkedCodes.get(code.id) ? 1 : 0.3 }">
-                      <span class="flex-grow">{{code.name }}</span>
-                      <span class="flex items-center">
-                          <BarsArrowDownIcon class="w-4 h-4 me-1" />
-                          {{code.text.length}}
-                      </span>
+              <tr v-for="code in codes" :key="code.id" class="text-sm border-0">
+                <td class="tracking-wide border-0 rounded-md">
+                  <label
+                    :for="code.id"
+                    class="cursor-pointer select-none line-clamp-1 rounded-md p-2 my-2 flex"
+                    :style="{
+                      backgroundColor: code.color,
+                      opacity: checkedCodes.get(code.id) ? 1 : 0.3,
+                    }"
+                  >
+                    <span class="flex-grow">{{ code.name }}</span>
+                    <span class="flex items-center">
+                      <BarsArrowDownIcon class="w-4 h-4 me-1" />
+                      {{ code.text.length }}
+                    </span>
                   </label>
                 </td>
-                  <td class="py-2 text-center tracking-wide border-0">
-                      <input
-                          :id="code.id"
-                          type="checkbox"
-                          :checked="checkedCodes.get(code.id)"
-                          @change="checkCode(code.id)"
-                          class="cursor-pointer"
-                      />
-                  </td>
+                <td class="py-2 text-center tracking-wide border-0">
+                  <input
+                    :id="code.id"
+                    type="checkbox"
+                    :checked="checkedCodes.get(code.id)"
+                    @change="checkCode(code.id)"
+                    class="cursor-pointer"
+                  />
+                </td>
               </tr>
             </tbody>
           </table>
@@ -115,17 +122,17 @@
     <template #main>
       <BaseContainer>
         <div class="flex justify-between items-center">
-            <div class="flex-shrink">
+          <div class="flex-shrink">
             <SelectField
-                v-if="contentView === 'visualize'"
-                id="location"
-                name="location"
-                class="text-foreground"
-                :options="availablePlugins"
-                :value="visualizerName ?? 'list'"
-                @change="selectVisualizerPlugin($event.target)"
+              v-if="contentView === 'visualize'"
+              id="location"
+              name="location"
+              class="text-foreground"
+              :options="availablePlugins"
+              :value="visualizerName ?? 'list'"
+              @change="selectVisualizerPlugin($event.target)"
             />
-            </div>
+          </div>
           <ResponsiveTabList
             :tabs="contentTabs"
             :initial="contentView"
@@ -133,7 +140,7 @@
           />
         </div>
         <div v-if="contentView === 'visualize'">
-            <VisualizeCoding />
+          <VisualizeCoding />
         </div>
       </BaseContainer>
     </template>
@@ -149,11 +156,11 @@ import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue';
 import FilesList from '../Components/files/FilesList.vue';
 import { useExport } from '../exchange/useExport.js';
 import { trunc } from '../utils/string/trunc.js';
-import { BarsArrowDownIcon } from '@heroicons/vue/24/solid/index.js'
-import { useAnalysis } from './analysis/useAnalysis.js'
-import VisualizeCoding from './analysis/visualization/VisualizeCoding.vue'
-import { useVisualizerPlugins } from './analysis/visualization/useVisualizerPlugins.js'
-import SelectField from '../form/SelectField.vue'
+import { BarsArrowDownIcon } from '@heroicons/vue/24/solid/index.js';
+import { useAnalysis } from './analysis/useAnalysis.js';
+import VisualizeCoding from './analysis/visualization/VisualizeCoding.vue';
+import { useVisualizerPlugins } from './analysis/visualization/useVisualizerPlugins.js';
+import SelectField from '../form/SelectField.vue';
 //------------------------------------------------------------------------
 // DATA / PROPS
 //------------------------------------------------------------------------
@@ -180,23 +187,21 @@ const contentView = ref(contentTabs[0].value);
 // TODO: https://www.npmjs.com/package/html-to-rtf
 const pageTitle = ref(`Analysis - ${trunc(props.project.name, 50)}`);
 
-
 //------------------------------------------------------------------------
 // SOURCES AND CODES
 //------------------------------------------------------------------------
 const {
-    codes,
-    checkedCodes,
-    checkCode,
-    sources,
-    checkedSources,
-    checkSource,
-    hasSelections
-} = useAnalysis()
+  codes,
+  checkedCodes,
+  checkCode,
+  sources,
+  checkedSources,
+  checkSource,
+  hasSelections,
+} = useAnalysis();
 
-
-const { availablePlugins, visualizerName, selectVisualizerPlugin } = useVisualizerPlugins()
-
+const { availablePlugins, visualizerName, selectVisualizerPlugin } =
+  useVisualizerPlugins();
 
 //------------------------------------------------------------------------
 // EXPORTS
@@ -204,8 +209,8 @@ const { availablePlugins, visualizerName, selectVisualizerPlugin } = useVisualiz
 const { exportToCSV } = useExport();
 
 onMounted(async () => {
-    selectVisualizerPlugin({ value: 'list', unlessExists: true });
-    if (checkedSources.value.size === 0) checkSource('all_files');
-    if (checkedCodes.value.size === 0) checkCode('all_codes');
+  selectVisualizerPlugin({ value: 'list', unlessExists: true });
+  if (checkedSources.value.size === 0) checkSource('all_files');
+  if (checkedCodes.value.size === 0) checkCode('all_codes');
 });
 </script>

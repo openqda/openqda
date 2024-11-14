@@ -1,11 +1,13 @@
 <template>
   <div :class="cn(props.class)">
-   <div class="flex h-full">
+    <div class="flex h-full">
       <div
         class="flex w-16 flex-shrink-0 items-center justify-center rounded-tl-md rounded-bl-md text-sm font-normal text-white"
         :style="getBackgroundStyle(codebook)"
       >
-          <span class="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">{{ getInitials(codebook.name) }}</span>
+        <span class="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">{{
+          getInitials(codebook.name)
+        }}</span>
       </div>
       <div
         class="relative flex-grow flex items-center justify-between rounded-tr-md rounded-br-md truncate border-b border-r border-t border-gray-200 bg-white"
@@ -145,7 +147,7 @@
 import { EllipsisVerticalIcon } from '@heroicons/vue/20/solid';
 import { vClickOutside } from '../../../Components/coding/clickOutsideDirective.js';
 import { onMounted, reactive, ref } from 'vue';
-import { cn } from '../../../utils/css/cn.js'
+import { cn } from '../../../utils/css/cn.js';
 const props = defineProps(['codebook', 'public', 'class']);
 
 const isPublic = ref(props.public);

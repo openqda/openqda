@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref, watch } from 'vue';
 import { debounce } from '../../../utils/dom/debounce.js';
-import { cn } from '../../../utils/css/cn.js'
+import { cn } from '../../../utils/css/cn.js';
 import {
   XMarkIcon,
   EllipsisHorizontalCircleIcon,
@@ -35,16 +35,22 @@ const getSegmentsForFile = (file) => {
     .sort((a, b) => a.segment.start - b.segment.start);
 };
 
-const getColumns = gridSize => {
-    switch (gridSize) {
-        case 2: return 'grid-cols-2'
-        case 3: return 'grid-cols-3'
-        case 4: return 'grid-cols-4'
-        case 5: return 'grid-cols-5'
-        case 6: return 'grid-cols-6'
-        default:return 'grid-cols-1'
-    }
-}
+const getColumns = (gridSize) => {
+  switch (gridSize) {
+    case 2:
+      return 'grid-cols-2';
+    case 3:
+      return 'grid-cols-3';
+    case 4:
+      return 'grid-cols-4';
+    case 5:
+      return 'grid-cols-5';
+    case 6:
+      return 'grid-cols-6';
+    default:
+      return 'grid-cols-1';
+  }
+};
 
 const filterFilesBySegments = () => {
   const updatedSources = [];
@@ -82,53 +88,53 @@ const rgba2hex = (color) => {
 };
 </script>
 <template>
-    <div class="block text-right">
-        <label for="portrait-grid-size" class="mr-2">Columns</label>
-        <input
-            id="portrait-grid-size"
-            class="rounded focus:ring-1 focus:ring-inset focus:ring-cerulean-700"
-            type="number"
-            v-model="gridSize"
-            min="1"
-            max="6"
-        />
-    </div>
-    <div :class="cn(`grid gap-3 my-5`, getColumns(gridSize))">
-        <div
-            v-for="source in currentSources"
-            class="border border-silver-300 p-2 col-span-1"
-            :key="source.id"
-        >
-            <h3 class="font-semibold tracking-wide flex">
+  <div class="block text-right">
+    <label for="portrait-grid-size" class="mr-2">Columns</label>
+    <input
+      id="portrait-grid-size"
+      class="rounded focus:ring-1 focus:ring-inset focus:ring-cerulean-700"
+      type="number"
+      v-model="gridSize"
+      min="1"
+      max="6"
+    />
+  </div>
+  <div :class="cn(`grid gap-3 my-5`, getColumns(gridSize))">
+    <div
+      v-for="source in currentSources"
+      class="border border-silver-300 p-2 col-span-1"
+      :key="source.id"
+    >
+      <h3 class="font-semibold tracking-wide flex">
         <span class="truncate flex-grow">
           {{ source.name }}
         </span>
-                <XMarkIcon
-                    class="float-right h-5 w-5 text-silver-300 hover:text-porsche-400 cursor-pointer"
-                    @click="$emit('remove', source.id)"
-                />
-            </h3>
-            <div class="flex flex-wrap">
+        <XMarkIcon
+          class="float-right h-5 w-5 text-silver-300 hover:text-porsche-400 cursor-pointer"
+          @click="$emit('remove', source.id)"
+        />
+      </h3>
+      <div class="flex flex-wrap">
         <span
-            v-for="(entry, index) in segments.get(source.id)"
-            :key="`${source.id}-${index}`"
-            :title="`${entry.segment.start}-${entry.segment.end};\n\n${entry.segment.text.substring(0, 250)}...`"
-            class="m-1"
+          v-for="(entry, index) in segments.get(source.id)"
+          :key="`${source.id}-${index}`"
+          :title="`${entry.segment.start}-${entry.segment.end};\n\n${entry.segment.text.substring(0, 250)}...`"
+          class="m-1"
         >
           <EllipsisHorizontalCircleIcon
-              :style="{
+            :style="{
               color: entry.color,
               backgroundColor: entry.color,
             }"
-              class="w-4 h-4"
+            class="w-4 h-4"
           />
         </span>
-            </div>
-            <div v-if="!segments.has(source.id)" class="ml-2 mt-2 p-2 bg-silver-100">
-                No codes
-            </div>
-        </div>
+      </div>
+      <div v-if="!segments.has(source.id)" class="ml-2 mt-2 p-2 bg-silver-100">
+        No codes
+      </div>
     </div>
+  </div>
 </template>
 
 <style scoped></style>

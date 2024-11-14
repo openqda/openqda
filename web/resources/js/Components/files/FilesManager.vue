@@ -29,7 +29,8 @@
     title="Import file(s)"
     @files-selected="importFiles"
   />
-  <FilesList v-if="documents?.length"
+  <FilesList
+    v-if="documents?.length"
     class="mt-5"
     :fixed="true"
     :focus-on-hover="true"
@@ -100,9 +101,9 @@
     @select="fetchAndRenderDocument"
   >
   </FilesList>
-    <p v-else class="text-sm text-foreground/60">
-        You have not added any files. Bets is to do it now.
-    </p>
+  <p v-else class="text-sm text-foreground/60">
+    You have not added any files. Bets is to do it now.
+  </p>
   <RenameDialog
     title="Rename File"
     :target="toRename"
@@ -479,7 +480,7 @@ async function fetchAndRenderDocument(document) {
   try {
     const response = await axios.get(`/files/${document.id}`);
     const fetchedDocument = response.data;
-console.debug(fetchedDocument)
+    console.debug(fetchedDocument);
     // Call fileSelected with the fetched document
     fileSelected(fetchedDocument);
   } catch (error) {

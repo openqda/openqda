@@ -71,10 +71,10 @@ export class AbstractStore {
       }
     });
     Object.assign(this.entries, documents);
-    const added = Object.values(documents)
+    const added = Object.values(documents);
     this.observable.run('added', added);
-    this.observable.run('changed', { type: 'added', docs:added });
-    return added
+    this.observable.run('changed', { type: 'added', docs: added });
+    return added;
   }
 
   update(docIdOrFn, value, { updateId = false } = {}) {
@@ -82,7 +82,7 @@ export class AbstractStore {
       // nested changes are applied directly by
       // consumer and this reflected in a function
       // that returns all ids of updated docs
-      const allDocs = this.all()
+      const allDocs = this.all();
       const updatedDocs = docIdOrFn(allDocs);
       if (updatedDocs) {
         this.observable.run('updated', updatedDocs, allDocs);
@@ -90,9 +90,9 @@ export class AbstractStore {
       }
     } else {
       const entry = this.entries[docIdOrFn];
-      const { id, ...values } = value
+      const { id, ...values } = value;
       if (updateId) {
-          values.id = id
+        values.id = id;
       }
       Object.assign(entry, values);
       this.observable.run('updated', [entry], this.all());

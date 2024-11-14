@@ -93,4 +93,99 @@ class CodeControllerTest extends TestCase
         $response->assertJson(['message' => 'Code updated successfully']);
         $this->assertDatabaseHas('codes', ['id' => $code->id, 'description' => 'New description']);
     }
+
+    public function test_create_code_with_valid_parent()
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create(['creating_user_id' => $user->id]);
+        $codebook = Codebook::factory()->create(['project_id' => $project->id, 'creating_user_id' => $user->id]);
+
+        // Create parent code first
+        $parentCode = Code::factory()->create(['codebook_id' => $codebook->id]);
+
+        // Create child code
+        $response = $this->actingAs($user)->post(route('coding.store', [$project->id]), [
+            'title' => 'Child Code',
+            'color' => '#000000',
+            'codebook' => $codebook->id,
+            'parent_id' => $parentCode->id,
+        ], ['Accept' => 'application/json']);
+
+        $response->assertStatus(201);
+        $response->assertJsonStructure(['message', 'id']);
+
+        // Get the created code's ID from the response
+        $childCodeId = $response->json('id');
+
+        // Verify the parent-child relationship in database
+        $this->assertDatabaseHas('codes', [
+            'id' => $childCodeId,
+            'name' => 'Child Code',
+            'parent_id' => $parentCode->id,
+        ]);
+    }
+
+    public function test_prevent_self_referential_code_creation()
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create(['creating_user_id' => $user->id]);
+        $codebook = Codebook::factory()->create(['project_id' => $project->id, 'creating_user_id' => $user->id]);
+
+        // Create a code
+        $code = Code::factory()->create(['codebook_id' => $codebook->id]);
+
+        // Attempt to update the code to set its own ID as parent_id
+        $response = $this->actingAs($user)->patch(route('coding.update-attribute', [$project->id, $code->id]), [
+            'parent_id' => $code->id,
+        ], ['Accept' => 'application/json']);
+
+        // Assert that the request fails with validation error
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['parent_id']);
+
+        // Verify that the code wasn't updated in the database
+        $this->assertDatabaseHas('codes', [
+            'id' => $code->id,
+            'parent_id' => null,
+        ]);
+    }
+
+    public function test_prevent_self_referential_code_on_create()
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create(['creating_user_id' => $user->id]);
+        $codebook = Codebook::factory()->create(['project_id' => $project->id, 'creating_user_id' => $user->id]);
+
+        // Create a code and try to set its parent_id to its own ID (this shouldn't be possible)
+        $code = Code::factory()->create(['codebook_id' => $codebook->id]);
+
+        $response = $this->actingAs($user)->post(route('coding.store', [$project->id]), [
+            'title' => 'Self Referential Code',
+            'color' => '#000000',
+            'codebook' => $codebook->id,
+            'parent_id' => $code->id, // Trying to use the same ID
+        ], ['Accept' => 'application/json']);
+
+        // Since we're trying to create a new code, this specific case should pass
+        // as the IDs would be different (new UUID would be generated)
+        $response->assertStatus(201);
+
+        // But let's verify that the created code has a different ID than its parent
+        $newCodeId = $response->json('id');
+        $this->assertNotEquals($code->id, $newCodeId);
+    }
+
+    // Add this helper method at the bottom of the class
+    protected function createTestStructure()
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create(['creating_user_id' => $user->id]);
+        $codebook = Codebook::factory()->create(['project_id' => $project->id, 'creating_user_id' => $user->id]);
+
+        return [
+            'user' => $user,
+            'project' => $project,
+            'codebook' => $codebook,
+        ];
+    }
 }

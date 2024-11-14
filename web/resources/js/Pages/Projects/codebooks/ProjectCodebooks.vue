@@ -2,19 +2,19 @@
 import { computed, inject, ref } from 'vue';
 import Codebook from './CodebookItem.vue';
 import Headline2 from '../../../Components/layout/Headline2.vue';
-import Button from "../../../Components/interactive/Button.vue";
-import { PlusIcon, ArrowUpTrayIcon } from "@heroicons/vue/24/solid";
+import Button from '../../../Components/interactive/Button.vue';
+import { PlusIcon, ArrowUpTrayIcon } from '@heroicons/vue/24/solid';
 import { request } from '../../../utils/http/BackendRequest';
 import { flashMessage } from '../../../Components/notification/flashMessage';
 import { router } from '@inertiajs/vue3';
-import { useCodebooks } from "../../coding/codebooks/useCodebooks";
-import CreateDialog from "../../../dialogs/CreateDialog.vue";
+import { useCodebooks } from '../../coding/codebooks/useCodebooks';
+import CreateDialog from '../../../dialogs/CreateDialog.vue';
 
-const { createCodebookSchema, createCodebook, codebooks, initCodebooks } = useCodebooks()
-const createSchema = ref(null)
+const { createCodebookSchema, createCodebook, codebooks, initCodebooks } =
+  useCodebooks();
+const createSchema = ref(null);
 
-
-initCodebooks()
+initCodebooks();
 // File handling for importing XML
 const selectedFile = ref(null);
 const project = inject('project');
@@ -29,7 +29,6 @@ const filteredPublicCodebooks = computed(() => {
       .includes(searchQueryPublicCodebooks.value.toLowerCase())
   );
 });
-
 
 const deleteCodebookFromArray = (codebook) => {
   const index = codebooks.value.findIndex((cb) => cb.id === codebook.id);
@@ -63,48 +62,48 @@ const importCodebook = async (codebook) => {
 };
 
 const handleFileUpload = (event) => {
-    selectedFile.value = event.target.files[0];
+  selectedFile.value = event.target.files[0];
 };
 
 const importXmlFile = async () => {
-    if (!selectedFile.value) {
-        alert('Please select a file first.');
-        return;
+  if (!selectedFile.value) {
+    alert('Please select a file first.');
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', selectedFile.value);
+  formData.append('project_id', projectId);
+
+  try {
+    const response = await axios.post(
+      route('codebook-codes.import', { project: projectId }),
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+
+    alert(response.data.message);
+    // Refresh the page or update the relevant data
+    router.get(
+      route('project.show', { project: projectId, codebookstab: true })
+    );
+  } catch (error) {
+    console.error('Failed to import XML:', error);
+    if (error.response && error.response.data && error.response.data.error) {
+      alert(error.response.data.error);
+    } else {
+      alert('Failed to import XML. An unexpected error occurred.');
     }
-
-    const formData = new FormData();
-    formData.append('file', selectedFile.value);
-    formData.append('project_id', projectId);
-
-    try {
-        const response = await axios.post(
-            route('codebook-codes.import', { project: projectId }),
-            formData,
-            {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            }
-        );
-
-        alert(response.data.message);
-        // Refresh the page or update the relevant data
-        router.get(
-            route('project.show', { project: projectId, codebookstab: true })
-        );
-    } catch (error) {
-        console.error('Failed to import XML:', error);
-        if (error.response && error.response.data && error.response.data.error) {
-            alert(error.response.data.error);
-        } else {
-            alert('Failed to import XML. An unexpected error occurred.');
-        }
-    }
+  }
 };
 </script>
 
 <template>
-    <!-- TODO use create modal
+  <!-- TODO use create modal
   <div class="">
     <div class="w-1/2 my-2">
       <NewCodebookForm
@@ -158,19 +157,25 @@ const importXmlFile = async () => {
   </div>
     -->
   <div>
-      <div class="flex items-center justify-between">
-        <Headline2>Codebooks of current Project</Headline2>
-          <span class="space-x-1">
-              <Button variant="outline-secondary" @click="createSchema = createCodebookSchema()">
-                <PlusIcon class="w-4 h-4" />
-              <span>Create</span>
-          </Button>
-              <Button variant="outline-secondary" @click="createSchema = createCodeSchema">
-                <ArrowUpTrayIcon class="w-4 h-4" />
-              <span>Import</span>
-          </Button>
-          </span>
-      </div>
+    <div class="flex items-center justify-between">
+      <Headline2>Codebooks of current Project</Headline2>
+      <span class="space-x-1">
+        <Button
+          variant="outline-secondary"
+          @click="createSchema = createCodebookSchema()"
+        >
+          <PlusIcon class="w-4 h-4" />
+          <span>Create</span>
+        </Button>
+        <Button
+          variant="outline-secondary"
+          @click="createSchema = createCodeSchema"
+        >
+          <ArrowUpTrayIcon class="w-4 h-4" />
+          <span>Import</span>
+        </Button>
+      </span>
+    </div>
     <ul
       v-if="codebooks.length > 0"
       role="list"
@@ -206,8 +211,8 @@ const importXmlFile = async () => {
         class="col-span-1 flex flex-col relative"
       >
         <Codebook
-            class="h-full"
-            :codebook="codebook"
+          class="h-full"
+          :codebook="codebook"
           :public="true"
           @importCodebook="importCodebook(codebook)"
         ></Codebook>
@@ -240,9 +245,8 @@ const importXmlFile = async () => {
         class="col-span-1 flex flex-col relative"
       >
         <Codebook
-            class="h-full"
-
-            :codebook="codebook"
+          class="h-full"
+          :codebook="codebook"
           :public="true"
           @importCodebook="importCodebook(codebook)"
         ></Codebook>
@@ -253,20 +257,20 @@ const importXmlFile = async () => {
     </div>
   </div>
 
-    <CreateDialog
-        title="Create New Codebook"
-        :schema="createSchema"
-        :submit="createCodebook"
-        @cancelled="createSchema = null"
-        >
-        <template #info>
-            <div class="w-full block italic text-foreground/60 text-sm">
-                When you set a codebook "public", anyone can import it on their
-                project. When you set a codebook "shared with your teams", only
-                members of your teams can import it on their projects.
-            </div>
-        </template>
-    </CreateDialog>
+  <CreateDialog
+    title="Create New Codebook"
+    :schema="createSchema"
+    :submit="createCodebook"
+    @cancelled="createSchema = null"
+  >
+    <template #info>
+      <div class="w-full block italic text-foreground/60 text-sm">
+        When you set a codebook "public", anyone can import it on their project.
+        When you set a codebook "shared with your teams", only members of your
+        teams can import it on their projects.
+      </div>
+    </template>
+  </CreateDialog>
 </template>
 
 <style scoped></style>

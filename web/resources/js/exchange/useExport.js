@@ -47,7 +47,7 @@ const exportToCSV = (contents, project) => {
 
   const out = csv.build();
   const date = new Date().toLocaleDateString().replace(/[_.:,\s]+/g, ' ');
-  const name = `${project.name} ${date}.csv`
+  const name = `${project.name} ${date}.csv`;
   return saveTextFile({
     text: out,
     name: name,

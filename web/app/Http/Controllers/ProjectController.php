@@ -45,7 +45,8 @@ class ProjectController extends Controller
         ]);
     }
 
-    protected function visibleProjects () {
+    protected function visibleProjects()
+    {
         $user = Auth::user();
 
         // Fetch projects directly created by the user
