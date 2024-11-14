@@ -10,7 +10,7 @@ use Illuminate\Console\Command;
 
 class ManageSettingsCommand extends Command
 {
-protected $signature = 'settings:manage 
+    protected $signature = 'settings:manage 
         {action? : Action to perform (create-allowed|show-all|check-invalid|update-value|show-allowed)}
         {--key= : Setting key for create/update actions (e.g., "display.theme")}
         {--value= : Setting value for create/update actions}
@@ -24,7 +24,7 @@ protected $signature = 'settings:manage
 
     public function handle()
     {
-        if (!$this->argument('action')) {
+        if (! $this->argument('action')) {
             $this->info('Available actions:');
             $this->newLine();
             $this->info('  create-allowed  Create a new allowed setting value');
@@ -36,6 +36,7 @@ protected $signature = 'settings:manage
             $this->info('Examples:');
             $this->info('  php artisan settings:manage create-allowed --key=display.theme --value=dark --caption="Dark Mode"');
             $this->info('  php artisan settings:manage update-value --key=display.theme --old-value=dark --new-value=light');
+
             return;
         }
 
@@ -48,7 +49,6 @@ protected $signature = 'settings:manage
             default => $this->error('Invalid action. Run without action to see available options.')
         };
     }
-
 
     private function createAllowedSetting(): void
     {

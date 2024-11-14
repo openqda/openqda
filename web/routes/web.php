@@ -127,7 +127,7 @@ Route::middleware([
     Route::delete('/projects/{project}/codebooks/{codebook}', [CodebookController::class, 'destroy'])->name('codebook.destroy');
     Route::post('/projects/{project}/codebooks', [CodebookController::class, 'store'])->name('codebook.store');
     Route::post('/projects/{project}/codebooks/import', [CodebookCodesController::class, 'import'])->name('codebook-codes.import');
-    Route::get('/projects/{project}/codebooks/export/{id}', [CodebookCodesController::class, 'export'])->name('codebook-codes.export');
+    Route::get('/projects/{project}/codebooks/export/{codebook}', [CodebookCodesController::class, 'export'])->name('codebook-codes.export');
     Route::patch('/projects/{project}/codebooks/{codebook}/code-order', [CodebookCodesController::class, 'updateCodeOrder'])->name('codebook-codes.update-order');
 
     /**
