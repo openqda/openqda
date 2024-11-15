@@ -77,7 +77,7 @@
         </svg>
       </button>
     </span>
-      <!--
+    <!--
     <span class="ql-formats">
       <button class="ql-settings" title="Editor Settings">
         <svg

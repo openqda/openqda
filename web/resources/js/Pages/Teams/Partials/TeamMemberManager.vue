@@ -178,12 +178,12 @@ onMounted(() => {
                   :src="user.profile_photo_url"
                   :alt="user.name"
                 />
-                  <div class="ml-4 leading-tight">
-                      <div class="text-foreground/60">{{ user.name }}</div>
-                      <div class="text-foreground/60">
-                          {{ user.email }}
-                      </div>
+                <div class="ml-4 leading-tight">
+                  <div class="text-foreground/60">{{ user.name }}</div>
+                  <div class="text-foreground/60">
+                    {{ user.email }}
                   </div>
+                </div>
               </div>
 
               <div class="flex items-center space-x-2">

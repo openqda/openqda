@@ -2,7 +2,7 @@ import { FormElements } from './FormElements.js';
 import TextInput from './TextInput.vue';
 import TextArea from './TextArea.vue';
 import SelectField from './SelectField.vue';
-import Checkbox from './Checkbox.vue'
+import Checkbox from './Checkbox.vue';
 
 let initialized = false;
 

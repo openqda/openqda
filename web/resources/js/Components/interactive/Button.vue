@@ -1,6 +1,6 @@
 <template>
   <button
-     v-bind="$attrs"
+    v-bind="$attrs"
     :type="props.type ?? 'button'"
     :disabled="disabled ? 'disabled' : false"
     :class="

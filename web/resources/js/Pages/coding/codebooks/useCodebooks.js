@@ -40,7 +40,7 @@ export const useCodebooks = () => {
       description,
       sharedWithPublic: shared === 'public',
       sharedWithTeams: shared === 'teams',
-        codebookId
+      codebookId,
     });
 
     if (error) {
@@ -59,13 +59,13 @@ export const useCodebooks = () => {
 
   const updateCodebook = async ({ name, description, codebookId, shared }) => {
     const data = {
-        projectId: projectId ?? project.id,
-        codebookId: codebookId,
-        name,
-        description,
-        sharedWithPublic: shared === 'public',
-        sharedWithTeams: shared === 'teams',
-    }
+      projectId: projectId ?? project.id,
+      codebookId: codebookId,
+      name,
+      description,
+      sharedWithPublic: shared === 'public',
+      sharedWithTeams: shared === 'teams',
+    };
     const { response, error } = await Codebooks.update(data);
     if (error) {
       throw error;
@@ -74,8 +74,8 @@ export const useCodebooks = () => {
       throw new Error(response.data.message);
     }
 
-    const codebook = codebookStore.entry(codebookId)
-    codebookStore.update(codebookId, data)
+    const codebook = codebookStore.entry(codebookId);
+    codebookStore.update(codebookId, data);
     return codebook;
   };
 
@@ -100,7 +100,6 @@ const importCodebookSchema = () => ({
     accept: '.xml,.qdc',
   },
 });
-
 
 const updateSortOrder = async ({ order, codebook }) => {
   codebook.code_order = order;

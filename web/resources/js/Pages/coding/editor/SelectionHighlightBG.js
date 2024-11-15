@@ -28,9 +28,8 @@ export class SelectionHighlightBG extends Module {
   }
 
   current(range) {
-
     const { index, length } = range ?? this.active ?? {};
-    if (!length) return
+    if (!length) return;
 
     const show = !!range;
     if (show) {
@@ -47,8 +46,6 @@ export class SelectionHighlightBG extends Module {
       class: 'border-b border-2 border-background',
     });
   }
-
-
 
   highlight({ id, title, color, start, length, active }, { opacity } = {}) {
     if (!active) {

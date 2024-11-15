@@ -39,7 +39,11 @@ const cancel = () => {
 </script>
 
 <template>
-  <DialogBase :title="props.title ?? 'Confirm decision'" :show="open" @close="cancel">
+  <DialogBase
+    :title="props.title ?? 'Confirm decision'"
+    :show="open"
+    @close="cancel"
+  >
     <template #body>
       <p>{{ props.text }}</p>
       <slot name="info"></slot>

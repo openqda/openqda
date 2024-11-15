@@ -187,7 +187,6 @@ const initDraggable = () => {
           index > -1 && props.code.children.splice(index, 1);
         }
       }
-
     },
   });
 };

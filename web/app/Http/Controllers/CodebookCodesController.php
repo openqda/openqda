@@ -10,7 +10,6 @@ use App\Models\Project;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Str;
 use SimpleXMLElement;
 
@@ -200,24 +199,20 @@ class CodebookCodesController extends Controller
     /**
      * Exports a codebook and its codes to an XML file.
      *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function export(Project $project, Codebook $codebook, Request $request)
     {
-
         $xml = new SimpleXMLElement('<CodeBook xmlns="urn:QDA-XML:codebook:1.0"/>');
-        $xml->addAttribute('origin', config('app.name')); // Set the origin attribute
+        $xml->addAttribute('origin', config('app.name'));
         $codesXml = $xml->addChild('Codes');
-
         $this->addCodesToXml($codesXml, $codebook->codes);
 
-        $xmlContent = $xml->asXML();
+        $filename = $codebook->name.'.qdc';
 
-        return Response::make($xmlContent, 200, [
-            'Content-Type' => 'application/xml',
-            'Content-Disposition' => 'attachment; filename="'.$codebook->name.'.qdc"',
-        ]);
+        return response($xml->asXML())
+            ->header('Content-Type', 'application/xml')
+            ->header('Content-Disposition', sprintf('attachment; filename="%s"', $filename));
     }
 
     /**

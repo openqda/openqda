@@ -57,9 +57,9 @@ export class Observable {
    * @param args {...[]=}
    */
   run(name, ...args) {
-    const listeners = (this.src.get(name) ?? [])
+    const listeners = this.src.get(name) ?? [];
     listeners.forEach((fn) => {
-        fn(...args)
+      fn(...args);
     });
   }
 }

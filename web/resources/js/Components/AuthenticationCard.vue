@@ -1,8 +1,8 @@
 <script setup>
 import LayoutContainer from '../Layouts/LayoutContainer.vue';
 import ImageCarousel from './image/ImageCarousel.vue';
-import Link from './Link.vue'
-import HelpResources from './HelpResources.vue'
+import Link from './Link.vue';
+import HelpResources from './HelpResources.vue';
 </script>
 <template>
   <LayoutContainer :title="$page.props.slogan">
@@ -33,7 +33,7 @@ import HelpResources from './HelpResources.vue'
       <!-- right side -->
       <div class="flex-1 bg-surface flex justify-center">
         <ImageCarousel
-            v-if="$page.props.bgtl"
+          v-if="$page.props.bgtl"
           class="self-center"
           :sources="[
             {
@@ -58,7 +58,7 @@ import HelpResources from './HelpResources.vue'
             },
           ]"
         />
-          <HelpResources class="self-center space-y-4" v-else />
+        <HelpResources class="self-center space-y-4" v-else />
       </div>
     </div>
   </LayoutContainer>

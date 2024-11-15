@@ -1,16 +1,22 @@
 <template>
-    <div
+  <div
     v-for="(source, index) in $props.sources"
     class="my-10 border-l border-l-border"
     :key="`${source.id}-${index}`"
   >
-    <div v-if="!!$props.checkedSources.get(source.id) && (codesList.get(source.id)?.length || options.showEmpty)">
+    <div
+      v-if="
+        !!$props.checkedSources.get(source.id) &&
+        (codesList.get(source.id)?.length || options.showEmpty)
+      "
+    >
       <Headline3 class="ms-3">
         <span>{{ source.name }}</span>
         <button
-            title="Hide this source"
-            @click="$emit('remove', source.id)"
-            class="float-right">
+          title="Hide this source"
+          @click="$emit('remove', source.id)"
+          class="float-right"
+        >
           <XMarkIcon class="h-5 w-5" />
         </button>
       </Headline3>
@@ -53,10 +59,10 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue';
 import { XMarkIcon } from '@heroicons/vue/24/solid';
-import Headline3 from '../../../Components/layout/Headline3.vue'
-import Button from '../../../Components/interactive/Button.vue'
+import Headline3 from '../../../Components/layout/Headline3.vue';
+import Button from '../../../Components/interactive/Button.vue';
 
 defineEmits(['remove']);
 const props = defineProps([
@@ -71,8 +77,8 @@ const codesList = ref(new Map());
 const API = props.api;
 
 const options = ref({
-    showEmpty: true
-})
+  showEmpty: true,
+});
 
 /*
 API.defineOptions({
@@ -109,7 +115,7 @@ const rebuildList = (options) => {
   });
 };
 
-watch(props , API.debounce(rebuildList, 100));
+watch(props, API.debounce(rebuildList, 100));
 
 onMounted(() => {
   rebuildList();

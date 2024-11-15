@@ -18,10 +18,10 @@ defineProps({
   description: { type: String, formType: 'textarea', required: false },
   show: { type: Boolean, required: false },
 });
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close']);
 const close = () => {
-    emit('close')
-}
+  emit('close');
+};
 </script>
 
 <template>

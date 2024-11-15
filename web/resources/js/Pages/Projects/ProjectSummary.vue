@@ -33,7 +33,7 @@ const submitRename = async ({ name }) => {
 const deleteProject = async () => {
   const path = route('project.destroy', { project: project.id });
   router.delete(path);
-  return true
+  return true;
 };
 </script>
 

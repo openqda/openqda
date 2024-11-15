@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import InputLabel from './InputLabel.vue';
 import InputError from '../../../vendor/laravel/jetstream/stubs/inertia/resources/js/Components/InputError.vue';
-import {cn } from "../utils/css/cn";
+import { cn } from '../utils/css/cn';
 
 const props = defineProps({
   value: String,
@@ -12,10 +12,10 @@ const props = defineProps({
   options: Array,
   label: String,
   id: String,
-  defaultOption: Boolean
+  defaultOption: Boolean,
 });
 const current = ref(props.value);
-console.debug(props.label)
+console.debug(props.label);
 </script>
 
 <template>
@@ -29,11 +29,18 @@ console.debug(props.label)
       class="block w-full rounded-md focus:border-secondary focus:ring-secondary bg-surface text-foreground"
       @change="(e) => (current = e.target.value)"
     >
-      <option v-if="props.options || props.defaultOption" disabled value="">(Select one)</option>
-      <option v-if="props.options" v-for="opt in props.options" :key="opt.value" :value="opt.value">
+      <option v-if="props.options || props.defaultOption" disabled value="">
+        (Select one)
+      </option>
+      <option
+        v-if="props.options"
+        v-for="opt in props.options"
+        :key="opt.value"
+        :value="opt.value"
+      >
         {{ opt.label }}
       </option>
-        <slot name="options"></slot>
+      <slot name="options"></slot>
     </select>
     <InputError
       v-if="props.validation?.isValid === false"

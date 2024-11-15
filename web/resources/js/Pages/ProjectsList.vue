@@ -11,15 +11,15 @@ import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import ProjectsListMenu from './Projects/ProjectsListMenu.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
 import CreateDialog from '../dialogs/CreateDialog.vue';
-import { useProjects } from './Projects/useProjects.js'
-import HelpResources from '../Components/HelpResources.vue'
-import Headline2 from '../Components/layout/Headline2.vue'
+import { useProjects } from './Projects/useProjects.js';
+import HelpResources from '../Components/HelpResources.vue';
+import Headline2 from '../Components/layout/Headline2.vue';
 
 const props = defineProps(['audits']);
 sessionStorage.clear();
 
 const projectSelected = async () => {};
-const { createProject, createSchema, open } = useProjects()
+const { createProject, createSchema, open } = useProjects();
 const createProjectSchema = ref(null);
 </script>
 
@@ -29,9 +29,7 @@ const createProjectSchema = ref(null);
       <BaseContainer>
         <ProjectsListMenu
           @selected="projectSelected"
-          @create-project="
-            createProjectSchema = createSchema
-          "
+          @create-project="createProjectSchema = createSchema"
         />
         <CreateDialog
           title="Create a new project"
@@ -45,14 +43,14 @@ const createProjectSchema = ref(null);
     <template #main>
       <BaseContainer>
         <div class="flex items-center justify-center h-full text-foreground/50">
-        <div>
+          <div>
             <Headline2>Your projects</Headline2>
-          <div class="mt-4 mb-8 block">
-              Select a project from the list or create a new one.
-              You can search for project titles, descriptions and ids.
-          </div>
+            <div class="mt-4 mb-8 block">
+              Select a project from the list or create a new one. You can search
+              for project titles, descriptions and ids.
+            </div>
             <HelpResources class="space-y-4" />
-        </div>
+          </div>
         </div>
       </BaseContainer>
     </template>

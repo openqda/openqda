@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Code;
+use App\Rules\PreventSelfReferentialCode;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 
@@ -29,6 +30,7 @@ class StoreCodeRequest extends FormRequest
             'title' => 'required|string|max:255',
             'color' => 'required|string',
             'codebook' => 'required|exists:codebooks,id',
+            'parent_id' => ['nullable', 'uuid', new PreventSelfReferentialCode()],
         ];
     }
 }
