@@ -11,10 +11,12 @@ import InputError from '../../../form/InputError.vue';
 import InputLabel from '../../../form/InputLabel.vue';
 import PrimaryButton from '../../../Components/PrimaryButton.vue';
 import SecondaryButton from '../../../Components/SecondaryButton.vue';
-import SectionBorder from '../../../Components/SectionBorder.vue';
 import InputField from '../../../form/InputField.vue';
 import ProfileImage from '../../../Components/user/ProfileImage.vue';
 import Button from '../../../Components/interactive/Button.vue';
+import DeleteDialog from '../../../dialogs/DeleteDialog.vue'
+import ConfirmDialog from '../../../dialogs/ConfirmDialog.vue'
+import { asyncTimeout } from '../../../utils/asyncTimeout.js'
 
 const props = defineProps({
   team: Object,
@@ -106,7 +108,7 @@ const confirmTeamMemberRemoval = (teamMember) => {
   teamMemberBeingRemoved.value = teamMember;
 };
 
-const removeTeamMember = () => {
+const removeTeamMember = async () => {
   removeTeamMemberForm.delete(
     route('team-members.destroy', [props.team, teamMemberBeingRemoved.value]),
     {
@@ -116,6 +118,9 @@ const removeTeamMember = () => {
       onSuccess: () => (teamMemberBeingRemoved.value = null),
     }
   );
+
+  await asyncTimeout(300)
+  return true
 };
 
 const displayableRole = (role) => {
@@ -160,7 +165,6 @@ onMounted(() => {
         <template #content>
           <div class="flex justify-between align-baseline my-6">
             <InputLabel value="Team Members" class="mb-3" />
-            <Button variant="outline-confirmative"> Add </Button>
           </div>
           <div class="space-y-6">
             <div
@@ -366,9 +370,11 @@ onMounted(() => {
     </DialogModal>
 
     <div v-if="userPermissions.canAddTeamMembers">
+
+
       <!-- Add Team Member -->
       <FormSection @submitted="addTeamMember">
-        <template #title> Add Team Member</template>
+        <template #title>Add Team Member</template>
 
         <template #description>
           Add a new team member to your team, allowing them to collaborate with
@@ -475,11 +481,12 @@ onMounted(() => {
           </ActionMessage>
 
           <Button
-            v-if="availableRoles?.length > 1"
+            v-if="addTeamMemberForm.role"
+            variant="outline-confirmative"
             :class="{ 'opacity-25': addTeamMemberForm.processing }"
             :disabled="addTeamMemberForm.processing"
           >
-            Add
+            Add this member
           </Button>
         </template>
       </FormSection>
@@ -540,30 +547,13 @@ onMounted(() => {
     </ConfirmationModal>
 
     <!-- Remove Team Member Confirmation Modal -->
-    <ConfirmationModal
-      :show="teamMemberBeingRemoved"
-      @close="teamMemberBeingRemoved = null"
+    <DeleteDialog
+        title="Remove Team Member"
+        :target="teamMemberBeingRemoved"
+        :message="`This will remove ${teamMemberBeingRemoved?.name} from the team.`"
+        :submit="removeTeamMember"
+      @cancelled="teamMemberBeingRemoved = null"
     >
-      <template #title> Remove Team Member</template>
-
-      <template #content>
-        Are you sure you would like to remove this person from the team?
-      </template>
-
-      <template #footer>
-        <SecondaryButton @click="teamMemberBeingRemoved = null">
-          Cancel
-        </SecondaryButton>
-
-        <DangerButton
-          class="ml-3"
-          :class="{ 'opacity-25': removeTeamMemberForm.processing }"
-          :disabled="removeTeamMemberForm.processing"
-          @click="removeTeamMember"
-        >
-          Remove
-        </DangerButton>
-      </template>
-    </ConfirmationModal>
+    </DeleteDialog>
   </div>
 </template>

@@ -60,7 +60,20 @@ const { range } = useRange();
 // TEXTS (SELECTIONS)
 //------------------------------------------------------------------------
 const showTexts = ref(false);
-const hasTexts = computed(() => props.code.text?.length);
+const textCount = ref(0)
+const textSelectionsCount = (code) => {
+    let count = code.text?.length ?? 0;
+    if (code.children?.length) {
+
+        code.children.forEach((child) => {
+            count += textSelectionsCount(child);
+        });
+    }
+
+    return count;
+};
+textCount.value = textSelectionsCount(props.code)
+console.debug(props.code.name, props.code.text?.length, textCount.value)
 const openTexts = () => {
   showTexts.value = true;
 };
@@ -81,17 +94,6 @@ const toggle = () => {
 //------------------------------------------------------------------------
 // RANGE
 //------------------------------------------------------------------------
-const selections = (code) => {
-  let count = hasTexts.value ?? 0;
-
-  if (code.children?.length) {
-    code.children.forEach((child) => {
-      count += selections(child);
-    });
-  }
-
-  return count;
-};
 
 const indent = (code) => console.debug('indent', code);
 
@@ -289,13 +291,11 @@ onUnmounted(() => {
             showTexts && 'text-secondary'
           )
         "
-        :disabled="!hasTexts"
+        :disabled="!textCount"
         @click.prevent="showTexts ? closeTexts() : openTexts()"
       >
         <BarsArrowDownIcon class="w-4 -h-4" />
-        <span class="text-xs">{{
-          open ? (hasTexts ?? 0) : selections(code)
-        }}</span>
+        <span class="text-xs">{{open ? code.text?.length ?? 0 : textCount}}</span>
       </Button>
 
       <div
@@ -390,7 +390,7 @@ onUnmounted(() => {
 
     <!-- TEXT Selections -->
     <div
-      v-if="code && hasTexts && showTexts"
+      v-if="code && textCount && showTexts"
       :style="`border-color: ${changeRGBOpacity(code.color ?? 'rgba(0,0,0,1)', 1)};`"
       class="bg-surface border text-sm ms-8 me-1 my-1 rounded"
     >

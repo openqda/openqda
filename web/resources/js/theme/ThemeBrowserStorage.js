@@ -14,21 +14,22 @@
 export const ThemeBrowserStorage = {};
 
 const storageKey = 'theme';
+const storage = localStorage
 
 ThemeBrowserStorage.isDefined = async () =>
-  localStorage && storageKey in localStorage;
+    storage && storageKey in storage;
 
 ThemeBrowserStorage.value = async () => {
-  const value = localStorage.getItem(storageKey);
+  const value = storage.getItem(storageKey);
   return value ?? null;
 };
 
 ThemeBrowserStorage.update = async (name) => {
-  localStorage.setItem(storageKey, name);
+    storage.setItem(storageKey, name);
   return true;
 };
 
 ThemeBrowserStorage.remove = async () => {
-  localStorage.removeItem(storageKey);
+    storage.removeItem(storageKey);
   return true;
 };

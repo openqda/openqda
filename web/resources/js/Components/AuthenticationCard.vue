@@ -21,7 +21,7 @@ import HelpResources from './HelpResources.vue'
           />
           <div class="w-full my-4">
             <h1
-              class="[text-shadow:0px_16.76px_33.52px_#0000001a] [-webkit-text-stroke:1px_#347aad] font-semibold text-primary-foreground text-[53.6px] tracking-wider leading-[normal]"
+              class="font-bold text-primary-foreground text-5xl tracking-widest leading-normal"
             >
               {{ $page.props.title }}
             </h1>

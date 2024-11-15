@@ -61,7 +61,6 @@ export const useCodes = () => {
     const codeStore = Codes.by(key)
     const codebookStore = Codebooks.by(projectId)
     const selectionStore = Selections.by(key)
-
     const initCoding = async () => {
         codebookStore.init(codebooks)
         codeStore.init(allCodes)
@@ -124,28 +123,18 @@ export const useCodes = () => {
             return updated
         })
 
-        let response
-        const handle = res => {
-            if (res.error) {
-                codeStore.update(id, restore)
-                throw res.error
-            }
-            if (res.response.status >= 400) {
-                codeStore.update(id, restore)
-                throw res.response.data.message
-            }
+        const { error, response } = await Codes.update({
+            projectId,
+            code: entry,
+            ...diff
+        })
+        if (error) {
+            codeStore.update(id, restore)
+            throw error
         }
-        if ('title' in diff) {
-            response = await Codes.updateTitle({ projectId, title: diff.name, code: entry })
-            handle(response)
-        }
-        if ('description' in diff) {
-            response = await Codes.updateDescription({ projectId, source, description: diff.description, code: entry })
-            handle(response)
-        }
-        if ('color' in diff) {
-            response = await Codes.updateColor({ projectId, code: entry, color: diff.color })
-            handle(response)
+        if (response.status >= 400) {
+            codeStore.update(id, restore)
+            throw new Error(response.data.message)
         }
 
         return true
@@ -183,7 +172,7 @@ export const useCodes = () => {
             parent.children.pop()
         }
 
-        const { response, error } = await Codes.updateParent({ projectId, source, code, parent })
+        const { response, error } = await Codes.update({ projectId, source, code, parent })
 
         if (error) {
             rollback()

@@ -19,28 +19,34 @@ Theme.LIGHT = light;
  * Otherwise, uses light theme.
  * @param options {object}
  * @param options.storage {ThemeStorage}
+ * @param options.useStorage {boolean}
+ * @param options.usePreferred {boolean}
  * @return {Promise<{from: string, name: string}>} the name of the decision used for the theme.
  */
 Theme.init = async (options) => {
   storage = options.storage ? options.storage : new ThemeEmptyStorage();
 
   // phase 1: fetch the preferred theme from storage
-  let storedTheme = null;
-  if (
-    storage &&
-    (await storage.isDefined()) &&
-    (storedTheme = await storage.value()) !== null
-  ) {
-    DOM.add(storedTheme);
-    return { from: 'storage', name: storedTheme };
+  if (options.useStorage) {
+    let storedTheme = null;
+    if (
+      storage &&
+      (await storage.isDefined()) &&
+      (storedTheme = await storage.value()) !== null
+    ) {
+      DOM.add(storedTheme);
+      return { from: 'storage', name: storedTheme };
+    }
   }
 
   // phase 2: use the preferred theme from OS-level preferences
   // but to not store the decision as it's not an active user decision
-  let osPreferred = DOM.getPreferred([dark, light]);
-  if (osPreferred) {
-    DOM.add(osPreferred);
-    return { from: 'preferred', name: osPreferred };
+  if (options.usePreferred !== false) {
+    let osPreferred = DOM.getPreferred([dark, light]);
+    if (osPreferred) {
+      DOM.add(osPreferred);
+      return { from: 'preferred', name: osPreferred };
+    }
   }
 
   // phase 2: fall back to light theme as default
