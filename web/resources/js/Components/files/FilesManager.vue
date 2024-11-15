@@ -160,20 +160,14 @@ const documents = inject('sources');
 const url = window.location.pathname;
 const segments = url.split('/');
 const projectId = segments[2]; // Assuming project id is the third segment in URL path
-const audioFile = ref(null);
 const audioIsUploading = ref(false);
 const { downloadSource } = useFiles();
 
-async function transcribeFile() {
-  if (!audioFile.value) {
-    alert('Please select an audio file to transcribe.');
-    return;
-  }
-
+async function transcribeFile(audio) {
   audioIsUploading.value = true;
 
   const formData = new FormData();
-  formData.append('file', audioFile.value);
+  formData.append('file', audio);
   formData.append('project_id', projectId);
   formData.append('model', 'default_model'); // Replace with your actual model name
   formData.append('language', 'en'); // Replace with the desired language code
@@ -190,11 +184,11 @@ async function transcribeFile() {
       response.data.newDocument.userPicture =
         usePage().props.auth.user.profile_photo_url;
       documents.push(response.data.newDocument);
-      fileSelected(response.data.newDocument);
+      // fileSelected(response.data.newDocument);
     }
   } catch (error) {
     console.error('Error transcribing file:', error);
-    alert('An error occurred while transcribing the file.');
+    flashMessage({ message: 'An error occurred while transcribing the file.', type: 'error' });
   } finally {
     audioIsUploading.value = false;
   }
@@ -291,14 +285,18 @@ const uploadProgress = ref(0);
 
 const importFiles = async (files) => {
   for (const file of files) {
-    file.isUploading = true;
-    documents.push(file);
-    const newFile = await fileAdded(file);
-    await asyncTimeout(100);
-    const index = documents.indexOf(file);
-    documents.splice(index, 1);
-    documents.push(newFile);
-    await asyncTimeout(1000);
+    if (file.type.startsWith('audio/')) {
+      await transcribeFile(file);
+    } else {
+      file.isUploading = true;
+      documents.push(file);
+      const newFile = await fileAdded(file);
+      await asyncTimeout(100);
+      const index = documents.indexOf(file);
+      documents.splice(index, 1);
+      documents.push(newFile);
+      await asyncTimeout(1000);
+    }
   }
 };
 /*---------------------------------------------------------------------------*/

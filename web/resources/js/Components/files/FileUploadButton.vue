@@ -28,8 +28,9 @@ const props = defineProps([
 ]);
 
 function onFileInputChanged() {
-  const files = [...fileInput.value?.files];
+  const files =  fileInput.value?.files ?? []
+  const copy = [...files];
   // TODO check file size based on .env config and filetype
-  emit('fileAdded', files);
+  emit('fileAdded', copy);
 }
 </script>

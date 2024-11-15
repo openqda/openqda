@@ -1,7 +1,6 @@
 <script setup>
 import LayoutContainer from '../Layouts/LayoutContainer.vue';
 import ImageCarousel from './image/ImageCarousel.vue';
-import Link from './Link.vue';
 import HelpResources from './HelpResources.vue';
 </script>
 <template>
