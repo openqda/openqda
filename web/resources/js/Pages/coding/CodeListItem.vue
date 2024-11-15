@@ -73,7 +73,6 @@ const textSelectionsCount = (code) => {
     return count;
 };
 textCount.value = textSelectionsCount(props.code)
-console.debug(props.code.name, props.code.text?.length, textCount.value)
 const openTexts = () => {
   showTexts.value = true;
 };
@@ -320,13 +319,13 @@ onUnmounted(() => {
             )
           "
         >
-          <span class="line-clamp-1">{{ code.name }}</span>
+          <span class="line-clamp-1 text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,1)]">{{ code.name }}</span>
           <span class="text-xs ms-auto font-normal hidden group-hover:inline"
             >Assign to selection {{ range.start }}:{{ range.end }}</span
           >
         </button>
         <div v-else class="w-full group flex">
-          <span class="line-clamp-1 flex-grow items-center">{{
+          <span class="line-clamp-1 flex-grow items-center text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,1)]">{{
             code.name
           }}</span>
         </div>

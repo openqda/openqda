@@ -10,7 +10,11 @@
           />
         </div>
 
-        <div v-if="menuView === 'export'">
+        <div v-if="menuView === 'export'" class="p-3 rounded-md border border-border flex items-center">
+            <p class="text-sm text-foreground/60 me-3">
+                You can export your data to a table in csv format. Note, that data is filtered,
+                based on selected sources and codes.
+            </p>
           <Button
             @click="exportToCSV(selection)"
             :disabled="!hasSelections"
@@ -97,7 +101,7 @@
                       opacity: checkedCodes.get(code.id) ? 1 : 0.3,
                     }"
                   >
-                    <span class="flex-grow">{{ code.name }}</span>
+                    <span class="flex-grow text-white drop-shadow-[0_0_1.6px_rgba(0,0,0,1)]">{{ code.name }}</span>
                     <span class="flex items-center">
                       <BarsArrowDownIcon class="w-4 h-4 me-1" />
                       {{ code.text.length }}
@@ -199,6 +203,7 @@ const {
   checkedSources,
   checkSource,
   hasSelections,
+  selection,
 } = useAnalysis();
 
 const { availablePlugins, visualizerName, selectVisualizerPlugin } =
