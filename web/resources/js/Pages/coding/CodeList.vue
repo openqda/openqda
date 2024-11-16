@@ -1,5 +1,5 @@
 <script setup>
-import { onUnmounted, reactive, ref, watch } from 'vue';
+import { computed, onUnmounted, reactive, ref, watch } from 'vue'
 import CodeListItem from './CodeListItem.vue';
 import { useCodes } from './useCodes.js';
 import Headline3 from '../../Components/layout/Headline3.vue';
@@ -55,7 +55,19 @@ const sortable = ref(
 );
 const isDragging = ref(false);
 const { dragTarget, setDragStart, clearDrag } = useDragTarget();
-
+const codesCount = computed(() => {
+    const countCodes = codes => {
+        let count = 0
+        codes.forEach(code => {
+            count += 1;
+            if (code.children?.length) {
+                count += countCodes(code.children)
+            }
+        })
+        return count
+    }
+    return countCodes(props.codes)
+})
 const draggable = useDraggable(draggableRef, sortable, {
   animation: 250,
   swapThreshold: window.dragThreshold ?? 0.1,
@@ -188,7 +200,7 @@ onUnmounted(() => {
     </Button>
     <headline3 class="ms-4 flex-grow me-2">{{ codebook.name }}</headline3>
     <span class="text-foreground/50 text-xs mx-2"
-      >{{ props.codebook.codes?.length ?? 0 }} codes</span
+      >{{ codesCount ?? 0 }} codes</span
     >
     <button
       class="p-0 m-0 text-foreground/80"
