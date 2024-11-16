@@ -102,7 +102,7 @@
   >
   </FilesList>
   <p v-else class="text-sm text-foreground/60">
-    You have not added any files. Bets is to do it now.
+    You have not added any files. Best is to do it now.
   </p>
   <RenameDialog
     title="Rename File"
