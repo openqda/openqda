@@ -21,6 +21,7 @@
             :title="`Create a new ${codesView === 'codes' ? 'Code' : 'Codebook'}`"
             :submit="createCodeHandler"
             @cancelled="createSchema = null"
+            @created="onCodeCreated"
           />
           <CreateDialog
             :title="`Edit ${editTarget?.name}`"
@@ -132,7 +133,7 @@ const switchFile = (file) => {
 //------------------------------------------------------------------------
 // GENERIC EDIT DIALOG
 //------------------------------------------------------------------------
-const { schema: createSchema, open: openCreateDialog } = useCreateDialog();
+const { schema: createSchema, open: openCreateDialog, onCreated: onCodeCreated } = useCreateDialog();
 const { schema: editSchema, target: editTarget } = useRenameDialog();
 const {
   target: deleteTarget,

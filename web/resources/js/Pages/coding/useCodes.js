@@ -163,6 +163,13 @@ export const useCodes = () => {
     }
 
     const addCodeToParent = async ({ codeId, parentId }) => {
+        if (codeId === parentId) {
+            throw new Error('Cannot make code its own parent!')
+        }
+        if (!codeId) {
+            throw new Error('Cannot add code without id to a parent')
+        }
+
         const code = codeStore.entry(codeId)
         const parent = codeStore.entry(parentId)
         const oldParent = code.parent

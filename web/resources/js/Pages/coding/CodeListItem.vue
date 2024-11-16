@@ -124,8 +124,11 @@ const addSubcode = (parent) => {
     parent,
   });
   schema.color.defaultValue = rgbToHex(parent.color);
-  console.debug(schema);
-  openCreateDialog({ id: 'edit-code', schema });
+  openCreateDialog({
+      id: 'edit-code',
+      schema,
+      onCreated: () => open.value = true
+  });
 };
 //------------------------------------------------------------------------
 // DRAG DROP
