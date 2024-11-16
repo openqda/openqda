@@ -188,7 +188,7 @@ onUnmounted(() => {
     </Button>
     <headline3 class="ms-4 flex-grow me-2">{{ codebook.name }}</headline3>
     <span class="text-foreground/50 text-xs mx-2"
-      >{{ props.codes?.length ?? 0 }} codes</span
+      >{{ props.codebook.codes?.length ?? 0 }} codes</span
     >
     <button
       class="p-0 m-0 text-foreground/80"
