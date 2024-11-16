@@ -361,12 +361,11 @@ async function fileAdded(file) {
     }
   } catch (error) {
     console.error('File upload failed:', error);
+    let errMesg = `upload ${file.name} failed, ${error.response.data.message}`
     if (error.response.status === 429) {
-      flashMessage(
-        error.response.data.message +
-          ' Please wait a few minutes and try again.'
-      );
+      errMesg = `Please wait a few minutes and try again. (${errMesg})`
     }
+    flashMessage(errMesg, { type: 'error', });
   } finally {
     isUploading.value = false; // Stop loading indicator
   }
@@ -478,7 +477,6 @@ async function fetchAndRenderDocument(document) {
   try {
     const response = await axios.get(`/files/${document.id}`);
     const fetchedDocument = response.data;
-    console.debug(fetchedDocument);
     // Call fileSelected with the fetched document
     fileSelected(fetchedDocument);
   } catch (error) {

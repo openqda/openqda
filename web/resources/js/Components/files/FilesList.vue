@@ -262,7 +262,7 @@ const props = defineProps([
   'colspan',
   'focusOnHover',
 ]);
-const docs = ref(props.documents);
+const docs = ref(props.documents.filter(Boolean));
 const sorter = ref({ key: null, ascending: false });
 const openMenuId = ref(null);
 const headerFields = ref([

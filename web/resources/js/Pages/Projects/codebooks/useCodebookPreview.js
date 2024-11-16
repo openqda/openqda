@@ -8,7 +8,6 @@ export const useCodebookPreview = () => {
   const { codebook } = toRefs(state);
 
   const open = ({ codebook }) => {
-    console.debug(codebook);
     state.codebook = codebook;
   };
   const close = () => {

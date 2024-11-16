@@ -13,7 +13,6 @@ const props = defineProps({
   defaultValue: Boolean,
   validation: Object,
 });
-console.debug(atts, props);
 </script>
 
 <template>

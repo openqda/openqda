@@ -105,7 +105,6 @@ Codes.create = async ({
   if (!error && response?.status < 400) {
     code.id = response.data.id;
     if (parentId) {
-      console.debug(parentId);
       code.parent = store.entry(parentId);
       code.active = code.parent.active;
       code.parent.children.push(code);

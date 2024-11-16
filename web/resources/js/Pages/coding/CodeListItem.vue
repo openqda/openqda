@@ -12,7 +12,7 @@ import {
 import {
   TrashIcon /*, ChatBubbleBottomCenterTextIcon */,
 } from '@heroicons/vue/24/outline';
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onUnmounted, ref, watch } from 'vue';
 import { cn } from '../../utils/css/cn.js';
 import Button from '../../Components/interactive/Button.vue';
 import { useCodes } from './useCodes.js';
@@ -51,10 +51,10 @@ const { toggleCode, createCodeSchema, getCodebook, addCodeToParent, getCode } =
 const { focusSelection } = useCodingEditor();
 const open = ref(false);
 watch(props.code.children, (value, prevValue) => {
-    if (value?.length ?? 0 > prevValue?.length ?? 0) {
-        open.value = true
-    }
-})
+  if ((value?.length ?? 0) > (prevValue?.length ?? 0)) {
+    open.value = true;
+  }
+});
 
 //------------------------------------------------------------------------
 // RANGE
@@ -65,19 +65,20 @@ const { range } = useRange();
 // TEXTS (SELECTIONS)
 //------------------------------------------------------------------------
 const showTexts = ref(false);
-const textCount = ref(0)
+const textCount = ref(0);
 const textSelectionsCount = (code) => {
-    let count = code.text?.length ?? 0;
-    if (code.children?.length) {
+  let count = code.text?.length ?? 0;
+  if (code.children?.length) {
+    code.children.forEach((child) => {
+      count += textSelectionsCount(child);
+    });
+  }
 
-        code.children.forEach((child) => {
-            count += textSelectionsCount(child);
-        });
-    }
-
-    return count;
+  return count;
 };
-textCount.value = textSelectionsCount(props.code)
+textCount.value = computed(() => {
+    return textSelectionsCount(props.code);
+})
 const openTexts = () => {
   showTexts.value = true;
 };
@@ -99,7 +100,7 @@ const toggle = () => {
 // RANGE
 //------------------------------------------------------------------------
 
-const indent = (code) => console.debug('indent', code);
+const indent = (code) => {};
 
 //------------------------------------------------------------------------
 // DIALOGS
@@ -130,9 +131,9 @@ const addSubcode = (parent) => {
   });
   schema.color.defaultValue = rgbToHex(parent.color);
   openCreateDialog({
-      id: 'edit-code',
-      schema,
-      onCreated: () => open.value = true
+    id: 'edit-code',
+    schema,
+    onCreated: () => (open.value = true),
   });
 };
 //------------------------------------------------------------------------
@@ -301,7 +302,9 @@ onUnmounted(() => {
         @click.prevent="showTexts ? closeTexts() : openTexts()"
       >
         <BarsArrowDownIcon class="w-4 -h-4" />
-        <span class="text-xs">{{open ? code.text?.length ?? 0 : textCount}}</span>
+        <span class="text-xs">{{
+          open ? (code.text?.length ?? 0) : textCount
+        }}</span>
       </Button>
 
       <div
@@ -327,15 +330,19 @@ onUnmounted(() => {
             )
           "
         >
-          <span class="line-clamp-1 text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,1)]">{{ code.name }}</span>
+          <span
+            class="line-clamp-1 text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,1)]"
+            >{{ code.name }}</span
+          >
           <span class="text-xs ms-auto font-normal hidden group-hover:inline"
             >Assign to selection {{ range.start }}:{{ range.end }}</span
           >
         </button>
         <div v-else class="w-full group flex">
-          <span class="line-clamp-1 flex-grow items-center text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,1)]">{{
-            code.name
-          }}</span>
+          <span
+            class="line-clamp-1 flex-grow items-center text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,1)]"
+            >{{ code.name }}</span
+          >
         </div>
       </div>
       <button

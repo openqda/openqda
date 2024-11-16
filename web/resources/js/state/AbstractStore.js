@@ -53,7 +53,6 @@ export class AbstractStore {
 
     // call on dispose/unmount
     return () => {
-      console.debug(this.key, 'dispose observer');
       removeAdded();
       removeUpdated();
       removeDeleted();
@@ -117,7 +116,6 @@ export class AbstractStore {
   }
 
   all() {
-    console.debug(this.key, 'get all');
     return Object.values(this.entries);
   }
 

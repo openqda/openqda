@@ -23,7 +23,7 @@
         @contextmenu="showContextMenu"
         @dragenter.prevent
         @dragover.prevent
-        @drop.prevent="console.debug"
+        @drop.prevent
       ></div>
     </div>
     <div
@@ -136,18 +136,14 @@ onMounted(() => {
 
   window.quill = quillInstance;
 
-  console.debug('start observing selections');
   const disposeSelectionObserver = observe('store/selections', {
     added: (docs) => {
-      console.debug('added docs', docs);
       addSelections(docs);
     },
     updated: (docs, allDocs) => {
-      console.debug('updated', docs, allDocs);
       addSelections(docs);
     },
     removed: (docs) => {
-      console.debug('remove docs', docs);
       docs.forEach((doc) => hl.remove(doc));
       addSelections(
         selections.value.filter((sel) => {
@@ -160,7 +156,6 @@ onMounted(() => {
   disposables.add(disposeSelectionObserver);
 
   const addSelections = (entries) => {
-    console.debug('recompute editor highlights', entries.length);
     // createDelta(entries)
     entries.forEach((selection) => {
       hl.highlight({
@@ -182,7 +177,6 @@ onMounted(() => {
         setTimeout(() => {
           addSelections(entries);
           if (typeof initialWatcher !== 'undefined') {
-            console.debug('stop watching');
             initialWatcher.stop();
           }
         }, 300);

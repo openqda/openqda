@@ -13,7 +13,6 @@ defineProps({
 
 onMounted(() => {
   const currentTheme = Theme.current();
-  console.debug({ currentTheme });
   current.value = currentTheme;
   isDark.value = currentTheme === Theme.DARK;
 });

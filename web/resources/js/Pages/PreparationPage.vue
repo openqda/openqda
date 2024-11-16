@@ -31,7 +31,6 @@
             :locked="editorSourceRef.locked"
             :CanUnlock="editorSourceRef.CanUnlock"
             @autosave="saveQuillContent"
-            @settings="console.debug('show settings')"
           >
             <template #status>
               <div class="w-10 mr-2 self-center">
@@ -212,7 +211,7 @@ function loadFileIntoEditor(source) {
   if (!source?.content) {
     return;
   }
-  console.debug(source);
+
   editorSourceRef.value.content = source.content;
   editorSourceRef.value.selected = true;
   editorSourceRef.value.id = source.id;

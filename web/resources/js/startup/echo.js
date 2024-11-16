@@ -42,7 +42,6 @@ window.Echo.connector.pusher.connection.bind('connecting', (payload) => {
    * All dependencies have been loaded and Channels is trying to connect.
    * The connection will also enter this state when it is trying to reconnect after a connection failure.
    */
-  console.debug('connecting', payload);
   state.connecting = true;
   state.status = 'Connecting';
 });
@@ -51,7 +50,6 @@ window.Echo.connector.pusher.connection.bind('connected', (payload) => {
   /**
    * The connection to Channels is open and authenticated with your app.
    */
-  console.debug('connected', payload);
   state.connected = true;
   state.connecting = false;
   state.status = 'Connected';

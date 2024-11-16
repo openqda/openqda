@@ -140,7 +140,7 @@ const {
   challenge: deleteChallenge,
   message: deleteMessage,
 } = useDeleteDialog();
-watch(createSchema, console.debug);
+
 //------------------------------------------------------------------------
 // RANGE / SELECTION
 //------------------------------------------------------------------------
@@ -209,13 +209,10 @@ onMounted(async () => {
   if (fileId !== props.source.id) {
     // relocate?
   }
-  console.debug('select source');
+
   onSourceSelected(props.source);
-  console.debug('timeout');
   await asyncTimeout(100);
-  console.debug('init coding');
   await initCoding();
-  console.debug('set init to true');
   codingInitialized.value = true;
 });
 

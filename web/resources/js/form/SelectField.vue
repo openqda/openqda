@@ -15,7 +15,6 @@ const props = defineProps({
   defaultOption: Boolean,
 });
 const current = ref(props.value);
-console.debug(props.label);
 </script>
 
 <template>
