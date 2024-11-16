@@ -50,6 +50,11 @@ const { toggleCode, createCodeSchema, getCodebook, addCodeToParent, getCode } =
   useCodes();
 const { focusSelection } = useCodingEditor();
 const open = ref(false);
+watch(props.code.children, (value, prevValue) => {
+    if (value?.length ?? 0 > prevValue?.length ?? 0) {
+        open.value = true
+    }
+})
 
 //------------------------------------------------------------------------
 // RANGE
