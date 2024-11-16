@@ -482,11 +482,12 @@ onMounted(() => {
 
           <Button
             v-if="addTeamMemberForm.role"
+            type="submit"
             variant="outline-confirmative"
             :class="{ 'opacity-25': addTeamMemberForm.processing }"
-            :disabled="addTeamMemberForm.processing"
+            :disabled="!addTeamMemberForm.email || addTeamMemberForm.processing"
           >
-            Add this member
+            Add team member
           </Button>
         </template>
       </FormSection>
