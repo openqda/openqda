@@ -79,6 +79,21 @@ export const useCodebooks = () => {
     return codebook;
   };
 
+  const deleteCodebook = async (codebook) => {
+      const codebookId = codebook.id
+      const { response, error } = await Codebooks.delete({ codebookId });
+
+      if (error) {
+          throw error;
+      }
+      if (response.status > 400) {
+          throw new Error(response.data.message);
+      }
+
+      const removed = codebookStore.remove(codebookId)
+      return removed.length
+  }
+
   const computedCodebooks = computed(() => codebookStore.all());
 
   return {
@@ -89,6 +104,7 @@ export const useCodebooks = () => {
     createCodebookSchema: Codebooks.schemas.create,
     importCodebookSchema,
     updateCodebook,
+    deleteCodebook,
     createCodebook,
     importCodebook,
   };

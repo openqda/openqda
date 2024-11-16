@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, inject, ref } from 'vue';
-import Codebook from './CodebookItem.vue';
+import CodebookItem from './CodebookItem.vue';
 import Headline2 from '../../../Components/layout/Headline2.vue';
 import Button from '../../../Components/interactive/Button.vue';
 import { PlusIcon, ArrowUpTrayIcon } from '@heroicons/vue/24/solid';
@@ -11,6 +11,8 @@ import { useCodebookPreview } from './useCodebookPreview';
 import { router } from '@inertiajs/vue3';
 import { useCodebookUpdate } from '../../../domain/codebooks/useCodebookUpdate';
 import { useCodebookCreate } from '../../../domain/codebooks/useCodebookCreate';
+import {useDeleteDialog} from "../../../dialogs/useDeleteDialog";
+import DeleteDialog from "../../../dialogs/DeleteDialog.vue";
 
 const { codebook: previewCodebook, close: closeCodebookPreview } =
   useCodebookPreview();
@@ -18,10 +20,16 @@ const {
   importCodebookSchema,
   createCodebook,
   importCodebook,
+  deleteCodebook,
   updateCodebook,
   initCodebooks,
   codebooks,
 } = useCodebooks();
+const {
+    message,
+    challenge,
+    target
+} = useDeleteDialog()
 const {
   close: closeUpdate,
   schema: updateCodebookSchema,
@@ -90,7 +98,7 @@ const deleteCodebookFromArray = (codebook) => {
         :key="codebook.name"
         class="col-span-1 flex flex-col relative h-full"
       >
-        <Codebook
+        <CodebookItem
           class="h-full"
           :codebook="codebook"
           @delete="deleteCodebookFromArray(codebook)"
@@ -114,12 +122,12 @@ const deleteCodebookFromArray = (codebook) => {
         :key="codebook.name"
         class="col-span-1 flex flex-col relative"
       >
-        <Codebook
+        <CodebookItem
           class="h-full"
           :codebook="codebook"
           :public="true"
           @importCodebook="importCodebook(codebook)"
-        ></Codebook>
+        ></CodebookItem>
       </li>
     </ul>
     <div v-else>
@@ -148,12 +156,12 @@ const deleteCodebookFromArray = (codebook) => {
         :key="codebook.name"
         class="col-span-1 flex flex-col relative"
       >
-        <Codebook
+        <CodebookItem
           class="h-full"
           :codebook="codebook"
           :public="true"
           @importCodebook="importCodebook(codebook)"
-        ></Codebook>
+        ></CodebookItem>
       </li>
     </ul>
     <div v-else>
@@ -220,6 +228,12 @@ const deleteCodebookFromArray = (codebook) => {
       </div>
     </template>
   </CreateDialog>
+    <DeleteDialog
+        :target="target"
+        :message="message"
+        :challenge="challenge"
+        :submit="deleteCodebook"
+        />
   <ConfirmDialog
     :title="`Preview of ${previewCodebook?.name}`"
     :show="!!previewCodebook"

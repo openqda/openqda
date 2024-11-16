@@ -83,7 +83,14 @@
               </DropdownLink>
               <DropdownLink
                 v-if="!isPublic"
-                @click="deleteCodebook(codebook)"
+                @click="
+                  openDeleteForm({
+                    target: codebook,
+                    challenge: 'name',
+                    message:
+                      'This is a highly destructive action! Archiving this codebook will remove all codes and selections from related sources in this project!',
+                  })
+                "
                 as="button"
               >
                 Archive
@@ -104,17 +111,18 @@ import Dropdown from '../../../Components/Dropdown.vue';
 import DropdownLink from '../../../Components/DropdownLink.vue';
 import { useCodebookUpdate } from '../../../domain/codebooks/useCodebookUpdate.js';
 import { useCodebookCreate } from '../../../domain/codebooks/useCodebookCreate.js';
+import { useDeleteDialog } from '../../../dialogs/useDeleteDialog.js';
 
 const props = defineProps(['codebook', 'public', 'class']);
 const { open: openPreview } = useCodebookPreview();
 const { open: openEditForm } = useCodebookUpdate();
 const { open: openCreateForm } = useCodebookCreate();
+const { open: openDeleteForm } = useDeleteDialog();
 
 const isPublic = ref(props.public);
 const codebook = ref(props.codebook);
 
 // Reactive state for the dialog visibility and editable fields
-const showDialog = ref(false);
 const emit = defineEmits(['delete', 'importCodebook']);
 const url = window.location.pathname;
 const segments = url.split('/');
@@ -171,43 +179,6 @@ const reorderCodes = (codesArray) => {
   ]);
 };
 
-async function importCodebook(target) {
-  if (
-    !confirm(
-      'Would you like to import this codebook? This will import all the codes inside this project.'
-    )
-  ) {
-    return;
-  }
-
-  emit('importCodebook', target);
-}
-
-const deleteCodebook = async (target) => {
-  if (
-    !confirm(
-      'This is an EXTREMELY destructive action. Are you sure you want to delete this codebook? This will delete ALL THE CODED TEXT.'
-    )
-  ) {
-    return;
-  }
-
-  try {
-    await axios.delete(
-      `/projects/${target.project_id}/codebooks/${target.id}`,
-      {}
-    );
-    // emit delete codebook from array
-    emit('delete', target);
-
-    // Close the dialog on success
-    showDialog.value = false;
-  } catch (error) {
-    console.error('Update failed:', error);
-    // Handle error...
-  }
-};
-
 const getBackgroundStyle = function (target) {
   // Check if there are any codes
   if (!target.codes || target.codes.length === 0) {
@@ -231,9 +202,10 @@ const getBackgroundStyle = function (target) {
 
   return `background: linear-gradient(to right, ${gradient})`;
 };
+
 const exportCodebook = (codebook) => {
-  const url = '/projects/' + projectId + '/codebooks/export/' + codebook.id;
-  window.location.href = url;
+  window.location.href =
+    '/projects/' + projectId + '/codebooks/export/' + codebook.id;
 };
 </script>
 <style scoped>

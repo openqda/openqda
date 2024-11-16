@@ -113,6 +113,7 @@ export class AbstractStore {
     });
     this.observable.run('removed', docs);
     this.observable.run('changed', { type: 'removed', docs });
+    return docs
   }
 
   all() {

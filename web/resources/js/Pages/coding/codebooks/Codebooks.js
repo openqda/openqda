@@ -138,7 +138,7 @@ Codebooks.update = ({
   });
 };
 
-Codebooks.importFromFile = async ({ projectId, file }) => {
+Codebooks.importFromFile = ({ projectId, file }) => {
   const formData = new FormData();
   formData.append('file', file);
   formData.append('project_id', projectId);
@@ -150,3 +150,10 @@ Codebooks.importFromFile = async ({ projectId, file }) => {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
 };
+
+Codebooks.delete = ({ projectId, codebookId }) => {
+    return request({
+        url:  `/projects/${projectId}/codebooks/${codebookId}`,
+        type: 'delete'
+    })
+}
