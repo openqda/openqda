@@ -1,80 +1,76 @@
-import { reactive, toRefs } from 'vue'
+import {  reactive, toRefs } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import { request } from '../../utils/http/BackendRequest.js'
+import { useEcho } from '../../collab/useEcho.js'
+import { noop } from '../../utils/function/noop.js'
 
 const state = reactive({
-    usersInChannel: [],
+    usersInChannel: {},
     userInAteam: false,
     teamsInitialized: {},
+    teamId: null,
 })
 
-export const useTeam = () => {
-    const { sharedTeam = {} } = usePage().props
-    const { usersInChannel, teamsInitialized } = toRefs(state)
-    const teamId = sharedTeam?.id
-    const Echo = window.Echo
+export const useTeam = ({ debug = noop } = {}) => {
+    const { sharedTeam:team, auth } = usePage().props
+    const sharedTeam = team ?? {}
+    const { usersInChannel, teamsInitialized, teamId } = toRefs(state)
+    const userId = auth.user.id
+
+    if (teamId.value !== sharedTeam.id) {
+      state.teamId = sharedTeam.id
+    }
+
     const initTeams = () => {
-        const teamWasInitialized = teamId && teamsInitialized.value[teamId]
-        const channel = `team.${teamId}`
-        if (teamId && Echo && !teamWasInitialized) {
-            const joined = Echo.join(channel)
-            joined.here((users) => {
-                    // FIXME: why is this commented?
-                    // // First, update the current user's profile photo if they are already in the channel
-                    // const currentUser = usePage().props.auth.user;
-                    // const currentUserIndex = usersInChannel.value.findIndex(u => u.id === currentUser.id);
-                    // if (currentUserIndex !== -1) {
-                    //     usersInChannel.value[currentUserIndex].profile_photo = currentUser.profile_photo_url;
-                    // }
-                    //
-                    // // Next, add any new users that are not currently in the channel
-                    // const currentUserIds = usersInChannel.value.map(u => u.id);
-                    // const newUsers = users.filter(u => !currentUserIds.includes(u.id))
-                    //     .map(user => ({
-                    //         ...user,
-                    //         currentUrl: window.location.href, // This sets the URL for new users
-                    //         profile_photo: user.profile_photo // Assume this exists on the user object
-                    //     }));
-                    //
-                    // // Push the new users to the channel list
-                    // usersInChannel.value.push(...newUsers);
-                    console.debug(channel, 'here', users)
+        const teamWasInitialized = teamId && teamsInitialized.value[teamId.value]
+        const channel = `team.${teamId.value}`
+        const Echo = useEcho().echo()
+
+        if (teamId.value && Echo && !teamWasInitialized) {
+            debug('Echo join channel', teamId.value, channel, Echo, teamWasInitialized)
+
+            Echo.join(channel)
+                .error(e => console.error(e))
+                .listen('UserNavigated', (event) => {
+                    if (userId === event.userId) return
+
+                    if (!state.usersInChannel[event.userId]) {
+                        state.usersInChannel[event.userId] = {
+                            id: event.userId,
+                            url: event.url,
+                            profile_photo: event.profile_photo
+                        }
+                    }
+                    else {
+                        state.usersInChannel[event.userId].url = event.url
+                        state.usersInChannel[event.userId].profile_photo = event.profile_photo
+                    }
+                })
+                .here((users) => {
+                    debug(channel, 'here', users)
+                    users.forEach(addUser)
                 })
                 .joining((user) => {
-                    // FIXME: why is this commented?
-                    // Use Vue.set or equivalent in Vue 3 for reactivity if needed
-                    // usersInChannel.value.push({
-                    //     ...user,
-                    //     currentUrl: window.location.href, // This might not be correct for a joining user
-                    //     profile_photo: user.profile_photo // This assumes profile_photo is provided on the joining event
-                    // });
-                    console.debug(channel, 'joining', user)
+                    debug(channel, 'joining', user)
                 })
                 .leaving((user) => {
-                    console.debug(channel, 'leaving', user)
+                    debug(channel, 'leaving', user)
                     // sessionStorage.clear();
                     // Remove the leaving user by filtering the array
-                    state.usersInChannel = usersInChannel.value.filter(
-                        (u) => u.id !== user.id
-                    );
+                    delete state.usersInChannel[user.id]
                 })
-                .listen('UserNavigated', (event) => {
-                    console.debug('UserNavigated', event)
-                    const userIndex = usersInChannel.value.findIndex(
-                        (u) => u.id === event.userId
-                    );
-                    if (userIndex !== -1) {
-                        // Update the user's current URL
-                        state.usersInChannel[userIndex].currentUrl = event.url;
-                    } else {
-                        // If the user is not already in the channel, add them
-                        state.usersInChannel.push({
-                            id: event.userId,
-                            currentUrl: event.url,
-                            profile_photo: event.profile_photo,
-                        });
-                    }
-                });
+
+            const addUser = user => {
+                if (userId === user.id) return
+
+                if (!state.usersInChannel[user.id]) {
+                    state.usersInChannel[user.id] = { ...user, url: '', profile_photo: '' }
+                }
+                else {
+                    state.usersInChannel[user.id].name = user.name
+                }
+            }
+
         }
         state.teamsInitialized[teamId] = true
     }
@@ -85,15 +81,16 @@ export const useTeam = () => {
             type: 'post',
             body: {
                 url:  window.location.href,
-                team: teamId,
+                team: teamId.value,
             }
         })
         return { response, error }
     }
 
     const dispose = () => {
-        if (teamId) {
-            Echo.leave('team' + teamId);
+        if (teamId.value) {
+            debug('leave team', `team.${teamId.value}`)
+            useEcho().echo().leave(`team.${teamId.value}`);
         }
     }
 
@@ -102,8 +99,9 @@ export const useTeam = () => {
     return {
         usersInChannel,
         sharedTeam,
+        teamId,
         hasTeam,
-        teamInitialized: () => !!teamsInitialized.value[teamId],
+        teamInitialized: (id) => !!teamsInitialized.value[id],
         dispose,
         initTeams,
         dispatchPresence

@@ -145,6 +145,13 @@
                 />
                 <span class="sr-only">{{ item.label }}</span>
               </Link>
+                <div class="flex items-center justify-center mb-3" v-if="usersInRoute(item.href).length">
+                <div v-for="user in usersInRoute(item.href)">
+                      <ProfileImage :alt="`Image of ${user.name ?? user.id}`"
+                                    :name="user.name"
+                                    :src="user.profile_photo" class="w-3 h-3" />
+                  </div>
+                </div>
             </li>
           </ul>
           <div
@@ -215,7 +222,7 @@
 <script setup>
 import { Routes } from '../routes/Routes.js';
 import { Link } from '@inertiajs/vue3';
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { cn } from '../utils/css/cn.js';
 import {
   Dialog,
@@ -230,12 +237,22 @@ import { Project } from '../state/Project.js';
 import FlashMessage from '../Components/notification/FlashMessage.vue';
 import { useWebSocketConnection } from '../startup/echo.js';
 import { useTeam } from '../domain/teams/useTeam.js';
+import ProfileImage from '../Components/user/ProfileImage.vue'
 
 const websocket = useWebSocketConnection();
 const navigation = ref([]);
 const sidebarOpen = ref(false);
-const { initTeams, dispatchPresence, teamInitialized, hasTeam, dispose, usersInChannel } =
-  useTeam();
+const {
+  initTeams,
+  dispatchPresence,
+  teamInitialized,
+  hasTeam,
+  dispose,
+  teamId,
+  usersInChannel,
+  sharedTeam,
+} = useTeam();
+websocket.initWebSocket();
 
 defineProps({
   title: String,
@@ -253,6 +270,27 @@ let pingIntervalId;
 const cleanup = () => {
   clearInterval(pingIntervalId);
   dispose();
+};
+
+const setupTeam = () => {
+    if (!websocket.connected.value || teamInitialized()) {
+        return;
+    }
+    initTeams();
+
+    if (pingIntervalId) {
+        clearInterval(pingIntervalId);
+    }
+    dispatchPresence().catch(console.error)
+    pingIntervalId = setInterval(async () => {
+        // Dispatch an event to the server to indicate that the user is still on the page
+        // This could be done via an Axios call to a specific endpoint that handles this logic
+        const { response, error } = await dispatchPresence();
+        if (error || response.status >= 400) {
+            console.error(error ?? response);
+        }
+    }, 5000); // Every 5 seconds
+    document.addEventListener('beforeunload', cleanup);
 };
 onMounted(() => {
   const projectId = Project.getId();
@@ -276,35 +314,25 @@ onMounted(() => {
   });
 
   navigation.value.push(...routes);
-  if (hasTeam) {
-    watch(
-      websocket.connected,
-      (connected) => {
-        if (connected && !teamInitialized()) {
-          dispatchPresence().catch(console.error)
-          initTeams();
-          if (pingIntervalId) clearInterval(pingIntervalId);
-          pingIntervalId = setInterval(async () => {
-            // Dispatch an event to the server to indicate that the user is still on the page
-            // This could be done via an Axios call to a specific endpoint that handles this logic
-            const { response, error } = await dispatchPresence();
-            if (error || response.status >= 400) {
-              console.error(error ?? response);
-            } else {
-              console.debug('updated team member presence')
-            }
-          }, 5000); // Every 5 seconds
-          document.addEventListener('beforeunload', cleanup);
-        }
-      },
-      { immediate: true }
-    );
-  }
+
+    if (hasTeam) {
+        watch(websocket.connected, setupTeam, { immediate: true });
+        watch(teamId, setupTeam, { immediate: true });
+    }
 });
 
-watch(usersInChannel, value => {
-    console.debug(usersInChannel.value)
-})
+const team = ref([])
+watch(usersInChannel, (value) => {
+  team.value = Object.values(value ?? {})
+},  { deep: true });
+
+const usersInRoute = (href) => {
+
+    return team.value.filter(user => {
+        return href === user.url
+    });
+}
+
 
 onUnmounted(() => {
   // Leave the channel when the component is unmounted

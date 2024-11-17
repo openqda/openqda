@@ -147,6 +147,7 @@ import { createBlob } from '../../utils/files/createBlob.js';
 import { request } from '../../utils/http/BackendRequest.js';
 import { useFiles } from './useFiles.js';
 import { asyncTimeout } from '../../utils/asyncTimeout.js';
+import { useEcho } from '../../collab/useEcho.js'
 
 useForm({ file: null });
 const emit = defineEmits(['fileSelected', 'documentDeleted']);
@@ -372,11 +373,12 @@ async function fileAdded(file) {
 }
 
 onMounted(() => {
+    const echo = useEcho().init()
   /**
    * Listen for conversion completed events
    * and update the local state accordingly
    */
-  window.Echo.private('conversion.' + projectId).listen(
+  echo.private('conversion.' + projectId).listen(
     'ConversionCompleted',
     (e) => {
       let documentIndex = -1;
@@ -394,7 +396,7 @@ onMounted(() => {
       }
     }
   );
-  window.Echo.private('conversion.' + projectId).listen(
+  echo.private('conversion.' + projectId).listen(
     'ConversionFailed',
     (e) => {
       let documentIndex = -1;
