@@ -89,7 +89,7 @@ Codes.create = async ({
     title, // backwards-compat
     name: name ?? title,
     children: [],
-    order: toRaw(store.size),
+    order: toRaw(store.size.value),
   };
 
   const body = { ...code };
