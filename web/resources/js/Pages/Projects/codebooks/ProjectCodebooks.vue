@@ -13,6 +13,7 @@ import { useCodebookUpdate } from '../../../domain/codebooks/useCodebookUpdate';
 import { useCodebookCreate } from '../../../domain/codebooks/useCodebookCreate';
 import {useDeleteDialog} from "../../../dialogs/useDeleteDialog";
 import DeleteDialog from "../../../dialogs/DeleteDialog.vue";
+import ContrastText from "../../../Components/text/ContrastText.vue";
 
 const { codebook: previewCodebook, close: closeCodebookPreview } =
   useCodebookPreview();
@@ -258,10 +259,7 @@ const deleteCodebookFromArray = (codebook) => {
             class="rounded-md w-full p-3 text-sm font-medium"
             :style="'background-color: ' + code.color"
           >
-            <span
-              class="text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,1)]"
-              >{{ code.name }}</span
-            >
+            <ContrastText>{{ code.name }}</ContrastText>
           </div>
         </li>
       </ul>

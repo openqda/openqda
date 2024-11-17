@@ -101,7 +101,7 @@
                       opacity: checkedCodes.get(code.id) ? 1 : 0.3,
                     }"
                   >
-                    <span class="flex-grow text-white drop-shadow-[0_0_1.6px_rgba(0,0,0,1)]">{{ code.name }}</span>
+                    <ContrastText class="flex-grow line-clamp-1">{{code.name}}</ContrastText>
                     <span class="flex items-center">
                       <BarsArrowDownIcon class="w-4 h-4 me-1" />
                       {{ code.text.length }}
@@ -166,6 +166,7 @@ import { useAnalysis } from './analysis/useAnalysis.js';
 import VisualizeCoding from './analysis/visualization/VisualizeCoding.vue';
 import { useVisualizerPlugins } from './analysis/visualization/useVisualizerPlugins.js';
 import SelectField from '../form/SelectField.vue';
+import ContrastText from '../Components/text/ContrastText.vue'
 //------------------------------------------------------------------------
 // DATA / PROPS
 //------------------------------------------------------------------------

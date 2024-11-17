@@ -29,6 +29,7 @@ import { rgbToHex } from '../../utils/color/toHex';
 import { useDraggable } from 'vue-draggable-plus';
 import { useDragTarget } from './useDragTarget.js';
 import { debounce } from '../../utils/dom/debounce.js';
+import ContrastText from '../../Components/text/ContrastText.vue'
 
 //------------------------------------------------------------------------
 // DATA / PROPS
@@ -326,24 +327,17 @@ onUnmounted(() => {
               'w-full h-full text-left flex',
               code.active
                 ? 'hover:font-semibold'
-                : 'cursor-not-allowed text-opacity-20'
+                : 'cursor-not-allowed text-opacity-20',
+                'bordered-text'
             )
           "
         >
-          <span
-            class="line-clamp-1 text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,1)]"
-            >{{ code.name }}</span
-          >
+          <span class="line-clamp-1 flex-grow">{{ code.name }}</span>
           <span class="text-xs ms-auto font-normal hidden group-hover:inline"
             >Assign to selection {{ range.start }}:{{ range.end }}</span
           >
         </button>
-        <div v-else class="w-full group flex">
-          <span
-            class="line-clamp-1 flex-grow items-center text-white drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,1)]"
-            >{{ code.name }}</span
-          >
-        </div>
+        <ContrastText v-else class="line-clamp-1 flex-grow items-center">{{ code.name }}</ContrastText>
       </div>
       <button
         class="p-0 m-0 text-foreground/80"
