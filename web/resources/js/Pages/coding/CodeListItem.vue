@@ -299,7 +299,7 @@ onUnmounted(() => {
             showTexts && 'text-secondary'
           )
         "
-        :disabled="!textCount"
+        :disabled="!code.text?.length"
         @click.prevent="showTexts ? closeTexts() : openTexts()"
       >
         <BarsArrowDownIcon class="w-4 -h-4" />
