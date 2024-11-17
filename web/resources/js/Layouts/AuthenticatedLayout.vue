@@ -250,7 +250,6 @@ const {
   dispose,
   teamId,
   usersInChannel,
-  sharedTeam,
 } = useTeam();
 websocket.initWebSocket();
 
@@ -273,7 +272,7 @@ const cleanup = () => {
 };
 
 const setupTeam = () => {
-    if (!websocket.connected.value || teamInitialized()) {
+    if (teamInitialized(teamId.value)) {
         return;
     }
     initTeams();
@@ -316,7 +315,6 @@ onMounted(() => {
   navigation.value.push(...routes);
 
     if (hasTeam) {
-        watch(websocket.connected, setupTeam, { immediate: true });
         watch(teamId, setupTeam, { immediate: true });
     }
 });
