@@ -26,6 +26,10 @@ const state = reactive({
   status: 'disconnected',
 });
 
+window.debugSocket = () => {
+    return state
+}
+
 /**
  * Exposes the state of the current websocket connection
  * that is a requirement for collaborative features.
