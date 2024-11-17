@@ -1,10 +1,6 @@
-
 import { reactive, toRefs } from 'vue';
 import { useEcho } from '../collab/useEcho.js'
-
-
-
-
+import { useDebug } from '../utils/useDebug.js'
 
 const state = reactive({
   initialized: false,
@@ -12,7 +8,8 @@ const state = reactive({
   connecting: false,
   failed: false,
   unavailable: false,
-  status: 'disconnected',
+  info: null,
+  status: 'uninitialized',
 });
 
 window.debugSocket = () => {
@@ -26,7 +23,9 @@ window.debugSocket = () => {
  *     connecting: boolean}> & {}>}
  */
 export const useWebSocketConnection = () => {
+  const debug = useDebug()
   const { connected, connecting, unavailable, failed, status, initialized } = toRefs(state);
+
   const initWebSocket = () => {
       if (initialized.value) { return }
       state.initialized = true
@@ -39,7 +38,7 @@ export const useWebSocketConnection = () => {
            */
           state.connecting = true;
           state.status = 'Connecting';
-          console.debug('Echo connecting...', payload)
+          debug('Echo connecting...', payload)
       });
 
       echo.connector.pusher.connection.bind('connected', (payload) => {
@@ -49,7 +48,7 @@ export const useWebSocketConnection = () => {
           state.connected = true;
           state.connecting = false;
           state.status = 'Connected';
-          console.debug('Echo connected!', payload)
+          debug('Echo connected!', payload)
       });
 
       echo.connector.pusher.connection.bind('unavailable', (payload) => {
@@ -61,7 +60,7 @@ export const useWebSocketConnection = () => {
           state.unavailable = true;
           state.connecting = false;
           state.status = 'Unavailable or unreachable';
-          console.debug('Echo unavailable or unreachable.', payload)
+          debug('Echo unavailable or unreachable.', payload)
       });
 
       echo.connector.pusher.connection.bind('failed', (payload) => {
@@ -72,7 +71,7 @@ export const useWebSocketConnection = () => {
           state.failed = true;
           state.connecting = false;
           state.status = `Failed: ${payload}`;
-          console.debug('Echo failed →', payload)
+          debug('Echo failed →', payload)
       });
 
       echo.connector.pusher.connection.bind('disconnected', (payload) => {
@@ -81,7 +80,8 @@ export const useWebSocketConnection = () => {
            */
           state.connected = false;
           state.status = 'disconnected';
-          console.debug('Echo disconnected...', payload)
+          state.info = payload
+          debug('Echo disconnected...', payload)
       });
   }
   return { connected, connecting, unavailable, failed, status, initWebSocket, initialized };

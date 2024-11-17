@@ -2,7 +2,7 @@ import {  reactive, toRefs } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import { request } from '../../utils/http/BackendRequest.js'
 import { useEcho } from '../../collab/useEcho.js'
-import { noop } from '../../utils/function/noop.js'
+import { useDebug } from '../../utils/useDebug.js'
 
 const state = reactive({
     usersInChannel: {},
@@ -11,7 +11,8 @@ const state = reactive({
     teamId: null,
 })
 
-export const useTeam = ({ debug = noop } = {}) => {
+export const useTeam = () => {
+    const debug = useDebug()
     const { sharedTeam:team, auth } = usePage().props
     const sharedTeam = team ?? {}
     const { usersInChannel, teamsInitialized, teamId } = toRefs(state)
