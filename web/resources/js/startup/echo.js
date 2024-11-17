@@ -27,6 +27,7 @@ export const useWebSocketConnection = () => {
   const { connected, connecting, unavailable, failed, status, initialized } = toRefs(state);
 
   const initWebSocket = () => {
+      debugger
       if (initialized.value) { return }
       state.initialized = true
       const echo = useEcho().init()
