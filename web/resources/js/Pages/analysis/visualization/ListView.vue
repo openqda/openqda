@@ -44,7 +44,7 @@
                   new Date(selection.updatedAt).toLocaleDateString()
                 }}</span
                 ><span>, </span>
-                <span>by {{ selection.createdBy }}</span>
+                <span>by {{ API.getMemberBy(selection.createdBy)?.name }}</span>
               </span>
             </div>
             <div class="p-2 flex-grow">{{ selection.text }}</div>

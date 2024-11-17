@@ -6,11 +6,11 @@ export const useExport = () => {
   const { project } = usePage().props;
 
   return {
-    exportToCSV: (contents) => exportToCSV(contents, project),
+    exportToCSV: ({ contents, users }) => exportToCSV({ contents, project, users }),
   };
 };
 
-const exportToCSV = (contents, project) => {
+const exportToCSV = ({ contents, project, users }) => {
   const doubleQuote = /"/g;
   const quote = "'";
   const whitespace = /\s+/g;
@@ -29,10 +29,13 @@ const exportToCSV = (contents, project) => {
   contents.forEach((entry) => {
     entry.codes.forEach((code) => {
       code.segments.forEach((selection) => {
+        const user = users[selection.createdBy]
         csv.addRow([
           entry.name,
           code.name,
-          selection.createdBy,
+          user?.name
+              ? user.name
+              : selection.createdBy,
           selection.createdAt,
           selection.updatedAt !== selection.createdAt
             ? selection.updatedAt

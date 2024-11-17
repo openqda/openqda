@@ -83,12 +83,24 @@ class CodingController extends Controller
         // Build nested codes structure
         $allCodes = $rootCodes->map(fn ($code) => $this->buildNestedCode($code, $source->id));
 
+        // collaboration
+        $team = $project->team->load('users');
+        $teamMembers = $team->users;
+
         return Inertia::render('CodingPage', [
             'source' => $source,
             'sources' => $allSources,
             'codebooks' => $codebooks,
             'allCodes' => $allCodes,
             'projectId' => $projectId,
+            'teamMembers' => $teamMembers->map(function ($user) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'profile_photo_url' => $user->profile_photo_url,
+                ];
+            }),
         ]);
     }
 

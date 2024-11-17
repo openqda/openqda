@@ -13,13 +13,18 @@ const state = reactive({
 
 export const useTeam = () => {
     const debug = useDebug()
-    const { sharedTeam:team, auth } = usePage().props
+    const { sharedTeam:team, auth, teamMembers } = usePage().props
     const sharedTeam = team ?? {}
     const { usersInChannel, teamsInitialized, teamId } = toRefs(state)
     const userId = auth.user.id
 
     if (teamId.value !== sharedTeam.id) {
       state.teamId = sharedTeam.id
+    }
+
+    const getMemberBy = id => {
+        if (id === userId) return auth.user
+        return teamMembers.find(member => member.id === id)
     }
 
     const initTeams = () => {
@@ -101,6 +106,7 @@ export const useTeam = () => {
         usersInChannel,
         sharedTeam,
         teamId,
+        getMemberBy,
         hasTeam,
         teamInitialized: (id) => !!teamsInitialized.value[id],
         dispose,

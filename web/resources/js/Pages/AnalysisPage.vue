@@ -10,13 +10,16 @@
           />
         </div>
 
-        <div v-if="menuView === 'export'" class="p-3 rounded-md border border-border flex items-center">
-            <p class="text-sm text-foreground/60 me-3">
-                You can export your data to a table in csv format. Note, that data is filtered,
-                based on selected sources and codes.
-            </p>
+        <div
+          v-if="menuView === 'export'"
+          class="p-3 rounded-md border border-border flex items-center"
+        >
+          <p class="text-sm text-foreground/60 me-3">
+            You can export your data to a table in csv format. Note, that data
+            is filtered, based on selected sources and codes.
+          </p>
           <Button
-            @click="exportToCSV(selection)"
+            @click="exportToCSV({ contents: selection, users: allUsers })"
             :disabled="!hasSelections"
             :title="
               hasSelections
@@ -101,7 +104,9 @@
                       opacity: checkedCodes.get(code.id) ? 1 : 0.3,
                     }"
                   >
-                    <ContrastText class="flex-grow line-clamp-1">{{code.name}}</ContrastText>
+                    <ContrastText class="flex-grow line-clamp-1">{{
+                      code.name
+                    }}</ContrastText>
                     <span class="flex items-center">
                       <BarsArrowDownIcon class="w-4 h-4 me-1" />
                       {{ code.text.length }}
@@ -166,11 +171,14 @@ import { useAnalysis } from './analysis/useAnalysis.js';
 import VisualizeCoding from './analysis/visualization/VisualizeCoding.vue';
 import { useVisualizerPlugins } from './analysis/visualization/useVisualizerPlugins.js';
 import SelectField from '../form/SelectField.vue';
-import ContrastText from '../Components/text/ContrastText.vue'
+import ContrastText from '../Components/text/ContrastText.vue';
+import { useUsers } from '../domain/teams/useUsers.js';
+
 //------------------------------------------------------------------------
 // DATA / PROPS
 //------------------------------------------------------------------------
 const props = defineProps(['sources', 'codes', 'codebooks', 'project']);
+const { allUsers } = useUsers();
 
 //------------------------------------------------------------------------
 // VIEWS / TABS

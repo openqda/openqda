@@ -3,6 +3,7 @@ import AutoForm from '../../../form/AutoForm.vue';
 import { createVisualizationAPI } from './createVisualizationAPI';
 import { useAnalysis } from '../useAnalysis';
 import { useVisualizerPlugins } from './useVisualizerPlugins';
+import {useUsers} from "../../../domain/teams/useUsers";
 
 const {
   sources,
@@ -12,6 +13,7 @@ const {
   hasSelections,
   checkSource,
 } = useAnalysis();
+const {getMemberBy} = useUsers()
 const { visualizerComponent } = useVisualizerPlugins();
 const { api, optionsSchema } = createVisualizationAPI({
   sources,
@@ -19,6 +21,9 @@ const { api, optionsSchema } = createVisualizationAPI({
   checkedCodes,
   checkedSources,
 });
+
+// additional functionality attached
+api.getMemberBy = getMemberBy
 </script>
 
 <template>

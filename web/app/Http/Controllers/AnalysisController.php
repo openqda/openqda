@@ -31,6 +31,9 @@ class AnalysisController extends Controller
                 ->get();
 
             $allCodes = $rootCodes->map(fn ($code) => $this->buildNestedCode($code));
+            // collaboration
+            $team = $project->team->load('users');
+            $teamMembers = $team->users;
 
             return Inertia::render('AnalysisPage', [
                 'sources' => $sources,
@@ -43,6 +46,14 @@ class AnalysisController extends Controller
                     'id' => $project->id,
                     'projectId' => $project->id,
                 ],
+                'teamMembers' => $teamMembers->map(function ($user) {
+                    return [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'profile_photo_url' => $user->profile_photo_url,
+                    ];
+                }),
             ]);
 
         } catch (Throwable $e) {
