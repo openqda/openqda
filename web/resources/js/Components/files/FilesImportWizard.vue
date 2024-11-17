@@ -7,6 +7,7 @@ import { ref } from 'vue';
 import Button from '../interactive/Button.vue';
 
 const emit = defineEmits(['filesSelected']);
+
 const localFiles = ref([]);
 const fileKey = (file) => `${file.name}-${file.type}-${file.size}`;
 const addFiles = (files) => {
@@ -81,6 +82,7 @@ const uploadFiles = async () => {
           </td>
         </tr>
       </table>
+        <slot name="info"></slot>
       <Button
         v-if="localFiles.length"
         size="lg"

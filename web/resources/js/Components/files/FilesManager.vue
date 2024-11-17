@@ -27,7 +27,7 @@
   <WizardDialog
     :schema="importSchema"
     title="Import file(s)"
-    @files-selected="importFiles"
+    :files-selected="importFiles"
   />
   <FilesList
     v-if="documents?.length"
@@ -129,7 +129,6 @@ import {
   CloudArrowUpIcon,
   DocumentArrowDownIcon,
   PlusIcon,
-  PencilSquareIcon,
   XCircleIcon,
 } from '@heroicons/vue/24/solid';
 import { inject, onBeforeUnmount, onMounted, ref, watch } from 'vue';
@@ -147,9 +146,8 @@ import { createBlob } from '../../utils/files/createBlob.js';
 import { request } from '../../utils/http/BackendRequest.js';
 import { useFiles } from './useFiles.js';
 import { asyncTimeout } from '../../utils/asyncTimeout.js';
-import { useEcho } from '../../collab/useEcho.js'
+import { useEcho } from '../../collab/useEcho.js';
 
-useForm({ file: null });
 const emit = defineEmits(['fileSelected', 'documentDeleted']);
 const props = defineProps({
   initialFile: {
@@ -189,7 +187,10 @@ async function transcribeFile(audio) {
     }
   } catch (error) {
     console.error('Error transcribing file:', error);
-    flashMessage({ message: 'An error occurred while transcribing the file.', type: 'error' });
+    flashMessage({
+      message: 'An error occurred while transcribing the file.',
+      type: 'error',
+    });
   } finally {
     audioIsUploading.value = false;
   }
@@ -286,19 +287,20 @@ const uploadProgress = ref(0);
 
 const importFiles = async (files) => {
   for (const file of files) {
+    file.isUploading = true;
+    documents.push(file);
 
-      file.isUploading = true;
-      documents.push(file);
-
-      const newFile = file.type.startsWith('audio/')
-        ?  await transcribeFile(file)
-        :  await fileAdded(file)
-      await asyncTimeout(100);
-      const index = documents.indexOf(file);
-      documents.splice(index, 1);
-      documents.push(newFile);
-      await asyncTimeout(1000);
+    const newFile = file.type.startsWith('audio/')
+      ? await transcribeFile(file)
+      : await fileAdded(file);
+    await asyncTimeout(100);
+    const index = documents.indexOf(file);
+    documents.splice(index, 1);
+    documents.push(newFile);
+    await asyncTimeout(1000);
   }
+
+  flashMessage(`Uploaded ${files.length} files. Processing mike take a while. Feel free to reload the page.`)
 };
 /*---------------------------------------------------------------------------*/
 // RENAME DOCUMENT
@@ -320,16 +322,26 @@ const onRenamed = ({ id, name }) => {
 const toDelete = ref(null);
 
 async function deleteDocument(document, index) {
-  return request({ url: `/files/${document.id}`, type: 'delete' });
+  const { response, error } = await request({
+    url: `/files/${document.id}`,
+    type: 'delete',
+  });
+  if (error) throw error;
+  if (response.data.status >= 400) throw new Error(response.data.message);
+  return document;
 }
 
 const onDeleted = ({ id, name }) => {
+    debugger
   // Emit an event to inform the parent that a document has been deleted
   emit('documentDeleted', id);
 
   // Remove the document from the local state
-  const index = documents.indexOf((doc) => doc.id === id);
-  documents.splice(index, 1);
+  const index = documents.findIndex((doc) => doc.id === id);
+  if (index > -1) {
+      documents.splice(index, 1);
+      flashMessage(`Deleted source: ${name}`)
+  }
 };
 
 async function fileAdded(file) {
@@ -362,58 +374,52 @@ async function fileAdded(file) {
     }
   } catch (error) {
     console.error('File upload failed:', error);
-    let errMesg = `upload ${file.name} failed, ${error.response.data.message}`
+    let errMesg = `upload ${file.name} failed, ${error.response.data.message}`;
     if (error.response.status === 429) {
-      errMesg = `Please wait a few minutes and try again. (${errMesg})`
+      errMesg = `Please wait a few minutes and try again. (${errMesg})`;
     }
-    flashMessage(errMesg, { type: 'error', });
+    flashMessage(errMesg, { type: 'error' });
   } finally {
     isUploading.value = false; // Stop loading indicator
   }
 }
 
 onMounted(() => {
-    const echo = useEcho().init()
+  const echo = useEcho().init();
   /**
    * Listen for conversion completed events
    * and update the local state accordingly
    */
-  echo.private('conversion.' + projectId).listen(
-    'ConversionCompleted',
-    (e) => {
-      let documentIndex = -1;
-      documents.forEach((doc, index) => {
-        console.log(doc.id);
-        if (doc.id === e.sourceId) {
-          documentIndex = index;
-        }
-      });
-
-      if (documentIndex !== -1) {
-        documents[documentIndex].isConverting = false;
-        documents[documentIndex].converted = true;
-        documents[documentIndex].failed = false;
+  echo.private('conversion.' + projectId).listen('ConversionCompleted', (e) => {
+    let documentIndex = -1;
+    documents.forEach((doc, index) => {
+      console.log(doc.id);
+      if (doc.id === e.sourceId) {
+        documentIndex = index;
       }
-    }
-  );
-  echo.private('conversion.' + projectId).listen(
-    'ConversionFailed',
-    (e) => {
-      let documentIndex = -1;
-      documents.forEach((doc, index) => {
-        console.log(doc.id);
-        if (doc.id === e.sourceId) {
-          documentIndex = index;
-        }
-      });
+    });
 
-      if (documentIndex !== -1) {
-        documents[documentIndex].isConverting = false;
-        documents[documentIndex].converted = false;
-        documents[documentIndex].failed = true;
-      }
+    if (documentIndex !== -1) {
+      documents[documentIndex].isConverting = false;
+      documents[documentIndex].converted = true;
+      documents[documentIndex].failed = false;
     }
-  );
+  });
+  echo.private('conversion.' + projectId).listen('ConversionFailed', (e) => {
+    let documentIndex = -1;
+    documents.forEach((doc, index) => {
+      console.log(doc.id);
+      if (doc.id === e.sourceId) {
+        documentIndex = index;
+      }
+    });
+
+    if (documentIndex !== -1) {
+      documents[documentIndex].isConverting = false;
+      documents[documentIndex].converted = false;
+      documents[documentIndex].failed = true;
+    }
+  });
   window.addEventListener('beforeunload', (event) => {
     if (documents.some((document) => document.isConverting)) {
       // Custom confirmation message (return a string to modify the default)

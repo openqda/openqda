@@ -91,7 +91,7 @@ const submit = async () => {
       complete.value = false;
       open.value = false;
       submitting.value = false;
-      emit('created', deleted);
+      emit('deleted', deleted);
     }, 300);
   }
 };
