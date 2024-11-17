@@ -26,6 +26,10 @@ const state = reactive({
   status: 'disconnected',
 });
 
+window.debugSocket = () => {
+    return state
+}
+
 /**
  * Exposes the state of the current websocket connection
  * that is a requirement for collaborative features.
@@ -61,7 +65,6 @@ window.Echo.connector.pusher.connection.bind('unavailable', (payload) => {
    *  It could also mean that Channels is down, or some intermediary is blocking the connection. In this state,
    *  pusher-js will automatically retry the connection every 15 seconds.
    */
-  console.log('unavailable', payload);
   state.unavailable = true;
   state.connecting = false;
   state.status = 'Unavailable or unreachable';
@@ -72,7 +75,6 @@ window.Echo.connector.pusher.connection.bind('failed', (payload) => {
    * Channels is not supported by the browser.
    * This implies that WebSockets are not natively available and an HTTP-based transport could not be found.
    */
-  console.log('failed', payload);
   state.failed = true;
   state.connecting = false;
   state.status = `Failed: ${payload}`;
@@ -82,7 +84,6 @@ window.Echo.connector.pusher.connection.bind('disconnected', (payload) => {
   /**
    * The Channels connection was previously connected and has now intentionally been closed
    */
-  console.log('disconnected', payload);
   state.connected = false;
   state.status = 'disconnected';
 });

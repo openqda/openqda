@@ -215,7 +215,7 @@
 <script setup>
 import { Routes } from '../routes/Routes.js';
 import { Link } from '@inertiajs/vue3';
-import { onMounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { cn } from '../utils/css/cn.js';
 import {
   Dialog,
@@ -229,10 +229,13 @@ import { NavRoutes } from '../routes/NavRoutes.js';
 import { Project } from '../state/Project.js';
 import FlashMessage from '../Components/notification/FlashMessage.vue';
 import { useWebSocketConnection } from '../startup/echo.js';
+import { useTeam } from '../domain/teams/useTeam.js';
 
 const websocket = useWebSocketConnection();
 const navigation = ref([]);
 const sidebarOpen = ref(false);
+const { initTeams, dispatchPresence, teamInitialized, hasTeam, dispose } =
+  useTeam();
 
 defineProps({
   title: String,
@@ -246,6 +249,11 @@ defineProps({
   },
 });
 
+let pingIntervalId;
+const cleanup = () => {
+  clearInterval(pingIntervalId);
+  dispose();
+};
 onMounted(() => {
   const projectId = Project.getId();
   const active = route().current();
@@ -268,6 +276,35 @@ onMounted(() => {
   });
 
   navigation.value.push(...routes);
+  if (hasTeam) {
+    watch(
+      websocket.connected,
+      (connected) => {
+        if (connected && !teamInitialized()) {
+          initTeams();
+          clearInterval(pingIntervalId);
+          pingIntervalId = setInterval(async () => {
+            // Dispatch an event to the server to indicate that the user is still on the page
+            // This could be done via an Axios call to a specific endpoint that handles this logic
+            const { response, error } = await dispatchPresence();
+            if (error || response.status >= 400) {
+              console.error(error ?? response);
+            }
+          }, 5000); // Every 5 seconds
+          document.addEventListener('beforeunload', cleanup);
+        }
+      },
+      { immediate: true }
+    );
+  }
+});
+
+onUnmounted(() => {
+  // Leave the channel when the component is unmounted
+  if (hasTeam) {
+    document.removeEventListener('beforeunload', cleanup);
+    cleanup();
+  }
 });
 </script>
 <style scoped>
