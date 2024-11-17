@@ -286,18 +286,18 @@ const uploadProgress = ref(0);
 
 const importFiles = async (files) => {
   for (const file of files) {
-    if (file.type.startsWith('audio/')) {
-      await transcribeFile(file);
-    } else {
+
       file.isUploading = true;
       documents.push(file);
-      const newFile = await fileAdded(file);
+
+      const newFile = file.type.startsWith('audio/')
+        ?  await transcribeFile(file)
+        :  await fileAdded(file)
       await asyncTimeout(100);
       const index = documents.indexOf(file);
       documents.splice(index, 1);
       documents.push(newFile);
       await asyncTimeout(1000);
-    }
   }
 };
 /*---------------------------------------------------------------------------*/
