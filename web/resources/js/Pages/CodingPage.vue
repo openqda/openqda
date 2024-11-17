@@ -176,6 +176,7 @@ const openCreateDialogHandler = (view) => {
   }
 };
 const createCodeHandler = async (formData) => {
+    debugger
   const code = await createCode(formData);
   const txt = createSchema.value.title.defaultValue;
   const { index, length } = prevRange.value ?? {};

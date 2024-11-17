@@ -9,7 +9,7 @@ function get_env_value() {
 HOSTNAME=$(get_env_value "APP_HOST")
 
 # Start the WebSocket server with the value from .env
-php artisan reverb:start --debug --host="0.0.0.0" --port=7676 & #--hostname="$HOSTNAME"
+php artisan reverb:start --debug --host="0.0.0.0" --port=8080 & #--hostname="$HOSTNAME"
 WEBSOCKET_PID=$!
 
 # Start the queue worker

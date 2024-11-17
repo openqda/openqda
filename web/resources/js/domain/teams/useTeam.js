@@ -13,13 +13,12 @@ export const useTeam = () => {
     const { usersInChannel, teamsInitialized } = toRefs(state)
     const teamId = sharedTeam?.id
     const Echo = window.Echo
-
     const initTeams = () => {
         const teamWasInitialized = teamId && teamsInitialized.value[teamId]
-
+        const channel = `team.${teamId}`
         if (teamId && Echo && !teamWasInitialized) {
-            Echo.join(`team.${teamId}`)
-                .here((/* users */) => {
+            const joined = Echo.join(channel)
+            joined.here((users) => {
                     // FIXME: why is this commented?
                     // // First, update the current user's profile photo if they are already in the channel
                     // const currentUser = usePage().props.auth.user;
@@ -39,8 +38,9 @@ export const useTeam = () => {
                     //
                     // // Push the new users to the channel list
                     // usersInChannel.value.push(...newUsers);
+                    console.debug(channel, 'here', users)
                 })
-                .joining((/* user */) => {
+                .joining((user) => {
                     // FIXME: why is this commented?
                     // Use Vue.set or equivalent in Vue 3 for reactivity if needed
                     // usersInChannel.value.push({
@@ -48,8 +48,10 @@ export const useTeam = () => {
                     //     currentUrl: window.location.href, // This might not be correct for a joining user
                     //     profile_photo: user.profile_photo // This assumes profile_photo is provided on the joining event
                     // });
+                    console.debug(channel, 'joining', user)
                 })
                 .leaving((user) => {
+                    console.debug(channel, 'leaving', user)
                     // sessionStorage.clear();
                     // Remove the leaving user by filtering the array
                     state.usersInChannel = usersInChannel.value.filter(
@@ -57,6 +59,7 @@ export const useTeam = () => {
                     );
                 })
                 .listen('UserNavigated', (event) => {
+                    console.debug('UserNavigated', event)
                     const userIndex = usersInChannel.value.findIndex(
                         (u) => u.id === event.userId
                     );
@@ -79,6 +82,7 @@ export const useTeam = () => {
     const dispatchPresence = async () => {
         const { response, error } = await request({
             url: '/user/navigation',
+            type: 'post',
             body: {
                 url:  window.location.href,
                 team: teamId,

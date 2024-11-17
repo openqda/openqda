@@ -234,7 +234,7 @@ import { useTeam } from '../domain/teams/useTeam.js';
 const websocket = useWebSocketConnection();
 const navigation = ref([]);
 const sidebarOpen = ref(false);
-const { initTeams, dispatchPresence, teamInitialized, hasTeam, dispose } =
+const { initTeams, dispatchPresence, teamInitialized, hasTeam, dispose, usersInChannel } =
   useTeam();
 
 defineProps({
@@ -281,14 +281,17 @@ onMounted(() => {
       websocket.connected,
       (connected) => {
         if (connected && !teamInitialized()) {
+          dispatchPresence().catch(console.error)
           initTeams();
-          clearInterval(pingIntervalId);
+          if (pingIntervalId) clearInterval(pingIntervalId);
           pingIntervalId = setInterval(async () => {
             // Dispatch an event to the server to indicate that the user is still on the page
             // This could be done via an Axios call to a specific endpoint that handles this logic
             const { response, error } = await dispatchPresence();
             if (error || response.status >= 400) {
               console.error(error ?? response);
+            } else {
+              console.debug('updated team member presence')
             }
           }, 5000); // Every 5 seconds
           document.addEventListener('beforeunload', cleanup);
@@ -298,6 +301,10 @@ onMounted(() => {
     );
   }
 });
+
+watch(usersInChannel, value => {
+    console.debug(usersInChannel.value)
+})
 
 onUnmounted(() => {
   // Leave the channel when the component is unmounted

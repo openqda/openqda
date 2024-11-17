@@ -2,6 +2,7 @@ import { AbstractStore } from '../../../state/AbstractStore.js';
 import { createStoreRepository } from '../../../state/StoreRepository.js';
 import { request } from '../../../utils/http/BackendRequest.js';
 import { randomUUID } from '../../../utils/randomUUID.js';
+import { toRaw } from 'vue'
 
 class CodeStore extends AbstractStore {
   withChildren(codeId) {
@@ -88,7 +89,7 @@ Codes.create = async ({
     title, // backwards-compat
     name: name ?? title,
     children: [],
-    order: store.size,
+    order: toRaw(store.size),
   };
 
   const body = { ...code };
@@ -129,7 +130,7 @@ Codes.update = ({ projectId, code, title, name, description, color, parent }) =>
     }
     if (description) body.description = description
     if (color)body.color = color;
-    if (parent) body.parent_id = parent.id
+    if (parent) body.parent_id = toRaw(parent.id)
 
     return request({
         url: `/projects/${projectId}/codes/${code.id}`,
