@@ -3,7 +3,6 @@ import {
   TrashIcon,
   ArrowsRightLeftIcon,
   XMarkIcon,
-  PlusIcon,
 } from '@heroicons/vue/24/solid';
 import Button from '../../../Components/interactive/Button.vue';
 import { cn } from '../../../utils/css/cn';
@@ -15,6 +14,7 @@ import { useSelections } from '../selections/useSelections';
 import { useContextMenu } from './useContextMenu';
 import { useCodes } from '../useCodes';
 import { useRange } from '../useRange';
+import { whitespace } from '../../../utils/regex'
 
 const { prevRange } = useRange();
 const { close, isOpen } = useContextMenu();
@@ -27,16 +27,23 @@ watch(toDelete, (entries) => {
   const len = entries?.length;
   toDeleteSize.value = len ?? 0;
 });
+
 const reassign = ref(null);
 const filteredCodes = computed(() => {
-  return query.value === ''
-    ? codes.value
-    : codes.value.filter((code) =>
-        code.name
+  const searchQuery = query.value.toLowerCase().replace(whitespace, '')
+  if (searchQuery.length < 2) return codes.value
+    const filterFn = code => {
+      if (!code) return false
+      if (code.name
           .toLowerCase()
-          .replace(/\s+/g, '')
-          .includes(query.value.toLowerCase().replace(/\s+/g, ''))
-      );
+          .replace(whitespace, '')
+          .includes(searchQuery)) {
+          return true
+      }
+      return (code.children ?? []).some(filterFn)
+    }
+
+    return codes.value.filter(filterFn);
 });
 const onClose = () => {
   if (isOpen) {
@@ -120,7 +127,7 @@ const onClose = () => {
 
     <div
       v-if="
-        filteredCodes?.length &&
+        codes?.length &&
         (!toDeleteSize || reassign || prevRange?.length)
       "
     >
