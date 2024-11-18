@@ -131,7 +131,7 @@ import {
   PlusIcon,
   XCircleIcon,
 } from '@heroicons/vue/24/solid';
-import { inject, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { inject, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useForm, usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import FilesList from './FilesList.vue';
@@ -155,7 +155,8 @@ const props = defineProps({
   },
 });
 
-const documents = inject('sources');
+const allSources = inject('sources');
+const documents = reactive(allSources);
 const url = window.location.pathname;
 const segments = url.split('/');
 const projectId = segments[2]; // Assuming project id is the third segment in URL path
@@ -288,14 +289,13 @@ const uploadProgress = ref(0);
 const importFiles = async (files) => {
   for (const file of files) {
     file.isUploading = true;
-    documents.push(file);
 
     const newFile = file.type.startsWith('audio/')
       ? await transcribeFile(file)
       : await fileAdded(file);
+    const d = new Date()
+    newFile.date = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
     await asyncTimeout(100);
-    const index = documents.indexOf(file);
-    documents.splice(index, 1);
     documents.push(newFile);
     await asyncTimeout(1000);
   }
