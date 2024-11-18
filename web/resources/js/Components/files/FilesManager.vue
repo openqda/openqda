@@ -27,6 +27,7 @@
   <WizardDialog
     :schema="importSchema"
     title="Import file(s)"
+    :progress="uploadProgress"
     :files-selected="importFiles"
   />
   <FilesList
@@ -132,7 +133,7 @@ import {
   XCircleIcon,
 } from '@heroicons/vue/24/solid';
 import { inject, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
-import { useForm, usePage } from '@inertiajs/vue3';
+import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import FilesList from './FilesList.vue';
 import Button from '../interactive/Button.vue';
@@ -162,40 +163,6 @@ const segments = url.split('/');
 const projectId = segments[2]; // Assuming project id is the third segment in URL path
 const audioIsUploading = ref(false);
 const { downloadSource } = useFiles();
-
-async function transcribeFile(audio) {
-  audioIsUploading.value = true;
-
-  const formData = new FormData();
-  formData.append('file', audio);
-  formData.append('project_id', projectId);
-  formData.append('model', 'default_model'); // Replace with your actual model name
-  formData.append('language', 'en'); // Replace with the desired language code
-
-  try {
-    const response = await axios.post('/files/transcribe', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-
-    if (response.data.newDocument) {
-      response.data.newDocument.isConverting = true;
-      response.data.newDocument.userPicture =
-        usePage().props.auth.user.profile_photo_url;
-      documents.push(response.data.newDocument);
-      // fileSelected(response.data.newDocument);
-    }
-  } catch (error) {
-    console.error('Error transcribing file:', error);
-    flashMessage({
-      message: 'An error occurred while transcribing the file.',
-      type: 'error',
-    });
-  } finally {
-    audioIsUploading.value = false;
-  }
-}
 
 async function retryTranscription(document) {
   const url = `/projects/${projectId}/sources/${document.id}/retrytranscription`;
@@ -288,6 +255,7 @@ const uploadProgress = ref(0);
 
 const importFiles = async (files) => {
   for (const file of files) {
+    uploadProgress.value = 0;
     file.isUploading = true;
 
     const newFile = file.type.startsWith('audio/')
@@ -302,6 +270,85 @@ const importFiles = async (files) => {
 
   flashMessage(`Uploaded ${files.length} files. Processing mike take a while. Feel free to reload the page.`)
 };
+
+async function fileAdded(file) {
+    const isRtf =
+        file.type === 'text/rtf' || (file.name && file.name.endsWith('.rtf'));
+    uploadProgress.value = 0;
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('projectId', usePage().props.projectId ?? 0);
+
+    try {
+        const response = await axios.post('/files/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+            onUploadProgress: (progressEvent) => {
+                uploadProgress.value =
+                    (progressEvent.loaded / progressEvent.total) * 100;
+            },
+        });
+
+        if (response.data.newDocument) {
+            if (isRtf) {
+                response.data.newDocument.isConverting = true;
+            }
+            response.data.newDocument.userPicture =
+                usePage().props.auth.user.profile_photo_url;
+            return response.data.newDocument;
+        }
+    } catch (error) {
+        console.error('File upload failed:', error);
+        let errMesg = `upload ${file.name} failed, ${error.response.data.message}`;
+        if (error.response.status === 429) {
+            errMesg = `Please wait a few minutes and try again. (${errMesg})`;
+        }
+        flashMessage(errMesg, { type: 'error' });
+    } finally {
+        isUploading.value = false; // Stop loading indicator
+    }
+}
+
+async function transcribeFile(audio) {
+    audioIsUploading.value = true;
+
+    const formData = new FormData();
+    formData.append('file', audio);
+    formData.append('project_id', projectId);
+    formData.append('model', 'default_model'); // Replace with your actual model name
+    formData.append('language', 'en'); // Replace with the desired language code
+
+    try {
+        const response = await axios.post('/files/transcribe', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+            onUploadProgress: (progressEvent) => {
+                uploadProgress.value =
+                    (progressEvent.loaded / progressEvent.total) * 100;
+            },
+        });
+
+        if (response.data.newDocument) {
+            response.data.newDocument.isConverting = true;
+            response.data.newDocument.userPicture =
+                usePage().props.auth.user.profile_photo_url;
+            return response.data.newDocument
+        }
+    } catch (error) {
+        console.error('Error transcribing file:', error);
+        flashMessage({
+            message: 'An error occurred while transcribing the file.',
+            type: 'error',
+        });
+    } finally {
+        audioIsUploading.value = false;
+    }
+}
+
+
 /*---------------------------------------------------------------------------*/
 // RENAME DOCUMENT
 /*---------------------------------------------------------------------------*/
@@ -344,46 +391,6 @@ const onDeleted = ({ id, name }) => {
   }
 };
 
-async function fileAdded(file) {
-  const isRtf =
-    file.type === 'text/rtf' || (file.name && file.name.endsWith('.rtf'));
-  uploadProgress.value = 0;
-
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('projectId', usePage().props.projectId ?? 0);
-
-  try {
-    const response = await axios.post('/files/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      onUploadProgress: (progressEvent) => {
-        uploadProgress.value =
-          (progressEvent.loaded / progressEvent.total) * 100;
-      },
-    });
-
-    if (response.data.newDocument) {
-      if (isRtf) {
-        response.data.newDocument.isConverting = true;
-      }
-      response.data.newDocument.userPicture =
-        usePage().props.auth.user.profile_photo_url;
-      return response.data.newDocument;
-    }
-  } catch (error) {
-    console.error('File upload failed:', error);
-    let errMesg = `upload ${file.name} failed, ${error.response.data.message}`;
-    if (error.response.status === 429) {
-      errMesg = `Please wait a few minutes and try again. (${errMesg})`;
-    }
-    flashMessage(errMesg, { type: 'error' });
-  } finally {
-    isUploading.value = false; // Stop loading indicator
-  }
-}
-
 onMounted(() => {
   const echo = useEcho().init();
   /**
@@ -393,7 +400,6 @@ onMounted(() => {
   echo.private('conversion.' + projectId).listen('ConversionCompleted', (e) => {
     let documentIndex = -1;
     documents.forEach((doc, index) => {
-      console.log(doc.id);
       if (doc.id === e.sourceId) {
         documentIndex = index;
       }
@@ -408,7 +414,6 @@ onMounted(() => {
   echo.private('conversion.' + projectId).listen('ConversionFailed', (e) => {
     let documentIndex = -1;
     documents.forEach((doc, index) => {
-      console.log(doc.id);
       if (doc.id === e.sourceId) {
         documentIndex = index;
       }
@@ -420,13 +425,13 @@ onMounted(() => {
       documents[documentIndex].failed = true;
     }
   });
-  window.addEventListener('beforeunload', (event) => {
-    if (documents.some((document) => document.isConverting)) {
-      // Custom confirmation message (return a string to modify the default)
-      event.returnValue =
-        'Are you sure you want to reload? A document is elaborating.';
-    }
-  });
+  // window.addEventListener('beforeunload', (event) => {
+  //   if (documents.some((document) => document.isConverting)) {
+  //     // Custom confirmation message (return a string to modify the default)
+  //     event.returnValue =
+  //       'Are you sure you want to reload? A document is still converting.';
+  //   }
+  // });
 });
 
 watch(
@@ -438,15 +443,15 @@ watch(
   }
 );
 
-onBeforeUnmount(() => {
-  window.removeEventListener('beforeunload', (event) => {
-    if (documents.some((document) => document.isConverting)) {
-      // Custom confirmation message (return a string to modify the default)
-      event.returnValue =
-        'Are you sure you want to reload? A document is elaborating.';
-    }
-  });
-});
+// onBeforeUnmount(() => {
+//   window.removeEventListener('beforeunload', (event) => {
+//     if (documents.some((document) => document.isConverting)) {
+//       // Custom confirmation message (return a string to modify the default)
+//       event.returnValue =
+//         'Are you sure you want to reload? A document is elaborating.';
+//     }
+//   });
+// });
 
 function fileSelected(file) {
   // Update 'selected' property for all documents

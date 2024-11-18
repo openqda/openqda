@@ -15,6 +15,7 @@ const props = defineProps({
   submit: { type: Function },
   title: { type: String, required: false },
   filesSelected: Function,
+    progress: Number
 });
 watch(
   () => props.schema,
@@ -66,7 +67,8 @@ const importAllFiles = async (files) => {
           <template #info>
               <span v-if="uploading || error" class="text-sm">
                 <ActivityIndicator v-if="uploading">
-                uploading files...
+                    <span>uploading files...</span>
+                    <span v-if="props.progress">{{props.progress}}%</span>
                 </ActivityIndicator>
               </span>
               <span class="text-destructive" v-if="error">
