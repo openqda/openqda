@@ -84,8 +84,12 @@ class CodingController extends Controller
         $allCodes = $rootCodes->map(fn ($code) => $this->buildNestedCode($code, $source->id));
 
         // collaboration
-        $team = $project->team->load('users');
-        $teamMembers = $team->users;
+        if ($project->team) {
+            $team = $project->team->load('users');
+            $teamMembers = $team->users;
+        } else {
+            $teamMembers = [];
+        }
 
         return Inertia::render('CodingPage', [
             'source' => $source,
@@ -93,14 +97,14 @@ class CodingController extends Controller
             'codebooks' => $codebooks,
             'allCodes' => $allCodes,
             'projectId' => $projectId,
-            'teamMembers' => $teamMembers->map(function ($user) {
+            'teamMembers' => $teamMembers ? $teamMembers->map(function ($user) {
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
                     'profile_photo_url' => $user->profile_photo_url,
                 ];
-            }),
+            }) : [],
         ]);
     }
 
