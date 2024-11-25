@@ -1,7 +1,7 @@
 import { reactive, toRefs } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import { Selections } from './Selections.js';
-import { randomUUID } from '../../../utils/randomUUID.js';
+import { randomUUID } from '../../../utils/random/randomUUID.js';
 
 const state = reactive({
   selected: null,

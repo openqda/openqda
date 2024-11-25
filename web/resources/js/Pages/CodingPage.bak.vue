@@ -2290,7 +2290,7 @@ const updateColor = async (event, index, codeId) => {
   const hexColor = event.target.value;
 
   // Convert hex to RGB
-  const rgbColor = hexToRgb(hexColor); // Assuming you have a hexToRgb function
+  const rgbColor = hexToRgb(hexColor); // Assuming you have a hexToRgbValues function
 
   const newColor = `rgba(${rgbColor.r}, ${rgbColor.g}, ${rgbColor.b}, ${opacityForNewColors})`;
 

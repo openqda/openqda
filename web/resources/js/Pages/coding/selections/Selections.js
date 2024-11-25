@@ -1,4 +1,4 @@
-import { randomUUID } from '../../../utils/randomUUID.js';
+import { randomUUID } from '../../../utils/random/randomUUID.js';
 import { request } from '../../../utils/http/BackendRequest.js';
 import { createStoreRepository } from '../../../state/StoreRepository.js';
 import { AbstractStore } from '../../../state/AbstractStore.js';

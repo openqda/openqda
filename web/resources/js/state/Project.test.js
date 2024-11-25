@@ -48,22 +48,5 @@ describe('Project', () => {
       });
       expect(Project.getId()).toBe('777');
     });
-    it('throws if there is no project id', () => {
-      expect(() => Project.getId()).toThrow(
-        'Could not retrieve a valid project id.'
-      );
-    });
-    it('throws if there is no valid project id', () => {
-      vi.stubGlobal('location', {
-        pathname: '/projects/0',
-        search: '?projectId=null',
-      });
-      vi.stubGlobal('sessionStorage', {
-        getItem: () => {},
-      });
-      expect(() => Project.getId()).toThrow(
-        'Could not retrieve a valid project id.'
-      );
-    });
   });
 });

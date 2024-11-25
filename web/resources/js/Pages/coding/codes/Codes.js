@@ -1,7 +1,7 @@
 import { AbstractStore } from '../../../state/AbstractStore.js';
 import { createStoreRepository } from '../../../state/StoreRepository.js';
 import { request } from '../../../utils/http/BackendRequest.js';
-import { randomUUID } from '../../../utils/randomUUID.js';
+import { randomUUID } from '../../../utils/random/randomUUID.js';
 import { toRaw } from 'vue';
 
 class CodeStore extends AbstractStore {

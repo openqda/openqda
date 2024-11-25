@@ -1,3 +1,9 @@
+/**
+ *
+ * @param rgba
+ * @param opacity
+ * @return {*|string}
+ */
 export const changeRGBOpacity = (rgba, opacity) => {
   if (typeof rgba === 'undefined' || rgba === null) {
     throw new Error(`Expected color, got ${rgba}`);

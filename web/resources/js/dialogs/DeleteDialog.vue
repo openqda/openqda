@@ -5,7 +5,7 @@ import DialogBase from './DialogBase.vue';
 import TextInput from '../form/TextInput.vue';
 import InputError from '../form/InputError.vue';
 import ActionMessage from '../Components/ActionMessage.vue';
-import { randomString } from '../utils/randomString';
+import { randomString } from '../utils/random/randomString';
 import Headline3 from '../Components/layout/Headline3.vue';
 import { asyncTimeout } from '../utils/asyncTimeout';
 

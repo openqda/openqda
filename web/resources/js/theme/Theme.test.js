@@ -15,6 +15,8 @@ describe('Theme', () => {
           update: expect.fail,
           remove: expect.fail,
         },
+        useStorage: true,
+        usePreferred: true,
       });
       expect(strategy).toEqual({
         from: 'storage',
@@ -49,7 +51,11 @@ describe('Theme', () => {
       ];
 
       for (const storage of storages) {
-        const strategy = await Theme.init({ storage });
+        const strategy = await Theme.init({
+          storage,
+          useStorage: true,
+          usePreferred: true,
+        });
         expect(strategy).toEqual({
           from: 'preferred',
           name: Theme.DARK,
@@ -77,7 +83,11 @@ describe('Theme', () => {
       ];
 
       for (const storage of storages) {
-        const strategy = await Theme.init({ storage });
+        const strategy = await Theme.init({
+          storage,
+          useStorage: true,
+          usePreferred: true,
+        });
         expect(strategy).toEqual({
           from: 'fallback',
           name: Theme.LIGHT,
@@ -89,7 +99,7 @@ describe('Theme', () => {
   });
   describe(Theme.update.name, () => {
     it('updates the DOM', async () => {
-      await Theme.init({ storage: null });
+      await Theme.init({ storage: null, useStorage: true, usePreferred: true });
       const addSpy = vi.spyOn(document.documentElement.classList, 'add');
       await Theme.update('moo');
       expect(addSpy).toHaveBeenCalledTimes(1);
@@ -102,7 +112,7 @@ describe('Theme', () => {
         update: () => true,
         remove: expect.fail,
       };
-      await Theme.init({ storage });
+      await Theme.init({ storage, useStorage: true, usePreferred: true });
       const addSpy = vi.spyOn(storage, 'update');
       await Theme.update('moo');
       expect(addSpy).toHaveBeenCalledTimes(1);
@@ -111,7 +121,7 @@ describe('Theme', () => {
   });
   describe(Theme.remove.name, () => {
     it('removes from the DOM', async () => {
-      await Theme.init({ storage: null });
+      await Theme.init({ storage: null, useStorage: true, usePreferred: true });
       await Theme.update('moo');
       const removeSpy = vi.spyOn(document.documentElement.classList, 'remove');
       await Theme.remove();
@@ -125,7 +135,7 @@ describe('Theme', () => {
         update: () => true,
         remove: () => true,
       };
-      await Theme.init({ storage });
+      await Theme.init({ storage, useStorage: true, usePreferred: true });
       await Theme.update('moo');
       const removeSpy = vi.spyOn(storage, 'remove');
       await Theme.remove();

@@ -165,7 +165,7 @@ import BaseContainer from '../Layouts/BaseContainer.vue';
 import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue';
 import FilesList from '../Components/files/FilesList.vue';
 import { useExport } from '../exchange/useExport.js';
-import { trunc } from '../utils/string/trunc.js';
+import { trunc } from '../utils/string/trunc.ts';
 import { BarsArrowDownIcon } from '@heroicons/vue/24/solid/index.js';
 import { useAnalysis } from './analysis/useAnalysis.js';
 import VisualizeCoding from './analysis/visualization/VisualizeCoding.vue';
