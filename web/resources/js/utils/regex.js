@@ -1,1 +1,1 @@
-export const whitespace = /\s+/g
+export const whitespace = /\s+/g;

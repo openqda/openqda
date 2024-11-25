@@ -2,7 +2,7 @@ import { AbstractStore } from '../../../state/AbstractStore.js';
 import { createStoreRepository } from '../../../state/StoreRepository.js';
 import { request } from '../../../utils/http/BackendRequest.js';
 import { randomUUID } from '../../../utils/randomUUID.js';
-import { toRaw } from 'vue'
+import { toRaw } from 'vue';
 
 class CodeStore extends AbstractStore {
   withChildren(codeId) {
@@ -123,21 +123,29 @@ Codes.delete = ({ projectId, source, code }) => {
   });
 };
 
-Codes.update = ({ projectId, code, title, name, description, color, parent }) => {
-    const body = {}
-    if (title || name) {
-        body.title = title ?? name;
-    }
-    if (description) body.description = description
-    if (color)body.color = color;
-    if (parent) body.parent_id = toRaw(parent.id)
+Codes.update = ({
+  projectId,
+  code,
+  title,
+  name,
+  description,
+  color,
+  parent,
+}) => {
+  const body = {};
+  if (title || name) {
+    body.title = title ?? name;
+  }
+  if (description) body.description = description;
+  if (color) body.color = color;
+  if (parent) body.parent_id = toRaw(parent.id);
 
-    return request({
-        url: `/projects/${projectId}/codes/${code.id}`,
-        type: 'patch',
-        body,
-    });
-}
+  return request({
+    url: `/projects/${projectId}/codes/${code.id}`,
+    type: 'patch',
+    body,
+  });
+};
 
 Codes.removeParent = ({ projectId, code, source }) => {
   return request({

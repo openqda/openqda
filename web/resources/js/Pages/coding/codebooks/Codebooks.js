@@ -152,8 +152,8 @@ Codebooks.importFromFile = ({ projectId, file }) => {
 };
 
 Codebooks.delete = ({ projectId, codebookId }) => {
-    return request({
-        url:  `/projects/${projectId}/codebooks/${codebookId}`,
-        type: 'delete'
-    })
-}
+  return request({
+    url: `/projects/${projectId}/codebooks/${codebookId}`,
+    type: 'delete',
+  });
+};

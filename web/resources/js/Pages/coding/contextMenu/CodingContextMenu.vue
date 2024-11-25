@@ -14,11 +14,11 @@ import { useSelections } from '../selections/useSelections';
 import { useContextMenu } from './useContextMenu';
 import { useCodes } from '../useCodes';
 import { useRange } from '../useRange';
-import { whitespace } from '../../../utils/regex'
-import { useUsers } from "../../../domain/teams/useUsers";
-import ProfileImage from "../../../Components/user/ProfileImage.vue";
+import { whitespace } from '../../../utils/regex';
+import { useUsers } from '../../../domain/teams/useUsers';
+import ProfileImage from '../../../Components/user/ProfileImage.vue';
 
-const { getMemberBy } = useUsers()
+const { getMemberBy } = useUsers();
 const { prevRange } = useRange();
 const { close, isOpen } = useContextMenu();
 const { codes } = useCodes();
@@ -33,20 +33,17 @@ watch(toDelete, (entries) => {
 
 const reassign = ref(null);
 const filteredCodes = computed(() => {
-  const searchQuery = query.value.toLowerCase().replace(whitespace, '')
-  if (searchQuery.length < 2) return codes.value
-    const filterFn = code => {
-      if (!code) return false
-      if (code.name
-          .toLowerCase()
-          .replace(whitespace, '')
-          .includes(searchQuery)) {
-          return true
-      }
-      return (code.children ?? []).some(filterFn)
+  const searchQuery = query.value.toLowerCase().replace(whitespace, '');
+  if (searchQuery.length < 2) return codes.value;
+  const filterFn = (code) => {
+    if (!code) return false;
+    if (code.name.toLowerCase().replace(whitespace, '').includes(searchQuery)) {
+      return true;
     }
+    return (code.children ?? []).some(filterFn);
+  };
 
-    return codes.value.filter(filterFn);
+  return codes.value.filter(filterFn);
 });
 const onClose = () => {
   if (isOpen) {
@@ -84,10 +81,12 @@ const onClose = () => {
               <span class="text-xs font-semibold font-mono flex-grow">
                 {{ selection.start }}:{{ selection.end }}
               </span>
-              <ProfileImage v-if="getMemberBy(selection.creating_user_id)"
-                            class="w-4 h-4"
-                            :name="`by ${getMemberBy(selection.creating_user_id).name}`"
-                            :src="getMemberBy(selection.creating_user_id).profile_photo_url" />
+              <ProfileImage
+                v-if="getMemberBy(selection.creating_user_id)"
+                class="w-4 h-4"
+                :name="`by ${getMemberBy(selection.creating_user_id).name}`"
+                :src="getMemberBy(selection.creating_user_id).profile_photo_url"
+              />
               <Button
                 v-if="toDeleteSize > 0"
                 size="sm"
@@ -133,10 +132,7 @@ const onClose = () => {
     </div>
 
     <div
-      v-if="
-        codes?.length &&
-        (!toDeleteSize || reassign || prevRange?.length)
-      "
+      v-if="codes?.length && (!toDeleteSize || reassign || prevRange?.length)"
     >
       <div class="block w-full text-xs font-semibold">
         {{

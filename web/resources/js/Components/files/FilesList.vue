@@ -247,7 +247,7 @@ import {
   ExclamationTriangleIcon,
   SpeakerWaveIcon,
 } from '@heroicons/vue/24/outline/index.js';
-import { computed, ref } from 'vue'
+import { computed, ref } from 'vue';
 import { vClickOutside } from '../coding/clickOutsideDirective.js';
 import { cn } from '../../utils/css/cn.js';
 import ProfileImage from '../user/ProfileImage.vue';
@@ -348,7 +348,8 @@ function isMenuOpen(id) {
 function sort(name) {
   // new keys always sort ascending,
   // existing keys will toggle
-  sorter.value.ascending = sorter.value.key === name ? !sorter.value.ascending : true;
+  sorter.value.ascending =
+    sorter.value.key === name ? !sorter.value.ascending : true;
   sorter.value.key = name;
   docs.value.sort((a, b) => {
     const value = String(a[name]).localeCompare(String(b[name]));

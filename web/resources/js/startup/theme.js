@@ -13,4 +13,3 @@ Theme.init({
 })
   .then(console.debug)
   .catch(console.error);
-

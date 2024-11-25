@@ -82,7 +82,7 @@ const uploadFiles = async () => {
           </td>
         </tr>
       </table>
-        <slot name="info"></slot>
+      <slot name="info"></slot>
       <Button
         v-if="localFiles.length"
         size="lg"

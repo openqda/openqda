@@ -222,7 +222,10 @@ watch(selected, async ({ code }) => {
   });
 
   if (!selection) {
-    flashMessage(`Failed to create selection at <${index}:${index + length}> for code ${code?.name}`, { type: 'error' });
+    flashMessage(
+      `Failed to create selection at <${index}:${index + length}> for code ${code?.name}`,
+      { type: 'error' }
+    );
     // TODO: remove selection from editor?
   }
 });

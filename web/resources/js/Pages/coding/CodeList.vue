@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onUnmounted, reactive, ref, watch } from 'vue'
+import { computed, onUnmounted, reactive, ref, watch } from 'vue';
 import CodeListItem from './CodeListItem.vue';
 import { useCodes } from './useCodes.js';
 import Headline3 from '../../Components/layout/Headline3.vue';
@@ -56,18 +56,18 @@ const sortable = ref(
 const isDragging = ref(false);
 const { dragTarget, setDragStart, clearDrag } = useDragTarget();
 const codesCount = computed(() => {
-    const countCodes = codes => {
-        let count = 0
-        codes.forEach(code => {
-            count += 1;
-            if (code.children?.length) {
-                count += countCodes(code.children)
-            }
-        })
-        return count
-    }
-    return countCodes(props.codes)
-})
+  const countCodes = (codes) => {
+    let count = 0;
+    codes.forEach((code) => {
+      count += 1;
+      if (code.children?.length) {
+        count += countCodes(code.children);
+      }
+    });
+    return count;
+  };
+  return countCodes(props.codes);
+});
 const draggable = useDraggable(draggableRef, sortable, {
   animation: 250,
   swapThreshold: window.dragThreshold ?? 0.1,
@@ -231,7 +231,7 @@ onUnmounted(() => {
     </p>
     <ul ref="draggableRef" data-id="root">
       <CodeListItem
-        v-for="(code) in sortable"
+        v-for="code in sortable"
         :isDragging="isDragging"
         :code="code"
         :key="code.id"

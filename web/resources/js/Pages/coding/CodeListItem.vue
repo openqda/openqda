@@ -28,9 +28,9 @@ import { rgbToHex } from '../../utils/color/toHex';
 import { useDraggable } from 'vue-draggable-plus';
 import { useDragTarget } from './useDragTarget.js';
 import { debounce } from '../../utils/dom/debounce.js';
-import ContrastText from '../../Components/text/ContrastText.vue'
-import { useUsers } from '../../domain/teams/useUsers.js'
-import ProfileImage from '../../Components/user/ProfileImage.vue'
+import ContrastText from '../../Components/text/ContrastText.vue';
+import { useUsers } from '../../domain/teams/useUsers.js';
+import ProfileImage from '../../Components/user/ProfileImage.vue';
 
 //------------------------------------------------------------------------
 // DATA / PROPS
@@ -43,7 +43,7 @@ const props = defineProps({
   selections: Array,
   canSort: Boolean,
 });
-const { getMemberBy } = useUsers()
+const { getMemberBy } = useUsers();
 
 //------------------------------------------------------------------------
 // OPEN CLOSE
@@ -79,8 +79,8 @@ const textSelectionsCount = (code) => {
   return count;
 };
 textCount.value = computed(() => {
-    return textSelectionsCount(props.code);
-})
+  return textSelectionsCount(props.code);
+});
 const openTexts = () => {
   showTexts.value = true;
 };
@@ -197,13 +197,15 @@ const initDraggable = () => {
 };
 
 const sortedTexts = computed(() => {
-    if (!props.code.text?.length) return []
-    return props.code.text.toSorted((a, b) => a.start - b.start).map(txt => {
-        const user = getMemberBy(txt.createdBy)
-        txt.user = user
-        return txt
-    })
-})
+  if (!props.code.text?.length) return [];
+  return props.code.text
+    .toSorted((a, b) => a.start - b.start)
+    .map((txt) => {
+      const user = getMemberBy(txt.createdBy);
+      txt.user = user;
+      return txt;
+    });
+});
 
 const applyEnter = debounce((target) => {
   if (!dragEntered.value) {
@@ -333,7 +335,7 @@ onUnmounted(() => {
               code.active
                 ? 'hover:font-semibold'
                 : 'cursor-not-allowed text-opacity-20',
-                'bordered-text'
+              'bordered-text'
             )
           "
         >
@@ -342,7 +344,9 @@ onUnmounted(() => {
             >Assign to selection {{ range.start }}:{{ range.end }}</span
           >
         </button>
-        <ContrastText v-else class="line-clamp-1 flex-grow items-center">{{ code.name }}</ContrastText>
+        <ContrastText v-else class="line-clamp-1 flex-grow items-center">{{
+          code.name
+        }}</ContrastText>
       </div>
       <button
         class="p-0 m-0 text-foreground/80"
@@ -415,14 +419,20 @@ onUnmounted(() => {
           <div
             class="w-full flex items-center justify-between tracking-wider text-xs font-semibold"
           >
-              <span class="flex">
-            <a
-              href=""
-              @click.prevent="focusSelection(selection)"
-              class="font-mono hover:underline"
-              >{{ selection.start }}:{{ selection.end }}</a>
-              <ProfileImage v-if="selection.user" :src="selection.user.profile_photo_url" :name="selection.user.name" class="w-3 h-3 ms-1"/>
-           </span>
+            <span class="flex">
+              <a
+                href=""
+                @click.prevent="focusSelection(selection)"
+                class="font-mono hover:underline"
+                >{{ selection.start }}:{{ selection.end }}</a
+              >
+              <ProfileImage
+                v-if="selection.user"
+                :src="selection.user.profile_photo_url"
+                :name="selection.user.name"
+                class="w-3 h-3 ms-1"
+              />
+            </span>
             <button
               class="p-2 me-1"
               @click="Selections.deleteSelection(selection)"

@@ -125,10 +125,8 @@
 </template>
 
 <script setup>
-import {
-  PlusIcon,
-} from '@heroicons/vue/24/solid';
-import { inject, onMounted, reactive, ref, watch } from 'vue'
+import { PlusIcon } from '@heroicons/vue/24/solid';
+import { inject, onMounted, reactive, ref, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import FilesList from './FilesList.vue';
@@ -257,93 +255,94 @@ const importFiles = async (files) => {
     const newFile = file.type.startsWith('audio/')
       ? await transcribeFile(file)
       : await fileAdded(file);
-    const d = new Date()
+    const d = new Date();
     newFile.date = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
     await asyncTimeout(100);
     documents.push(newFile);
     await asyncTimeout(1000);
   }
 
-  flashMessage(`Uploaded ${files.length} files. Processing mike take a while. Feel free to reload the page.`)
+  flashMessage(
+    `Uploaded ${files.length} files. Processing mike take a while. Feel free to reload the page.`
+  );
 };
 
 async function fileAdded(file) {
-    const isRtf =
-        file.type === 'text/rtf' || (file.name && file.name.endsWith('.rtf'));
-    uploadProgress.value = 0;
+  const isRtf =
+    file.type === 'text/rtf' || (file.name && file.name.endsWith('.rtf'));
+  uploadProgress.value = 0;
 
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('projectId', usePage().props.projectId ?? 0);
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('projectId', usePage().props.projectId ?? 0);
 
-    try {
-        const response = await axios.post('/files/upload', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-            onUploadProgress: (progressEvent) => {
-                uploadProgress.value =
-                    (progressEvent.loaded / progressEvent.total) * 100;
-            },
-        });
+  try {
+    const response = await axios.post('/files/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: (progressEvent) => {
+        uploadProgress.value =
+          (progressEvent.loaded / progressEvent.total) * 100;
+      },
+    });
 
-        if (response.data.newDocument) {
-            if (isRtf) {
-                response.data.newDocument.isConverting = true;
-            }
-            response.data.newDocument.userPicture =
-                usePage().props.auth.user.profile_photo_url;
-            return response.data.newDocument;
-        }
-    } catch (error) {
-        console.error('File upload failed:', error);
-        let errMesg = `upload ${file.name} failed, ${error.response.data.message}`;
-        if (error.response.status === 429) {
-            errMesg = `Please wait a few minutes and try again. (${errMesg})`;
-        }
-        flashMessage(errMesg, { type: 'error' });
-    } finally {
-        isUploading.value = false; // Stop loading indicator
+    if (response.data.newDocument) {
+      if (isRtf) {
+        response.data.newDocument.isConverting = true;
+      }
+      response.data.newDocument.userPicture =
+        usePage().props.auth.user.profile_photo_url;
+      return response.data.newDocument;
     }
+  } catch (error) {
+    console.error('File upload failed:', error);
+    let errMesg = `upload ${file.name} failed, ${error.response.data.message}`;
+    if (error.response.status === 429) {
+      errMesg = `Please wait a few minutes and try again. (${errMesg})`;
+    }
+    flashMessage(errMesg, { type: 'error' });
+  } finally {
+    isUploading.value = false; // Stop loading indicator
+  }
 }
 
 async function transcribeFile(audio) {
-    audioIsUploading.value = true;
+  audioIsUploading.value = true;
 
-    const formData = new FormData();
-    formData.append('file', audio);
-    formData.append('project_id', projectId);
-    formData.append('model', 'default_model'); // Replace with your actual model name
-    formData.append('language', 'en'); // Replace with the desired language code
+  const formData = new FormData();
+  formData.append('file', audio);
+  formData.append('project_id', projectId);
+  formData.append('model', 'default_model'); // Replace with your actual model name
+  formData.append('language', 'en'); // Replace with the desired language code
 
-    try {
-        const response = await axios.post('/files/transcribe', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data',
-            },
-            onUploadProgress: (progressEvent) => {
-                uploadProgress.value =
-                    (progressEvent.loaded / progressEvent.total) * 100;
-            },
-        });
+  try {
+    const response = await axios.post('/files/transcribe', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      onUploadProgress: (progressEvent) => {
+        uploadProgress.value =
+          (progressEvent.loaded / progressEvent.total) * 100;
+      },
+    });
 
-        if (response.data.newDocument) {
-            response.data.newDocument.isConverting = true;
-            response.data.newDocument.userPicture =
-                usePage().props.auth.user.profile_photo_url;
-            return response.data.newDocument
-        }
-    } catch (error) {
-        console.error('Error transcribing file:', error);
-        flashMessage({
-            message: 'An error occurred while transcribing the file.',
-            type: 'error',
-        });
-    } finally {
-        audioIsUploading.value = false;
+    if (response.data.newDocument) {
+      response.data.newDocument.isConverting = true;
+      response.data.newDocument.userPicture =
+        usePage().props.auth.user.profile_photo_url;
+      return response.data.newDocument;
     }
+  } catch (error) {
+    console.error('Error transcribing file:', error);
+    flashMessage({
+      message: 'An error occurred while transcribing the file.',
+      type: 'error',
+    });
+  } finally {
+    audioIsUploading.value = false;
+  }
 }
-
 
 /*---------------------------------------------------------------------------*/
 // RENAME DOCUMENT
@@ -381,8 +380,8 @@ const onDeleted = ({ id, name }) => {
   // Remove the document from the local state
   const index = documents.findIndex((doc) => doc.id === id);
   if (index > -1) {
-      documents.splice(index, 1);
-      flashMessage(`Deleted source: ${name}`)
+    documents.splice(index, 1);
+    flashMessage(`Deleted source: ${name}`);
   }
 };
 

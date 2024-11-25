@@ -97,12 +97,7 @@ import { asyncTimeout } from '../utils/asyncTimeout.js';
 import ActivityIndicator from '../Components/ActivityIndicator.vue';
 import { useCreateDialog } from '../dialogs/useCreateDialog.js';
 
-const props = defineProps([
-  'source',
-  'sources',
-  'allCodes',
-  'projectId',
-]);
+const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
 
 //------------------------------------------------------------------------
 // SOURCES
@@ -132,7 +127,11 @@ const switchFile = (file) => {
 //------------------------------------------------------------------------
 // GENERIC EDIT DIALOG
 //------------------------------------------------------------------------
-const { schema: createSchema, open: openCreateDialog, onCreated: onCodeCreated } = useCreateDialog();
+const {
+  schema: createSchema,
+  open: openCreateDialog,
+  onCreated: onCodeCreated,
+} = useCreateDialog();
 const { schema: editSchema, target: editTarget } = useRenameDialog();
 const {
   target: deleteTarget,

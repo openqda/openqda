@@ -60,144 +60,158 @@ const createCodeSchema = ({
 };
 
 export const useCodes = () => {
-    const page = usePage()
-    const { allCodes, codebooks, projectId, source, auth } = page.props
-    const userId = auth.user.id
-    const sourceId = source.id
-    const key = `${projectId}-${sourceId}`
-    const codeStore = Codes.by(key)
-    const codebookStore = Codebooks.by(projectId)
-    const selectionStore = Selections.by(key)
-    const initCoding = async () => {
-        codebookStore.init(codebooks)
-        codeStore.init(allCodes)
-        selectionStore.init(source.selections.filter(s => s.creating_user_id === userId), id => codeStore.entry(id))
+  const page = usePage();
+  const { allCodes, codebooks, projectId, source, auth } = page.props;
+  const userId = auth.user.id;
+  const sourceId = source.id;
+  const key = `${projectId}-${sourceId}`;
+  const codeStore = Codes.by(key);
+  const codebookStore = Codebooks.by(projectId);
+  const selectionStore = Selections.by(key);
+  const initCoding = async () => {
+    codebookStore.init(codebooks);
+    codeStore.init(allCodes);
+    selectionStore.init(
+      source.selections.filter((s) => s.creating_user_id === userId),
+      (id) => codeStore.entry(id)
+    );
+  };
+
+  //---------------------------------------------------------------------------
+  // CREATE
+  //---------------------------------------------------------------------------
+  const createCode = async (options) => {
+    ['title', 'color', 'codebookId'].forEach((key) => {
+      if (!options[key]) {
+        throw new Error(`${key} is required!`);
+      }
+    });
+
+    const { response, error, code } = await Codes.create({
+      projectId,
+      source,
+      ...options,
+    });
+    if (error) throw error;
+    if (response.status < 400) {
+      return code;
+    }
+  };
+  //---------------------------------------------------------------------------
+  // UPDATE
+  //---------------------------------------------------------------------------
+  const updateCode = async ({ id, ...value }) => {
+    const entry = codeStore.entry(id);
+    const diff = {};
+    const restore = {};
+
+    if (value.title !== entry.name) {
+      diff.name = value.title;
+      restore.name = entry.name;
+    }
+    if ((value.description ?? '') !== entry.description) {
+      diff.description = value.description ?? '';
+      restore.description = entry.description;
     }
 
-    //---------------------------------------------------------------------------
-    // CREATE
-    //---------------------------------------------------------------------------
-    const createCode = async (options) => {
-        ['title', 'color', 'codebookId'].forEach((key) => {
-            if (!options[key]) {
-                throw new Error(`${key} is required!`)
-            }
-        })
-
-        const { response, error, code } = await Codes.create({ projectId, source, ...options })
-        if (error) throw error
-        if (response.status < 400) {
-            return code
-        }
-    }
-    //---------------------------------------------------------------------------
-    // UPDATE
-    //---------------------------------------------------------------------------
-    const updateCode = async ({ id, ...value }) => {
-        const entry = codeStore.entry(id)
-        const diff = {}
-        const restore = {}
-
-        if (value.title !== entry.name) {
-            diff.name = value.title
-            restore.name = entry.name
-        }
-        if ((value.description ?? '') !== entry.description) {
-            diff.description = (value.description ?? '')
-            restore.description = entry.description
-        }
-
-        if (value.color !== entry.color) {
-            diff.color = value.color
-            restore.color = entry.color
-        }
-
-        if (Object.keys(diff).length === 0) {
-            throw new Error(`Make at least one change in order to update`)
-        }
-
-        // optimistic UI
-        codeStore.update(id, diff)
-        const updatedCode = codeStore.entry(id)
-        selectionStore.update((selections) => {
-            const updated = []
-            selections.forEach(selection => {
-                if (selection.code.id === updatedCode.id) {
-                    selection.code = updatedCode
-                    updated.push(selection)
-                }
-            })
-            return updated
-        })
-
-        const { error, response } = await Codes.update({
-            projectId,
-            code: entry,
-            ...diff
-        })
-        if (error) {
-            codeStore.update(id, restore)
-            throw error
-        }
-        if (response.status >= 400) {
-            codeStore.update(id, restore)
-            throw new Error(response.data.message)
-        }
-
-        return true
-    }
-    //---------------------------------------------------------------------------
-    // DELETE
-    //---------------------------------------------------------------------------
-    const deleteCode = async (code) => {
-        // here we do not optistic UI, because
-        // adding-back will destroy the code-order
-        const { response, error } = await Codes.delete({ projectId, source, code })
-        if (error) throw error
-        if (response?.status >= 400) throw new Error(response.data.message)
-
-        codeStore.remove(code.id)
-        const selections = selectionStore.all().filter(selection => selection.code.id === code.id)
-        selectionStore.remove(...selections.map(s => s.id))
-        return true
+    if (value.color !== entry.color) {
+      diff.color = value.color;
+      restore.color = entry.color;
     }
 
-    const addCodeToParent = async ({ codeId, parentId }) => {
-        if (codeId === parentId) {
-            throw new Error('Cannot make code its own parent!')
+    if (Object.keys(diff).length === 0) {
+      throw new Error(`Make at least one change in order to update`);
+    }
+
+    // optimistic UI
+    codeStore.update(id, diff);
+    const updatedCode = codeStore.entry(id);
+    selectionStore.update((selections) => {
+      const updated = [];
+      selections.forEach((selection) => {
+        if (selection.code.id === updatedCode.id) {
+          selection.code = updatedCode;
+          updated.push(selection);
         }
-        if (!codeId) {
-            throw new Error('Cannot add code without id to a parent')
-        }
+      });
+      return updated;
+    });
 
-        const code = codeStore.entry(codeId)
-        const parent = codeStore.entry(parentId)
-        const oldParent = code.parent
+    const { error, response } = await Codes.update({
+      projectId,
+      code: entry,
+      ...diff,
+    });
+    if (error) {
+      codeStore.update(id, restore);
+      throw error;
+    }
+    if (response.status >= 400) {
+      codeStore.update(id, restore);
+      throw new Error(response.data.message);
+    }
 
-        // optimistic UI
-        codeStore.update(code.id, { parent })
-        parent.children = parent.children ?? []
-        parent.children.push(code)
+    return true;
+  };
+  //---------------------------------------------------------------------------
+  // DELETE
+  //---------------------------------------------------------------------------
+  const deleteCode = async (code) => {
+    // here we do not optistic UI, because
+    // adding-back will destroy the code-order
+    const { response, error } = await Codes.delete({ projectId, source, code });
+    if (error) throw error;
+    if (response?.status >= 400) throw new Error(response.data.message);
 
-        // TODO make optimistic UI procedures
-        //   a command-pattern that can be undone
-        const rollback = () => {
-            codeStore.update(code.id, { parent: oldParent })
-            parent.children.pop()
-        }
+    codeStore.remove(code.id);
+    const selections = selectionStore
+      .all()
+      .filter((selection) => selection.code.id === code.id);
+    selectionStore.remove(...selections.map((s) => s.id));
+    return true;
+  };
 
-        const { response, error } = await Codes.update({ projectId, source, code, parent })
+  const addCodeToParent = async ({ codeId, parentId }) => {
+    if (codeId === parentId) {
+      throw new Error('Cannot make code its own parent!');
+    }
+    if (!codeId) {
+      throw new Error('Cannot add code without id to a parent');
+    }
 
-        if (error) {
-            rollback()
-            throw error
-        }
-        if (response?.status >= 400) {
-            rollback()
-            throw new Error(response.data.message)
-        }
+    const code = codeStore.entry(codeId);
+    const parent = codeStore.entry(parentId);
+    const oldParent = code.parent;
 
-        return true
+    // optimistic UI
+    codeStore.update(code.id, { parent });
+    parent.children = parent.children ?? [];
+    parent.children.push(code);
+
+    // TODO make optimistic UI procedures
+    //   a command-pattern that can be undone
+    const rollback = () => {
+      codeStore.update(code.id, { parent: oldParent });
+      parent.children.pop();
+    };
+
+    const { response, error } = await Codes.update({
+      projectId,
+      source,
+      code,
+      parent,
+    });
+
+    if (error) {
+      rollback();
+      throw error;
+    }
+    if (response?.status >= 400) {
+      rollback();
+      throw new Error(response.data.message);
+    }
+
+    return true;
   };
 
   const computedCodes = computed(() => {

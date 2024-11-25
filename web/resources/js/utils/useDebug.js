@@ -1,5 +1,5 @@
-import { noop } from './function/noop.js'
+import { noop } from './function/noop.js';
 
 export const useDebug = () => {
-    return window.debugHandler ?? noop
-}
+  return window.debugHandler ?? noop;
+};

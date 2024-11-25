@@ -76,7 +76,7 @@ onMounted(() => {
 
 // https://stackoverflow.com/questions/49974145/how-to-convert-rgba-to-hex-color-code-using-javascript
 const rgba2hex = (color) => {
-    if (color.startsWith('#')) return color
+  if (color.startsWith('#')) return color;
   let rgb = color
     .replace(/\s/g, '')
     .match(/^rgba?\((\d+),(\d+),(\d+),?([^,\s)]+)?/i);

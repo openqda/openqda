@@ -6,7 +6,8 @@ export const useExport = () => {
   const { project } = usePage().props;
 
   return {
-    exportToCSV: ({ contents, users }) => exportToCSV({ contents, project, users }),
+    exportToCSV: ({ contents, users }) =>
+      exportToCSV({ contents, project, users }),
   };
 };
 
@@ -29,13 +30,11 @@ const exportToCSV = ({ contents, project, users }) => {
   contents.forEach((entry) => {
     entry.codes.forEach((code) => {
       code.segments.forEach((selection) => {
-        const user = users[selection.createdBy]
+        const user = users[selection.createdBy];
         csv.addRow([
           entry.name,
           code.name,
-          user?.name
-              ? user.name
-              : selection.createdBy,
+          user?.name ? user.name : selection.createdBy,
           selection.createdAt,
           selection.updatedAt !== selection.createdAt
             ? selection.updatedAt

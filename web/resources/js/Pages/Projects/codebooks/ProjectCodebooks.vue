@@ -11,9 +11,9 @@ import { useCodebookPreview } from './useCodebookPreview';
 import { router } from '@inertiajs/vue3';
 import { useCodebookUpdate } from '../../../domain/codebooks/useCodebookUpdate';
 import { useCodebookCreate } from '../../../domain/codebooks/useCodebookCreate';
-import {useDeleteDialog} from "../../../dialogs/useDeleteDialog";
-import DeleteDialog from "../../../dialogs/DeleteDialog.vue";
-import ContrastText from "../../../Components/text/ContrastText.vue";
+import { useDeleteDialog } from '../../../dialogs/useDeleteDialog';
+import DeleteDialog from '../../../dialogs/DeleteDialog.vue';
+import ContrastText from '../../../Components/text/ContrastText.vue';
 
 const { codebook: previewCodebook, close: closeCodebookPreview } =
   useCodebookPreview();
@@ -26,11 +26,7 @@ const {
   initCodebooks,
   codebooks,
 } = useCodebooks();
-const {
-    message,
-    challenge,
-    target
-} = useDeleteDialog()
+const { message, challenge, target } = useDeleteDialog();
 const {
   close: closeUpdate,
   schema: updateCodebookSchema,
@@ -229,12 +225,12 @@ const deleteCodebookFromArray = (codebook) => {
       </div>
     </template>
   </CreateDialog>
-    <DeleteDialog
-        :target="target"
-        :message="message"
-        :challenge="challenge"
-        :submit="deleteCodebook"
-        />
+  <DeleteDialog
+    :target="target"
+    :message="message"
+    :challenge="challenge"
+    :submit="deleteCodebook"
+  />
   <ConfirmDialog
     :title="`Preview of ${previewCodebook?.name}`"
     :show="!!previewCodebook"

@@ -111,14 +111,7 @@
 </template>
 
 <script setup>
-import {
-  defineProps,
-  onMounted,
-  provide,
-  ref,
-  unref,
-  watch,
-} from 'vue';
+import { defineProps, onMounted, provide, ref, unref, watch } from 'vue';
 import PreparationsEditor from '../editor/PreparationsEditor.vue';
 import FilesManager from '../Components/files/FilesManager.vue';
 import Button from '../Components/interactive/Button.vue';
@@ -252,9 +245,7 @@ async function saveQuillContent() {
 
   if (error || response.status >= 400) {
     console.error('An error occurred while saving:', error);
-    const message = error
-        ? error.response.data.message
-        : response.data.message
+    const message = error ? error.response.data.message : response.data.message;
     flashMessage(message, { type: 'error' });
   }
   await asyncTimeout(300);

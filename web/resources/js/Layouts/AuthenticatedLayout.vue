@@ -145,13 +145,19 @@
                 />
                 <span class="sr-only">{{ item.label }}</span>
               </Link>
-                <div class="flex items-center justify-center mb-3" v-if="usersInRoute(item.href).length">
+              <div
+                class="flex items-center justify-center mb-3"
+                v-if="usersInRoute(item.href).length"
+              >
                 <div v-for="user in usersInRoute(item.href)" :key="user.id">
-                      <ProfileImage :alt="`Image of ${user.name ?? user.id}`"
-                                    :name="user.name"
-                                    :src="user.profile_photo" class="w-3 h-3" />
-                  </div>
+                  <ProfileImage
+                    :alt="`Image of ${user.name ?? user.id}`"
+                    :name="user.name"
+                    :src="user.profile_photo"
+                    class="w-3 h-3"
+                  />
                 </div>
+              </div>
             </li>
           </ul>
           <div
@@ -222,7 +228,7 @@
 <script setup>
 import { Routes } from '../routes/Routes.js';
 import { Link } from '@inertiajs/vue3';
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { cn } from '../utils/css/cn.js';
 import {
   Dialog,
@@ -237,7 +243,7 @@ import { Project } from '../state/Project.js';
 import FlashMessage from '../Components/notification/FlashMessage.vue';
 import { useWebSocketConnection } from '../startup/echo.js';
 import { useTeam } from '../domain/teams/useTeam.js';
-import ProfileImage from '../Components/user/ProfileImage.vue'
+import ProfileImage from '../Components/user/ProfileImage.vue';
 
 const websocket = useWebSocketConnection();
 const navigation = ref([]);
@@ -272,24 +278,24 @@ const cleanup = () => {
 };
 
 const setupTeam = () => {
-    if (teamInitialized(teamId.value)) {
-        return;
-    }
-    initTeams();
+  if (teamInitialized(teamId.value)) {
+    return;
+  }
+  initTeams();
 
-    if (pingIntervalId) {
-        clearInterval(pingIntervalId);
+  if (pingIntervalId) {
+    clearInterval(pingIntervalId);
+  }
+  dispatchPresence().catch(console.error);
+  pingIntervalId = setInterval(async () => {
+    // Dispatch an event to the server to indicate that the user is still on the page
+    // This could be done via an Axios call to a specific endpoint that handles this logic
+    const { response, error } = await dispatchPresence();
+    if (error || response.status >= 400) {
+      console.error(error ?? response);
     }
-    dispatchPresence().catch(console.error)
-    pingIntervalId = setInterval(async () => {
-        // Dispatch an event to the server to indicate that the user is still on the page
-        // This could be done via an Axios call to a specific endpoint that handles this logic
-        const { response, error } = await dispatchPresence();
-        if (error || response.status >= 400) {
-            console.error(error ?? response);
-        }
-    }, 5000); // Every 5 seconds
-    document.addEventListener('beforeunload', cleanup);
+  }, 5000); // Every 5 seconds
+  document.addEventListener('beforeunload', cleanup);
 };
 onMounted(() => {
   const projectId = Project.getId();
@@ -314,23 +320,25 @@ onMounted(() => {
 
   navigation.value.push(...routes);
 
-    if (hasTeam) {
-        watch(teamId, setupTeam, { immediate: true });
-    }
+  if (hasTeam) {
+    watch(teamId, setupTeam, { immediate: true });
+  }
 });
 
-const team = ref([])
-watch(usersInChannel, (value) => {
-  team.value = Object.values(value ?? {})
-},  { deep: true });
+const team = ref([]);
+watch(
+  usersInChannel,
+  (value) => {
+    team.value = Object.values(value ?? {});
+  },
+  { deep: true }
+);
 
 const usersInRoute = (href) => {
-
-    return team.value.filter(user => {
-        return href === user.url
-    });
-}
-
+  return team.value.filter((user) => {
+    return href === user.url;
+  });
+};
 
 onUnmounted(() => {
   // Leave the channel when the component is unmounted

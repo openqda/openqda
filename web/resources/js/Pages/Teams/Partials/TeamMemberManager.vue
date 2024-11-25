@@ -14,8 +14,8 @@ import SecondaryButton from '../../../Components/SecondaryButton.vue';
 import InputField from '../../../form/InputField.vue';
 import ProfileImage from '../../../Components/user/ProfileImage.vue';
 import Button from '../../../Components/interactive/Button.vue';
-import DeleteDialog from '../../../dialogs/DeleteDialog.vue'
-import { asyncTimeout } from '../../../utils/asyncTimeout.js'
+import DeleteDialog from '../../../dialogs/DeleteDialog.vue';
+import { asyncTimeout } from '../../../utils/asyncTimeout.js';
 
 const props = defineProps({
   team: Object,
@@ -118,8 +118,8 @@ const removeTeamMember = async () => {
     }
   );
 
-  await asyncTimeout(300)
-  return true
+  await asyncTimeout(300);
+  return true;
 };
 
 const displayableRole = (role) => {
@@ -369,8 +369,6 @@ onMounted(() => {
     </DialogModal>
 
     <div v-if="userPermissions.canAddTeamMembers">
-
-
       <!-- Add Team Member -->
       <FormSection @submitted="addTeamMember">
         <template #title>Add Team Member</template>
@@ -548,10 +546,10 @@ onMounted(() => {
 
     <!-- Remove Team Member Confirmation Modal -->
     <DeleteDialog
-        title="Remove Team Member"
-        :target="teamMemberBeingRemoved"
-        :message="`This will remove ${teamMemberBeingRemoved?.name} from the team.`"
-        :submit="removeTeamMember"
+      title="Remove Team Member"
+      :target="teamMemberBeingRemoved"
+      :message="`This will remove ${teamMemberBeingRemoved?.name} from the team.`"
+      :submit="removeTeamMember"
       @cancelled="teamMemberBeingRemoved = null"
     >
     </DeleteDialog>

@@ -3,7 +3,7 @@ import Button from '../Components/interactive/Button.vue';
 import DialogBase from './DialogBase.vue';
 import { ref, watch } from 'vue';
 import FilesImportWizard from '../Components/files/FilesImportWizard.vue';
-import ActivityIndicator from "../Components/ActivityIndicator.vue";
+import ActivityIndicator from '../Components/ActivityIndicator.vue';
 
 const emit = defineEmits(['complete', 'cancelled']);
 const error = ref(null);
@@ -15,7 +15,7 @@ const props = defineProps({
   submit: { type: Function },
   title: { type: String, required: false },
   filesSelected: Function,
-    progress: Number
+  progress: Number,
 });
 watch(
   () => props.schema,
@@ -46,7 +46,7 @@ const importAllFiles = async (files) => {
   } catch (e) {
     error.value = e.message;
   } finally {
-      uploading.value = false
+    uploading.value = false;
   }
   if (!error.value) {
     close();
@@ -64,21 +64,23 @@ const importAllFiles = async (files) => {
         @files-selected="importAllFiles"
         :disabled="uploading"
       >
-          <template #info>
-              <span v-if="uploading || error" class="text-sm">
-                <ActivityIndicator v-if="uploading">
-                    <span>uploading files...</span>
-                    <span v-if="props.progress">{{props.progress}}%</span>
-                </ActivityIndicator>
-              </span>
-              <span class="text-destructive" v-if="error">
-                {{error}}
-              </span>
-          </template>
+        <template #info>
+          <span v-if="uploading || error" class="text-sm">
+            <ActivityIndicator v-if="uploading">
+              <span>uploading files...</span>
+              <span v-if="props.progress">{{ props.progress }}%</span>
+            </ActivityIndicator>
+          </span>
+          <span class="text-destructive" v-if="error">
+            {{ error }}
+          </span>
+        </template>
       </FilesImportWizard>
     </template>
     <template #close>
-        <Button variant="ghost" :disabled="uploading" size="sm" @click="cancel">&times;</Button>
+      <Button variant="ghost" :disabled="uploading" size="sm" @click="cancel"
+        >&times;</Button
+      >
     </template>
   </DialogBase>
 </template>

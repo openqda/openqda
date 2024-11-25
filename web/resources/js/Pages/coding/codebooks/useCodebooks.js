@@ -80,19 +80,19 @@ export const useCodebooks = () => {
   };
 
   const deleteCodebook = async (codebook) => {
-      const codebookId = codebook.id
-      const { response, error } = await Codebooks.delete({ codebookId });
+    const codebookId = codebook.id;
+    const { response, error } = await Codebooks.delete({ codebookId });
 
-      if (error) {
-          throw error;
-      }
-      if (response.status > 400) {
-          throw new Error(response.data.message);
-      }
+    if (error) {
+      throw error;
+    }
+    if (response.status > 400) {
+      throw new Error(response.data.message);
+    }
 
-      const removed = codebookStore.remove(codebookId)
-      return removed.length
-  }
+    const removed = codebookStore.remove(codebookId);
+    return removed.length;
+  };
 
   const computedCodebooks = computed(() => codebookStore.all());
 

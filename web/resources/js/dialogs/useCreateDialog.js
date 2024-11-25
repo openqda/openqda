@@ -1,10 +1,10 @@
 import { reactive, toRefs } from 'vue';
-import { noop } from '../utils/function/noop.js'
+import { noop } from '../utils/function/noop.js';
 
 const state = reactive({
   schema: null,
   id: null,
-  onCreated: null
+  onCreated: null,
 });
 
 export const useCreateDialog = () => {
