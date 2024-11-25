@@ -24,7 +24,6 @@ const props = defineProps({
   },
 });
 
-const char = (props.name ?? '').charAt(0).toUpperCase();
 const showImage = ref(!!props.src);
 const hue = ref(getUserColor(props.email) || getUserColor(props.name));
 </script>

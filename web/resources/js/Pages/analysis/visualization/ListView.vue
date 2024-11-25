@@ -62,7 +62,6 @@
 import { onMounted, ref, watch } from 'vue';
 import { XMarkIcon } from '@heroicons/vue/24/solid';
 import Headline3 from '../../../Components/layout/Headline3.vue';
-import Button from '../../../Components/interactive/Button.vue';
 
 defineEmits(['remove']);
 const props = defineProps([
@@ -103,7 +102,7 @@ API.defineOptions({
 })
 */
 
-const rebuildList = (options) => {
+const rebuildList = () => {
   props.sources.forEach((source) => {
     const c = API.getCodesForSource(source);
 

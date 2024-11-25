@@ -231,7 +231,7 @@ onUnmounted(() => {
     </p>
     <ul ref="draggableRef" data-id="root">
       <CodeListItem
-        v-for="(code, i) in sortable"
+        v-for="(code) in sortable"
         :isDragging="isDragging"
         :code="code"
         :key="code.id"

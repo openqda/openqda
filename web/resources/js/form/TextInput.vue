@@ -1,10 +1,8 @@
 <script setup>
 import InputLabel from './InputLabel.vue';
-import { useAttrs } from 'vue';
 import InputField from './InputField.vue';
 import InputError from '../../../vendor/laravel/jetstream/stubs/inertia/resources/js/Components/InputError.vue';
 
-const atts = useAttrs();
 const props = defineProps({
   label: String,
   validation: Object,

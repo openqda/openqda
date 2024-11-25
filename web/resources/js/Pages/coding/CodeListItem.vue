@@ -6,7 +6,6 @@ import {
   EyeSlashIcon,
   BarsArrowDownIcon,
   PencilIcon,
-  MinusIcon,
   PlusIcon,
 } from '@heroicons/vue/24/solid/index.js';
 import {
@@ -40,7 +39,6 @@ const Selections = useSelections();
 const props = defineProps({
   code: Object,
   parent: Object,
-  isDragging: Boolean,
   liclass: String,
   selections: Array,
   canSort: Boolean,
@@ -99,11 +97,6 @@ const toggle = () => {
     showTexts.value = false;
   }
 };
-
-//------------------------------------------------------------------------
-// RANGE
-//------------------------------------------------------------------------
-const indent = (code) => {};
 
 //------------------------------------------------------------------------
 // DIALOGS
@@ -184,7 +177,7 @@ const initDraggable = () => {
     async onEnd(e) {
       const codeId = e.item.getAttribute('data-code');
       const parentId = dragTarget.value;
-      const to = e.to.getAttribute('data-id');
+      // const to = e.to.getAttribute('data-id');
 
       // clear after data retrieval
       isDragging.value = false;
@@ -195,6 +188,7 @@ const initDraggable = () => {
 
         if (moved) {
           const index = props.code.children.findIndex((c) => c.id === codeId);
+          // eslint-disable-next-line vue/no-mutating-props
           index > -1 && props.code.children.splice(index, 1);
         }
       }
@@ -416,6 +410,7 @@ onUnmounted(() => {
         <li
           v-for="selection in sortedTexts"
           class="p-3 hover:bg-background/20"
+          :key="selection.id"
         >
           <div
             class="w-full flex items-center justify-between tracking-wider text-xs font-semibold"

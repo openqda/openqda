@@ -44,6 +44,7 @@
         </div>
         <CodeList
           v-for="codebook in codebooks"
+          :key="codebook.id"
           :codebook="codebook"
           :codes="codes.filter((code) => code.codebook === codebook.id)"
           v-if="codesView === 'codes'"
@@ -66,7 +67,7 @@
     </template>
     <template #main>
       <CodingEditor
-        :project="{ id: projectId }"
+        :project="{ id: props.projectId }"
         :source="$props.source"
         :codes="$props.allCodes"
       />
@@ -76,7 +77,7 @@
 
 <script setup>
 import { PlusIcon } from '@heroicons/vue/24/solid';
-import { onMounted, onUpdated, ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import CodeList from './coding/CodeList.vue';
 import CodingEditor from './coding/CodingEditor.vue';
@@ -88,7 +89,6 @@ import { useRange } from './coding/useRange.js';
 import { useRenameDialog } from '../dialogs/useRenameDialog.js';
 import { useDeleteDialog } from '../dialogs/useDeleteDialog.js';
 import CreateDialog from '../dialogs/CreateDialog.vue';
-import { Codes } from './coding/codes/Codes.js';
 import DeleteDialog from '../dialogs/DeleteDialog.vue';
 import { useSelections } from './coding/selections/useSelections.js';
 import FilesList from '../Components/files/FilesList.vue';
@@ -100,7 +100,6 @@ import { useCreateDialog } from '../dialogs/useCreateDialog.js';
 const props = defineProps([
   'source',
   'sources',
-  'codebooks',
   'allCodes',
   'projectId',
 ]);
@@ -176,7 +175,6 @@ const openCreateDialogHandler = (view) => {
   }
 };
 const createCodeHandler = async (formData) => {
-    debugger
   const code = await createCode(formData);
   const txt = createSchema.value.title.defaultValue;
   const { index, length } = prevRange.value ?? {};
@@ -201,9 +199,6 @@ const createCodeHandler = async (formData) => {
 // PAGE
 //------------------------------------------------------------------------
 const pageTitle = ref('Coding');
-const url = window.location.pathname;
-const segments = url.split('/');
-const projectId = segments[2]; // Assuming project id is the third segment in URL path
 
 onMounted(async () => {
   const fileId = new URLSearchParams(window.location.search).get('source');

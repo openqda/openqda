@@ -126,13 +126,9 @@
 
 <script setup>
 import {
-  ArrowPathRoundedSquareIcon,
-  CloudArrowUpIcon,
-  DocumentArrowDownIcon,
   PlusIcon,
-  XCircleIcon,
 } from '@heroicons/vue/24/solid';
-import { inject, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { inject, onMounted, reactive, ref, watch } from 'vue'
 import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import FilesList from './FilesList.vue';
@@ -368,7 +364,7 @@ const onRenamed = ({ id, name }) => {
 /*---------------------------------------------------------------------------*/
 const toDelete = ref(null);
 
-async function deleteDocument(document, index) {
+async function deleteDocument(document) {
   const { response, error } = await request({
     url: `/files/${document.id}`,
     type: 'delete',
@@ -379,7 +375,6 @@ async function deleteDocument(document, index) {
 }
 
 const onDeleted = ({ id, name }) => {
-    debugger
   // Emit an event to inform the parent that a document has been deleted
   emit('documentDeleted', id);
 

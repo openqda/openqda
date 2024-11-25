@@ -1,4 +1,4 @@
-import { reactive, readonly, ref, toRef, toRefs } from 'vue';
+import { readonly, ref } from 'vue';
 import { debounce } from '../../../utils/dom/debounce.js';
 
 export const createVisualizationAPI = ({

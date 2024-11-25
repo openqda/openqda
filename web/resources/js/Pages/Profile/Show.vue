@@ -7,7 +7,7 @@ import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout.vue';
 import InputLabel from '../../form/InputLabel.vue';
 import ThemeSwitch from '../../theme/ThemeSwitch.vue';
 import Button from '../../Components/interactive/Button.vue';
-import { router, useForm } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 import BaseContainer from '../../Layouts/BaseContainer.vue';
 // import '../../Pages/Profile/Partials/TwoFactorAuthenticationForm.vue';
 
@@ -15,8 +15,6 @@ defineProps({
   confirmsTwoFactorAuthentication: Boolean,
   sessions: Array,
 });
-
-const form = useForm({});
 
 function onLogout() {
   router.post(route('logout'));

@@ -716,6 +716,7 @@
 </template>
 
 <script setup>
+/* eslint-disable */
 // import {formats, undoChange, redoChange} from '../editor/EditorConfig.js'
 // import '../editor/editor.css'
 import {
@@ -2786,6 +2787,7 @@ const onCodebookCreated = (newCodebook) => {
   // Add the new codebook to the project's codebooks array
   activeCodebook.value.push(newCodebook);
 };
+/* eslint-enable */
 </script>
 
 <style scoped>

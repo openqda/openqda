@@ -177,7 +177,7 @@ import { useUsers } from '../domain/teams/useUsers.js';
 //------------------------------------------------------------------------
 // DATA / PROPS
 //------------------------------------------------------------------------
-const props = defineProps(['sources', 'codes', 'codebooks', 'project']);
+const props = defineProps(['codebooks', 'project']);
 const { allUsers } = useUsers();
 
 //------------------------------------------------------------------------

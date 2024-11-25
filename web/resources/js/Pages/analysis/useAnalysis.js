@@ -1,4 +1,4 @@
-import { computed, reactive, ref, toRef, toRefs } from 'vue';
+import { reactive, ref, toRefs } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import { debounce } from '../../utils/dom/debounce.js';
 import { unfoldCodes } from './unfoldCodes.js';

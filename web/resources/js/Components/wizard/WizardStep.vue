@@ -3,7 +3,6 @@ import { inject } from 'vue';
 import WizardOptions from './WizardOptions.vue';
 
 const WizardCtx = inject('wizardCtx');
-const mainTitle = inject('mainTitle');
 const props = defineProps({
   name: String,
   back: {

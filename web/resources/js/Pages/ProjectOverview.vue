@@ -81,7 +81,6 @@ const props = defineProps([
 
 const codebooks = ref([]);
 const name = ref(props.project.name);
-const description = ref(props.project.description);
 const url = window.location.pathname;
 const segments = url.split('/');
 let projectId = segments[2]; // Assuming project id is the third segment in URL path

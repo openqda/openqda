@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { cn } from '../../utils/css/cn';
-import { onMounted, ref } from 'vue';
 /*
  | This component renders a horizontal tab-list (nav tabs)
  | on md or larger screens or a native select component on
  | smaller screen sizes.
  */
+import { cn } from '../../utils/css/cn';
+import { ref } from 'vue';
 
 const emit = defineEmits(['change']);
 const props = defineProps({

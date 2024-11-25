@@ -54,7 +54,6 @@ import { SelectionHighlightBG } from './editor/SelectionHighlightBG.js';
 import { SelectionHash } from '../../editor/SelectionHash.js';
 import EditorToolbar from '../../editor/EditorToolbar.vue';
 import CodingContextMenu from './contextMenu/CodingContextMenu.vue';
-import { Selections } from './selections/Selections.js';
 import { flashMessage } from '../../Components/notification/flashMessage.js';
 import { useCodes } from './useCodes.js';
 import { useRange } from './useRange.js';
@@ -63,12 +62,11 @@ import { useCodingEditor } from './useCodingEditor.js';
 import { useContextMenu } from './contextMenu/useContextMenu.js';
 import { ArrowPathIcon } from '@heroicons/vue/20/solid';
 import Headline1 from '../../Components/layout/Headline1.vue';
-import { createDelta } from './editor/createDelta.js';
 
 const editorContent = ref('');
 const contextMenu = useContextMenu();
 const { selected, createSelection, markToDelete } = useSelections();
-const { observe, overlaps, selections, selectionsByIndex } = useCodes();
+const { observe, selections, selectionsByIndex } = useCodes();
 const { prevRange, setRange } = useRange();
 const { setInstance, dispose } = useCodingEditor();
 Quill.register('modules/lineNumber', LineNumber, true);
@@ -85,8 +83,7 @@ const props = defineProps({
   locked: Boolean,
   CanUnlock: Boolean,
 });
-const projectId = props.project.id;
-const sourceId = props.source.id;
+
 const disposables = new Set();
 
 let quillInstance;
@@ -140,7 +137,7 @@ onMounted(() => {
     added: (docs) => {
       addSelections(docs);
     },
-    updated: (docs, allDocs) => {
+    updated: (docs /*, allDocs */) => {
       addSelections(docs);
     },
     removed: (docs) => {
@@ -225,8 +222,8 @@ watch(selected, async ({ code }) => {
   });
 
   if (!selection) {
-    flashMessage(error?.message ?? 'Failed to create code', { type: 'error' });
-    h.remove({ index, end: index + length });
+    flashMessage(`Failed to create selection at <${index}:${index + length}> for code ${code?.name}`, { type: 'error' });
+    // TODO: remove selection from editor?
   }
 });
 

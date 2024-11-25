@@ -15,7 +15,6 @@ import InputField from '../../../form/InputField.vue';
 import ProfileImage from '../../../Components/user/ProfileImage.vue';
 import Button from '../../../Components/interactive/Button.vue';
 import DeleteDialog from '../../../dialogs/DeleteDialog.vue'
-import ConfirmDialog from '../../../dialogs/ConfirmDialog.vue'
 import { asyncTimeout } from '../../../utils/asyncTimeout.js'
 
 const props = defineProps({

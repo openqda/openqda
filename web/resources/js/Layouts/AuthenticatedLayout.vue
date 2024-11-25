@@ -146,7 +146,7 @@
                 <span class="sr-only">{{ item.label }}</span>
               </Link>
                 <div class="flex items-center justify-center mb-3" v-if="usersInRoute(item.href).length">
-                <div v-for="user in usersInRoute(item.href)">
+                <div v-for="user in usersInRoute(item.href)" :key="user.id">
                       <ProfileImage :alt="`Image of ${user.name ?? user.id}`"
                                     :name="user.name"
                                     :src="user.profile_photo" class="w-3 h-3" />
@@ -222,7 +222,7 @@
 <script setup>
 import { Routes } from '../routes/Routes.js';
 import { Link } from '@inertiajs/vue3';
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { cn } from '../utils/css/cn.js';
 import {
   Dialog,

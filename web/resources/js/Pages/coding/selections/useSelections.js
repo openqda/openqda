@@ -1,7 +1,6 @@
 import { reactive, toRefs } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import { Selections } from './Selections.js';
-import { flashMessage } from '../../../Components/notification/flashMessage.js';
 import { randomUUID } from '../../../utils/randomUUID.js';
 
 const state = reactive({

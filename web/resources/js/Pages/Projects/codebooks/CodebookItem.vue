@@ -123,7 +123,7 @@ const isPublic = ref(props.public);
 const codebook = ref(props.codebook);
 
 // Reactive state for the dialog visibility and editable fields
-const emit = defineEmits(['delete', 'importCodebook']);
+defineEmits(['delete', 'importCodebook']);
 const url = window.location.pathname;
 const segments = url.split('/');
 let projectId = segments[2]; // Assuming

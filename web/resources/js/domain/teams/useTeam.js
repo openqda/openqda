@@ -28,7 +28,7 @@ export const useTeam = () => {
     }
 
     const initTeams = () => {
-        const teamWasInitialized = teamId && teamsInitialized.value[teamId.value]
+        const teamWasInitialized = teamId.value && teamsInitialized.value[teamId.value]
         const channel = `team.${teamId.value}`
         const Echo = useEcho().echo()
 
@@ -100,7 +100,7 @@ export const useTeam = () => {
         }
     }
 
-    const hasTeam = () => !!teamId
+    const hasTeam = () => !!teamId.value
 
     return {
         usersInChannel,

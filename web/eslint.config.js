@@ -21,6 +21,7 @@ export default [
     {
         rules: {
             'vue/multi-word-component-names': 'off',
+            'vue/no-use-v-if-with-v-for': 'off',
             'no-unused-vars': ["error", { "ignoreRestSiblings": true }]
         },
     }

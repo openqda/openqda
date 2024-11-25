@@ -30,7 +30,7 @@ const error = ref(null);
 const complete = ref(false);
 const submitting = ref(false);
 const open = ref(false);
-const id = ref(null);
+const localId = ref(null);
 
 watch(
   () => props.target,
@@ -38,7 +38,7 @@ watch(
 );
 
 const start = (file) => {
-  id.value = file.id;
+  localId.value = file.id;
   newName.value = file.name;
   open.value = true;
   error.value = null;
@@ -73,7 +73,7 @@ const submit = async () => {
   };
 
   try {
-    const data = { id: id.value, name: newName.value };
+    const data = { id: localId.value, name: newName.value };
     const { error } = await props.submit(data);
     if (error) {
       onError(error);
@@ -91,14 +91,14 @@ const submit = async () => {
       complete.value = false;
       open.value = false;
       submitting.value = false;
-      emit('renamed', { id: id.value, name: newName.value });
+      emit('renamed', { id: localId.value, name: newName.value });
     }, 300);
   }
 };
 
 const cancel = () => {
   open.value = false;
-  id.value = null;
+  localId.value = null;
   newName.value = null;
   error.value = null;
   submitting.value = false;

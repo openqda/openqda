@@ -53,7 +53,9 @@ initSearch();
 onMounted(() => {
   try {
     focusCurrent();
-  } catch {}
+  } catch (e) {
+      console.error(e)
+  }
 });
 </script>
 
@@ -108,6 +110,7 @@ onMounted(() => {
   <ul class="pb-12" v-if="projects?.length">
     <li
       v-for="entry in projects"
+      :key="entry.id"
       ref="scrollRefs"
       :data-id="entry.id"
       :class="

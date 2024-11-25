@@ -112,9 +112,7 @@
 
 <script setup>
 import {
-  computed,
   defineProps,
-  onBeforeUnmount,
   onMounted,
   provide,
   ref,
@@ -152,7 +150,6 @@ const editorSourceRef = ref({
   charsXLine: 80,
 });
 
-const focus = ref(false);
 const editorComponent = ref();
 const props = defineProps(['sources', 'newDocument']);
 const documents = ref([]);
@@ -253,9 +250,12 @@ async function saveQuillContent() {
     },
   });
 
-  if (error) {
+  if (error || response.status >= 400) {
     console.error('An error occurred while saving:', error);
-    flashMessage(error.response.data.message, { type: 'error' });
+    const message = error
+        ? error.response.data.message
+        : response.data.message
+    flashMessage(message, { type: 'error' });
   }
   await asyncTimeout(300);
   saving.value = false;

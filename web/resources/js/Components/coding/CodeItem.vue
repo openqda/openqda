@@ -1,3 +1,86 @@
+<script setup>
+/*
+ | Visual representation of a code as list-item without
+ | further interactivity.
+ */
+import { inject, onMounted, ref, watchEffect } from 'vue';
+import {
+    ChevronDownIcon,
+    ChevronUpIcon,
+    EllipsisVerticalIcon,
+    PencilSquareIcon,
+} from '@heroicons/vue/24/outline';
+import { XCircleIcon as XCircleSolidIcon } from '@heroicons/vue/24/solid';
+import DropdownMenu from './DropdownMenu.vue';
+import { vClickOutside } from './clickOutsideDirective.js';
+import CodeLabel from './CodeLabel.vue';
+
+const props = defineProps(['code', 'index', 'level', 'parentId']);
+defineEmits(['child-drag']);
+
+const code = ref(props.code);
+const childCodeItems = ref(null);
+const codeItemComponents = ref([]); // Initialize an empty array
+const handleDropdownClickOutside = inject('handleDropdownClickOutside');
+const handleDragCodeStart = inject('handleDragCodeStart');
+const codes = inject('codes');
+const deleteTextFromCode = inject('deleteTextFromCode');
+const handleDrag = inject('handleDrag');
+
+const lowerOpacityOfOthers = inject('lowerOpacityOfOthers');
+const resetOpacityOfOthers = inject('resetOpacityOfOthers');
+const saveCodeTitle = inject('saveCodeTitle');
+const saveDescription = inject('saveDescription');
+const toggleCodeText = inject('toggleCodeText');
+const scrollToTextPosition = inject('scrollToTextPosition');
+const handleCodeDescriptionClickOutside = inject(
+    'handleCodeDescriptionClickOutside'
+);
+const openDescription = inject('openDescription');
+
+const handleChildDrag = (event, index, parentId, codeId) => {
+    handleDrag(event, index, parentId, codeId);
+};
+
+// Function to collect all child components
+const collectChildren = () => {
+    // Clean the array first
+    codeItemComponents.value = [];
+
+    // Use whatever logic you have to find your child components.
+    // For this example, let's say we find them and put them in a variable called 'foundChildren'.
+    const foundChildren = document.querySelectorAll('.grandchild');
+
+    // Add them to codeItemComponents
+    codeItemComponents.value.push(...foundChildren);
+
+    // Ask each child to collect its own children
+    codeItemComponents.value.forEach((childComponent) => {
+        if (typeof childComponent.collectChildren === 'function') {
+            childComponent.collectChildren();
+        }
+    });
+};
+
+defineExpose({
+    childCodeItems,
+    codeItemComponents,
+    collectChildren, // expose this function
+});
+
+onMounted(async () => {
+    collectChildren();
+});
+
+watchEffect(() => {
+    // Go through all children and ask them to refresh their children
+    codeItemComponents.value.forEach((childComponent) => {
+        if (typeof childComponent.collectChildren === 'function') {
+            childComponent.collectChildren();
+        }
+    });
+});
+</script>
 <template>
   <li
     ref="childCodeItems"
@@ -163,86 +246,6 @@
     />
   </template>
 </template>
-
-<script setup>
-import { inject, onMounted, ref, watchEffect } from 'vue';
-import {
-  ChevronDownIcon,
-  ChevronUpIcon,
-  EllipsisVerticalIcon,
-  PencilSquareIcon,
-} from '@heroicons/vue/24/outline';
-import { XCircleIcon as XCircleSolidIcon } from '@heroicons/vue/24/solid';
-import DropdownMenu from './DropdownMenu.vue';
-import { vClickOutside } from './clickOutsideDirective.js';
-import CodeLabel from './CodeLabel.vue';
-
-const props = defineProps(['code', 'index', 'level', 'parentId']);
-defineEmits(['child-drag']);
-
-const code = ref(props.code);
-const childCodeItems = ref(null);
-const codeItemComponents = ref([]); // Initialize an empty array
-const handleDropdownClickOutside = inject('handleDropdownClickOutside');
-const handleDragCodeStart = inject('handleDragCodeStart');
-const codes = inject('codes');
-const deleteTextFromCode = inject('deleteTextFromCode');
-const handleDrag = inject('handleDrag');
-
-const lowerOpacityOfOthers = inject('lowerOpacityOfOthers');
-const resetOpacityOfOthers = inject('resetOpacityOfOthers');
-const saveCodeTitle = inject('saveCodeTitle');
-const saveDescription = inject('saveDescription');
-const toggleCodeText = inject('toggleCodeText');
-const scrollToTextPosition = inject('scrollToTextPosition');
-const handleCodeDescriptionClickOutside = inject(
-  'handleCodeDescriptionClickOutside'
-);
-const openDescription = inject('openDescription');
-
-const handleChildDrag = (event, index, parentId, codeId) => {
-  handleDrag(event, index, parentId, codeId);
-};
-
-// Function to collect all child components
-const collectChildren = () => {
-  // Clean the array first
-  codeItemComponents.value = [];
-
-  // Use whatever logic you have to find your child components.
-  // For this example, let's say we find them and put them in a variable called 'foundChildren'.
-  const foundChildren = document.querySelectorAll('.grandchild');
-
-  // Add them to codeItemComponents
-  codeItemComponents.value.push(...foundChildren);
-
-  // Ask each child to collect its own children
-  codeItemComponents.value.forEach((childComponent) => {
-    if (typeof childComponent.collectChildren === 'function') {
-      childComponent.collectChildren();
-    }
-  });
-};
-
-defineExpose({
-  childCodeItems,
-  codeItemComponents,
-  collectChildren, // expose this function
-});
-
-onMounted(async () => {
-  collectChildren();
-});
-
-watchEffect(() => {
-  // Go through all children and ask them to refresh their children
-  codeItemComponents.value.forEach((childComponent) => {
-    if (typeof childComponent.collectChildren === 'function') {
-      childComponent.collectChildren();
-    }
-  });
-});
-</script>
 <style scoped>
 [contenteditable]:focus {
   outline: none !important; /* Removes the browser default outline */

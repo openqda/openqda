@@ -1,13 +1,9 @@
 <script setup>
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Link, useForm } from '@inertiajs/vue3';
 import AuthenticationCard from '../../Components/AuthenticationCard.vue';
-import AuthenticationCardLogo from '../../Components/AuthenticationCardLogo.vue';
 import InputError from '../../form/InputError.vue';
 import InputLabel from '../../form/InputLabel.vue';
-import PrimaryButton from '../../Components/PrimaryButton.vue';
 import InputField from '../../form/InputField.vue';
-import Footer from '../../Layouts/Footer.vue';
-import Headline2 from '../../Components/layout/Headline2.vue';
 import Headline1 from '../../Components/layout/Headline1.vue';
 
 defineProps({

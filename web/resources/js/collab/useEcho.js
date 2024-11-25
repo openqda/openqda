@@ -6,6 +6,12 @@ window.Pusher = Pusher;
 const forceTLS = (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https';
 const enabledTransports = [forceTLS ? 'wss' : 'ws'];
 
+/**
+ * Helper to initialize and retrieve the Websocket
+ * client (Echo).
+ *
+ * @return {{init: (function(): Echo), echo: (function(): Echo)}}
+ */
 export const useEcho = () => {
   return {
     init: () => {
