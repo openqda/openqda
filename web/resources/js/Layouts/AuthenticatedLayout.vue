@@ -241,7 +241,7 @@ import LayoutContainer from './LayoutContainer.vue';
 import { NavRoutes } from '../routes/NavRoutes.js';
 import { Project } from '../state/Project.js';
 import FlashMessage from '../Components/notification/FlashMessage.vue';
-import { useWebSocketConnection } from '../startup/echo.js';
+import { useWebSocketConnection } from '../collab/useWebSocketConnection.js';
 import { useTeam } from '../domain/teams/useTeam.js';
 import ProfileImage from '../Components/user/ProfileImage.vue';
 

@@ -9,7 +9,7 @@ import { UserCircleIcon } from '@heroicons/vue/20/solid';
 
 /**
  * Single-point-of truth definition for which
- * routes to placed in navigation menus.
+ * routes to be placed in navigation menus.
  * Array order is explicit.
  */
 export const NavRoutes = [

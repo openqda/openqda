@@ -2,6 +2,16 @@ import { reactive, ref } from 'vue';
 import { Observable } from '../utils/NanoHooks.js';
 import { noop } from '../utils/function/noop.js';
 
+/**
+ * A document is an object with at least
+ * an id property and optionally more arbitrary properties.
+ * @typedef Document
+ * @property id {number} the id of the document
+ */
+
+/**
+ *
+ */
 export class AbstractStore {
   constructor({ projectId, key }) {
     this.observable = new Observable();
@@ -60,6 +70,12 @@ export class AbstractStore {
     };
   }
 
+  /**
+   * Add documents (objects) of arbitrary length to the store.
+   * Known docs are skipped
+   * @param docs {Document[]}
+   * @return {Document[]}
+   */
   add(...docs) {
     const documents = {};
     docs.forEach((doc) => {
@@ -76,6 +92,12 @@ export class AbstractStore {
     return added;
   }
 
+  /**
+   * Update a single document or multiple documents.
+   * @param docIdOrFn {string|function}
+   * @param value {object}
+   * @param updateId {boolean=}
+   */
   update(docIdOrFn, value, { updateId = false } = {}) {
     if (typeof docIdOrFn === 'function') {
       // nested changes are applied directly by
@@ -90,10 +112,12 @@ export class AbstractStore {
     } else {
       const entry = this.entries[docIdOrFn];
       const { id, ...values } = value;
-      if (updateId) {
-        values.id = id;
-      }
       Object.assign(entry, values);
+      if (updateId) {
+        entry.id = id;
+        delete this.entries[docIdOrFn];
+        this.entries[id] = entry;
+      }
       this.observable.run('updated', [entry], this.all());
       this.observable.run('changed', { type: 'updated', docs: [entry] });
     }

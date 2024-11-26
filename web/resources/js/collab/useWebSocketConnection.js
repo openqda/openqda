@@ -1,5 +1,5 @@
 import { reactive, toRefs } from 'vue';
-import { useEcho } from '../collab/useEcho.js';
+import { useEcho } from './useEcho.js';
 import { useDebug } from '../utils/useDebug.js';
 
 const state = reactive({

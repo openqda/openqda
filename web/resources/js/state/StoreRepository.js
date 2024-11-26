@@ -1,3 +1,9 @@
+/**
+ * Creates a new store
+ * @param key
+ * @param factory
+ * @return {{key: string}}
+ */
 export const createStoreRepository = ({ key, factory }) => {
   const instances = new Map();
   const strKey = String(key);
