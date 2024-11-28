@@ -1,11 +1,11 @@
 <script setup lang="ts"></script>
 
 <template>
-  <span class="bordered-text"><slot /></span>
+  <span class="contrast-text"><slot /></span>
 </template>
 
 <style>
-.bordered-text {
+.contrast-text {
   background: inherit;
   background-clip: text;
   color: transparent;

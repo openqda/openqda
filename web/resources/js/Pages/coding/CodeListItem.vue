@@ -335,7 +335,7 @@ onUnmounted(() => {
               code.active
                 ? 'hover:font-semibold'
                 : 'cursor-not-allowed text-opacity-20',
-              'bordered-text'
+              'contrast-text'
             )
           "
         >

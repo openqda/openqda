@@ -44,7 +44,7 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import Quill from 'quill';
 import QuillCursors from 'quill-cursors';
 import { formats, redoChange, undoChange } from '../../editor/EditorConfig.js';
@@ -135,14 +135,23 @@ onMounted(() => {
 
   const disposeSelectionObserver = observe('store/selections', {
     added: (docs) => {
-      addSelections(docs);
+      updating.value = true;
+      nextTick(() => {
+        const related = new Set(docs);
+        docs.forEach((doc) => {
+          related.add(...selectionsByIndex(doc.start));
+          related.add(...selectionsByIndex(doc.end));
+        });
+        hl.add([...related]);
+        updating.value = false;
+      });
     },
     updated: (docs /*, allDocs */) => {
-      addSelections(docs);
+      hl.add(docs);
     },
     removed: (docs) => {
       docs.forEach((doc) => hl.remove(doc));
-      addSelections(
+      hl.add(
         selections.value.filter((sel) => {
           return !docs.some((doc) => doc.id === sel.id);
         })
@@ -153,17 +162,19 @@ onMounted(() => {
   disposables.add(disposeSelectionObserver);
 
   const addSelections = (entries) => {
-    // createDelta(entries)
-    entries.forEach((selection) => {
-      hl.highlight({
-        id: selection.code.id,
-        color: selection.code.color,
-        title: selection.code.name,
-        start: selection.start,
-        length: selection.length,
-        active: selection.code.active,
-      });
-    });
+    // entries.forEach((selection) => {
+    //   hl.highlight({
+    //     id: selection.code.id,
+    //     color: selection.code.color,
+    //     title: selection.code.name,
+    //     start: selection.start,
+    //     length: selection.length,
+    //     active: selection.code.active,
+    //   });
+    // });
+
+    hl.add(entries);
+    updating.value = false;
   };
 
   let initialWatcher;
@@ -181,8 +192,6 @@ onMounted(() => {
     },
     { deep: false, immediate: true }
   );
-
-  // watch(overlaps, (entries) => hl.overlap(entries))
 });
 
 const updating = ref(false);

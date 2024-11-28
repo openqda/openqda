@@ -272,6 +272,7 @@ export const useCodes = () => {
       return start <= index && end >= index;
     });
   };
+
   const observe = (name, callbacks) => {
     switch (name) {
       case codeStore.key:

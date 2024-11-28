@@ -29,7 +29,7 @@ export class LineNumber extends Module {
    */
   update() {
     // Clear old nodes
-      console.debug('update line numbers')
+    console.debug('update line numbers');
     while (this.container.firstChild) {
       this.container.removeChild(this.container.firstChild);
     }
