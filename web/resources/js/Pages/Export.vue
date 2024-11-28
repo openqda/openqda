@@ -1,7 +1,7 @@
 <template>
-  <AppLayout> </AppLayout>
+  <AuthenticatedLayout> </AuthenticatedLayout>
 </template>
 
 <script setup>
-import AppLayout from '../Layouts/AppLayout.vue';
+import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue'
 </script>
