@@ -125,7 +125,7 @@ export const segmentize = (seg) => {
       else {
         // edge case: the previous segment closed
         // at the same as this one then only add the code
-        if (prev.y !== value) {
+        if (prev && prev.y !== value) {
           current.x = prev.y;
           current.y = value;
           current.c = [...codes];
