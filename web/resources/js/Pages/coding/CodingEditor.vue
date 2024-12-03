@@ -15,7 +15,7 @@
       <slot name="actions"></slot>
     </div>
     <!-- editor content -->
-    <div class="flex">
+    <div :class="cn('flex', loadingDocument && 'hidden')">
       <div id="lineNumber"></div>
       <div
         id="editor"
@@ -38,6 +38,9 @@
         class="w-6 h-6 text-center text-xs ArrowPathIcon border-0 bg-surface p-2 float-end"
         >0:0</span
       >
+    </div>
+    <div v-if="loadingDocument" class="p-3">
+      <ActivityIndicator>{{ 'Loading source' }}</ActivityIndicator>
     </div>
     <CodingContextMenu @close="contextMenuClosed" />
   </div>
@@ -62,6 +65,9 @@ import { useCodingEditor } from './useCodingEditor.js';
 import { useContextMenu } from './contextMenu/useContextMenu.js';
 import { ArrowPathIcon } from '@heroicons/vue/20/solid';
 import Headline1 from '../../Components/layout/Headline1.vue';
+import { asyncTimeout } from '../../utils/asyncTimeout.js';
+import ActivityIndicator from '../../Components/ActivityIndicator.vue';
+import { cn } from '../../utils/css/cn.js';
 
 const editorContent = ref('');
 const contextMenu = useContextMenu();
@@ -192,8 +198,21 @@ onMounted(() => {
     },
     { deep: false, immediate: true }
   );
+
+  loadingDocument.value = false;
 });
 
+watch(
+  () => props.source,
+  async (newValue /*, oldValue*/) => {
+    //quillInstance.setText(newValue)
+    loadingDocument.value = true;
+    await asyncTimeout(300);
+    quillInstance.clipboard.dangerouslyPasteHTML(newValue.content);
+  }
+);
+
+const loadingDocument = ref(true);
 const updating = ref(false);
 
 onUnmounted(() => {
@@ -203,14 +222,6 @@ onUnmounted(() => {
   }
   disposables.forEach((fn) => fn());
 });
-
-watch(
-  () => props.source,
-  (newValue /*, oldValue*/) => {
-    //quillInstance.setText(newValue)
-    quillInstance.clipboard.dangerouslyPasteHTML(newValue.content);
-  }
-);
 
 watch(selected, async ({ code }) => {
   // FIXME move this into composable!

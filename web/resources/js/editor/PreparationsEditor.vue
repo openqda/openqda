@@ -12,7 +12,7 @@
     <slot name="actions"></slot>
   </div>
   <!-- editor content -->
-  <div class="flex">
+  <div :class="cn('flex', loadingDocument && 'hidden')">
     <div id="lineNumber"></div>
     <div id="editor" class="flex-grow"></div>
   </div>
@@ -23,6 +23,11 @@
       class="w-6 h-6 text-center text-xs text-foreground/60 border-0 bg-surface p-2"
       >0:0</span
     >
+  </div>
+  <div v-if="loadingDocument" class="p-3 block w-full">
+    <ActivityIndicator class="w-full">{{
+      'Loading Document'
+    }}</ActivityIndicator>
   </div>
 </template>
 
@@ -37,6 +42,17 @@ import { formats, redoChange, undoChange } from './EditorConfig.js';
 import { debounce } from '../utils/dom/debounce.js';
 import './editor.css';
 import { retry } from '../utils/dom/retry.js';
+import { asyncTimeout } from '../utils/asyncTimeout.js';
+import { cn } from '../utils/css/cn.js';
+import ActivityIndicator from '../Components/ActivityIndicator.vue';
+
+const props = defineProps({
+  source: String,
+  locked: Boolean,
+  CanUnlock: Boolean,
+});
+
+const loadingDocument = ref(false);
 
 let quillInstance;
 const Delta = Quill.import('delta');
@@ -112,6 +128,19 @@ onMounted(() => {
       return 'There are unsaved changes. Are you sure you want to leave?';
     }
   };
+
+  watch(
+    () => props.source,
+    async (newValue /*, oldValue*/) => {
+      loadingDocument.value = true;
+      quillInstance.enabled = false;
+      await asyncTimeout(300);
+      //quillInstance.setText(newValue)
+      quillInstance.clipboard.dangerouslyPasteHTML(newValue);
+      loadingDocument.value = false;
+      quillInstance.enabled = true;
+    }
+  );
 });
 
 let clearLinesRepeat;
@@ -126,20 +155,6 @@ onUnmounted(() => {
   }
   window.onbeforeunload = null;
 });
-
-const props = defineProps({
-  source: String,
-  locked: Boolean,
-  CanUnlock: Boolean,
-});
-
-watch(
-  () => props.source,
-  (newValue /*, oldValue*/) => {
-    //quillInstance.setText(newValue)
-    quillInstance.clipboard.dangerouslyPasteHTML(newValue);
-  }
-);
 
 watch(
   () => props.locked,

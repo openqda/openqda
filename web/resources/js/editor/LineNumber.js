@@ -15,7 +15,7 @@ export class LineNumber extends Module {
     this.container = document.querySelector(options.container);
     this.listeners = {
       resize: debounce(this.update.bind(this, 'resize'), 100),
-      textChange: this.update.bind(this, 'format'),
+      textChange: debounce(this.update.bind(this, 'format'), 300),
     };
 
     this.quill.on('text-change', this.listeners.textChange);
@@ -27,14 +27,7 @@ export class LineNumber extends Module {
    * @return {boolean} returns false if height was not determinable,
    *   otherwise returns true
    */
-  update(type, delta, old, source) {
-    const shouldUpdate =
-      type === 'resize' ||
-      source === 'user' ||
-      delta.ops.some((entry) => 'insert' in entry || 'delete' in entry);
-
-    if (!shouldUpdate) return;
-
+  update(/* type, delta, old, source */) {
     // Clear old nodes - this is very performance demanding
     // which is why text changes should be done in bulk
     // or debounced when done programmatically
