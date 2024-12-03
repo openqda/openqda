@@ -1,17 +1,17 @@
 <script setup>
 import {
-  ChevronRightIcon,
-  EllipsisVerticalIcon,
-  EyeIcon,
-  EyeSlashIcon,
-  BarsArrowDownIcon,
-  PencilIcon,
-  PlusIcon,
-} from '@heroicons/vue/24/solid/index.js';
+    ChevronRightIcon,
+    EllipsisVerticalIcon,
+    EyeIcon,
+    EyeSlashIcon,
+    BarsArrowDownIcon,
+    PencilIcon,
+    PlusIcon, ArrowPathIcon,
+} from '@heroicons/vue/24/solid/index.js'
 import {
   TrashIcon /*, ChatBubbleBottomCenterTextIcon */,
 } from '@heroicons/vue/24/outline';
-import { computed, onUnmounted, ref, watch } from 'vue';
+import { computed, onUnmounted, reactive, ref, watch } from 'vue'
 import { cn } from '../../utils/css/cn.js';
 import Button from '../../Components/interactive/Button.vue';
 import { useCodes } from './useCodes.js';
@@ -31,6 +31,8 @@ import { debounce } from '../../utils/dom/debounce.js';
 import ContrastText from '../../Components/text/ContrastText.vue';
 import { useUsers } from '../../domain/teams/useUsers.js';
 import ProfileImage from '../../Components/user/ProfileImage.vue';
+import { asyncTimeout } from '../../utils/asyncTimeout.js'
+import { attemptAsync } from '../../Components/notification/attemptAsync.js'
 
 //------------------------------------------------------------------------
 // DATA / PROPS
@@ -89,8 +91,17 @@ const closeTexts = () => {
 };
 
 //------------------------------------------------------------------------
-// RANGE
+// TOGGLE
 //------------------------------------------------------------------------
+const toggling = reactive({})
+const handleCodeToggle = async code => {
+    toggling[code.id] = true;
+    await asyncTimeout(100);
+    await attemptAsync(() => toggleCode(code));
+    toggling[code.id] = false;
+}
+
+/** toggles selections / texts for this code */
 const toggle = () => {
   open.value = !open.value;
   if (!open.value) {
@@ -350,15 +361,19 @@ onUnmounted(() => {
       </div>
       <button
         class="p-0 m-0 text-foreground/80"
-        @click.prevent="toggleCode(code)"
+        @click.prevent="handleCodeToggle(code)"
         :title="
           code.active
             ? 'Code visible, click to hide'
             : 'Code hidden, click to show'
         "
       >
+        <ArrowPathIcon
+          v-if="toggling[code.id]"
+          class="w-4 h-4 animate-spin text-foreground/50"
+        />
         <EyeSlashIcon
-          v-if="code.active === false"
+          v-else-if="code.active === false"
           class="w-4 h-4 text-foreground/50"
         />
         <EyeIcon v-else class="w-4 h-4" />
