@@ -27,9 +27,18 @@ export class LineNumber extends Module {
    * @return {boolean} returns false if height was not determinable,
    *   otherwise returns true
    */
-  update() {
-    // Clear old nodes
-    console.debug('update line numbers');
+  update({ ops }, old, source) {
+    const shouldUpdate =
+      source === 'user' ||
+      ops.some((entry) => 'insert' in entry || 'delete' in entry);
+
+    if (!shouldUpdate) return;
+
+    // Clear old nodes - this is very performance demanding
+    // which is why text changes should be done in bulk
+    // or debounced when done programmatically
+    // however, for user-interaction this is fine because
+    // updates occur in much larger intervals (> 50ms)
     while (this.container.firstChild) {
       this.container.removeChild(this.container.firstChild);
     }
