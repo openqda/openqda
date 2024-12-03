@@ -1,17 +1,18 @@
 <script setup>
 import {
-    ChevronRightIcon,
-    EllipsisVerticalIcon,
-    EyeIcon,
-    EyeSlashIcon,
-    BarsArrowDownIcon,
-    PencilIcon,
-    PlusIcon, ArrowPathIcon,
-} from '@heroicons/vue/24/solid/index.js'
+  ChevronRightIcon,
+  EllipsisVerticalIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  BarsArrowDownIcon,
+  PencilIcon,
+  PlusIcon,
+  ArrowPathIcon,
+} from '@heroicons/vue/24/solid/index.js';
 import {
   TrashIcon /*, ChatBubbleBottomCenterTextIcon */,
 } from '@heroicons/vue/24/outline';
-import { computed, onUnmounted, reactive, ref, watch } from 'vue'
+import { computed, onUnmounted, reactive, ref, watch } from 'vue';
 import { cn } from '../../utils/css/cn.js';
 import Button from '../../Components/interactive/Button.vue';
 import { useCodes } from './useCodes.js';
@@ -31,8 +32,8 @@ import { debounce } from '../../utils/dom/debounce.js';
 import ContrastText from '../../Components/text/ContrastText.vue';
 import { useUsers } from '../../domain/teams/useUsers.js';
 import ProfileImage from '../../Components/user/ProfileImage.vue';
-import { asyncTimeout } from '../../utils/asyncTimeout.js'
-import { attemptAsync } from '../../Components/notification/attemptAsync.js'
+import { asyncTimeout } from '../../utils/asyncTimeout.js';
+import { attemptAsync } from '../../Components/notification/attemptAsync.js';
 
 //------------------------------------------------------------------------
 // DATA / PROPS
@@ -93,13 +94,13 @@ const closeTexts = () => {
 //------------------------------------------------------------------------
 // TOGGLE
 //------------------------------------------------------------------------
-const toggling = reactive({})
-const handleCodeToggle = async code => {
-    toggling[code.id] = true;
-    await asyncTimeout(100);
-    await attemptAsync(() => toggleCode(code));
-    toggling[code.id] = false;
-}
+const toggling = reactive({});
+const handleCodeToggle = async (code) => {
+  toggling[code.id] = true;
+  await asyncTimeout(100);
+  await attemptAsync(() => toggleCode(code));
+  toggling[code.id] = false;
+};
 
 /** toggles selections / texts for this code */
 const toggle = () => {

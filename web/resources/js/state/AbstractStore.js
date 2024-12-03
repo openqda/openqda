@@ -105,10 +105,8 @@ export class AbstractStore {
       // that returns all ids of updated docs
       const allDocs = this.all();
       const updatedDocs = docIdOrFn(allDocs);
-      if (updatedDocs) {
-        this.observable.run('updated', updatedDocs, allDocs);
-        this.observable.run('changed', { type: 'updated', docs: updatedDocs });
-      }
+      this.observable.run('updated', updatedDocs, allDocs);
+      this.observable.run('changed', { type: 'updated', docs: updatedDocs });
     } else {
       const entry = this.entries[docIdOrFn];
       const { id, ...values } = value;

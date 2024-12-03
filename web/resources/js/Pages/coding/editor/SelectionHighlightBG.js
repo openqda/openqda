@@ -50,7 +50,7 @@ export class SelectionHighlightBG extends Module {
   }
 
   add(entries) {
-    console.debug(entries);
+    if (!entries || !entries.length) return;
     const selected = entries.map((e) => ({
       x: e.start,
       y: e.end,
@@ -58,10 +58,16 @@ export class SelectionHighlightBG extends Module {
     }));
     const segments = segmentize(selected);
     segments.forEach((segment) => {
-      if (segment.c.length > 1) {
+      const activeCodes = segment.c.reduce(
+        (acc, cur) => acc + (cur.active !== false ? 1 : 0),
+        0
+      );
+
+      if (activeCodes > 1) {
         const format = this.quill.getFormat(segment.x, segment.y - segment.x);
         format.class = cn(format.class, 'border border-primary');
         format.background = 'transparent';
+        format.title = `${segment.c.length} overlapping codes: ${segment.c.map((c) => c.name).join(',')} [${segment.x}:${segment.y}]. Right-click to open menu`;
         this.quill.formatText(segment.x, segment.y - segment.x, format);
       } else {
         const code = segment.c[0];
@@ -84,10 +90,10 @@ export class SelectionHighlightBG extends Module {
       delete format.title;
       delete format.id;
       format.background = 'transparent';
-      format.class = format.class.replace(classes, '');
+      format.class = clearClasses(format.class);
       this.quill.formatText(start, length, format);
     } else {
-      const selectionTitle = `${title} - ${start}:${start + length} (Right-click to open menu)`;
+      const selectionTitle = `${title} [${start}:${start + length}]. Right-click to open menu`;
       const background = changeRGBOpacity(color, opacity);
       const format = this.quill.getFormat(start, length);
       format.class = cn(format.class, 'my-0 py-0');
@@ -104,14 +110,15 @@ export class SelectionHighlightBG extends Module {
     format.title = null;
     format.id = null;
     format.background = null;
-    if (format.class) {
-      format.class = format.class
-        ? format.class.replace(classes, '')
-        : format.class;
-    }
+    format.class = clearClasses(format.class);
     this.quill.formatText(start, length, format);
   }
 }
 
 const classList = 'my-0 py-0 border border-primary'.split(' ');
 const classes = new RegExp(classList.join('|'), 'gi');
+const clearClasses = (c) => {
+  if (!c) return c;
+  if (typeof c === 'string') return c ? c.replace(classes, '') : c;
+  if (c.length) return clearClasses(c.join(' '));
+};

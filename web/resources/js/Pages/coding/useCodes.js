@@ -226,37 +226,49 @@ export const useCodes = () => {
   const toggleCodebook = async (codebook) => {
     const active = !codebook.active;
     codebookStore.active(codebook.id, active);
-    codeStore.all().forEach((code) => {
-      if (code.codebook === codebook.id && code.active !== active) {
-        toggleCode(code);
-      }
+    activateCodes({
+      codes: codeStore.all().filter((c) => c.codebook === codebook.id),
+      active,
+      withIntersections: false,
     });
   };
 
-  const toggleCode = (code) => {
-    const codes = codeStore.toggle(code.id);
-
-    // notify selections updated
+  const activateCodes = ({ codes, active, withIntersections }) => {
     const updatedSelections = [];
-    const addSelections = (code) => {
-      if (code.text?.length) {
-        code.text.forEach((selection) =>
-          updatedSelections.push(selectionStore.entry(selection.id))
-        );
-      }
-    };
-    codes.forEach((code) => addSelections(code));
 
-    // reactivate codebook, in case it was inactive
-    const codebook = codebookStore.entry(code.codebook);
-    if (codebook && code.active && !codebook.active) {
-      codebookStore.active(codebook.id, true);
+    codeStore.update(() => {
+      codes.forEach((code) => {
+        code.active = active;
+
+        // side-effect: mark selections to update
+        if (code.text?.length) {
+          code.text.forEach((selection) =>
+            updatedSelections.push(selectionStore.entry(selection.id))
+          );
+        }
+      });
+      return codes;
+    });
+
+    if (withIntersections) {
+      const interSections = selectionStore.getIntersecting(updatedSelections);
+      if (interSections.length) updatedSelections.push(...interSections);
     }
 
-    const interSections = selectionStore.getIntersecting(updatedSelections);
-    if (interSections.length) updatedSelections.push(...interSections);
-
     selectionStore.observable.run('updated', updatedSelections);
+  };
+
+  const toggleCode = (code) => {
+    const active = !code.active;
+    const codes = [];
+    const addCode = (cd) => {
+      codes.push(cd);
+      if (cd.children?.length) {
+        cd.children.forEach((c) => addCode(c));
+      }
+    };
+    addCode(code);
+    activateCodes({ codes, active, withIntersections: true });
   };
 
   const selections = computed(() => {
