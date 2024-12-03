@@ -14,8 +14,8 @@ export class LineNumber extends Module {
     this.options = options;
     this.container = document.querySelector(options.container);
     this.listeners = {
-      resize: debounce(this.update.bind(this), 100),
-      textChange: this.update.bind(this),
+      resize: debounce(this.update.bind(this, 'resize'), 100),
+      textChange: this.update.bind(this, 'format'),
     };
 
     this.quill.on('text-change', this.listeners.textChange);
@@ -27,10 +27,11 @@ export class LineNumber extends Module {
    * @return {boolean} returns false if height was not determinable,
    *   otherwise returns true
    */
-  update({ ops }, old, source) {
+  update(type, delta, old, source) {
     const shouldUpdate =
+      type === 'resize' ||
       source === 'user' ||
-      ops.some((entry) => 'insert' in entry || 'delete' in entry);
+      delta.ops.some((entry) => 'insert' in entry || 'delete' in entry);
 
     if (!shouldUpdate) return;
 
