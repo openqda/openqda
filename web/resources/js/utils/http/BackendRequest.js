@@ -34,10 +34,10 @@ class BackendRequest {
       if (this.query) args.push({ params: this.query });
       if (this.body) args.push(this.body);
 
-      const extraOptions = { ...this.extraOptions }
+      const extraOptions = { ...this.extraOptions };
 
       if (this.headers) {
-          extraOptions.headers = this.headers;
+        extraOptions.headers = this.headers;
       }
 
       args.push(extraOptions);

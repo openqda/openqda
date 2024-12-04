@@ -5,7 +5,12 @@
  | It's role is to connect files list with upload, update and remove
  | capabilities.
  *----------------------------------------------------------------------------*/
-import { ArrowPathRoundedSquareIcon, CloudArrowUpIcon, DocumentArrowDownIcon, PlusIcon } from '@heroicons/vue/24/solid'
+import {
+  ArrowPathRoundedSquareIcon,
+  CloudArrowUpIcon,
+  DocumentArrowDownIcon,
+  PlusIcon,
+} from '@heroicons/vue/24/solid';
 import { inject, onMounted, reactive, ref, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
@@ -21,7 +26,7 @@ import { createBlob } from '../../utils/files/createBlob.js';
 import { request } from '../../utils/http/BackendRequest.js';
 import { useFiles } from './useFiles.js';
 import { useEcho } from '../../collab/useEcho.js';
-import { PencilSquareIcon, XCircleIcon } from '@heroicons/vue/24/outline'
+import { PencilSquareIcon, XCircleIcon } from '@heroicons/vue/24/outline';
 
 /*---------------------------------------------------------------------------*/
 // DATA / PROPS
@@ -31,13 +36,12 @@ const props = defineProps({
   initialFile: {
     type: String,
   },
-  projectId: String
+  projectId: String,
 });
 
-const { projectId } = props
+const { projectId } = props;
 const allSources = inject('sources');
 const documents = reactive(allSources);
-const audioIsUploading = ref(false);
 const { downloadSource, queueFilesForUpload } = useFiles({ projectId });
 
 async function retryTranscription(document) {
@@ -131,19 +135,15 @@ const uploadProgress = ref(0);
 
 const importFiles = (files) => {
   queueFilesForUpload({
-      files,
-      onError: e =>  {
-          flashMessage(`An error occurred while uploading: ${e.message}`, {
-              type: 'error',
-          });
-      }
-  })
-  flashMessage(
-    `Added ${files.length} files for upload.`
-  );
+    files,
+    onError: (e) => {
+      flashMessage(`An error occurred while uploading: ${e.message}`, {
+        type: 'error',
+      });
+    },
+  });
+  flashMessage(`Added ${files.length} files for upload.`);
 };
-
-
 
 /*---------------------------------------------------------------------------*/
 // RENAME DOCUMENT
@@ -196,7 +196,7 @@ onMounted(() => {
    * and update the local state accordingly
    */
   echo.private('conversion.' + projectId).listen('ConversionCompleted', (e) => {
-      console.debug('ConversionCompleted', e)
+    console.debug('ConversionCompleted', e);
     let documentIndex = -1;
     documents.forEach((doc, index) => {
       if (doc.id === e.sourceId) {
@@ -211,7 +211,7 @@ onMounted(() => {
     }
   });
   echo.private('conversion.' + projectId).listen('ConversionFailed', (e) => {
-      console.debug('ConversionFailed', e)
+    console.debug('ConversionFailed', e);
     let documentIndex = -1;
     documents.forEach((doc, index) => {
       if (doc.id === e.sourceId) {
@@ -281,44 +281,44 @@ async function fetchAndRenderDocument(document) {
 }
 </script>
 <template>
-    <div class="flex items-center justify-start">
-        <Button
-            variant="outline-secondary"
-            class="rounded-xl"
-            @click="createNewFile"
-        >
-            <PlusIcon class="h-4 w-4 mr-2"></PlusIcon>
-            <span>Create</span>
-        </Button>
-        <Button
-            variant="outline-secondary"
-            class="rounded-xl ml-3"
-            @click="importSchema = { foo: {} }"
-        >
-            <PlusIcon class="h-4 w-4 mr-2"></PlusIcon>
-            <span>Import</span>
-        </Button>
-    </div>
-    <CreateDialog
-        :schema="createSchema"
-        title="Create new file"
-        :submit="onCreateSubmit"
-        @created="onCreated"
-        @cancelled="createSchema = null"
-    />
-    <WizardDialog
-        :schema="importSchema"
-        title="Import file(s)"
-        :progress="uploadProgress"
-        :files-selected="importFiles"
-    />
-    <FilesList
-        v-if="documents?.length"
-        class="mt-5"
-        :fixed="true"
-        :focus-on-hover="true"
-        :documents="documents"
-        :actions="[
+  <div class="flex items-center justify-start">
+    <Button
+      variant="outline-secondary"
+      class="rounded-xl"
+      @click="createNewFile"
+    >
+      <PlusIcon class="h-4 w-4 mr-2"></PlusIcon>
+      <span>Create</span>
+    </Button>
+    <Button
+      variant="outline-secondary"
+      class="rounded-xl ml-3"
+      @click="importSchema = { foo: {} }"
+    >
+      <PlusIcon class="h-4 w-4 mr-2"></PlusIcon>
+      <span>Import</span>
+    </Button>
+  </div>
+  <CreateDialog
+    :schema="createSchema"
+    title="Create new file"
+    :submit="onCreateSubmit"
+    @created="onCreated"
+    @cancelled="createSchema = null"
+  />
+  <WizardDialog
+    :schema="importSchema"
+    title="Import file(s)"
+    :progress="uploadProgress"
+    :files-selected="importFiles"
+  />
+  <FilesList
+    v-if="documents?.length"
+    class="mt-5"
+    :fixed="true"
+    :focus-on-hover="true"
+    :documents="documents"
+    :actions="[
       {
         id: 'retry-atrain',
         title: 'Retry transcription',
@@ -381,29 +381,29 @@ async function fetchAndRenderDocument(document) {
         },
       },
     ]"
-        @select="fetchAndRenderDocument"
-    >
-    </FilesList>
-    <p v-else class="text-sm text-foreground/60">
-        You have not added any files. Best is to do it now.
-    </p>
-    <RenameDialog
-        title="Rename File"
-        :target="toRename"
-        :submit="
+    @select="fetchAndRenderDocument"
+  >
+  </FilesList>
+  <p v-else class="text-sm text-foreground/60">
+    You have not added any files. Best is to do it now.
+  </p>
+  <RenameDialog
+    title="Rename File"
+    :target="toRename"
+    :submit="
       ({ id, name }) =>
         request({ type: 'POST', url: `/sources/${id}`, body: { name } })
     "
-        @renamed="onRenamed"
-        @cancelled="toRename = null"
-    />
-    <DeleteDialog
-        :target="toDelete"
-        :submit="deleteDocument"
-        challenge="random"
-        @cancelled="toDelete = null"
-        @deleted="onDeleted"
-    />
+    @renamed="onRenamed"
+    @cancelled="toRename = null"
+  />
+  <DeleteDialog
+    :target="toDelete"
+    :submit="deleteDocument"
+    challenge="random"
+    @cancelled="toDelete = null"
+    @deleted="onDeleted"
+  />
 </template>
 <style scoped>
 @keyframes fillAnimation {
