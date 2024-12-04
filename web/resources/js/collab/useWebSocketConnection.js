@@ -1,6 +1,5 @@
 import { reactive, toRefs } from 'vue';
 import { useEcho } from './useEcho.js';
-import { useDebug } from '../utils/useDebug.js';
 
 const state = reactive({
   initialized: false,
@@ -12,8 +11,11 @@ const state = reactive({
   status: 'uninitialized',
 });
 
+const log = [];
+const debug = (txt) => log.push(txt);
+
 window.debugSocket = () => {
-  return state;
+  return { state, log };
 };
 
 /**
@@ -23,16 +25,20 @@ window.debugSocket = () => {
  *     connecting: boolean}> & {}>}
  */
 export const useWebSocketConnection = () => {
-  const debug = useDebug();
   const { connected, connecting, unavailable, failed, status, initialized } =
     toRefs(state);
 
   const initWebSocket = () => {
+    debug('initWebSocket');
     if (initialized.value) {
+      debug('websocket already initialized');
       return;
     }
-    state.initialized = true;
+
+    debug('get echo');
     const echo = useEcho().init();
+    debug(`echo state: ${echo.connector.pusher.connection.state}`);
+    debug('add connecting listener');
 
     echo.connector.pusher.connection.bind('connecting', (payload) => {
       /**
@@ -44,6 +50,7 @@ export const useWebSocketConnection = () => {
       debug('Echo connecting...', payload);
     });
 
+    debug('add connected listener');
     echo.connector.pusher.connection.bind('connected', (payload) => {
       /**
        * The connection to Channels is open and authenticated with your app.
@@ -54,6 +61,7 @@ export const useWebSocketConnection = () => {
       debug('Echo connected!', payload);
     });
 
+    debug('add unavailable listener');
     echo.connector.pusher.connection.bind('unavailable', (payload) => {
       /**
        *  The connection is temporarily unavailable. In most cases this means that there is no internet connection.
@@ -66,6 +74,7 @@ export const useWebSocketConnection = () => {
       debug('Echo unavailable or unreachable.', payload);
     });
 
+    debug('add failed listener');
     echo.connector.pusher.connection.bind('failed', (payload) => {
       /**
        * Channels is not supported by the browser.
@@ -77,6 +86,7 @@ export const useWebSocketConnection = () => {
       debug('Echo failed →', payload);
     });
 
+    debug('add disconnected listener');
     echo.connector.pusher.connection.bind('disconnected', (payload) => {
       /**
        * The Channels connection was previously connected and has now intentionally been closed
@@ -86,6 +96,20 @@ export const useWebSocketConnection = () => {
       state.info = payload;
       debug('Echo disconnected...', payload);
     });
+
+    debug('add error listener');
+    echo.connector.pusher.connection.bind('error', (payload) => {
+      /**
+       * The Channels connection was previously connected and has now intentionally been closed
+       */
+      state.connected = false;
+      state.status = 'error';
+      state.info = payload;
+      debug('Echo disconnected...', payload);
+    });
+
+    debug('complete init');
+    state.initialized = true;
   };
   return {
     connected,

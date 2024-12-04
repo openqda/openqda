@@ -10,7 +10,7 @@ import Pusher from 'pusher-js';
 window.Pusher = Pusher;
 
 const forceTLS = (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https';
-const enabledTransports = [forceTLS ? 'wss' : 'ws'];
+const enabledTransports = [forceTLS ? 'wss' : 'ws', 'xhr_polling'];
 
 /**
  * Helper to initialize and retrieve the Websocket
