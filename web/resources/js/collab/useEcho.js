@@ -10,7 +10,7 @@ import Pusher from 'pusher-js';
 window.Pusher = Pusher;
 
 const forceTLS = (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https';
-const enabledTransports = [forceTLS ? 'wss' : 'ws', 'xhr_polling'];
+const enabledTransports = ['ws', 'wss'];
 
 /**
  * Helper to initialize and retrieve the Websocket
@@ -28,7 +28,6 @@ export const useEcho = () => {
     forceTLS,
     encrypted: true,
     enabledTransports,
-    withoutInterceptors: true,
   };
   return {
     init: () => {
