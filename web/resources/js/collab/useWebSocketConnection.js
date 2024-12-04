@@ -1,5 +1,6 @@
 import { reactive, toRefs } from 'vue';
 import { useEcho } from './useEcho.js';
+import { safeStringify } from '../utils/safeStringify.js';
 
 const state = reactive({
   initialized: false,
@@ -47,7 +48,7 @@ export const useWebSocketConnection = () => {
        */
       state.connecting = true;
       state.status = 'Connecting';
-      debug('Echo connecting...', payload);
+      debug('Echo connecting...', safeStringify(payload));
     });
 
     debug('add connected listener');
@@ -58,7 +59,7 @@ export const useWebSocketConnection = () => {
       state.connected = true;
       state.connecting = false;
       state.status = 'Connected';
-      debug('Echo connected!', payload);
+      debug('Echo connected!', safeStringify(payload));
     });
 
     debug('add unavailable listener');
@@ -71,7 +72,7 @@ export const useWebSocketConnection = () => {
       state.unavailable = true;
       state.connecting = false;
       state.status = 'Unavailable or unreachable';
-      debug('Echo unavailable or unreachable.', payload);
+      debug('Echo unavailable or unreachable.', JSON.stringify(payload));
     });
 
     debug('add failed listener');
@@ -83,7 +84,7 @@ export const useWebSocketConnection = () => {
       state.failed = true;
       state.connecting = false;
       state.status = `Failed: ${payload}`;
-      debug('Echo failed →', payload);
+      debug('Echo failed →', safeStringify(payload));
     });
 
     debug('add disconnected listener');
@@ -94,7 +95,7 @@ export const useWebSocketConnection = () => {
       state.connected = false;
       state.status = 'disconnected';
       state.info = payload;
-      debug('Echo disconnected...', payload);
+      debug('Echo disconnected...', safeStringify(payload));
     });
 
     debug('add error listener');
@@ -105,7 +106,7 @@ export const useWebSocketConnection = () => {
       state.connected = false;
       state.status = 'error';
       state.info = payload;
-      debug('Echo disconnected...', payload);
+      debug('Echo disconnected...', safeStringify(payload));
     });
 
     debug('complete init');
