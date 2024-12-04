@@ -12,7 +12,7 @@ const state = reactive({
 });
 
 const log = [];
-const debug = (txt) => log.push(txt);
+const debug = (...args) => log.push(args.join(' '));
 
 window.debugSocket = () => {
   return { state, log };
