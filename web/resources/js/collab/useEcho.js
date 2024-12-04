@@ -19,23 +19,25 @@ const enabledTransports = [forceTLS ? 'wss' : 'ws', 'xhr_polling'];
  * @return {{init: (function(): Echo), echo: (function(): Echo)}}
  */
 export const useEcho = () => {
+  const options = {
+    broadcaster: 'reverb',
+    key: import.meta.env.VITE_REVERB_APP_KEY,
+    wsHost: import.meta.env.VITE_REVERB_HOST,
+    wsPort: import.meta.env.VITE_REVERB_PORT ?? 80,
+    wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
+    forceTLS,
+    encrypted: true,
+    enabledTransports,
+    withoutInterceptors: true,
+  };
   return {
     init: () => {
       if (typeof window.Echo === 'undefined') {
-        window.Echo = new Echo({
-          broadcaster: 'reverb',
-          key: import.meta.env.VITE_REVERB_APP_KEY,
-          wsHost: import.meta.env.VITE_REVERB_HOST,
-          wsPort: import.meta.env.VITE_REVERB_PORT ?? 80,
-          wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
-          forceTLS,
-          encrypted: true,
-          enabledTransports,
-          withoutInterceptors: true,
-        });
+        window.Echo = new Echo(options);
       }
       return window.Echo;
     },
     echo: () => window.Echo,
+    options: () => ({ ...options }),
   };
 };

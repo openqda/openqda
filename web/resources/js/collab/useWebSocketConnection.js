@@ -37,7 +37,9 @@ export const useWebSocketConnection = () => {
     }
 
     debug('get echo');
-    const echo = useEcho().init();
+    const { init, options } = useEcho();
+    debug('echo options are', safeStringify(options()));
+    const echo = init();
     debug(`echo state: ${echo.connector.pusher.connection.state}`);
     debug('add connecting listener');
 
