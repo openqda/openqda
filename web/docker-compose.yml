@@ -21,6 +21,7 @@ services:
             IGNITION_LOCAL_SITES_PATH: '${PWD}'
         volumes:
             - '.:/var/www/html'
+            - '../services/transform/convert-rtf-to-html:/var/www/services/transform/convert-rtf-to-html'
         networks:
             - sail
         depends_on:

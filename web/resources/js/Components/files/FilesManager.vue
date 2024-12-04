@@ -1,131 +1,11 @@
-<template>
-  <div class="flex items-center justify-start">
-    <Button
-      variant="outline-secondary"
-      class="rounded-xl"
-      @click="createNewFile"
-    >
-      <PlusIcon class="h-4 w-4 mr-2"></PlusIcon>
-      <span>Create</span>
-    </Button>
-    <Button
-      variant="outline-secondary"
-      class="rounded-xl ml-3"
-      @click="importSchema = { foo: {} }"
-    >
-      <PlusIcon class="h-4 w-4 mr-2"></PlusIcon>
-      <span>Import</span>
-    </Button>
-  </div>
-  <CreateDialog
-    :schema="createSchema"
-    title="Create new file"
-    :submit="onCreateSubmit"
-    @created="onCreated"
-    @cancelled="createSchema = null"
-  />
-  <WizardDialog
-    :schema="importSchema"
-    title="Import file(s)"
-    :progress="uploadProgress"
-    :files-selected="importFiles"
-  />
-  <FilesList
-    v-if="documents?.length"
-    class="mt-5"
-    :fixed="true"
-    :focus-on-hover="true"
-    :documents="documents"
-    :actions="[
-      {
-        id: 'retry-atrain',
-        title: 'Retry transcription',
-        icon: ArrowPathRoundedSquareIcon,
-        onClick({ document }) {
-          retryTranscription(document);
-        },
-        visible(document) {
-          if (document.type !== 'audio') return false;
-          if (document.converted) return false;
-          return document.failed || !document.isConverting;
-        },
-      },
-      {
-        id: 'retry-conversion',
-        title: 'Retry elaboration',
-        icon: CloudArrowUpIcon,
-        onClick({ document }) {
-          retryConvert(document);
-        },
-        visible(document) {
-          if (document.type !== 'text') return false;
-          if (document.converted) return false;
-          return document.failed || !document.isConverting;
-        },
-      },
-      {
-        id: 'download-source',
-        title: 'Download Source File',
-        icon: DocumentArrowDownIcon,
-        onClick({ document }) {
-          downloadSource(document);
-        },
-        visible(document) {
-          return document.converted;
-        },
-      },
-      {
-        id: 'rename-document',
-        title: 'Rename this document',
-        class: 'text-secondary',
-        icon: PencilSquareIcon,
-        onClick({ document }) {
-          toRename = document;
-        },
-        visible(document) {
-          return document.converted;
-        },
-      },
-      {
-        id: 'delete-document',
-        title: 'Delete this document',
-        class: 'text-destructive',
-        icon: XCircleIcon,
-        onClick({ document, index }) {
-          toDelete = document;
-        },
-        visible(/* document */) {
-          return true;
-        },
-      },
-    ]"
-    @select="fetchAndRenderDocument"
-  >
-  </FilesList>
-  <p v-else class="text-sm text-foreground/60">
-    You have not added any files. Best is to do it now.
-  </p>
-  <RenameDialog
-    title="Rename File"
-    :target="toRename"
-    :submit="
-      ({ id, name }) =>
-        request({ type: 'POST', url: `/sources/${id}`, body: { name } })
-    "
-    @renamed="onRenamed"
-    @cancelled="toRename = null"
-  />
-  <DeleteDialog
-    :target="toDelete"
-    :submit="deleteDocument"
-    challenge="random"
-    @cancelled="toDelete = null"
-    @deleted="onDeleted"
-  />
-</template>
-
 <script setup>
-import { PlusIcon } from '@heroicons/vue/24/solid';
+/*-----------------------------------------------------------------------------
+ | The Files Manager is the high-level main component, specifically designed
+ | for the preparations process.
+ | It's role is to connect files list with upload, update and remove
+ | capabilities.
+ *----------------------------------------------------------------------------*/
+import { ArrowPathRoundedSquareIcon, CloudArrowUpIcon, DocumentArrowDownIcon, PlusIcon } from '@heroicons/vue/24/solid'
 import { inject, onMounted, reactive, ref, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
@@ -140,23 +20,25 @@ import { ensureFileExtension } from '../../utils/files/ensureFileExtension.js';
 import { createBlob } from '../../utils/files/createBlob.js';
 import { request } from '../../utils/http/BackendRequest.js';
 import { useFiles } from './useFiles.js';
-import { asyncTimeout } from '../../utils/asyncTimeout.js';
 import { useEcho } from '../../collab/useEcho.js';
+import { PencilSquareIcon, XCircleIcon } from '@heroicons/vue/24/outline'
 
+/*---------------------------------------------------------------------------*/
+// DATA / PROPS
+/*---------------------------------------------------------------------------*/
 const emit = defineEmits(['fileSelected', 'documentDeleted']);
 const props = defineProps({
   initialFile: {
     type: String,
   },
+  projectId: String
 });
 
+const { projectId } = props
 const allSources = inject('sources');
 const documents = reactive(allSources);
-const url = window.location.pathname;
-const segments = url.split('/');
-const projectId = segments[2]; // Assuming project id is the third segment in URL path
 const audioIsUploading = ref(false);
-const { downloadSource } = useFiles();
+const { downloadSource, queueFilesForUpload } = useFiles({ projectId });
 
 async function retryTranscription(document) {
   const url = `/projects/${projectId}/sources/${document.id}/retrytranscription`;
@@ -247,102 +129,21 @@ const importSchema = ref(null);
 const isUploading = ref(false);
 const uploadProgress = ref(0);
 
-const importFiles = async (files) => {
-  for (const file of files) {
-    uploadProgress.value = 0;
-    file.isUploading = true;
-
-    const newFile = file.type.startsWith('audio/')
-      ? await transcribeFile(file)
-      : await fileAdded(file);
-    const d = new Date();
-    newFile.date = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
-    await asyncTimeout(100);
-    documents.push(newFile);
-    await asyncTimeout(1000);
-  }
-
+const importFiles = (files) => {
+  queueFilesForUpload({
+      files,
+      onError: e =>  {
+          flashMessage(`An error occurred while uploading: ${e.message}`, {
+              type: 'error',
+          });
+      }
+  })
   flashMessage(
-    `Uploaded ${files.length} files. Processing mike take a while. Feel free to reload the page.`
+    `Added ${files.length} files for upload.`
   );
 };
 
-async function fileAdded(file) {
-  const isRtf =
-    file.type === 'text/rtf' || (file.name && file.name.endsWith('.rtf'));
-  uploadProgress.value = 0;
 
-  const formData = new FormData();
-  formData.append('file', file);
-  formData.append('projectId', usePage().props.projectId ?? 0);
-
-  try {
-    const response = await axios.post('/files/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      onUploadProgress: (progressEvent) => {
-        uploadProgress.value =
-          (progressEvent.loaded / progressEvent.total) * 100;
-      },
-    });
-
-    if (response.data.newDocument) {
-      if (isRtf) {
-        response.data.newDocument.isConverting = true;
-      }
-      response.data.newDocument.userPicture =
-        usePage().props.auth.user.profile_photo_url;
-      return response.data.newDocument;
-    }
-  } catch (error) {
-    console.error('File upload failed:', error);
-    let errMesg = `upload ${file.name} failed, ${error.response.data.message}`;
-    if (error.response.status === 429) {
-      errMesg = `Please wait a few minutes and try again. (${errMesg})`;
-    }
-    flashMessage(errMesg, { type: 'error' });
-  } finally {
-    isUploading.value = false; // Stop loading indicator
-  }
-}
-
-async function transcribeFile(audio) {
-  audioIsUploading.value = true;
-
-  const formData = new FormData();
-  formData.append('file', audio);
-  formData.append('project_id', projectId);
-  formData.append('model', 'default_model'); // Replace with your actual model name
-  formData.append('language', 'en'); // Replace with the desired language code
-
-  try {
-    const response = await axios.post('/files/transcribe', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      onUploadProgress: (progressEvent) => {
-        uploadProgress.value =
-          (progressEvent.loaded / progressEvent.total) * 100;
-      },
-    });
-
-    if (response.data.newDocument) {
-      response.data.newDocument.isConverting = true;
-      response.data.newDocument.userPicture =
-        usePage().props.auth.user.profile_photo_url;
-      return response.data.newDocument;
-    }
-  } catch (error) {
-    console.error('Error transcribing file:', error);
-    flashMessage({
-      message: 'An error occurred while transcribing the file.',
-      type: 'error',
-    });
-  } finally {
-    audioIsUploading.value = false;
-  }
-}
 
 /*---------------------------------------------------------------------------*/
 // RENAME DOCUMENT
@@ -385,6 +186,9 @@ const onDeleted = ({ id, name }) => {
   }
 };
 
+/*---------------------------------------------------------------------------*/
+// LIFECYCLE
+/*---------------------------------------------------------------------------*/
 onMounted(() => {
   const echo = useEcho().init();
   /**
@@ -392,6 +196,7 @@ onMounted(() => {
    * and update the local state accordingly
    */
   echo.private('conversion.' + projectId).listen('ConversionCompleted', (e) => {
+      console.debug('ConversionCompleted', e)
     let documentIndex = -1;
     documents.forEach((doc, index) => {
       if (doc.id === e.sourceId) {
@@ -406,6 +211,7 @@ onMounted(() => {
     }
   });
   echo.private('conversion.' + projectId).listen('ConversionFailed', (e) => {
+      console.debug('ConversionFailed', e)
     let documentIndex = -1;
     documents.forEach((doc, index) => {
       if (doc.id === e.sourceId) {
@@ -419,13 +225,6 @@ onMounted(() => {
       documents[documentIndex].failed = true;
     }
   });
-  // window.addEventListener('beforeunload', (event) => {
-  //   if (documents.some((document) => document.isConverting)) {
-  //     // Custom confirmation message (return a string to modify the default)
-  //     event.returnValue =
-  //       'Are you sure you want to reload? A document is still converting.';
-  //   }
-  // });
 });
 
 watch(
@@ -436,16 +235,6 @@ watch(
     }
   }
 );
-
-// onBeforeUnmount(() => {
-//   window.removeEventListener('beforeunload', (event) => {
-//     if (documents.some((document) => document.isConverting)) {
-//       // Custom confirmation message (return a string to modify the default)
-//       event.returnValue =
-//         'Are you sure you want to reload? A document is elaborating.';
-//     }
-//   });
-// });
 
 function fileSelected(file) {
   // Update 'selected' property for all documents
@@ -491,6 +280,131 @@ async function fetchAndRenderDocument(document) {
   }
 }
 </script>
+<template>
+    <div class="flex items-center justify-start">
+        <Button
+            variant="outline-secondary"
+            class="rounded-xl"
+            @click="createNewFile"
+        >
+            <PlusIcon class="h-4 w-4 mr-2"></PlusIcon>
+            <span>Create</span>
+        </Button>
+        <Button
+            variant="outline-secondary"
+            class="rounded-xl ml-3"
+            @click="importSchema = { foo: {} }"
+        >
+            <PlusIcon class="h-4 w-4 mr-2"></PlusIcon>
+            <span>Import</span>
+        </Button>
+    </div>
+    <CreateDialog
+        :schema="createSchema"
+        title="Create new file"
+        :submit="onCreateSubmit"
+        @created="onCreated"
+        @cancelled="createSchema = null"
+    />
+    <WizardDialog
+        :schema="importSchema"
+        title="Import file(s)"
+        :progress="uploadProgress"
+        :files-selected="importFiles"
+    />
+    <FilesList
+        v-if="documents?.length"
+        class="mt-5"
+        :fixed="true"
+        :focus-on-hover="true"
+        :documents="documents"
+        :actions="[
+      {
+        id: 'retry-atrain',
+        title: 'Retry transcription',
+        icon: ArrowPathRoundedSquareIcon,
+        onClick({ document }) {
+          retryTranscription(document);
+        },
+        visible(document) {
+          if (document.type !== 'audio') return false;
+          if (document.converted) return false;
+          return document.failed || !document.isConverting;
+        },
+      },
+      {
+        id: 'retry-conversion',
+        title: 'Retry conversion',
+        icon: CloudArrowUpIcon,
+        onClick({ document }) {
+          retryConvert(document);
+        },
+        visible(document) {
+          if (document.type !== 'text') return false;
+          if (document.converted) return false;
+          return document.failed || !document.isConverting;
+        },
+      },
+      {
+        id: 'download-source',
+        title: 'Download Source File',
+        icon: DocumentArrowDownIcon,
+        onClick({ document }) {
+          downloadSource(document);
+        },
+        visible(document) {
+          return document.converted;
+        },
+      },
+      {
+        id: 'rename-document',
+        title: 'Rename this document',
+        class: 'text-secondary',
+        icon: PencilSquareIcon,
+        onClick({ document }) {
+          toRename = document;
+        },
+        visible(document) {
+          return document.converted;
+        },
+      },
+      {
+        id: 'delete-document',
+        title: 'Delete this document',
+        class: 'text-destructive',
+        icon: XCircleIcon,
+        onClick({ document, index }) {
+          toDelete = document;
+        },
+        visible(/* document */) {
+          return true;
+        },
+      },
+    ]"
+        @select="fetchAndRenderDocument"
+    >
+    </FilesList>
+    <p v-else class="text-sm text-foreground/60">
+        You have not added any files. Best is to do it now.
+    </p>
+    <RenameDialog
+        title="Rename File"
+        :target="toRename"
+        :submit="
+      ({ id, name }) =>
+        request({ type: 'POST', url: `/sources/${id}`, body: { name } })
+    "
+        @renamed="onRenamed"
+        @cancelled="toRename = null"
+    />
+    <DeleteDialog
+        :target="toDelete"
+        :submit="deleteDocument"
+        challenge="random"
+        @cancelled="toDelete = null"
+        @deleted="onDeleted"
+    />
+</template>
 <style scoped>
 @keyframes fillAnimation {
   0% {

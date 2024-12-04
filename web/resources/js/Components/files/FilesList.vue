@@ -115,31 +115,49 @@
         <td class="py-2" v-if="fieldsVisible.type && hover !== index">
           <div
             v-if="
+              !document.isQueued && !document.isUploading &&
               !document.converted && !document.isConverting && !document.failed
             "
-            class="inline-flex justify-center w-full p-1"
+            title="There was an error during upload or conversion. Please retry or delete this file."
+            class="inline-flex justify-center w-full p-1 clickable"
           >
             <ExclamationTriangleIcon
-              title="not ready to be coded - retry elaboration"
               class="w-5 h-5 !text-destructive rounded-md font-semibold"
             />
           </div>
+            <div
+                v-else-if="document.isQueued"
+                title="Queued for uploading"
+                class="inline-flex justify-center w-full p-1"
+            >
+                <ClockIcon class="w-5 h-5 text-secondary" />
+            </div>
+            <div
+                v-else-if="document.isUploading"
+                :title="`Uploading file: ${document.progress ?? 0}%`"
+                class="inline-flex justify-center w-full p-1 text-xs"
+            >
+                <CloudArrowUpIcon class="w-5 h-5 text-secondary" />
+            </div>
           <div
             v-else-if="document.isConverting && !document.failed"
             class="inline-flex justify-center w-full p-1"
           >
-            <div class="animate-spin mr-1">
+            <div class="animate-spin mr-1" title="Converting...">
               <ArrowPathIcon
-                class="w-5 h-5 text-primary rounded-md font-semibold p-1"
+                class="w-5 h-5 text-secondary"
               ></ArrowPathIcon>
             </div>
             Converting
           </div>
           <div
             v-else-if="document.failed"
-            class="flex items-center bg-red-700 text-white text-xs font-semibold py-1 rounded-full"
+            title="There was an error during upload or conversion. Please retry or delete this file."
+            class="inline-flex justify-center w-full p-1 clickable"
           >
-            Failed
+              <ExclamationTriangleIcon
+                  class="w-5 h-5 !text-destructive rounded-md font-semibold"
+              />
           </div>
           <!-- TODO make this open-close impl -->
           <div
@@ -149,11 +167,11 @@
           >
             <DocumentTextIcon
               v-if="document.type === 'text'"
-              class="h-4 w-4 gray-500 ml-auto mr-auto"
+              class="h-4 w-4 text-foreground ml-auto mr-auto"
             />
             <SpeakerWaveIcon
               v-if="document.type === 'audio'"
-              class="h-4 w-4 gray-500 ml-auto mr-auto"
+              class="h-4 w-4 text-foreground ml-auto mr-auto"
             />
           </div>
         </td>
@@ -208,8 +226,7 @@
                 <component
                   v-if="action.icon"
                   :is="action.icon"
-                  class="h-4 w-4 mr-2"
-                  :class="action.class"
+                  :class="cn('h-4 w-4 mr-2', action.class)"
                 ></component>
                 {{ action.title }}
               </button>
@@ -243,6 +260,8 @@ import {
 } from '@heroicons/vue/20/solid/index.js';
 import { LockOpenIcon } from '@heroicons/vue/24/outline';
 import {
+    CloudArrowUpIcon,
+    ClockIcon,
   DocumentTextIcon,
   ExclamationTriangleIcon,
   SpeakerWaveIcon,
@@ -336,6 +355,8 @@ const handleOutsideClick = () => {
 
 function dataTypeTitle(type) {
   switch (type) {
+    case 'audio':
+      return 'Audio file transcription'
     default:
       return 'Text-based Document';
   }

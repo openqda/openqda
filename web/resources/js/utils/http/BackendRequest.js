@@ -16,7 +16,7 @@ class BackendRequest {
    * @param options {BackendRequestOptions}
    */
   constructor(options) {
-    const { url, type, body, query, headers } = options;
+    const { url, type, body, query, headers, ...rest } = options;
     this.url = url;
     this.type = type.toLowerCase();
     this.body = body;
@@ -24,6 +24,7 @@ class BackendRequest {
     this.response = null;
     this.error = null;
     this.headers = headers;
+    this.extraOptions = rest;
   }
 
   async send() {
@@ -32,7 +33,14 @@ class BackendRequest {
       const args = [this.url];
       if (this.query) args.push({ params: this.query });
       if (this.body) args.push(this.body);
-      if (this.headers) args.push({ headers: this.headers });
+
+      const extraOptions = { ...this.extraOptions }
+
+      if (this.headers) {
+          extraOptions.headers = this.headers;
+      }
+
+      args.push(extraOptions);
       this.response = await fn.apply(axios, args);
     } catch (error) {
       this.response = error.response ?? null;

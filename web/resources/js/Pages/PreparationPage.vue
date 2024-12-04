@@ -4,6 +4,7 @@
       <BaseContainer>
         <FilesManager
           :initialFile="initialFile"
+          :project-id="props.projectId"
           @fileSelected="loadFileIntoEditor($event)"
           @documentDeleted="onDocumentDeleted"
         />
@@ -144,7 +145,7 @@ const editorSourceRef = ref({
 });
 
 const editorComponent = ref();
-const props = defineProps(['sources', 'newDocument']);
+const props = defineProps(['sources', 'newDocument', 'projectId']);
 const documents = ref([]);
 const pageTitle = ref('Preparation');
 

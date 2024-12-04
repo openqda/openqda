@@ -12,7 +12,7 @@ def convert_rtf_to_html(rtf_path, output_dir):
     output_html = os.path.join(output_dir, file_root + '.html')
 
     # Run unoconv to convert the file
-    result = subprocess.run(['/usr/local/bin/unoconv', '-f', 'html', '-o', output_html, rtf_path])
+    result = subprocess.run(['unoconv', '-f', 'html', '-o', output_html, rtf_path])
 
     # Check if the conversion was successful
     if result.returncode == 0:
