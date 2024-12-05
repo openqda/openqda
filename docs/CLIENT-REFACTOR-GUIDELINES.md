@@ -108,3 +108,21 @@ Consider the following user's `ProfileImage.vue` component:
 
 It hard-wires it's `src` and `alt` attributes to a specific object structure
 within the current page (indicated by `$page`).
+
+## Documenting
+
+### Vue components
+
+The `<script>` part should begin with a summary comment:
+
+
+
+For higher-order-components and pages the script parts should be structured
+by topics:
+
+```js
+/*---------------------------------------------------------------------------*/
+// CODES
+/*---------------------------------------------------------------------------*/
+const { codes } = useCodes()
+```
