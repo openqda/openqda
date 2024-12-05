@@ -19,10 +19,11 @@ Currently, this guide is tested using the following environments:
 - [3. Install OpenQDA](#3-install-openqda)
   - [Build the containers for the first time](#build-the-containers-for-the-first-time)
   - [Run the backend applications](#run-the-backend-applications)
-  - [Run the client application](#run-the-client-application)
   - [Populate Database](#populate-database)
   - [Connect Filesystem](#connect-filesystem)
   - [Run the Collaboration Service](#run-the-collaboration-service)
+  - [Run the client application](#run-the-client-application)
+  - [View the local files, logs and E-Mails](#view-the-local-files-logs-and-e-mails)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 *generated with [DocToc](https://github.com/thlorenz/doctoc)*
