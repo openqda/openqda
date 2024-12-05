@@ -198,7 +198,6 @@ const contentView = ref(contentTabs[0].value);
 //------------------------------------------------------------------------
 // PAGE
 //------------------------------------------------------------------------
-// TODO: https://www.npmjs.com/package/html-to-rtf
 const pageTitle = ref(`Analysis - ${trunc(props.project.name, 50)}`);
 
 //------------------------------------------------------------------------
