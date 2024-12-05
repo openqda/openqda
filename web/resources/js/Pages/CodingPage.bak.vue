@@ -110,7 +110,7 @@
               :transparency="leftPanelTransparency"
               :show="showDocumentSettings"
               @close="showDocumentSettings = false"
-              v-click-outside="(showDocumentSettings = false)"
+              v-click-outside="showDocumentSettings = false"
             >
               <div class="px-4 py-6 sm:px-6 bg-white">
                 <div @click="toggleFileSubMenu">
@@ -232,7 +232,7 @@
               :position="'right'"
               :show="showCodesSettings"
               @close="showCodesSettings = false"
-              v-click-outside="(showCodesSettings = false)"
+              v-click-outside="showCodesSettings = false"
             >
               <div class="px-4 py-6 sm:px-6 bg-white">
                 <span class="text-gray-700 font-semibold"

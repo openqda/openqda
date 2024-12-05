@@ -90,8 +90,8 @@
             @touchend="focusOnHover && (hover = -1)"
             @click="
               document.converted &&
-                !document.selected &&
-                emit('select', document, index)
+              !document.selected &&
+              emit('select', document, index)
             "
             :title="
               hover === index
