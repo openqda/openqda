@@ -1,5 +1,5 @@
 export const randomUUID = () => {
-  if ('crypto' in window) {
+  if (typeof window?.crypto?.randomUUID === 'function') {
     return crypto.randomUUID();
   }
 

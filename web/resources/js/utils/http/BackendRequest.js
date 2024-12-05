@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 /**
  * @typedef {object} BackendRequestOptions
  * @property url {string} the url, use {query} to add url query parameters
@@ -8,6 +10,8 @@
  */
 
 /**
+ * Wrapper for standardized requests to the backend that do not throw an error
+ * but instead stores the response / error as member variables.
  * @class
  */
 class BackendRequest {
@@ -27,6 +31,12 @@ class BackendRequest {
     this.extraOptions = rest;
   }
 
+    /**
+     * Send the request to the server and store
+     * the response / error as member variables.
+     *
+     * @return {Promise<BackendRequest>}
+     */
   async send() {
     try {
       const fn = axios[this.type];
@@ -51,7 +61,9 @@ class BackendRequest {
 }
 
 /**
- * Send a HTTP request to the backend.
+ * Sends an HTTP request to the backend but does not throw on error
+ * but instead returns an object that contains a response and error property.
+ *
  * @param options {BackendRequestOptions}
  * @return {Promise<BackendRequest>}
  */

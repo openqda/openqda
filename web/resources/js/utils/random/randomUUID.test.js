@@ -20,6 +20,7 @@ describe(randomUUID.name, () => {
     expect(pattern.test(actual)).toBe(true);
   });
   it('creates a random uuid with polyfill', () => {
+    vi.stubGlobal('crypto', null);
     const actual = randomUUID();
     expect(actual).not.toBe(stubbed);
     expect(pattern.test(actual)).toBe(true);
