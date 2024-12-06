@@ -278,12 +278,11 @@ export const useCodes = () => {
   const overlaps = computed(() => {
     return selectionStore.getIntersections(selectionStore.all());
   });
-const selectionsByIndex = (index) => {
+  const selectionsByIndex = (index) => {
     return selections.value.filter(({ start, end }) => {
-        return start <= index && end >= index;
+      return start <= index && end >= index;
     });
-};
-
+  };
 
   const observe = (name, callbacks) => {
     switch (name) {

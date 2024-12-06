@@ -359,9 +359,9 @@ onUnmounted(() => {
             >Assign to selection {{ range.start }}:{{ range.end }}</span
           >
         </button>
-        <ContrastText v-else class="line-clamp-1 flex-grow items-center">{{
-          code.name
-        }} {{code.color}}</ContrastText>
+        <ContrastText v-else class="line-clamp-1 flex-grow items-center"
+          >{{ code.name }} {{ code.color }}</ContrastText
+        >
       </div>
       <button
         class="p-0 m-0 text-foreground/80"

@@ -11,7 +11,7 @@ import {
   DocumentArrowDownIcon,
   PlusIcon,
 } from '@heroicons/vue/24/solid';
-import { inject, onMounted, onUnmounted, reactive, ref, watch } from 'vue'
+import { inject, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import FilesList from './FilesList.vue';
@@ -189,11 +189,10 @@ const onDeleted = ({ id, name }) => {
 /*---------------------------------------------------------------------------*/
 // LIFECYCLE
 /*---------------------------------------------------------------------------*/
-const channelid = `conversion.${projectId}`
+const channelid = `conversion.${projectId}`;
 const echo = useEcho().init();
 
 onMounted(() => {
-
   /**
    * Listen for conversion completed events
    * and update the local state accordingly
@@ -231,8 +230,8 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-    echo.leave(channelid);
-})
+  echo.leave(channelid);
+});
 
 watch(
   () => props.initialFile,

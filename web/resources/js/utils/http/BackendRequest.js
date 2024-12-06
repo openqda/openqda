@@ -31,12 +31,12 @@ class BackendRequest {
     this.extraOptions = rest;
   }
 
-    /**
-     * Send the request to the server and store
-     * the response / error as member variables.
-     *
-     * @return {Promise<BackendRequest>}
-     */
+  /**
+   * Send the request to the server and store
+   * the response / error as member variables.
+   *
+   * @return {Promise<BackendRequest>}
+   */
   async send() {
     try {
       const fn = axios[this.type];
@@ -60,15 +60,15 @@ class BackendRequest {
   }
 }
 
-const globalHooks = new Set()
+const globalHooks = new Set();
 
 /**
- * 
+ *
  * @param fn
  */
 export const registerGlobalRequestHook = (fn) => {
-    globalHooks.add(fn)
-}
+  globalHooks.add(fn);
+};
 
 /**
  * Sends an HTTP request to the backend but does not throw on error
@@ -78,7 +78,7 @@ export const registerGlobalRequestHook = (fn) => {
  * @return {Promise<BackendRequest>}
  */
 export const request = async (options) => {
-    const req = await (new BackendRequest(options)).send();
-    globalHooks.forEach(fn => fn(req));
-    return req
-}
+  const req = await new BackendRequest(options).send();
+  globalHooks.forEach((fn) => fn(req));
+  return req;
+};

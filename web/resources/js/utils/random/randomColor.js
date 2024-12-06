@@ -12,9 +12,7 @@ export const randomColor = ({ type = 'rgba', opacity = 1 } = {}) => {
   const b = color();
 
   if (type === 'hex') {
-    const o = opacity > -1
-        ? toHex(Math.floor(opacity * 255))
-        : ''
+    const o = opacity > -1 ? toHex(Math.floor(opacity * 255)) : '';
     return `#${toHex(r)}${toHex(g)}${toHex(b)}${o}`;
   }
 

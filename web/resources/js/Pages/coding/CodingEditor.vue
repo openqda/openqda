@@ -47,7 +47,7 @@
 </template>
 
 <script setup>
-import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import Quill from 'quill';
 import QuillCursors from 'quill-cursors';
 import { formats, redoChange, undoChange } from '../../editor/EditorConfig.js';
@@ -141,14 +141,14 @@ onMounted(() => {
 
   const disposeSelectionObserver = observe('store/selections', {
     added: (docs, allDocs) => {
-        // XXX: this currently re-renders the entire editor source
-        // which runs smooth for now but we may have to test this for larger documents!
-        hl.add(allDocs);
+      // XXX: this currently re-renders the entire editor source
+      // which runs smooth for now but we may have to test this for larger documents!
+      hl.add(allDocs);
     },
     updated: (docs, allDocs) => {
-        // XXX: this currently re-renders the entire editor source
-        // which runs smooth for now but we may have to test this for larger documents!
-        hl.add(allDocs);
+      // XXX: this currently re-renders the entire editor source
+      // which runs smooth for now but we may have to test this for larger documents!
+      hl.add(allDocs);
     },
     removed: (docs) => {
       docs.forEach((doc) => hl.remove(doc));

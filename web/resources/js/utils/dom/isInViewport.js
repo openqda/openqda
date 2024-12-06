@@ -10,16 +10,12 @@ export const isInViewport = (el) => {
   const { innerHeight, innerWidth } = window;
   const { clientHeight, clientWidth } = document.documentElement;
 
-  const height = innerHeight ?? clientHeight
-  const width = innerWidth ?? clientWidth
+  const height = innerHeight ?? clientHeight;
+  const width = innerWidth ?? clientWidth;
 
-    // do not compute on incomplete values
-  if ([top, left, right, bottom, width, height].includes(undefined)) return false
+  // do not compute on incomplete values
+  if ([top, left, right, bottom, width, height].includes(undefined))
+    return false;
 
-  return (
-    top >= 0 &&
-    left >= 0 &&
-    bottom <= height &&
-    right <= width
-  );
+  return top >= 0 && left >= 0 && bottom <= height && right <= width;
 };
