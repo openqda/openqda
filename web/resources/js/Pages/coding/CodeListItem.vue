@@ -18,7 +18,7 @@ import Button from '../../Components/interactive/Button.vue';
 import { useCodes } from './useCodes.js';
 import { useRange } from './useRange.js';
 import { useSelections } from './selections/useSelections';
-import { changeRGBOpacity } from '../../utils/color/changeRGBOpacity.js';
+import { changeOpacity } from '../../utils/color/changeOpacity.js';
 import { useRenameDialog } from '../../dialogs/useRenameDialog.js';
 import { useCodingEditor } from './useCodingEditor.js';
 import { useDeleteDialog } from '../../dialogs/useDeleteDialog.js';
@@ -45,6 +45,7 @@ const props = defineProps({
   liclass: String,
   selections: Array,
   canSort: Boolean,
+  hasSibling: Boolean,
 });
 const { getMemberBy } = useUsers();
 
@@ -120,7 +121,7 @@ const editCode = (target) => {
   const schema = createCodeSchema({
     title: target.name,
     description: target.description,
-    color: target.color,
+    color: rgbToHex(target.color),
   });
   schema.id = {
     type: String,
@@ -160,13 +161,14 @@ const initDraggable = () => {
   }
   draggable = useDraggable(draggableRef, props.code.children, {
     animation: 250,
-    swapThreshold: window.dragThreshold ?? 0.1,
+    swapThreshold: 1,
     scroll: true,
     group: props.code.codebook,
     clone: (element) => {
       if (element === undefined || element === null) {
         return element;
       }
+
       const elementStr = JSON.stringify(element, (key, value) => {
         if (value === element) {
           return `$element-${value.id}`;
@@ -275,6 +277,7 @@ onUnmounted(() => {
         'rounded-lg py-2 border border-transparent',
         code.parent && 'ms-2',
         open && !dragStarter && 'border-l-background',
+        dragStarter === code.id && 'bg-secondary text-secondary-foreground',
         dragEntered &&
           dragTarget &&
           code.id !== dragStarter &&
@@ -334,7 +337,7 @@ onUnmounted(() => {
             props.canSort && 'cursor-grab'
           )
         "
-        :style="`background: ${changeRGBOpacity(code.color ?? 'rgba(0,0,0,1)', 1)};`"
+        :style="`background: ${changeOpacity(code.color ?? 'rgba(0,0,0,1)', 1)};`"
       >
         <button
           v-if="range?.length"
@@ -358,7 +361,7 @@ onUnmounted(() => {
         </button>
         <ContrastText v-else class="line-clamp-1 flex-grow items-center">{{
           code.name
-        }}</ContrastText>
+        }} {{code.color}}</ContrastText>
       </div>
       <button
         class="p-0 m-0 text-foreground/80"
@@ -423,7 +426,7 @@ onUnmounted(() => {
     <!-- TEXT Selections -->
     <div
       v-if="code && textCount && showTexts"
-      :style="`border-color: ${changeRGBOpacity(code.color ?? 'rgba(0,0,0,1)', 1)};`"
+      :style="`border-color: ${changeOpacity(code.color ?? 'rgba(0,0,0,1)', 1)};`"
       class="bg-surface border text-sm ms-8 me-1 my-1 rounded"
     >
       <ul class="divide-y divide-border">
@@ -475,6 +478,7 @@ onUnmounted(() => {
         :code="child"
         :can-sort="canSort"
         :liclass="code.parent ? 'ps-1' : 'ps-1'"
+        :has-siblings="code.children?.length > 1"
       />
     </ul>
 

@@ -2,7 +2,7 @@
 import { ChevronRightIcon } from '@heroicons/vue/24/solid/index.js';
 import { computed, ref } from 'vue';
 import { cn } from '../../../utils/css/cn';
-import { changeRGBOpacity } from '../../../utils/color/changeRGBOpacity';
+import { changeOpacity } from '../../../utils/color/changeOpacity';
 import { useSelections } from '../selections/useSelections';
 import { useContextMenu } from './useContextMenu';
 
@@ -51,7 +51,7 @@ const handle = async ({ code, parent }) => {
     <button
       class="w-full p-2 rounded-md text-left line-clamp-1 hover:font-semibold"
       :style="{
-        background: changeRGBOpacity(code.color, 1),
+        background: changeOpacity(code.color, 1),
       }"
       @click="handle({ code, parent })"
     >

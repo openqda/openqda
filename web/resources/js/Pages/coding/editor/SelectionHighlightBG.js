@@ -1,5 +1,5 @@
 import Quill from 'quill';
-import { changeRGBOpacity } from '../../../utils/color/changeRGBOpacity.js';
+import { changeOpacity } from '../../../utils/color/changeOpacity.js';
 import { segmentize } from '../../../domain/selections/Intersections.js';
 import { cn } from '../../../utils/css/cn.js';
 
@@ -94,7 +94,7 @@ export class SelectionHighlightBG extends Module {
       this.quill.formatText(start, length, format);
     } else {
       const selectionTitle = `${title} [${start}:${start + length}]. Right-click to open menu`;
-      const background = changeRGBOpacity(color, opacity);
+      const background = changeOpacity(color, opacity);
       const format = this.quill.getFormat(start, length);
       format.class = cn(format.class, 'my-0 py-0');
       format.background = background;

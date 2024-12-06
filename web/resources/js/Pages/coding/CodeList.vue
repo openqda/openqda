@@ -70,7 +70,7 @@ const codesCount = computed(() => {
 });
 const draggable = useDraggable(draggableRef, sortable, {
   animation: 250,
-  swapThreshold: window.dragThreshold ?? 0.1,
+  swapThreshold: 1,
   scroll: true,
   group: props.codebook.id,
   clone: (element) => {
@@ -236,6 +236,7 @@ onUnmounted(() => {
         :code="code"
         :key="code.id"
         :can-sort="!range?.length"
+        :has-siblings="sortable?.length > 1"
       />
     </ul>
   </div>

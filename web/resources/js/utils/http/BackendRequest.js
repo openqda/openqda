@@ -60,6 +60,16 @@ class BackendRequest {
   }
 }
 
+const globalHooks = new Set()
+
+/**
+ * 
+ * @param fn
+ */
+export const registerGlobalRequestHook = (fn) => {
+    globalHooks.add(fn)
+}
+
 /**
  * Sends an HTTP request to the backend but does not throw on error
  * but instead returns an object that contains a response and error property.
@@ -67,4 +77,8 @@ class BackendRequest {
  * @param options {BackendRequestOptions}
  * @return {Promise<BackendRequest>}
  */
-export const request = (options) => new BackendRequest(options).send();
+export const request = async (options) => {
+    const req = await (new BackendRequest(options)).send();
+    globalHooks.forEach(fn => fn(req));
+    return req
+}

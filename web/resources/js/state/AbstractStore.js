@@ -87,7 +87,7 @@ export class AbstractStore {
     });
     Object.assign(this.entries, documents);
     const added = Object.values(documents);
-    this.observable.run('added', added);
+    this.observable.run('added', added, this.all());
     this.observable.run('changed', { type: 'added', docs: added });
     return added;
   }

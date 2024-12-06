@@ -140,20 +140,15 @@ onMounted(() => {
   window.quill = quillInstance;
 
   const disposeSelectionObserver = observe('store/selections', {
-    added: (docs) => {
-      updating.value = true;
-      nextTick(() => {
-        const related = new Set(docs);
-        docs.forEach((doc) => {
-          related.add(...selectionsByIndex(doc.start));
-          related.add(...selectionsByIndex(doc.end));
-        });
-        hl.add([...related]);
-        updating.value = false;
-      });
+    added: (docs, allDocs) => {
+        // XXX: this currently re-renders the entire editor source
+        // which runs smooth for now but we may have to test this for larger documents!
+        hl.add(allDocs);
     },
-    updated: (docs /*, allDocs */) => {
-      hl.add(docs);
+    updated: (docs, allDocs) => {
+        // XXX: this currently re-renders the entire editor source
+        // which runs smooth for now but we may have to test this for larger documents!
+        hl.add(allDocs);
     },
     removed: (docs) => {
       docs.forEach((doc) => hl.remove(doc));
@@ -168,17 +163,6 @@ onMounted(() => {
   disposables.add(disposeSelectionObserver);
 
   const addSelections = (entries) => {
-    // entries.forEach((selection) => {
-    //   hl.highlight({
-    //     id: selection.code.id,
-    //     color: selection.code.color,
-    //     title: selection.code.name,
-    //     start: selection.start,
-    //     length: selection.length,
-    //     active: selection.code.active,
-    //   });
-    // });
-
     hl.add(entries);
     updating.value = false;
   };
