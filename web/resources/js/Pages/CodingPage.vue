@@ -42,6 +42,14 @@
             @change="(value) => (codesView = value)"
           />
         </div>
+        <!--
+          <HeList
+              v-for="codebook in codebooks"
+              :key="codebook.id"
+              :codebook="codebook"
+              :codes="codes.filter((code) => code.codebook === codebook.id)"
+              v-if="codesView === 'codes'" />
+        -->
         <CodeList
           v-for="codebook in codebooks"
           :key="codebook.id"

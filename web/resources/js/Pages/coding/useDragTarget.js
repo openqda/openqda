@@ -1,4 +1,5 @@
 import { reactive, toRefs } from 'vue';
+import { CodeList } from '../../domain/codes/CodeList.js';
 
 const state = reactive({
   current: null,
@@ -38,5 +39,6 @@ export const useDragTarget = () => {
     setDragTarget,
     clearDrag,
     setDragStart,
+    dropAllowed: CodeList.dropAllowed,
   };
 };

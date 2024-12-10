@@ -3,7 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Code;
-use App\Rules\PreventSelfReferentialCode;
+use App\Rules\PreventInvalidCodeHierarchy;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 
@@ -30,7 +30,7 @@ class UpdateCodeRequest extends FormRequest
             'color' => 'sometimes|required|string|max:255',
             'title' => 'sometimes|required|string|max:255',
             'description' => 'sometimes|required|string',
-            'parent_id' => ['sometimes', 'nullable', 'uuid', new PreventSelfReferentialCode($this->route('code')?->id)],
+            'parent_id' => ['sometimes', 'nullable', 'uuid', new PreventInvalidCodeHierarchy($this->route('code')?->id)],
         ];
     }
 }

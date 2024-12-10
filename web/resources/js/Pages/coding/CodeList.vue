@@ -54,7 +54,8 @@ const sortable = ref(
   (props.codes ?? []).toSorted(getSortOrderBy(props.codebook))
 );
 const isDragging = ref(false);
-const { dragTarget, setDragStart, clearDrag } = useDragTarget();
+const { dragTarget, setDragStart, clearDrag, setDragTarget, dropAllowed } =
+  useDragTarget();
 const codesCount = computed(() => {
   const countCodes = (codes) => {
     let count = 0;
@@ -70,8 +71,9 @@ const codesCount = computed(() => {
 });
 const draggable = useDraggable(draggableRef, sortable, {
   animation: 250,
-  swapThreshold: 1,
+  swapThreshold: 0.1,
   scroll: true,
+  handle: '.handle',
   group: props.codebook.id,
   clone: (element) => {
     if (element === undefined || element === null) {
@@ -98,7 +100,7 @@ const draggable = useDraggable(draggableRef, sortable, {
   },
   async onEnd(e) {
     const codeId = e.item.getAttribute('data-code');
-    const parentId = dragTarget.value;
+    const target = dragTarget.value;
     const to = e.to.getAttribute('data-id');
 
     // clear after data retrieval
@@ -106,11 +108,12 @@ const draggable = useDraggable(draggableRef, sortable, {
     clearDrag();
 
     const droppedIntoList = to !== 'root';
-    const droppedOnOther = parentId && parentId !== codeId;
+    const droppedOnOther = target && target !== codeId;
+    const hierarchyChanged = droppedOnOther || droppedIntoList;
+    const otherId = target ?? to;
 
     // code placed on another code (add as child)
-    if (droppedOnOther || droppedIntoList) {
-      const otherId = parentId ?? to;
+    if (hierarchyChanged && dropAllowed(getCode(codeId), getCode(otherId))) {
       const moved = await attemptAsync(() =>
         addCodeToParent({ codeId, parentId: otherId })
       );
@@ -140,6 +143,8 @@ const draggable = useDraggable(draggableRef, sortable, {
         updateSortOrder({ order, codebook: props.codebook })
       );
     }
+    setDragStart(null);
+    setDragTarget(null);
   },
 });
 

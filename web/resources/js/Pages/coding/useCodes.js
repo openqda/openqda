@@ -4,6 +4,7 @@ import { Codebooks } from './codebooks/Codebooks.js';
 import { Codes } from './codes/Codes.js';
 import { Selections } from './selections/Selections.js';
 import { randomColor } from '../../utils/random/randomColor.js';
+import { CodeList } from '../../domain/codes/CodeList.js';
 
 const createCodeSchema = ({
   title,
@@ -171,6 +172,12 @@ export const useCodes = () => {
     return true;
   };
 
+  /**
+   *
+   * @param codeId
+   * @param parentId
+   * @return {Promise<boolean>}
+   */
   const addCodeToParent = async ({ codeId, parentId }) => {
     if (codeId === parentId) {
       throw new Error('Cannot make code its own parent!');
@@ -181,18 +188,28 @@ export const useCodes = () => {
 
     const code = codeStore.entry(codeId);
     const parent = codeStore.entry(parentId);
+
+    // check legitimacy of this operation
+    if (!CodeList.dropAllowed(code, parent)) {
+      throw new Error(
+        `${code?.name} is not allowed to become a child of ${parent?.name}!`
+      );
+    }
+
     const oldParent = code.parent;
 
     // optimistic UI
     codeStore.update(code.id, { parent });
     parent.children = parent.children ?? [];
     parent.children.push(code);
+    code.parent = parent;
 
     // TODO make optimistic UI procedures
     //   a command-pattern that can be undone
     const rollback = () => {
       codeStore.update(code.id, { parent: oldParent });
       parent.children.pop();
+      code.parent = oldParent;
     };
 
     const { response, error } = await Codes.update({

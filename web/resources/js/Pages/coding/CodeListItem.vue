@@ -7,7 +7,9 @@ import {
   BarsArrowDownIcon,
   PencilIcon,
   PlusIcon,
+  ChevronDoubleUpIcon,
   ArrowPathIcon,
+  ArrowsUpDownIcon,
 } from '@heroicons/vue/24/solid/index.js';
 import {
   TrashIcon /*, ChatBubbleBottomCenterTextIcon */,
@@ -147,13 +149,23 @@ const addSubcode = (parent) => {
 };
 //------------------------------------------------------------------------
 // DRAG DROP
+//
+// dragEntered = the current object drags over another object
+// dragTarget = the current target, the user drags over
+// dragStarter = the element the user started to drag
 //------------------------------------------------------------------------
 const draggableRef = ref();
 const dragEntered = ref();
 const isDragging = ref(false);
 const selfRef = ref();
-const { dragTarget, setDragTarget, clearDrag, setDragStart, dragStarter } =
-  useDragTarget();
+const {
+  dragTarget,
+  setDragTarget,
+  clearDrag,
+  setDragStart,
+  dragStarter,
+  dropAllowed,
+} = useDragTarget();
 let draggable;
 const initDraggable = () => {
   if (draggable) {
@@ -161,9 +173,10 @@ const initDraggable = () => {
   }
   draggable = useDraggable(draggableRef, props.code.children, {
     animation: 250,
-    swapThreshold: 1,
+    swapThreshold: 0.1,
     scroll: true,
-    group: props.code.codebook,
+    handle: '.handle',
+    group: props.code.id,
     clone: (element) => {
       if (element === undefined || element === null) {
         return element;
@@ -185,7 +198,9 @@ const initDraggable = () => {
     },
     onStart(e) {
       const id = e.item.getAttribute('data-code');
+      console.debug('set drag start', id);
       setDragStart(id);
+      setDragTarget(null);
       isDragging.value = true;
     },
     async onEnd(e) {
@@ -197,8 +212,10 @@ const initDraggable = () => {
       isDragging.value = false;
       clearDrag();
 
-      if (parentId && parentId !== codeId) {
-        const moved = await addCodeToParent({ codeId, parentId });
+      if (parentId && dropAllowed(getCode(codeId), getCode(parentId))) {
+        const moved = await attemptAsync(() =>
+          addCodeToParent({ codeId, parentId })
+        );
 
         if (moved) {
           const index = props.code.children.findIndex((c) => c.id === codeId);
@@ -206,6 +223,9 @@ const initDraggable = () => {
           index > -1 && props.code.children.splice(index, 1);
         }
       }
+
+      setDragStart(null);
+      setDragTarget(null);
     },
   });
 };
@@ -222,26 +242,34 @@ const sortedTexts = computed(() => {
 });
 
 const applyEnter = debounce((target) => {
-  if (!dragEntered.value) {
+  if (!dragEntered.value || !target) {
     return;
   }
   const codeId = target.getAttribute('data-code');
-  setDragTarget(codeId);
-}, 500);
 
-const enter = (evt) => {
-  if (evt.currentTarget.contains(evt.relatedTarget)) {
+  // we also skip if the entered code is actually
+  // the code itself
+  if (dragTarget.value === codeId || dragStarter.value === codeId) {
     return;
   }
+
+  setDragTarget(codeId);
+}, 100);
+
+const enter = (evt) => {
+  // prevent this event from bubbling up, so
+  // we do not accidentally apply parents being entered
+  // when actually children are entered
+  evt.stopPropagation();
   dragEntered.value = true;
   applyEnter(evt.currentTarget);
 };
 const leave = (evt) => {
-  if (evt.currentTarget.contains(evt.relatedTarget)) {
-    return;
+  evt.stopPropagation();
+  if (evt.relatedTarget.getAttribute('data-code')) {
+    setDragTarget(null);
+    dragEntered.value = false;
   }
-  setDragTarget(null);
-  dragEntered.value = false;
 };
 const end = () => {
   dragEntered.value = false;
@@ -290,6 +318,7 @@ onUnmounted(() => {
     @drop="end"
     ref="selfRef"
     :data-code="code.id"
+    :data-name="code.name"
   >
     <div class="flex items-center w-auto space-x-3">
       <Button
@@ -333,8 +362,7 @@ onUnmounted(() => {
       <div
         :class="
           cn(
-            'flex-grow tracking-wide rounded-md px-2 py-1 text-sm text-foreground dark:text-background group hover:shadow',
-            props.canSort && 'cursor-grab'
+            'flex-grow tracking-wide rounded-md px-2 py-1 text-sm text-foreground dark:text-background group hover:shadow'
           )
         "
         :style="`background: ${changeOpacity(code.color ?? 'rgba(0,0,0,1)', 1)};`"
@@ -360,9 +388,14 @@ onUnmounted(() => {
           >
         </button>
         <ContrastText v-else class="line-clamp-1 flex-grow items-center"
-          >{{ code.name }} {{ code.color }}</ContrastText
-        >
+          >{{ code.name }}
+        </ContrastText>
       </div>
+      <ArrowsUpDownIcon
+        title="Sort / move this code"
+        v-show="props.canSort"
+        class="h-4 w-4 handle cursor-grab"
+      />
       <button
         class="p-0 m-0 text-foreground/80"
         @click.prevent="handleCodeToggle(code)"
@@ -401,6 +434,12 @@ onUnmounted(() => {
             <div class="flex items-center">
               <PlusIcon class="w-4 h-4 me-2" />
               <span>Add subcode</span>
+            </div>
+          </DropdownLink>
+          <DropdownLink v-if="code.parent" as="button" @click.prevent="">
+            <div class="flex items-center">
+              <ChevronDoubleUpIcon class="w-4 h-4 me-2" />
+              <span>Make Top-Level Code</span>
             </div>
           </DropdownLink>
           <DropdownLink
@@ -454,7 +493,7 @@ onUnmounted(() => {
             </span>
             <button
               class="p-2 me-1"
-              @click="Selections.deleteSelection(selection)"
+              @click="attemptAsync(() => Selections.deleteSelection(selection))"
               title="Delete this selection"
             >
               <TrashIcon class="w-4 h-4 hover:text-destructive" />
@@ -476,6 +515,7 @@ onUnmounted(() => {
         v-for="child in code.children ?? []"
         :key="child.id"
         :code="child"
+        :parent="code"
         :can-sort="canSort"
         :liclass="code.parent ? 'ps-1' : 'ps-1'"
         :has-siblings="code.children?.length > 1"

@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="flash"
-    class="absolute bottom-0 right-0 m-2 w-60 items-center py-2 px-3 mb-2"
+    class="absolute top-0 right-0 m-2 w-60 items-center py-2 px-3 mb-2"
   >
     <div
       :class="[
@@ -32,9 +32,9 @@ defineProps(['message', 'flash']);
 const widthPercentage = ref(100);
 const colors = new ColorMap({
   bg: {
-    success: 'bg-confirmative/60',
-    error: 'bg-destructive/60',
-    default: 'bg-primary/60',
+    success: 'bg-confirmative/90',
+    error: 'bg-destructive/90',
+    default: 'bg-primary/90',
   },
   border: {
     success: 'border-confirmative',
