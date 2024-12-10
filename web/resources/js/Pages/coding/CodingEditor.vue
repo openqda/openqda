@@ -143,12 +143,12 @@ onMounted(() => {
     added: (docs, allDocs) => {
       // XXX: this currently re-renders the entire editor source
       // which runs smooth for now but we may have to test this for larger documents!
-      hl.add(allDocs);
+      hl.add(allDocs ?? docs);
     },
     updated: (docs, allDocs) => {
       // XXX: this currently re-renders the entire editor source
       // which runs smooth for now but we may have to test this for larger documents!
-      hl.add(allDocs);
+      hl.add(allDocs ?? docs);
     },
     removed: (docs) => {
       docs.forEach((doc) => hl.remove(doc));
