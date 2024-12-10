@@ -112,7 +112,7 @@ export const segmentize = (seg) => {
       // usually closing a segment involves
       // an already opened segment, so we
       // simply add the y value and end here
-      if (current.x) {
+      if (typeof current.x !== 'undefined') {
         current.y = value;
         current.c = [...codes];
         result.push(current);
@@ -146,7 +146,7 @@ export const segmentize = (seg) => {
     // --------------------------------------------------------
     else {
       // segment already has a starting position
-      if (current.x) {
+      if (typeof current.x !== 'undefined') {
         // Edge case: another new selection
         // starts at the exact same point
         // then we only add the code.
