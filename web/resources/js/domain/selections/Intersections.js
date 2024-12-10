@@ -167,7 +167,7 @@ export const segmentize = (seg) => {
         // then we have to cover the "void" first
         // by adding a closing-segment between the prev
         // and this one
-        if (opened > closed) {
+        if (prev && opened > closed) {
           current.x = prev.y;
           current.y = value;
           current.c = [...codes];
