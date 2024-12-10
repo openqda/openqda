@@ -187,10 +187,10 @@ export const useCodes = () => {
     }
 
     const code = codeStore.entry(codeId);
-    const parent = codeStore.entry(parentId);
+    const parent = parentId && codeStore.entry(parentId);
 
     // check legitimacy of this operation
-    if (!CodeList.dropAllowed(code, parent)) {
+    if (parent && !CodeList.dropAllowed(code, parent)) {
       throw new Error(
         `${code?.name} is not allowed to become a child of ${parent?.name}!`
       );
@@ -200,8 +200,10 @@ export const useCodes = () => {
 
     // optimistic UI
     codeStore.update(code.id, { parent });
-    parent.children = parent.children ?? [];
-    parent.children.push(code);
+    if (parent) {
+        parent.children = parent.children ?? [];
+        parent.children.push(code);
+    }
     code.parent = parent;
 
     // TODO make optimistic UI procedures

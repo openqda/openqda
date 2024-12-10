@@ -198,7 +198,6 @@ const initDraggable = () => {
     },
     onStart(e) {
       const id = e.item.getAttribute('data-code');
-      console.debug('set drag start', id);
       setDragStart(id);
       setDragTarget(null);
       isDragging.value = true;
@@ -436,7 +435,9 @@ onUnmounted(() => {
               <span>Add subcode</span>
             </div>
           </DropdownLink>
-          <DropdownLink v-if="code.parent" as="button" @click.prevent="">
+          <DropdownLink v-if="code.parent" as="button" @click.prevent="attemptAsync(() => {
+              addCodeToParent({ codeId: code.id, parentId: null })
+          })">
             <div class="flex items-center">
               <ChevronDoubleUpIcon class="w-4 h-4 me-2" />
               <span>Make Top-Level Code</span>

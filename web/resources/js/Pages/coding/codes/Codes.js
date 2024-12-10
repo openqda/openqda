@@ -139,6 +139,7 @@ Codes.update = ({
   if (description) body.description = description;
   if (color) body.color = color;
   if (parent) body.parent_id = toRaw(parent.id);
+  if (parent === null) body.parent_id = null;
 
   return request({
     url: `/projects/${projectId}/codes/${code.id}`,
