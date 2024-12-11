@@ -18,7 +18,7 @@ class CodebookStore extends AbstractStore {
   init(docs) {
     if (this.size.value === 0 && docs.size !== 0) {
       docs.forEach((book) => {
-        book.code_order = book.code_order ?? [];
+        book.code_order = book.code_order ?? book.properties?.code_order ?? [];
         book.active = true;
       });
       this.add(...docs);
@@ -155,5 +155,25 @@ Codebooks.delete = ({ projectId, codebookId }) => {
   return request({
     url: `/projects/${projectId}/codebooks/${codebookId}`,
     type: 'delete',
+  });
+};
+
+/**
+ * Requests the server to update the code order after sorting
+ * @param projectId {string}
+ * @param codebookId {string}
+ * @param order {object[]}
+ * @return {Promise<BackendRequest>}
+ */
+Codebooks.order = ({ projectId, codebookId, order }) => {
+  console.debug(order);
+  const url = route('codebook-codes.update-order', {
+    project: projectId,
+    codebook: codebookId,
+  });
+  return request({
+    url,
+    type: 'patch',
+    body: { code_order: order },
   });
 };

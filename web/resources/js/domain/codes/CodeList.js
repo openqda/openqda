@@ -24,7 +24,7 @@ export const CodeList = {};
  */
 CodeList.dropAllowed = (from, to) => {
   // trivial cases
-  if (!from || !to || from.id === to.id || to.id === from.parent) {
+  if (!from || !to || from.id === to.id || to.id === from.parent.id) {
     return false;
   }
 

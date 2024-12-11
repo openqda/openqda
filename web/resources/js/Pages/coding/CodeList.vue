@@ -16,7 +16,7 @@ import { useRange } from './useRange.js';
 import { asyncTimeout } from '../../utils/asyncTimeout.js';
 import { useDragTarget } from './useDragTarget.js';
 import { attemptAsync } from '../../Components/notification/attemptAsync.js';
-import { useCodebooks } from './codebooks/useCodebooks.js';
+import { useCodebookOrder } from './codebooks/useCodebookOrder.js';
 
 const props = defineProps({
   codebook: Object,
@@ -29,9 +29,17 @@ const props = defineProps({
 const { range } = useRange();
 
 //------------------------------------------------------------------------
+// CODEBOOKS
+//------------------------------------------------------------------------
+const {
+  changed: codebookOrderChanged,
+  getSortOrderBy,
+  updateSortOrder,
+} = useCodebookOrder();
+
+//------------------------------------------------------------------------
 // TOGGLE
 //------------------------------------------------------------------------
-const { getSortOrderBy, updateSortOrder } = useCodebooks();
 const { toggleCodebook, observe, addCodeToParent, getCode } = useCodes();
 const toggling = reactive({});
 const handleTogglingCodebook = async (codebook) => {
@@ -73,6 +81,7 @@ const draggable = useDraggable(draggableRef, sortable, {
   animation: 250,
   swapThreshold: 0.1,
   scroll: true,
+  invertSwap: true,
   handle: '.handle',
   group: props.codebook.id,
   clone: (element) => {
@@ -125,22 +134,8 @@ const draggable = useDraggable(draggableRef, sortable, {
 
     // otherwise we are sorting the same-level list
     else {
-      const parseOrder = (list) => {
-        const entries = [];
-        list.forEach((code) => {
-          const entry = { id: code.id };
-          // add children
-          if (code.children?.length) {
-            entry.children = parseOrder(code.children);
-          }
-          entries.push(entry);
-        });
-        return entries;
-      };
-
-      const order = parseOrder(sortable.value);
       await attemptAsync(() =>
-        updateSortOrder({ order, codebook: props.codebook })
+        updateSortOrder({ target: sortable.value, codebook: props.codebook })
       );
     }
     setDragStart(null);
@@ -151,6 +146,20 @@ const draggable = useDraggable(draggableRef, sortable, {
 //------------------------------------------------------------------------
 // OBSERVERS / WATCHERS
 //------------------------------------------------------------------------
+// we use a deep watcher on the codebooks, flagged for change,
+// because this is less demanding than deep-watching the recursive code-list
+watch(
+  () => codebookOrderChanged,
+  async (changed) => {
+    if (changed.value[props.codebook.id]) {
+      await attemptAsync(() =>
+        updateSortOrder({ target: sortable.value, codebook: props.codebook })
+      );
+    }
+  },
+  { deep: true, immediate: true }
+);
+
 observe('store/codes', {
   added: (docs) => {
     docs.forEach((doc) => {

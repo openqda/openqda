@@ -99,8 +99,6 @@ export const useCodebooks = () => {
   return {
     codebooks: computedCodebooks,
     initCodebooks,
-    updateSortOrder,
-    getSortOrderBy,
     createCodebookSchema: Codebooks.schemas.create,
     importCodebookSchema,
     updateCodebook,
@@ -116,35 +114,3 @@ const importCodebookSchema = () => ({
     accept: '.xml,.qdc',
   },
 });
-
-const updateSortOrder = async ({ order, codebook }) => {
-  codebook.code_order = order;
-};
-
-const getSortOrderBy = (codebook) => {
-  const order = codebook.code_order ?? [];
-
-  if (!order.length) {
-    return () => 0;
-  }
-
-  // transform to a read-optimized version of the order
-  const map = {};
-  const parseOrder = (list) => {
-    list.forEach((item, i) => {
-      item.index = i;
-      map[item.id] = item;
-      if (item.children?.length) {
-        parseOrder(item.children);
-      }
-    });
-  };
-
-  parseOrder(order);
-
-  return (a, b) => {
-    const indexA = map[a.id].index;
-    const indexB = map[b.id].index;
-    return indexA - indexB;
-  };
-};

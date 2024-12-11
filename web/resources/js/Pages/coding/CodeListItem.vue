@@ -36,6 +36,7 @@ import { useUsers } from '../../domain/teams/useUsers.js';
 import ProfileImage from '../../Components/user/ProfileImage.vue';
 import { asyncTimeout } from '../../utils/asyncTimeout.js';
 import { attemptAsync } from '../../Components/notification/attemptAsync.js';
+import { useCodebookOrder } from './codebooks/useCodebookOrder.js';
 
 //------------------------------------------------------------------------
 // DATA / PROPS
@@ -49,7 +50,16 @@ const props = defineProps({
   canSort: Boolean,
   hasSibling: Boolean,
 });
+
+//------------------------------------------------------------------------
+// TEAM
+//------------------------------------------------------------------------
 const { getMemberBy } = useUsers();
+
+//------------------------------------------------------------------------
+// CODEBOOKS / SORTING
+//------------------------------------------------------------------------
+const { codebookOrderChanged } = useCodebookOrder();
 
 //------------------------------------------------------------------------
 // OPEN CLOSE
@@ -176,6 +186,7 @@ const initDraggable = () => {
     swapThreshold: 0.1,
     scroll: true,
     handle: '.handle',
+    invertSwap: true,
     group: props.code.id,
     clone: (element) => {
       if (element === undefined || element === null) {
@@ -221,10 +232,14 @@ const initDraggable = () => {
           // eslint-disable-next-line vue/no-mutating-props
           index > -1 && props.code.children.splice(index, 1);
         }
+      } else {
+        const code = getCode(codeId);
+        codebookOrderChanged(code.codebook);
       }
 
       setDragStart(null);
       setDragTarget(null);
+      // code order changed
     },
   });
 };
@@ -245,7 +260,6 @@ const applyEnter = debounce((target) => {
     return;
   }
   const codeId = target.getAttribute('data-code');
-
   // we also skip if the entered code is actually
   // the code itself
   if (dragTarget.value === codeId || dragStarter.value === codeId) {
@@ -253,7 +267,7 @@ const applyEnter = debounce((target) => {
   }
 
   setDragTarget(codeId);
-}, 100);
+}, 300);
 
 const enter = (evt) => {
   // prevent this event from bubbling up, so
@@ -303,8 +317,8 @@ onUnmounted(() => {
       cn(
         'rounded-lg py-2 border border-transparent',
         code.parent && 'ms-2',
-        open && !dragStarter && 'border-l-background',
-        dragStarter === code.id && 'bg-secondary text-secondary-foreground',
+        open && code.children?.length && !dragStarter && 'border-l-background',
+        dragStarter === code.id && 'bg-background text-foreground',
         dragEntered &&
           dragTarget &&
           code.id !== dragStarter &&
@@ -390,11 +404,16 @@ onUnmounted(() => {
           >{{ code.name }}
         </ContrastText>
       </div>
-      <ArrowsUpDownIcon
-        title="Sort / move this code"
+      <button
+        @mousedown="open = false"
         v-show="props.canSort"
-        class="h-4 w-4 handle cursor-grab"
-      />
+        class="handle cursor-grab"
+        handle
+        cursor-grab
+        title="Sort / move this code"
+      >
+        <ArrowsUpDownIcon class="h-4 w-4" />
+      </button>
       <button
         class="p-0 m-0 text-foreground/80"
         @click.prevent="handleCodeToggle(code)"
@@ -435,9 +454,15 @@ onUnmounted(() => {
               <span>Add subcode</span>
             </div>
           </DropdownLink>
-          <DropdownLink v-if="code.parent" as="button" @click.prevent="attemptAsync(() => {
-              addCodeToParent({ codeId: code.id, parentId: null })
-          })">
+          <DropdownLink
+            v-if="code.parent"
+            as="button"
+            @click.prevent="
+              attemptAsync(() => {
+                addCodeToParent({ codeId: code.id, parentId: null });
+              })
+            "
+          >
             <div class="flex items-center">
               <ChevronDoubleUpIcon class="w-4 h-4 me-2" />
               <span>Make Top-Level Code</span>

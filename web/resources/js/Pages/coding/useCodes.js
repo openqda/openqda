@@ -201,8 +201,8 @@ export const useCodes = () => {
     // optimistic UI
     codeStore.update(code.id, { parent });
     if (parent) {
-        parent.children = parent.children ?? [];
-        parent.children.push(code);
+      parent.children = parent.children ?? [];
+      parent.children.push(code);
     }
     code.parent = parent;
 
