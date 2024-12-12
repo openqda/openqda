@@ -32,6 +32,7 @@ const runLog = (active, type, name, args) => {
     return;
   }
   const line = toLine(name, args);
+  // eslint-disable-next-line no-console
   console[type].call(console, line);
 };
 

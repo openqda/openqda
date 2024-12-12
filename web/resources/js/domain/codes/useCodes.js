@@ -1,10 +1,10 @@
 import { usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import { Codebooks } from './codebooks/Codebooks.js';
-import { Codes } from './codes/Codes.js';
-import { Selections } from './selections/Selections.js';
+import { Codebooks } from '../codebooks/Codebooks.js';
+import { Codes } from './Codes.js';
+import { Selections } from '../../Pages/coding/selections/Selections.js';
 import { randomColor } from '../../utils/random/randomColor.js';
-import { CodeList } from '../../domain/codes/CodeList.js';
+import { CodeList } from './CodeList.js';
 
 const createCodeSchema = ({
   title,

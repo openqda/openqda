@@ -92,7 +92,7 @@ import CodingEditor from './coding/CodingEditor.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
 import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue';
 import Button from '../Components/interactive/Button.vue';
-import { useCodes } from './coding/useCodes.js';
+import { useCodes } from '../domain/codes/useCodes.js';
 import { useRange } from './coding/useRange.js';
 import { useRenameDialog } from '../dialogs/useRenameDialog.js';
 import { useDeleteDialog } from '../dialogs/useDeleteDialog.js';

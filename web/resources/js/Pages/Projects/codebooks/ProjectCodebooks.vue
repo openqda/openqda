@@ -4,7 +4,7 @@ import CodebookItem from './CodebookItem.vue';
 import Headline2 from '../../../Components/layout/Headline2.vue';
 import Button from '../../../Components/interactive/Button.vue';
 import { PlusIcon, ArrowUpTrayIcon } from '@heroicons/vue/24/solid';
-import { useCodebooks } from '../../coding/codebooks/useCodebooks';
+import { useCodebooks } from '../../../domain/codebooks/useCodebooks';
 import CreateDialog from '../../../dialogs/CreateDialog.vue';
 import ConfirmDialog from '../../../dialogs/ConfirmDialog.vue';
 import { useCodebookPreview } from './useCodebookPreview';

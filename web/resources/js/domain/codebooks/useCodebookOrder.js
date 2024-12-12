@@ -1,6 +1,6 @@
 import { reactive, toRefs } from 'vue';
 import { Codebooks } from './Codebooks.js';
-import { debounce } from '../../../utils/dom/debounce.js';
+import { debounce } from '../../utils/dom/debounce.js';
 import { usePage } from '@inertiajs/vue3';
 
 const state = reactive({
@@ -12,7 +12,6 @@ export const useCodebookOrder = ({ updateDelay = 2000 } = {}) => {
   const { projectId } = usePage().props;
 
   const codebookOrderChanged = (codebookId) => {
-    console.debug('codebook order changed', codebookId);
     state.changed[codebookId] = true;
   };
   const updateSortOrder = async ({ target, codebook }) => {

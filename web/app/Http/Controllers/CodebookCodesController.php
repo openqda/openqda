@@ -256,7 +256,7 @@ class CodebookCodesController extends Controller
             // Retrieve the new code order from the request
             $newCodeOrder = $request->input('code_order');
             if (! is_array($newCodeOrder)) {
-                return response()->json(['error' => 'Invalid code order format. Expected an array.'], 422);
+                return response()->json(['error' => 'Invalid code order format. Expected an array, got '.gettype($newCodeOrder)], 422);
             }
 
             // Update only the code order while keeping other properties intact

@@ -136,14 +136,14 @@ describe('Intersection', () => {
       }
       return selections;
     };
-    it('time complexity increased by O(n log n)', async () => {
+    it('is fairly time performant', async () => {
       // 100 entries
       let selections = inflate(100, 100);
       let start = performance.now();
       Intersections.from(selections);
       let end = performance.now();
       const measure1 = end - start;
-      console.debug(measure1);
+      expect(measure1 < 1).toBe(true);
 
       // 1000 entries
       selections = inflate(1000, 100);
@@ -151,7 +151,7 @@ describe('Intersection', () => {
       Intersections.from(selections);
       end = performance.now();
       const measure2 = end - start;
-      console.debug(measure2);
+      expect(measure2 < 10).toBe(true);
 
       // 10000 entries
       selections = inflate(10000, 100);
@@ -159,7 +159,7 @@ describe('Intersection', () => {
       Intersections.from(selections);
       end = performance.now();
       const measure3 = end - start;
-      console.debug(measure3);
+      expect(measure3 < 100).toBe(true);
     });
   });
 });

@@ -1,5 +1,22 @@
 import { ref } from 'vue';
 
+/**
+ * A simple generic wizard helper that is not yet persistent across Templates.
+ * @param start {string} name of the initial step
+ * @return {
+ *     {
+ *     isCurrent:function,
+ *     hasPrev:function,
+ *     show:function,
+ *     step:function,
+ *     next:function,
+ *     back:function,
+ *     getHistory:function,
+ *     updateData:function,
+ *     getData:function,
+ *     }
+ * }
+ */
 export const useWizard = ({ start }) => {
   const current = ref(start);
   const history = ref([]);

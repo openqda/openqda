@@ -10,6 +10,4 @@ Theme.init({
   storage: ThemeBrowserStorage,
   usePreferred: false,
   useStorage: false,
-})
-  .then(console.debug)
-  .catch(console.error);
+}).catch(console.error);

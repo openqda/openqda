@@ -8,7 +8,7 @@ import {
   KeyIcon,
 } from '@heroicons/vue/24/outline';
 import { Link } from '@inertiajs/vue3';
-import { useProjects } from './useProjects.js';
+import { useProjects } from '../../domain/project/useProjects.js';
 import Dropdown from '../../Components/Dropdown.vue';
 import DropdownLink from '../../Components/DropdownLink.vue';
 import InputField from '../../form/InputField.vue';

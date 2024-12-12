@@ -268,7 +268,7 @@ import {
   SpeakerWaveIcon,
 } from '@heroicons/vue/24/outline/index.js';
 import { computed, ref } from 'vue';
-import { vClickOutside } from '../coding/clickOutsideDirective.js';
+import { vClickOutside } from '../../utils/vue/clickOutsideDirective.js';
 import { cn } from '../../utils/css/cn.js';
 import ProfileImage from '../user/ProfileImage.vue';
 

@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onUnmounted, reactive, ref, watch } from 'vue';
 import CodeListItem from './CodeListItem.vue';
-import { useCodes } from './useCodes.js';
+import { useCodes } from '../../domain/codes/useCodes.js';
 import Headline3 from '../../Components/layout/Headline3.vue';
 import { cn } from '../../utils/css/cn.js';
 import {
@@ -16,7 +16,7 @@ import { useRange } from './useRange.js';
 import { asyncTimeout } from '../../utils/asyncTimeout.js';
 import { useDragTarget } from './useDragTarget.js';
 import { attemptAsync } from '../../Components/notification/attemptAsync.js';
-import { useCodebookOrder } from './codebooks/useCodebookOrder.js';
+import { useCodebookOrder } from '../../domain/codebooks/useCodebookOrder.js';
 
 const props = defineProps({
   codebook: Object,

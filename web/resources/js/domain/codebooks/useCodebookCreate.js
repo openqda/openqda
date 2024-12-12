@@ -1,5 +1,5 @@
 import { reactive, toRefs } from 'vue';
-import { Codebooks } from '../../Pages/coding/codebooks/Codebooks.js';
+import { Codebooks } from './Codebooks.js';
 
 const state = reactive({
   codebook: null,

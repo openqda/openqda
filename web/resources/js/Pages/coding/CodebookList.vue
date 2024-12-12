@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useCodes } from './useCodes';
+import { useCodes } from '../../domain/codes/useCodes';
 import { Switch } from '@headlessui/vue';
 import { cn } from '../../utils/css/cn';
 

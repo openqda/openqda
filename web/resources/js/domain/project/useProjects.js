@@ -1,7 +1,7 @@
 import { router, usePage } from '@inertiajs/vue3';
 import { reactive, ref, toRef, watch } from 'vue';
 import { debounce } from '../../utils/dom/debounce.js';
-import { Project } from '../../domain/Project.js';
+import { Project } from './Project.js';
 import { Routes } from '../../routes/Routes.js';
 
 const state = reactive({

@@ -409,7 +409,6 @@ const handleDateChange = () => {
 };
 
 const fetchAudits = async (page = 1) => {
-  console.log(page);
   try {
     isLoading.value = true;
     error.value = null;

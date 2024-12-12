@@ -1,6 +1,6 @@
 import { Codebooks } from './Codebooks.js';
 import { describe, it, expect } from 'vitest';
-import { randomUUID } from '../../../utils/random/randomUUID.js';
+import { randomUUID } from '../../utils/random/randomUUID.js';
 
 describe('Codebooks (ctx)', () => {
   let codebook;

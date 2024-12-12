@@ -1,6 +1,6 @@
-import { AbstractStore } from '../../../state/AbstractStore.js';
-import { createStoreRepository } from '../../../state/StoreRepository.js';
-import { request } from '../../../utils/http/BackendRequest.js';
+import { AbstractStore } from '../../state/AbstractStore.js';
+import { createStoreRepository } from '../../state/StoreRepository.js';
+import { request } from '../../utils/http/BackendRequest.js';
 import { isDefined } from '@vueuse/core';
 
 class CodebookStore extends AbstractStore {
@@ -166,7 +166,6 @@ Codebooks.delete = ({ projectId, codebookId }) => {
  * @return {Promise<BackendRequest>}
  */
 Codebooks.order = ({ projectId, codebookId, order }) => {
-  console.debug(order);
   const url = route('codebook-codes.update-order', {
     project: projectId,
     codebook: codebookId,

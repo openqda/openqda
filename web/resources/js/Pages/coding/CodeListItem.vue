@@ -17,7 +17,7 @@ import {
 import { computed, onUnmounted, reactive, ref, watch } from 'vue';
 import { cn } from '../../utils/css/cn.js';
 import Button from '../../Components/interactive/Button.vue';
-import { useCodes } from './useCodes.js';
+import { useCodes } from '../../domain/codes/useCodes.js';
 import { useRange } from './useRange.js';
 import { useSelections } from './selections/useSelections';
 import { changeOpacity } from '../../utils/color/changeOpacity.js';
@@ -36,7 +36,7 @@ import { useUsers } from '../../domain/teams/useUsers.js';
 import ProfileImage from '../../Components/user/ProfileImage.vue';
 import { asyncTimeout } from '../../utils/asyncTimeout.js';
 import { attemptAsync } from '../../Components/notification/attemptAsync.js';
-import { useCodebookOrder } from './codebooks/useCodebookOrder.js';
+import { useCodebookOrder } from '../../domain/codebooks/useCodebookOrder.js';
 
 //------------------------------------------------------------------------
 // DATA / PROPS

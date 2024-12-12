@@ -58,7 +58,7 @@ import { SelectionHash } from '../../editor/SelectionHash.js';
 import EditorToolbar from '../../editor/EditorToolbar.vue';
 import CodingContextMenu from './contextMenu/CodingContextMenu.vue';
 import { flashMessage } from '../../Components/notification/flashMessage.js';
-import { useCodes } from './useCodes.js';
+import { useCodes } from '../../domain/codes/useCodes.js';
 import { useRange } from './useRange.js';
 import { useSelections } from './selections/useSelections.js';
 import { useCodingEditor } from './useCodingEditor.js';

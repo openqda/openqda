@@ -198,7 +198,6 @@ onMounted(() => {
    * and update the local state accordingly
    */
   echo.private(channelid).listen('ConversionCompleted', (e) => {
-    console.debug('ConversionCompleted', e);
     let documentIndex = -1;
     documents.forEach((doc, index) => {
       if (doc.id === e.sourceId) {
@@ -213,7 +212,7 @@ onMounted(() => {
     }
   });
   echo.private(channelid).listen('ConversionFailed', (e) => {
-    console.debug('ConversionFailed', e);
+    console.error('ConversionFailed', e);
     let documentIndex = -1;
     documents.forEach((doc, index) => {
       if (doc.id === e.sourceId) {

@@ -1,4 +1,4 @@
-import { request } from '../utils/http/BackendRequest.js';
+import { request } from '../../utils/http/BackendRequest.js';
 
 /**
  * Use this for any communication with the backend in regards
