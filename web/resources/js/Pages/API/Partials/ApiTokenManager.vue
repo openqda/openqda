@@ -1,19 +1,19 @@
 <script setup>
 import { ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
-import ActionMessage from '@/Components/ActionMessage.vue';
-import ActionSection from '@/Components/ActionSection.vue';
-import Checkbox from '@/Components/Checkbox.vue';
-import ConfirmationModal from '@/Components/ConfirmationModal.vue';
-import DangerButton from '@/Components/DangerButton.vue';
-import DialogModal from '@/Components/DialogModal.vue';
-import FormSection from '@/Components/FormSection.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
-import SectionBorder from '@/Components/SectionBorder.vue';
-import TextInput from '@/Components/TextInput.vue';
+import ActionMessage from '../../../Components/ActionMessage.vue';
+import ActionSection from '../../../Components/ActionSection.vue';
+import Checkbox from '../../../Components/Checkbox.vue';
+import ConfirmationModal from '../../../Components/ConfirmationModal.vue';
+import DangerButton from '../../../Components/DangerButton.vue';
+import DialogModal from '../../../Components/DialogModal.vue';
+import FormSection from '../../../Components/FormSection.vue';
+import InputError from '../../../form/InputError.vue';
+import InputLabel from '../../../form/InputLabel.vue';
+import PrimaryButton from '../../../Components/PrimaryButton.vue';
+import SecondaryButton from '../../../Components/SecondaryButton.vue';
+import SectionBorder from '../../../Components/SectionBorder.vue';
+import InputField from '../../../form/InputField.vue';
 
 const props = defineProps({
   tokens: Array,
@@ -93,7 +93,7 @@ const deleteApiToken = () => {
         <!-- Token Name -->
         <div class="col-span-6 sm:col-span-4">
           <InputLabel for="name" value="Name" />
-          <TextInput
+          <InputField
             id="name"
             v-model="createApiTokenForm.name"
             type="text"

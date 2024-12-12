@@ -1,0 +1,69 @@
+<template>
+  <div
+    v-if="flash"
+    class="absolute top-0 right-0 m-2 w-60 items-center py-2 px-3 mb-2"
+  >
+    <div
+      :class="[
+        colors.color({ bg: flash.type, border: flash.type }),
+        'border-l-4 text-white w-full p-2 shadow-md',
+      ]"
+    >
+      {{ flash.message }}
+    </div>
+    <div
+      :class="[
+        'border-l-4  h-1 transition-all duration-100',
+        colors.color({ bg: flash.type, border: flash.type }),
+      ]"
+      :style="{ width: `${widthPercentage}%` }"
+    ></div>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import { flashMessage } from './flashMessage.js';
+import { ColorMap } from '../../utils/colors/ColorMap.js';
+
+// Initialize flash as an empty object
+defineProps(['message', 'flash']);
+
+const widthPercentage = ref(100);
+const colors = new ColorMap({
+  bg: {
+    success: 'bg-confirmative/90',
+    error: 'bg-destructive/90',
+    default: 'bg-primary/90',
+  },
+  border: {
+    success: 'border-confirmative',
+    error: 'border-destructive',
+    default: 'border-primary',
+  },
+});
+
+const startTimer = () => {
+  let counter = 0;
+  const intervalId = setInterval(() => {
+    counter += 0.1; // Smaller step to make it smoother
+    const percentage = (counter / 50) * 100;
+    widthPercentage.value = 100 - percentage;
+
+    if (counter >= 50) {
+      flashMessage('', { type: 'default' });
+      clearInterval(intervalId);
+    }
+  }, 10); // Smaller interval to make it smoother
+};
+
+onMounted(() => {
+  startTimer();
+});
+</script>
+
+<style scoped>
+.h-1 {
+  height: 4px;
+}
+</style>

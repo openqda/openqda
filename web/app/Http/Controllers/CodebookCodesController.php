@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ImportCodebookRequest;
+use App\Http\Requests\UpdateCodebookRequest;
 use App\Models\Code;
 use App\Models\Codebook;
+use App\Models\Project;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use SimpleXMLElement;
 
@@ -19,17 +20,8 @@ class CodebookCodesController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function import(Request $request)
+    public function import(Project $project, ImportCodebookRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'file' => 'required|file|mimes:qde,xml,qdc',
-            'project_id' => 'required|exists:projects,id',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 422);
-        }
-
         try {
             $file = $request->file('file');
             $xmlContent = file_get_contents($file->getRealPath());
@@ -59,9 +51,13 @@ class CodebookCodesController extends Controller
 
             DB::commit();
 
+            // xxx: investigate why this triggers
+            // the codes being present in the return codebook
+            $codebook->codes;
+
             return response()->json([
                 'message' => 'Codebook and codes imported successfully',
-                'codebook' => $codebook,
+                'codebook' => $codebook
             ]);
         } catch (Exception $e) {
             DB::rollBack();
@@ -100,7 +96,7 @@ class CodebookCodesController extends Controller
     }
 
     /**
-     * Creates a new Codebook model instance.
+     * Creates a new Codebook model instance from the imported file.
      *
      * @param  string  $origin
      * @return Codebook
@@ -203,25 +199,20 @@ class CodebookCodesController extends Controller
     /**
      * Exports a codebook and its codes to an XML file.
      *
-     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function export($id)
+    public function export(Project $project, Codebook $codebook, Request $request)
     {
-        $codebook = Codebook::with('codes')->findOrFail($id);
-
         $xml = new SimpleXMLElement('<CodeBook xmlns="urn:QDA-XML:codebook:1.0"/>');
-        $xml->addAttribute('origin', config('app.name')); // Set the origin attribute
+        $xml->addAttribute('origin', config('app.name'));
         $codesXml = $xml->addChild('Codes');
-
         $this->addCodesToXml($codesXml, $codebook->codes);
 
-        $xmlContent = $xml->asXML();
+        $filename = $codebook->name.'.qdc';
 
-        return Response::make($xmlContent, 200, [
-            'Content-Type' => 'application/xml',
-            'Content-Disposition' => 'attachment; filename="'.$codebook->name.'.qdc"',
-        ]);
+        return response($xml->asXML())
+            ->header('Content-Type', 'application/xml')
+            ->header('Content-Disposition', sprintf('attachment; filename="%s"', $filename));
     }
 
     /**
@@ -246,6 +237,35 @@ class CodebookCodesController extends Controller
                 }
                 $this->addCodesToXml($codeXml, $codes, $code->id);
             }
+        }
+    }
+
+    /**
+     * Update the code order of a codebook without affecting other properties.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  string  $project
+     * @param  string  $codebookId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function updateCodeOrder(UpdateCodebookRequest $request, $project, $codebookId)
+    {
+        try {
+            $codebook = Codebook::findOrFail($codebookId);
+
+            // Retrieve the new code order from the request
+            $newCodeOrder = $request->input('code_order');
+            if (! is_array($newCodeOrder)) {
+                return response()->json(['error' => 'Invalid code order format. Expected an array, got '.gettype($newCodeOrder)], 422);
+            }
+
+            // Update only the code order while keeping other properties intact
+            $codebook->updateCodeOrder($newCodeOrder);
+
+            return response()->json(['message' => 'Code order updated successfully', 'code_order' => $codebook->getCodeOrder()]);
+
+        } catch (\Throwable $th) {
+            return response()->json(['error' => 'An error occurred while updating the code order: '.$th->getMessage()], 500);
         }
     }
 }

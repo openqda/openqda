@@ -1,12 +1,12 @@
 <script setup>
 import { ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
-import ActionMessage from '@/Components/ActionMessage.vue';
-import FormSection from '@/Components/FormSection.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import ActionMessage from '../../../Components/ActionMessage.vue';
+import FormSection from '../../../Components/FormSection.vue';
+import InputError from '../../../form/InputError.vue';
+import InputLabel from '../../../form/InputLabel.vue';
+import InputField from '../../../form/InputField.vue';
+import Button from '../../../Components/interactive/Button.vue';
 
 const passwordInput = ref(null);
 const currentPasswordInput = ref(null);
@@ -46,9 +46,9 @@ const updatePassword = () => {
     </template>
 
     <template #form>
-      <div class="col-span-6 sm:col-span-4">
+      <div class="">
         <InputLabel for="current_password" value="Current Password" />
-        <TextInput
+        <InputField
           id="current_password"
           ref="currentPasswordInput"
           v-model="form.current_password"
@@ -59,9 +59,9 @@ const updatePassword = () => {
         <InputError :message="form.errors.current_password" class="mt-2" />
       </div>
 
-      <div class="col-span-6 sm:col-span-4">
+      <div class="">
         <InputLabel for="password" value="New Password" />
-        <TextInput
+        <InputField
           id="password"
           ref="passwordInput"
           v-model="form.password"
@@ -72,9 +72,9 @@ const updatePassword = () => {
         <InputError :message="form.errors.password" class="mt-2" />
       </div>
 
-      <div class="col-span-6 sm:col-span-4">
+      <div class="">
         <InputLabel for="password_confirmation" value="Confirm Password" />
-        <TextInput
+        <InputField
           id="password_confirmation"
           v-model="form.password_confirmation"
           type="password"
@@ -90,12 +90,13 @@ const updatePassword = () => {
         Saved.
       </ActionMessage>
 
-      <PrimaryButton
+      <Button
+        type="submit"
         :class="{ 'opacity-25': form.processing }"
         :disabled="form.processing"
       >
         Save
-      </PrimaryButton>
+      </Button>
     </template>
   </FormSection>
 </template>

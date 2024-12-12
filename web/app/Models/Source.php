@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ContentType;
-use App\Traits\UUID;
+use App\Traits\AuditableServiceTrait;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,17 +14,24 @@ use OwenIt\Auditing\Contracts\Auditable;
 
 class Source extends Model implements Auditable
 {
-    use HasFactory, HasUuids, SoftDeletes;
-    use \OwenIt\Auditing\Auditable;
+    use AuditableServiceTrait, HasFactory, HasUuids, SoftDeletes;
 
-    // append these functions return value to the model
+    public const AUDIT_CONTENT_UPDATED = 'source.content_updated';
+
+    public const AUDIT_RENAMED = 'source.renamed';
+
+    public const AUDIT_LOCKED = 'source.locked';
+
+    public const AUDIT_UNLOCKED = 'source.unlocked';
+
+    public const AUDIT_DOWNLOADED = 'source.downloaded';
+
     protected $appends = ['isLocked', 'CanUnlock', 'charsXLine', 'showLineNumbers'];
 
     protected $primaryKey = 'id';
 
-    public $incrementing = false; // Ensure the UUID id is not auto-incrementing
+    public $incrementing = false;
 
-    // remove values when saving audits
     protected $auditExclude = [
         'upload_path',
         'modifying_user_id',
@@ -34,11 +41,6 @@ class Source extends Model implements Auditable
         'type' => ContentType::class,
     ];
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
     protected $fillable = [
         'id',
         'name',
@@ -48,13 +50,88 @@ class Source extends Model implements Auditable
         'project_id',
         'type',
         'upload_path',
-        'path',
-        'current_path',
     ];
 
     /**
-     * get if the document is locked for coding or not
+     * Lock the source for coding
      */
+    public function lock(): bool
+    {
+        return Variable::updateOrCreate(
+            [
+                'source_id' => $this->id,
+                'name' => 'isLocked',
+            ],
+            [
+                'type_of_variable' => 'boolean',
+                'boolean_value' => true,
+            ]
+        )->exists;
+    }
+
+    /**
+     * Unlock the source
+     */
+    public function unlock(): bool
+    {
+        return Variable::updateOrCreate(
+            [
+                'source_id' => $this->id,
+                'name' => 'isLocked',
+            ],
+            [
+                'type_of_variable' => 'boolean',
+                'boolean_value' => false,
+            ]
+        )->exists;
+    }
+
+    /**
+     * Scope for converted sources
+     */
+    public function scopeConverted($query)
+    {
+        return $query->whereHas('sourceStatuses', function ($query) {
+            $query->where('status', 'like', 'converted:%');
+        });
+    }
+
+    /**
+     * Scope for locked sources
+     */
+    public function scopeWhereIsLocked($query)
+    {
+        return $query->whereHas('variables', function ($query) {
+            $query->where('name', 'isLocked')
+                ->where('boolean_value', true);
+        });
+    }
+
+    /**
+     * Check if content has malicious code
+     */
+    public function hasMaliciousContent(?string $content): bool
+    {
+        if (! $content) {
+            return false;
+        }
+
+        $maliciousPatterns = [
+            '/<script/i',
+            '/javascript:/i',
+            '/on\w+\s*=/i',  // matches onclick=, onload=, etc.
+            '/data:\s*[^,]*base64/i',  // matches data:text/html;base64 etc.
+        ];
+
+        foreach ($maliciousPatterns as $pattern) {
+            if (preg_match($pattern, $content)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function getIsLockedAttribute(): bool
     {
         return isset($this->variables['isLocked']) && (bool) $this->variables['isLocked'];
@@ -70,9 +147,6 @@ class Source extends Model implements Auditable
         return isset($this->variables['lineNumbers_boolean']) && (bool) $this->variables['lineNumbers_boolean'];
     }
 
-    /**
-     * Determine if the source has the 'converted:html' status.
-     */
     public function getConvertedAttribute(): SourceStatus|bool
     {
         $status = $this->sourceStatuses()->where('status', 'like', 'converted:%')->first();
@@ -80,25 +154,19 @@ class Source extends Model implements Auditable
         return $status ?: false;
     }
 
-    /**
-     * format the variables to be used in the source
-     */
     public function transformVariables(): array
     {
         return $this->variables->mapWithKeys(function ($variable) {
-            $result = []; // Initialize the result array
+            $result = [];
 
             $keys = ['text_value', 'boolean_value', 'integer_value', 'float_value', 'date_value'];
             if ($variable->type_of_variable === 'multiple') {
-                // Handle the case where 'type' is 'multiple'
-                // create a new key for each filled value such as 'name_text', 'name_boolean', etc.
                 foreach ($keys as $key) {
                     if (! is_null($variable->$key)) {
                         $result[$variable->name.'_'.str_replace('_value', '', $key)] = $variable->$key;
                     }
                 }
             } else {
-                // Handle the case where 'type' is not 'multiple'
                 $filledKey = collect($keys)->first(function ($key) use ($variable) {
                     return ! is_null($variable->$key);
                 });
@@ -109,60 +177,39 @@ class Source extends Model implements Auditable
         })->toArray();
     }
 
-    /**
-     * Get the user who created the source.
-     */
     public function creatingUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'creating_user_id');
     }
 
-    /**
-     * Get the "canUnlock" status of the source.
-     */
     public function getCanUnlockAttribute(): bool
     {
-        $isLocked = $this->isLocked; // Make use of previously defined accessor
+        $isLocked = $this->isLocked;
         $hasSelections = $this->selections->isNotEmpty();
 
         return $isLocked && ! $hasSelections;
     }
 
-    /**
-     * Get the user who last modified the source.
-     */
     public function modifyingUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'modifying_user_id');
     }
 
-    /**
-     * Get the project to which the source belongs.
-     */
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class, 'project_id');
     }
 
-    /**
-     * Get the variables associated with the source.
-     */
     public function variables(): HasMany
     {
         return $this->hasMany(Variable::class, 'source_id');
     }
 
-    /**
-     * Get the variables associated with the selection.
-     */
     public function selections(): HasMany
     {
         return $this->hasMany(Selection::class, 'source_id');
     }
 
-    /**
-     * Get the source statuses.
-     */
     public function sourceStatuses(): HasMany
     {
         return $this->hasMany(SourceStatus::class, 'source_id');

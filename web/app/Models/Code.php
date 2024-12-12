@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -13,7 +14,7 @@ use OwenIt\Auditing\Contracts\Auditable;
  */
 class Code extends Model implements Auditable
 {
-    use HasUuids;
+    use HasFactory, HasUuids;
     use \OwenIt\Auditing\Auditable;
 
     public $timestamps = false;

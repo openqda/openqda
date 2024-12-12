@@ -1,5 +1,6 @@
 <template>
   <altcha-widget
+    class="text-secondary-foreground border-border"
     challengeurl="/altcha-challenge"
     @statechange="stateChanged"
     auto="onload"
