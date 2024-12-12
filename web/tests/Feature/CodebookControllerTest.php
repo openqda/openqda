@@ -210,7 +210,7 @@ class CodebookControllerTest extends TestCase
         // Assert the response indicates validation failure
         $response->assertStatus(422);
         $response->assertJson([
-            'error' => 'Invalid code order format. Expected an array.',
+            'error' => 'Invalid code order format. Expected an array, got string',
         ]);
 
         // Refresh the codebook from database
