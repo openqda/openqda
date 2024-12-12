@@ -38,7 +38,7 @@ jobs:
       - name: install node modules
         run: | 
           cd web
-          npm ci
+          npm i
       - name: check format
         run: |
           cd web
@@ -67,7 +67,7 @@ jobs:
       - name: install node modules
         run: |
           cd web
-          npm ci
+          npm i
       - name: run unit tests
         run: |
           cd web
