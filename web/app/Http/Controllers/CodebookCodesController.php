@@ -57,7 +57,7 @@ class CodebookCodesController extends Controller
 
             return response()->json([
                 'message' => 'Codebook and codes imported successfully',
-                'codebook' => $codebook
+                'codebook' => $codebook,
             ]);
         } catch (Exception $e) {
             DB::rollBack();
