@@ -65,21 +65,26 @@ class PreventInvalidCodeHierarchy implements ValidationRule
         // otherwise we should be fine!
     }
 
-    protected function lookupChildrenForParentId ($code, $parentId) {
-        if ($code->id == $parentId) return True;
-        if (! $this->hasChildren($code)) return False;
-
-        foreach ($code->children as $child) {
-          if ($this->lookupChildrenForParentId($child, $parentId)) {
-            return True;
-          }
+    protected function lookupChildrenForParentId($code, $parentId)
+    {
+        if ($code->id == $parentId) {
+            return true;
+        }
+        if (! $this->hasChildren($code)) {
+            return false;
         }
 
-        return False;
+        foreach ($code->children as $child) {
+            if ($this->lookupChildrenForParentId($child, $parentId)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
-    protected function hasChildren ($code) {
+    protected function hasChildren($code)
+    {
         return $code->children && count($code->children) > 0;
     }
 }
-
