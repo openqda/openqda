@@ -93,7 +93,7 @@
                 "
                 as="button"
               >
-                Archive
+                Delete
               </DropdownLink>
             </template>
           </Dropdown>

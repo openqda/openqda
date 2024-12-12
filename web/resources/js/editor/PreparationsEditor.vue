@@ -85,6 +85,8 @@ onMounted(() => {
       },
       lineNumber: {
         container: '#lineNumber',
+        textChange: { debounce: 300 },
+        resize: { debounce: 100 },
       },
       selectionHash: {
         container: '#selection-hash',

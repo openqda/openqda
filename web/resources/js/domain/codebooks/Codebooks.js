@@ -94,7 +94,6 @@ Codebooks.create = ({
     sharedWithPublic,
     sharedWithTeams,
   };
-
   // importing another codebook is
   // using the same endpoint with
   // additional parameters
