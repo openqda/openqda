@@ -26,9 +26,9 @@ export const useEcho = () => {
     wsPort: import.meta.env.VITE_REVERB_PORT ?? 80,
     wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
     forceTLS,
-    encrypted: true,
     enabledTransports,
   };
+
   return {
     init: () => {
       if (typeof window.Echo === 'undefined') {
