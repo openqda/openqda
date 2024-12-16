@@ -71,6 +71,7 @@ export class SelectionHighlightBG extends Module {
         this.quill.formatText(segment.x, segment.y - segment.x, format);
       } else {
         const code = segment.c[0];
+        if (!code) return console.warn(`Expected code linked to segment ${segment.x}:${segment.y}, got ${segment.c}`);
         this.highlight({
           id: code.id,
           title: code.name,
