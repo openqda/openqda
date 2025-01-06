@@ -7,7 +7,7 @@ import { cn } from '../utils/css/cn';
   <div
     :class="cn('flex items-center text-sm text-foreground/80', $props.class)"
   >
-    <ArrowPathIcon class="w-4 h-4 animate-spin" />
+    <ArrowPathIcon class="w-4 h-4 me-1 animate-spin" />
     <slot v-if="$slots.default" />
     <span v-else>Loading...</span>
   </div>
