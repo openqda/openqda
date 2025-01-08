@@ -42,15 +42,7 @@
             @change="(value) => (codesView = value)"
           />
         </div>
-        <!--
-          <HeList
-              v-for="codebook in codebooks"
-              :key="codebook.id"
-              :codebook="codebook"
-              :codes="codes.filter((code) => code.codebook === codebook.id)"
-              v-if="codesView === 'codes'" />
-        -->
-        <CodeList
+        <CodeTree
           v-for="codebook in codebooks"
           :key="codebook.id"
           :codebook="codebook"
@@ -87,7 +79,7 @@
 import { PlusIcon } from '@heroicons/vue/24/solid';
 import { onMounted, ref } from 'vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
-import CodeList from './coding/CodeList.vue';
+import CodeTree from './coding/tree/CodeTree.vue';
 import CodingEditor from './coding/CodingEditor.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
 import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue';
@@ -104,6 +96,7 @@ import { router } from '@inertiajs/vue3';
 import { asyncTimeout } from '../utils/asyncTimeout.js';
 import ActivityIndicator from '../Components/ActivityIndicator.vue';
 import { useCreateDialog } from '../dialogs/useCreateDialog.js';
+import { attemptAsync } from '../Components/notification/attemptAsync.js';
 
 const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
 
@@ -215,7 +208,8 @@ onMounted(async () => {
 
   onSourceSelected(props.source);
   await asyncTimeout(100);
-  await initCoding();
+
+  await attemptAsync(() => initCoding());
   codingInitialized.value = true;
 });
 

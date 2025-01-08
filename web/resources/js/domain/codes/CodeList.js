@@ -53,7 +53,7 @@ CodeList.isInChildren = (root, search) => {
   // exist and define an id property
   // TODO: discuss, whether we should rather throw
   if (!root?.id || !search?.id) {
-    return false
+    return false;
   }
 
   // return true only on an exact match

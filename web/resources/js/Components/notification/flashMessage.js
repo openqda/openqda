@@ -1,4 +1,13 @@
-import { usePage } from '@inertiajs/vue3';
+import { reactive, toRefs } from 'vue';
+
+const state = reactive({
+  message: null,
+});
+
+export const useFlashMessage = () => {
+  const { message } = toRefs(state);
+  return message;
+};
 
 /**
  * invokes a new flash-message (notification)
@@ -7,9 +16,11 @@ import { usePage } from '@inertiajs/vue3';
  * @param options.type {string}
  */
 export const flashMessage = (message, options = {}) => {
-  const flash = usePage().props.flash;
-  flash.message = message;
+  const flash = { message };
+
   if ('type' in options) {
     flash.type = options.type;
   }
+
+  state.message = flash;
 };

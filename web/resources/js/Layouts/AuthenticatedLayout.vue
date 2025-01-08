@@ -196,10 +196,7 @@
         </div>
       </div>
 
-      <FlashMessage
-        v-if="$page.props.flash.message"
-        :flash="$page.props.flash"
-      />
+      <FlashMessage :flash="$page.props.flash" />
 
       <div class="flex lg:pl-20">
         <aside

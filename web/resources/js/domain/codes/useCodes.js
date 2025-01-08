@@ -3,62 +3,8 @@ import { computed } from 'vue';
 import { Codebooks } from '../codebooks/Codebooks.js';
 import { Codes } from './Codes.js';
 import { Selections } from '../../Pages/coding/selections/Selections.js';
-import { randomColor } from '../../utils/random/randomColor.js';
 import { CodeList } from './CodeList.js';
-
-const createCodeSchema = ({
-  title,
-  description,
-  color,
-  codebooks,
-  codes,
-  parent,
-}) => {
-  const schema = {
-    title: {
-      type: String,
-      placeholder: 'Name of the code',
-      defaultValue: title,
-    },
-    description: {
-      type: String,
-      placeholder: 'Code description, optional',
-      formType: 'textarea',
-      defaultValue: description,
-    },
-    color: {
-      type: String,
-      formType: 'color',
-      defaultValue: color ?? randomColor({ type: 'hex', opacity: -1 }),
-    },
-  };
-  if (codebooks) {
-    schema.codebookId = {
-      type: Number,
-      label: 'Codebook',
-      defaultValue: codebooks?.[0]?.id,
-      options: codebooks?.map((c) => ({
-        value: c.id,
-        label: c.name,
-      })),
-    };
-  }
-  if (codes) {
-    schema.parentId = {
-      type: String,
-      optional: true,
-      label: 'Parent code',
-      options: codes.map((c) => ({
-        value: c.id,
-        label: c.name,
-      })),
-    };
-    if (parent) {
-      schema.parentId.defaultValue = parent.id;
-    }
-  }
-  return schema;
-};
+import { createCodeSchema } from './createCodeSchema.js';
 
 export const useCodes = () => {
   const page = usePage();
@@ -197,30 +143,30 @@ export const useCodes = () => {
     }
 
     const oldParent = code.parent;
-
-    // optimistic UI
+    //
+    // // optimistic UI
     codeStore.update(code.id, { parent });
-    if (parent) {
-      parent.children = parent.children ?? [];
-      parent.children.push(code);
-    }
-    code.parent = parent;
-
-    // TODO make optimistic UI procedures
-    //   a command-pattern that can be undone
+    // if (parent) {
+    //   parent.children = parent.children ?? [];
+    //   parent.children.push(code);
+    // }
+    // code.parent = parent;
+    //
+    // // TODO make optimistic UI procedures
+    // //   a command-pattern that can be undone
     const rollback = () => {
       codeStore.update(code.id, { parent: oldParent });
       parent.children.pop();
       code.parent = oldParent;
     };
-
+    //
     const { response, error } = await Codes.update({
       projectId,
       source,
       code,
       parent,
     });
-
+    //
     if (error) {
       rollback();
       throw error;
@@ -229,8 +175,8 @@ export const useCodes = () => {
       rollback();
       throw new Error(response.data.message);
     }
-
-    return true;
+    //
+    // return true;
   };
 
   const computedCodes = computed(() => {

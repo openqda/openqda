@@ -18,6 +18,7 @@ export const useCodebookOrder = ({ updateDelay = 2000 } = {}) => {
     const order = parseOrder(target);
     const before = [].concat(codebook.code_order ?? []);
     codebook.code_order = order;
+
     const { response, error } = await Codebooks.order({
       projectId,
       codebookId: codebook.id,
@@ -44,17 +45,14 @@ export const useCodebookOrder = ({ updateDelay = 2000 } = {}) => {
 
 const getSortOrderBy = (codebook) => {
   const order = codebook.code_order ?? [];
-
   if (!order.length) {
     return () => 0;
   }
-
   // transform to a read-optimized version of the order
   const map = {};
   const parseOrder = (list) => {
     list.forEach((item, i) => {
-      item.index = i;
-      map[item.id] = item;
+      map[item.id] = i;
       if (item.children?.length) {
         parseOrder(item.children);
       }
@@ -62,10 +60,9 @@ const getSortOrderBy = (codebook) => {
   };
 
   parseOrder(order);
-
   return (a, b) => {
-    const indexA = map[a.id].index;
-    const indexB = map[b.id].index;
+    const indexA = map[a.id] ?? 0;
+    const indexB = map[b.id] ?? 0;
     return indexA - indexB;
   };
 };

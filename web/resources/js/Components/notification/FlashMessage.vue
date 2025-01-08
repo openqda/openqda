@@ -1,20 +1,20 @@
 <template>
   <div
-    v-if="flash"
+    v-if="msg"
     class="absolute top-0 right-0 m-2 w-60 items-center py-2 px-3 mb-2"
   >
     <div
       :class="[
-        colors.color({ bg: flash.type, border: flash.type }),
+        colors.color({ bg: msg.type, border: msg.type }),
         'border-l-4 text-white w-full p-2 shadow-md',
       ]"
     >
-      {{ flash.message }}
+      {{ msg.message }}
     </div>
     <div
       :class="[
-        'border-l-4  h-1 transition-all duration-100',
-        colors.color({ bg: flash.type, border: flash.type }),
+        'border-l-4  h-1 transition-[width] duration-1000',
+        colors.color({ bg: msg.type, border: msg.type }),
       ]"
       :style="{ width: `${widthPercentage}%` }"
     ></div>
@@ -22,13 +22,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { flashMessage } from './flashMessage.js';
+import { ref, onMounted, watch } from 'vue';
+import { useFlashMessage, flashMessage } from './flashMessage.js';
 import { ColorMap } from '../../utils/colors/ColorMap.js';
-
-// Initialize flash as an empty object
-defineProps(['message', 'flash']);
-
+const props = defineProps(['message', 'flash']);
+const getMessage = useFlashMessage();
+const msg = ref(null);
 const widthPercentage = ref(100);
 const colors = new ColorMap({
   bg: {
@@ -43,22 +42,23 @@ const colors = new ColorMap({
   },
 });
 
-const startTimer = () => {
-  let counter = 0;
-  const intervalId = setInterval(() => {
-    counter += 0.1; // Smaller step to make it smoother
-    const percentage = (counter / 50) * 100;
-    widthPercentage.value = 100 - percentage;
-
-    if (counter >= 50) {
-      flashMessage('', { type: 'default' });
-      clearInterval(intervalId);
-    }
-  }, 10); // Smaller interval to make it smoother
-};
-
 onMounted(() => {
-  startTimer();
+  watch(
+    getMessage,
+    (value) => {
+      widthPercentage.value = 0;
+      msg.value = value;
+      setTimeout(() => {
+        msg.value = null;
+        widthPercentage.value = 100;
+      }, 3000);
+    },
+    { immediate: true, deep: true }
+  );
+
+  if (props.flash?.message) {
+    flashMessage(props.flash.message);
+  }
 });
 </script>
 
