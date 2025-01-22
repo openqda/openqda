@@ -269,6 +269,7 @@ defineProps({
 });
 
 let pingIntervalId;
+let fails = 0;
 const cleanup = () => {
   clearInterval(pingIntervalId);
   dispose();
@@ -290,7 +291,9 @@ const setupTeam = () => {
     const { response, error } = await dispatchPresence();
     if (error || response.status >= 400) {
       console.error(error ?? response);
+      fails++;
     }
+    if (fails >= 2) return clearInterval(pingIntervalId);
   }, 5000); // Every 5 seconds
   document.addEventListener('beforeunload', cleanup);
 };
