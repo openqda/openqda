@@ -16,7 +16,9 @@ import ProfileImage from '../../../Components/user/ProfileImage.vue';
 import Button from '../../../Components/interactive/Button.vue';
 import DeleteDialog from '../../../dialogs/DeleteDialog.vue';
 import { asyncTimeout } from '../../../utils/asyncTimeout.js';
-import Headline3 from '../../../Components/layout/Headline3.vue'
+import Headline3 from '../../../Components/layout/Headline3.vue';
+import { flashMessage } from '../../../Components/notification/flashMessage.js';
+import ActivityIndicator from '../../../Components/ActivityIndicator.vue';
 
 const props = defineProps({
   team: Object,
@@ -50,7 +52,11 @@ const addTeamMember = () => {
   addTeamMemberForm.post(route('team-members.store', props.team), {
     errorBag: 'addTeamMember',
     preserveScroll: true,
-    onSuccess: () => addTeamMemberForm.reset(),
+    onSuccess: () => {
+      addTeamMemberForm.reset();
+      addTeamMemberForm.role = props.availableRoles[0].key;
+    },
+    onError: (err) => flashMessage(err.message, { type: 'error ' }),
   });
 };
 
@@ -138,9 +144,12 @@ onMounted(() => {
   <div class="space-y-6">
     <div>
       <!-- Team Owner Information -->
-        <InputLabel class="mb-3">
-            <Headline3 class="font-semibold leading-6 tracking-wide text-foreground text-lg">Team Owner</Headline3>
-        </InputLabel>
+      <InputLabel class="mb-3">
+        <Headline3
+          class="font-semibold leading-6 tracking-wide text-foreground text-lg"
+          >Team Owner</Headline3
+        >
+      </InputLabel>
 
       <div class="flex items-center mt-5">
         <ProfileImage
@@ -167,7 +176,10 @@ onMounted(() => {
         <template #content>
           <div class="flex justify-between align-baseline my-6">
             <InputLabel class="mb-3">
-              <Headline3 class="font-semibold leading-6 tracking-wide text-foreground text-lg">Team Members</Headline3>
+              <Headline3
+                class="font-semibold leading-6 tracking-wide text-foreground text-lg"
+                >Team Members</Headline3
+              >
             </InputLabel>
           </div>
           <div class="space-y-6">
@@ -377,12 +389,12 @@ onMounted(() => {
       <!-- Add Team Member -->
       <FormSection @submitted="addTeamMember" class="my-12">
         <template #title>Add Team Member</template>
-          <template #description>
-              Please note: added team members will have have the administrator role for now.
-          </template>
+        <template #description>
+          Please note: added team members will have have the administrator role
+          for now.
+        </template>
 
         <template #form>
-
           <!-- Member Email -->
           <div class="col-span-6 sm:col-span-4 space-y-3">
             <InputLabel for="email" value="Email" />
@@ -482,6 +494,9 @@ onMounted(() => {
             :class="{ 'opacity-25': addTeamMemberForm.processing }"
             :disabled="!addTeamMemberForm.email || addTeamMemberForm.processing"
           >
+            <ActivityIndicator
+              v-if="addTeamMemberForm.processing"
+            ></ActivityIndicator>
             Add team member
           </Button>
         </template>
