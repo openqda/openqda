@@ -146,8 +146,9 @@
           <div
             v-else-if="!document.converted && !document.failed"
             class="inline-flex justify-center w-full p-1"
+            :title="`Converting file in the background${conversionState(document)}. You may safely leave the page and come back later.`"
           >
-            <div class="animate-spin mr-1" title="Converting...">
+            <div class="animate-spin mr-1">
               <ArrowPathIcon class="w-5 h-5 text-secondary"></ArrowPathIcon>
             </div>
             Converting
@@ -335,6 +336,27 @@ function toggleMenu(id) {
 
 function closeMenu() {
   openMenuId.value = null;
+}
+
+function conversionState(document) {
+  if (!document.variables || !document.variables.transcription_job_status) {
+    return '';
+  }
+
+  switch (document.variables.transcription_job_status) {
+    case 'uploading':
+      return ' (5%)';
+    case 'processing':
+      return ' (15%)';
+    case 'downloading':
+      return ' (60%)';
+    case 'deleting':
+      return ' (90%)';
+    case 'failed':
+      return ' (failed; please retry or remove this file)';
+    default:
+      return '';
+  }
 }
 
 const handleOutsideClick = () => {
