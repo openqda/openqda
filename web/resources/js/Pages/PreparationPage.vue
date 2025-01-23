@@ -264,6 +264,6 @@ onMounted(() => {
   initialFile.value = file?.id ?? null;
 });
 
-provide('sources', props.sources);
+provide('sources', props.sources ?? []);
 provide('newDocument', props.newDocument);
 </script>

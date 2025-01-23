@@ -43,7 +43,6 @@ const { projectId } = props;
 const allSources = inject('sources');
 const documents = reactive(allSources);
 const { downloadSource, queueFilesForUpload } = useFiles({ projectId });
-
 async function retryTranscription(document) {
   const url = `/projects/${projectId}/sources/${document.id}/retrytranscription`;
   try {
@@ -51,11 +50,9 @@ async function retryTranscription(document) {
     const { message, status } = response.data;
 
     if (status === 'finished') {
-      document.isConverting = false;
       document.converted = true;
       document.failed = false;
     } else {
-      document.isConverting = true;
       document.converted = false;
       document.failed = false;
     }
@@ -74,10 +71,9 @@ async function retryTranscription(document) {
 async function retryConvert(document) {
   const url = `/projects/${projectId}/sources/${document.id}/gethtmlcontent`;
   try {
-    document.isConverting = true;
     const response = await axios.post(url);
-    document.isConverting = !response.data.success;
-    document.converted = true;
+    document.failed = !response.data.success;
+    document.converted = response.data.success;
   } catch (error) {
     console.error('Error retrying conversion:', error);
     document.failed = true;
@@ -206,7 +202,6 @@ onMounted(() => {
     });
 
     if (documentIndex !== -1) {
-      documents[documentIndex].isConverting = false;
       documents[documentIndex].converted = true;
       documents[documentIndex].failed = false;
     }
@@ -221,7 +216,6 @@ onMounted(() => {
     });
 
     if (documentIndex !== -1) {
-      documents[documentIndex].isConverting = false;
       documents[documentIndex].converted = false;
       documents[documentIndex].failed = true;
     }
@@ -272,7 +266,7 @@ function fileSelected(file) {
 }
 
 async function fetchAndRenderDocument(document) {
-  if (document.isConverting || !document.converted) {
+  if (document.failed || !document.converted) {
     return;
   }
   try {
@@ -334,7 +328,7 @@ async function fetchAndRenderDocument(document) {
         visible(document) {
           if (document.type !== 'audio') return false;
           if (document.converted) return false;
-          return document.failed || !document.isConverting;
+          return document.failed;
         },
       },
       {
@@ -347,7 +341,7 @@ async function fetchAndRenderDocument(document) {
         visible(document) {
           if (document.type !== 'text') return false;
           if (document.converted) return false;
-          return document.failed || !document.isConverting;
+          return document.failed;
         },
       },
       {

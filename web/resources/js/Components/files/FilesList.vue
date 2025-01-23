@@ -113,12 +113,12 @@
         </td>
 
         <td class="py-2" v-if="fieldsVisible.type && hover !== index">
+          <!--
           <div
             v-if="
               !document.isQueued &&
               !document.isUploading &&
               !document.converted &&
-              !document.isConverting &&
               !document.failed
             "
             title="There was an error during upload or conversion. Please retry or delete this file."
@@ -128,8 +128,9 @@
               class="w-5 h-5 !text-destructive rounded-md font-semibold"
             />
           </div>
+          -->
           <div
-            v-else-if="document.isQueued"
+            v-if="document.isQueued"
             title="Queued for uploading"
             class="inline-flex justify-center w-full p-1"
           >
@@ -143,7 +144,7 @@
             <CloudArrowUpIcon class="w-5 h-5 text-secondary" />
           </div>
           <div
-            v-else-if="document.isConverting && !document.failed"
+            v-else-if="!document.converted && !document.failed"
             class="inline-flex justify-center w-full p-1"
           >
             <div class="animate-spin mr-1" title="Converting...">
