@@ -16,6 +16,7 @@ import ProfileImage from '../../../Components/user/ProfileImage.vue';
 import Button from '../../../Components/interactive/Button.vue';
 import DeleteDialog from '../../../dialogs/DeleteDialog.vue';
 import { asyncTimeout } from '../../../utils/asyncTimeout.js';
+import Headline3 from '../../../Components/layout/Headline3.vue'
 
 const props = defineProps({
   team: Object,
@@ -137,9 +138,11 @@ onMounted(() => {
   <div class="space-y-6">
     <div>
       <!-- Team Owner Information -->
-      <InputLabel value="Team Owner" />
+        <InputLabel class="mb-3">
+            <Headline3 class="font-semibold leading-6 tracking-wide text-foreground text-lg">Team Owner</Headline3>
+        </InputLabel>
 
-      <div class="flex items-center mt-2">
+      <div class="flex items-center mt-5">
         <ProfileImage
           class="w-12 h-12 rounded-full object-cover"
           :src="team.owner.profile_photo_url"
@@ -163,7 +166,9 @@ onMounted(() => {
         <!-- Team Member List -->
         <template #content>
           <div class="flex justify-between align-baseline my-6">
-            <InputLabel value="Team Members" class="mb-3" />
+            <InputLabel class="mb-3">
+              <Headline3 class="font-semibold leading-6 tracking-wide text-foreground text-lg">Team Members</Headline3>
+            </InputLabel>
           </div>
           <div class="space-y-6">
             <div
@@ -370,28 +375,21 @@ onMounted(() => {
 
     <div v-if="userPermissions.canAddTeamMembers">
       <!-- Add Team Member -->
-      <FormSection @submitted="addTeamMember">
+      <FormSection @submitted="addTeamMember" class="my-12">
         <template #title>Add Team Member</template>
-
-        <template #description>
-          Add a new team member to your team, allowing them to collaborate with
-          you.
-        </template>
+          <template #description>
+              Please note: added team members will have have the administrator role for now.
+          </template>
 
         <template #form>
-          <div class="col-span-6">
-            <div class="max-w-xl text-sm text-gray-600">
-              Please provide the email address of the person you would like to
-              add to this team.
-            </div>
-          </div>
 
           <!-- Member Email -->
-          <div class="col-span-6 sm:col-span-4">
+          <div class="col-span-6 sm:col-span-4 space-y-3">
             <InputLabel for="email" value="Email" />
             <InputField
               id="email"
               v-model="addTeamMemberForm.email"
+              placeholder="Email of the (registered) team member"
               type="email"
               class="mt-1 block w-full"
             />
@@ -404,7 +402,7 @@ onMounted(() => {
           <!-- Role -->
           <div
             v-if="availableRoles.length > 0"
-            class="col-span-6 lg:col-span-4"
+            class="col-span-6 lg:col-span-4 space-y-3 mt-5 hidden"
           >
             <InputLabel for="roles" value="Role" />
             <InputError :message="addTeamMemberForm.errors.role" class="mt-2" />
@@ -478,7 +476,7 @@ onMounted(() => {
           </ActionMessage>
 
           <Button
-            v-if="addTeamMemberForm.role"
+            v-show="addTeamMemberForm.role && addTeamMemberForm.email"
             type="submit"
             variant="outline-confirmative"
             :class="{ 'opacity-25': addTeamMemberForm.processing }"
