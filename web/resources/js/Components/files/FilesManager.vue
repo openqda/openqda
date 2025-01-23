@@ -25,8 +25,8 @@ import { ensureFileExtension } from '../../utils/files/ensureFileExtension.js';
 import { createBlob } from '../../utils/files/createBlob.js';
 import { request } from '../../utils/http/BackendRequest.js';
 import { useFiles } from './useFiles.js';
-import { useEcho } from '../../collab/useEcho.js';
 import { PencilSquareIcon, XCircleIcon } from '@heroicons/vue/24/outline';
+import { useConversion } from '../../live/useConversion.js';
 
 /*---------------------------------------------------------------------------*/
 // DATA / PROPS
@@ -185,15 +185,11 @@ const onDeleted = ({ id, name }) => {
 /*---------------------------------------------------------------------------*/
 // LIFECYCLE
 /*---------------------------------------------------------------------------*/
-const channelid = `conversion.${projectId}`;
-const echo = useEcho().init();
+const { onConversionFailed, leaveConversionChannel, onConversionComplete } =
+  useConversion({ projectId });
 
 onMounted(() => {
-  /**
-   * Listen for conversion completed events
-   * and update the local state accordingly
-   */
-  echo.private(channelid).listen('ConversionCompleted', (e) => {
+  onConversionComplete((e) => {
     let documentIndex = -1;
     documents.forEach((doc, index) => {
       if (doc.id === e.sourceId) {
@@ -206,7 +202,7 @@ onMounted(() => {
       documents[documentIndex].failed = false;
     }
   });
-  echo.private(channelid).listen('ConversionFailed', (e) => {
+  onConversionFailed((e) => {
     console.error('ConversionFailed', e);
     let documentIndex = -1;
     documents.forEach((doc, index) => {
@@ -223,7 +219,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  echo.leave(channelid);
+  leaveConversionChannel();
 });
 
 watch(

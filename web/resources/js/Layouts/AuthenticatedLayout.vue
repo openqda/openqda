@@ -241,6 +241,8 @@ import FlashMessage from '../Components/notification/FlashMessage.vue';
 import { useWebSocketConnection } from '../collab/useWebSocketConnection.js';
 import { useTeam } from '../domain/teams/useTeam.js';
 import ProfileImage from '../Components/user/ProfileImage.vue';
+import { useConversion } from '../live/useConversion.js';
+import { flashMessage } from '../Components/notification/flashMessage.js';
 
 const websocket = useWebSocketConnection();
 const navigation = ref([]);
@@ -256,7 +258,7 @@ const {
 } = useTeam();
 websocket.initWebSocket();
 
-defineProps({
+const props = defineProps({
   title: String,
   menu: {
     type: Boolean,
@@ -264,6 +266,10 @@ defineProps({
   },
   showFooter: {
     type: Boolean,
+    required: false,
+  },
+  sources: {
+    type: Array,
     required: false,
   },
 });
@@ -323,6 +329,30 @@ onMounted(() => {
   if (hasTeam) {
     watch(teamId, setupTeam, { immediate: true });
   }
+
+  const { onConversionComplete, onConversionFailed } = useConversion({
+    projectId,
+  });
+  onConversionFailed((e) => {
+    const { sourceId } = e;
+    let message = 'Conversion of a file failed!';
+    const file =
+      sourceId && props.sources && props.sources.find((s) => s.id === sourceId);
+    if (file) {
+      message = `Conversion of ${file.name} failed!`;
+    }
+    flashMessage(message, { type: 'error ' });
+  });
+  onConversionComplete((e) => {
+    const { sourceId } = e;
+    let message = 'Conversion of a file successful!';
+    const file =
+      sourceId && props.sources && props.sources.find((s) => s.id === sourceId);
+    if (file) {
+      message = `Conversion of ${file.name} successful!`;
+    }
+    flashMessage(message, { type: 'success ' });
+  });
 });
 
 const team = ref([]);
