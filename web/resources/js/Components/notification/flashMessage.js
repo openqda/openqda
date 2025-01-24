@@ -11,11 +11,14 @@ export const useFlashMessage = () => {
 
 /**
  * invokes a new flash-message (notification)
- * @param message {string}
+ * @param message {string|null}
  * @param options {object}
  * @param options.type {string}
  */
 export const flashMessage = (message, options = {}) => {
+  if (message === null) {
+    return (state.message = null);
+  }
   const flash = { message };
 
   if ('type' in options) {

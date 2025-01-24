@@ -2,6 +2,7 @@
   <div
     v-if="msg"
     class="absolute top-0 right-0 m-2 w-60 items-center py-2 px-3 mb-2"
+    :style="{ zIndex: 9999 }"
   >
     <div
       :class="[
@@ -22,7 +23,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, onUnmounted } from 'vue';
 import { useFlashMessage, flashMessage } from './flashMessage.js';
 import { ColorMap } from '../../utils/colors/ColorMap.js';
 const props = defineProps(['message', 'flash']);
@@ -42,16 +43,19 @@ const colors = new ColorMap({
   },
 });
 
+const clean = () => {
+  msg.value = null;
+  widthPercentage.value = 100;
+};
+
 onMounted(() => {
   watch(
     getMessage,
     (value) => {
+      if (!value) return clean();
       widthPercentage.value = 0;
       msg.value = value;
-      setTimeout(() => {
-        msg.value = null;
-        widthPercentage.value = 100;
-      }, 3000);
+      setTimeout(() => clean(), 3000);
     },
     { immediate: true, deep: true }
   );
@@ -59,6 +63,11 @@ onMounted(() => {
   if (props.flash?.message) {
     flashMessage(props.flash.message);
   }
+});
+
+onUnmounted(() => {
+  clean();
+  flashMessage(null);
 });
 </script>
 

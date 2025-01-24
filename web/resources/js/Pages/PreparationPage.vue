@@ -246,8 +246,11 @@ async function saveQuillContent() {
 
   if (error || response.status >= 400) {
     console.error('An error occurred while saving:', error);
-    const message = error ? error.response.data.message : response.data.message;
-    flashMessage(message, { type: 'error' });
+    let message = error ? error.response.data.message : response.data.message;
+    if (message.includes('malicious')) {
+      message += ' Try to paste without formatting.';
+    }
+    await flashMessage(message, { type: 'error' });
   }
   await asyncTimeout(300);
   saving.value = false;

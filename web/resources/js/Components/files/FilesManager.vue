@@ -203,7 +203,6 @@ onMounted(() => {
     }
   });
   onConversionFailed((e) => {
-    console.error('ConversionFailed', e);
     let documentIndex = -1;
     documents.forEach((doc, index) => {
       if (doc.id === e.sourceId) {
