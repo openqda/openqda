@@ -8,8 +8,7 @@ import { createCodeSchema } from './createCodeSchema.js';
 
 export const useCodes = () => {
   const page = usePage();
-  const { allCodes, codebooks, projectId, source, auth } = page.props;
-  const userId = auth.user.id;
+  const { allCodes, codebooks, projectId, source } = page.props;
   const sourceId = source.id;
   const key = `${projectId}-${sourceId}`;
   const codeStore = Codes.by(key);
@@ -18,10 +17,7 @@ export const useCodes = () => {
   const initCoding = async () => {
     codebookStore.init(codebooks);
     codeStore.init(allCodes);
-    selectionStore.init(
-      source.selections.filter((s) => s.creating_user_id === userId),
-      (id) => codeStore.entry(id)
-    );
+    selectionStore.init(source.selections, (id) => codeStore.entry(id));
   };
 
   //---------------------------------------------------------------------------

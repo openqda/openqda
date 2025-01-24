@@ -99,7 +99,6 @@ import { useCreateDialog } from '../dialogs/useCreateDialog.js';
 import { attemptAsync } from '../Components/notification/attemptAsync.js';
 
 const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
-
 //------------------------------------------------------------------------
 // SOURCES
 //------------------------------------------------------------------------
