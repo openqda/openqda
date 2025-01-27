@@ -114,7 +114,7 @@ const rebuildList = () => {
   });
 };
 
-watch(props, API.debounce(rebuildList, 100));
+watch(props, API.debounce(rebuildList, 100), { immediate: true, deep: true });
 
 onMounted(() => {
   rebuildList();

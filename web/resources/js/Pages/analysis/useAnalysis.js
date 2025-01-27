@@ -6,7 +6,9 @@ import { createByPropertySorter } from '../../utils/array/createByPropertySorter
 
 const state = reactive({
   checkedSources: new Map(),
+  allSourcesChecked: false,
   checkedCodes: new Map(),
+  allCodesChecked: false,
   selection: [],
   hasSelections: false,
 });
@@ -15,8 +17,14 @@ const byName = createByPropertySorter('name');
 
 export const useAnalysis = () => {
   const { sources, codes, codebooks } = usePage().props;
-  const { hasSelections, checkedCodes, checkedSources, selection } =
-    toRefs(state);
+  const {
+    hasSelections,
+    checkedCodes,
+    allCodesChecked,
+    checkedSources,
+    allSourcesChecked,
+    selection,
+  } = toRefs(state);
   const activeCodebooks = {};
   codebooks.forEach((cb) => {
     if (cb.active !== false) {
@@ -49,37 +57,41 @@ export const useAnalysis = () => {
   );
 
   const checkCode = (id) => {
-    const isAllCodes = id === 'all_codes';
-    const isChecked = !!checkedCodes.value.get(id);
+    const isAllCodes = id === 'all';
 
     if (isAllCodes) {
-      getAllCodes().forEach((code) => {
-        state.checkedCodes.set(code.id, !isChecked);
-      });
+      const newCheckValue = !state.allCodesChecked;
+      getAllCodes().forEach((code) =>
+        state.checkedCodes.set(code.id, newCheckValue)
+      );
+      state.allCodesChecked = newCheckValue;
     } else {
-      state.checkedCodes.set('all_codes', false);
+      const isChecked = !!state.checkedCodes.get(id);
+      state.checkedCodes.set(id, !isChecked);
+      state.allCodesChecked = false;
     }
 
-    state.checkedCodes.set(id, !isChecked);
     updateHasSelection();
   };
 
-  const getAllFiles = () => sources;
+  const getAllSources = () => sources;
   const getAllCodes = () => allCodes.value;
 
   const checkSource = (id) => {
-    const isAllFiles = id === 'all_files';
-    const isChecked = !!checkedSources.value.get(id);
+    const isAllSources = id === 'all';
 
-    if (isAllFiles) {
-      getAllFiles().forEach((source) => {
-        state.checkedSources.set(source.id, !isChecked);
-      });
+    if (isAllSources) {
+      const newCheckValue = !state.allSourcesChecked;
+      getAllSources().forEach((code) =>
+        state.checkedSources.set(code.id, newCheckValue)
+      );
+      state.allSourcesChecked = newCheckValue;
     } else {
-      state.checkedSources.set('all_files', false);
+      const isChecked = !!state.checkedSources.get(id);
+      state.checkedSources.set(id, !isChecked);
+      state.allSourcesChecked = false;
     }
 
-    state.checkedSources.set(id, !isChecked);
     updateHasSelection();
   };
 
@@ -88,7 +100,7 @@ export const useAnalysis = () => {
     const values = [];
 
     sources.forEach((file) => {
-      if (!checkedSources.value.get(file.id)) {
+      if (!state.checkedSources.get(file.id)) {
         return;
       }
 
@@ -99,7 +111,7 @@ export const useAnalysis = () => {
 
       const iterateCodes = (list) => {
         list.forEach((code) => {
-          if (checkedCodes.value.get(code.id) && code.text) {
+          if (state.checkedCodes.get(code.id) && code.text) {
             const current = {
               name: code.name,
               segments: [],
@@ -136,6 +148,8 @@ export const useAnalysis = () => {
   return {
     checkedSources,
     checkedCodes,
+    allCodesChecked,
+    allSourcesChecked,
     selection,
     hasSelections,
     checkSource,

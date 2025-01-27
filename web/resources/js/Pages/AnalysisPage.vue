@@ -50,8 +50,8 @@
                 <input
                   id="all_files"
                   type="checkbox"
-                  :checked="checkedSources.get('all_files')"
-                  @change="checkSource('all_files')"
+                  :checked="allSourcesChecked"
+                  @change="checkSource('all')"
                 />
               </th>
             </template>
@@ -89,8 +89,8 @@
                   <input
                     id="all_codes"
                     type="checkbox"
-                    :checked="checkedCodes.get('all_codes')"
-                    @change="checkCode('all_codes')"
+                    :checked="allCodesChecked"
+                    @change="checkCode('all')"
                   />
                 </td>
               </tr>
@@ -206,9 +206,11 @@ const pageTitle = ref(`Analysis - ${trunc(props.project.name, 50)}`);
 const {
   codes,
   checkedCodes,
+  allCodesChecked,
   checkCode,
   sources,
   checkedSources,
+  allSourcesChecked,
   checkSource,
   hasSelections,
   selection,
@@ -224,7 +226,7 @@ const { exportToCSV } = useExport();
 
 onMounted(async () => {
   selectVisualizerPlugin({ value: 'list', unlessExists: true });
-  if (checkedSources.value.size === 0) checkSource('all_files');
-  if (checkedCodes.value.size === 0) checkCode('all_codes');
+  if (checkedSources.value.size === 0) checkSource('all');
+  if (checkedCodes.value.size === 0) checkCode('all');
 });
 </script>

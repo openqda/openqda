@@ -68,7 +68,10 @@ const filterFilesBySegments = () => {
   currentSources.value = updatedSources;
 };
 
-watch(props, debounce(filterFilesBySegments, 100));
+watch(props, debounce(filterFilesBySegments, 100), {
+  immediate: true,
+  deep: true,
+});
 
 onMounted(() => {
   filterFilesBySegments();

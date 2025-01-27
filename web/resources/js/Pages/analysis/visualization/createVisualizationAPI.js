@@ -12,7 +12,8 @@ export const createVisualizationAPI = ({
   const eachCheckedSources = (callback) => {
     for (const source of sources.value) {
       if (checkedSources.value.get(source.id)) {
-        callback();
+        const doc = sources.value.find((s) => s.id === source.id);
+        callback(doc);
       }
     }
   };
