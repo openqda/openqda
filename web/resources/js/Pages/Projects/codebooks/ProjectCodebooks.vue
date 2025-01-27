@@ -14,6 +14,7 @@ import { useCodebookCreate } from '../../../domain/codebooks/useCodebookCreate';
 import { useDeleteDialog } from '../../../dialogs/useDeleteDialog';
 import DeleteDialog from '../../../dialogs/DeleteDialog.vue';
 import ContrastText from '../../../Components/text/ContrastText.vue';
+import {attemptAsync} from "../../../Components/notification/attemptAsync";
 
 const { codebook: previewCodebook, close: closeCodebookPreview } =
   useCodebookPreview();
@@ -65,6 +66,12 @@ const deleteCodebookFromArray = (codebook) => {
     codebooks.value.splice(index, 1);
   }
 };
+
+const handleWithReload = async (fn, ...args) => {
+    const result = await attemptAsync(() => fn(...args))
+    setTimeout(() => window.location.reload(), 1000)
+    return result
+}
 </script>
 
 <template>
@@ -123,7 +130,7 @@ const deleteCodebookFromArray = (codebook) => {
           class="h-full"
           :codebook="codebook"
           :public="true"
-          @importCodebook="importCodebook(codebook)"
+          @importCodebook="codebook => handleWithReload(importCodebook, codebook)"
         ></CodebookItem>
       </li>
     </ul>
@@ -173,7 +180,7 @@ const deleteCodebookFromArray = (codebook) => {
         : 'Create a new Codebook'
     "
     :schema="createCodebookSchema"
-    :submit="createCodebook"
+    :submit="data => handleWithReload(createCodebook, data)"
     @cancelled="closeCreateForm"
   >
     <template #info>
