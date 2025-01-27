@@ -1,11 +1,11 @@
 import { randomUUID } from '../../../utils/random/randomUUID.js';
 import { request } from '../../../utils/http/BackendRequest.js';
 import { createStoreRepository } from '../../../state/StoreRepository.js';
+import { getIntersection, isOverlapping } from './overlapping.js';
 import { AbstractStore } from '../../../state/AbstractStore.js';
-import { Intersections } from './Intersections.js';
 
-const { getIntersection, isOverlapping } = Intersections;
 class SelectionsStore extends AbstractStore {
+  // returns list of coordinates
   getIntersections(selections) {
     const intersections = [];
     this.all().forEach((s2) => {
@@ -20,18 +20,24 @@ class SelectionsStore extends AbstractStore {
     return intersections;
   }
 
+  // returns list of selections
   getIntersecting(selections) {
-    const intersecting = [];
+    const intersecting = new Set();
 
-    this.all().forEach((s2) => {
-      selections.forEach((s1) => {
-        if (s1 !== s2 && isOverlapping(s1.start, s1.end, s2.start, s2.end)) {
-          intersecting.push(s2);
+    this.all().forEach((s1) => {
+      selections.forEach((s2) => {
+        if (
+          s2 !== s1 &&
+          s2.id !== s1.id &&
+          s1.code.active !== false && // don't include invisible codes!
+          isOverlapping(s2.start, s2.end, s1.start, s1.end)
+        ) {
+          intersecting.add(s1);
         }
       });
     });
 
-    return intersecting;
+    return [...intersecting];
   }
 
   update(docIdOrFn, value = undefined, { updateId = false } = {}) {

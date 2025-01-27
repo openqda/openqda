@@ -62,7 +62,6 @@ export class SelectionHighlightBG extends Module {
         (acc, cur) => acc + (cur.active !== false ? 1 : 0),
         0
       );
-
       if (activeCodes > 1) {
         const format = this.quill.getFormat(segment.x, segment.y - segment.x);
         format.class = cn(format.class, 'border border-primary');
@@ -70,7 +69,10 @@ export class SelectionHighlightBG extends Module {
         format.title = `${segment.c.length} overlapping codes: ${segment.c.map((c) => c.name).join(',')} [${segment.x}:${segment.y}]. Right-click to open menu`;
         this.quill.formatText(segment.x, segment.y - segment.x, format);
       } else {
-        const code = segment.c[0];
+        // XXX: there might be inactive codes in the list, so we need to search
+        // for it and fall back to the first code, of none is found
+        const code =
+          segment.c.find((code) => code.active !== false) ?? segment.c[0];
         if (!code)
           return console.warn(
             `Expected code linked to segment ${segment.x}:${segment.y}, got ${segment.c}`
@@ -116,6 +118,10 @@ export class SelectionHighlightBG extends Module {
     format.background = null;
     format.class = clearClasses(format.class);
     this.quill.formatText(start, length, format);
+  }
+
+  removeAll(selections) {
+    selections.forEach((selection) => this.remove(selection));
   }
 }
 

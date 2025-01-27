@@ -195,28 +195,35 @@ export const useCodes = () => {
   };
 
   const activateCodes = ({ codes, active, withIntersections }) => {
-    const updatedSelections = [];
-
+    const updatedSelections = new Map();
+    const addSelection = (selection) => {
+      const target = selection?.value ?? selection;
+      if (!updatedSelections.has(target.id)) {
+        updatedSelections.set(target.id, selectionStore.entry(target.id));
+      }
+    };
     codeStore.update(() => {
       codes.forEach((code) => {
         code.active = active;
 
         // side-effect: mark selections to update
         if (code.text?.length) {
-          code.text.forEach((selection) =>
-            updatedSelections.push(selectionStore.entry(selection.id))
-          );
+          code.text.forEach(addSelection);
         }
       });
       return codes;
     });
 
     if (withIntersections) {
-      const interSections = selectionStore.getIntersecting(updatedSelections);
-      if (interSections.length) updatedSelections.push(...interSections);
+      const interSections = selectionStore.getIntersecting([
+        ...updatedSelections.values(),
+      ]);
+      if (interSections.length) {
+        interSections.forEach(addSelection);
+      }
     }
 
-    selectionStore.observable.run('updated', updatedSelections);
+    selectionStore.observable.run('updated', [...updatedSelections.values()]);
   };
 
   const toggleCode = (code) => {

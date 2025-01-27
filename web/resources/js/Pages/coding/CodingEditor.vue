@@ -148,7 +148,11 @@ onMounted(() => {
     updated: (docs, allDocs) => {
       // XXX: this currently re-renders the entire editor source
       // which runs smooth for now but we may have to test this for larger documents!
-      hl.add(allDocs ?? docs);
+      const target = allDocs ?? docs;
+      const toRemove = target.filter((d) => d.code.active === false);
+      const toKeep = target.filter((d) => d.code.active !== false);
+      hl.removeAll(toRemove);
+      hl.add(toKeep);
     },
     removed: (docs) => {
       docs.forEach((doc) => hl.remove(doc));
