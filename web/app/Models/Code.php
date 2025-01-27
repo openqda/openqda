@@ -19,6 +19,9 @@ class Code extends Model implements Auditable
 
     public $timestamps = false;
 
+    /**
+     * @var mixed|string|null
+     */
     protected $fillable = [
         'id',
         'name',

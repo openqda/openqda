@@ -39,19 +39,31 @@ class CodebookController extends Controller
                 $originalCodebook = Codebook::with('codes', 'codes.childrenRecursive')->findOrFail($originalCodebookId);
                 $codesToImport = $originalCodebook->codes;
 
+                // Create a mapping of old ID => new ID
+                $idMapping = [];
+
+                // First pass: Create all codes without parent relationships
                 foreach ($codesToImport as $code) {
                     $newCode = new Code();
                     $newCode->name = $code->name;
                     $newCode->color = $code->color;
                     $newCode->codebook_id = $codebook->id;
                     $newCode->description = $code->description;
-                    // Save the parent-child relationship for this code
-                    if (! empty($code['parent_id'])) {
-                        $newCode->parent_id = $code->parent_id;
-                    } else {
-                        $newCode->parent_id = null;
-                    }
+                    $newCode->parent_id = null; // We'll set this in the second pass
                     $newCode->save();
+
+                    // Store the mapping of old ID to new ID
+                    $idMapping[$code->id] = $newCode->id;
+                }
+
+                // Second pass: Update parent relationships using the mapping
+                foreach ($codesToImport as $code) {
+                    if (! empty($code->parent_id)) {
+                        // Find the corresponding new code using our ID mapping
+                        $newCode = Code::find($idMapping[$code->id]);
+                        $newCode->parent_id = $idMapping[$code->parent_id];
+                        $newCode->save();
+                    }
                 }
             }
 
