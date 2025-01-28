@@ -26,7 +26,7 @@
           <p class="text-foreground/60 line-clamp-1">
             {{ codebook.description }}
           </p>
-          <p class="text-foreground/60 text-xs">
+          <p class="text-foreground/60 text-xs" v-if="props.showEmail">
             {{ codebook.creatingUserEmail }}
           </p>
           <p class="text-foreground/60">
@@ -113,7 +113,7 @@ import { useCodebookUpdate } from '../../../domain/codebooks/useCodebookUpdate.j
 import { useCodebookCreate } from '../../../domain/codebooks/useCodebookCreate.js';
 import { useDeleteDialog } from '../../../dialogs/useDeleteDialog.js';
 
-const props = defineProps(['codebook', 'public', 'class']);
+const props = defineProps(['codebook', 'public', 'class', 'showEmail']);
 const { open: openPreview } = useCodebookPreview();
 const { open: openEditForm } = useCodebookUpdate();
 const { open: openCreateForm } = useCodebookCreate();

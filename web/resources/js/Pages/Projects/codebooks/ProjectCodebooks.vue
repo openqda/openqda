@@ -3,18 +3,23 @@ import { computed, inject, ref } from 'vue';
 import CodebookItem from './CodebookItem.vue';
 import Headline2 from '../../../Components/layout/Headline2.vue';
 import Button from '../../../Components/interactive/Button.vue';
-import { PlusIcon, ArrowUpTrayIcon } from '@heroicons/vue/24/solid';
-import { useCodebooks } from '../../../domain/codebooks/useCodebooks';
+import {
+  PlusIcon,
+  ArrowUpTrayIcon,
+  ChevronRightIcon,
+} from '@heroicons/vue/24/solid';
+import { Collapse } from 'vue-collapsed';
 import CreateDialog from '../../../dialogs/CreateDialog.vue';
 import ConfirmDialog from '../../../dialogs/ConfirmDialog.vue';
+import DeleteDialog from '../../../dialogs/DeleteDialog.vue';
+import ContrastText from '../../../Components/text/ContrastText.vue';
+import { useCodebooks } from '../../../domain/codebooks/useCodebooks';
 import { useCodebookPreview } from './useCodebookPreview';
-import { router } from '@inertiajs/vue3';
 import { useCodebookUpdate } from '../../../domain/codebooks/useCodebookUpdate';
 import { useCodebookCreate } from '../../../domain/codebooks/useCodebookCreate';
 import { useDeleteDialog } from '../../../dialogs/useDeleteDialog';
-import DeleteDialog from '../../../dialogs/DeleteDialog.vue';
-import ContrastText from '../../../Components/text/ContrastText.vue';
 import { attemptAsync } from '../../../Components/notification/attemptAsync';
+import { cn } from '../../../utils/css/cn';
 
 const { codebook: previewCodebook, close: closeCodebookPreview } =
   useCodebookPreview();
@@ -41,6 +46,9 @@ const {
 } = useCodebookCreate();
 
 const importSchema = ref(null);
+const showPrivate = ref(true);
+const showOthers = ref(false);
+const showPublic = ref(false);
 
 initCodebooks();
 
@@ -58,7 +66,7 @@ const filteredPublicCodebooks = computed(() => {
 });
 
 const reload = () => {
-  router.get(window.location.href);
+  window.location.reload();
 };
 const deleteCodebookFromArray = (codebook) => {
   const index = codebooks.value.findIndex((cb) => cb.id === codebook.id);
@@ -77,7 +85,17 @@ const handleWithReload = async (fn, ...args) => {
 <template>
   <div>
     <div class="flex items-center justify-between">
-      <Headline2>Codebooks of current Project</Headline2>
+      <button @click="showPrivate = !showPrivate" class="flex items-center">
+        <ChevronRightIcon
+          :class="
+            cn(
+              'w-4 h-4 transition-all duration-300 transform me-2',
+              showPrivate && 'rotate-90'
+            )
+          "
+        />
+        <Headline2>Codebooks of current Project</Headline2>
+      </button>
       <span class="space-x-1">
         <Button variant="outline-secondary" @click="openCreateForm()">
           <PlusIcon class="w-4 h-4" />
@@ -92,50 +110,64 @@ const handleWithReload = async (fn, ...args) => {
         </Button>
       </span>
     </div>
-    <ul
-      v-if="codebooks.length > 0"
-      role="list"
-      class="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3"
-    >
-      <li
-        v-for="codebook in codebooks"
-        :key="codebook.name"
-        class="col-span-1 flex flex-col relative h-full"
+    <Collapse :when="showPrivate" v-if="codebooks.length > 0">
+      <ul
+        role="list"
+        class="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3"
       >
-        <CodebookItem
-          class="h-full"
-          :codebook="codebook"
-          @delete="deleteCodebookFromArray(codebook)"
-        />
-      </li>
-    </ul>
+        <li
+          v-for="codebook in codebooks"
+          :key="codebook.name"
+          class="col-span-1 flex flex-col relative h-full"
+        >
+          <CodebookItem
+            class="h-full"
+            :codebook="codebook"
+            :show-email="true"
+            @delete="deleteCodebookFromArray(codebook)"
+          />
+        </li>
+      </ul>
+    </Collapse>
     <div v-else>
       <p class="text-sm text-gray-500">You didn't create any codebook</p>
     </div>
   </div>
 
   <div>
-    <Headline2>My created Codebooks in other Projects</Headline2>
-    <ul
-      v-if="userCodebooks.length > 0"
-      role="list"
-      class="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3"
-    >
-      <li
-        v-for="codebook in userCodebooks"
-        :key="codebook.name"
-        class="col-span-1 flex flex-col relative"
+    <button @click="showOthers = !showOthers" class="flex items-center">
+      <ChevronRightIcon
+        :class="
+          cn(
+            'w-4 h-4 transition-all duration-300 transform me-2',
+            showOthers && 'rotate-90'
+          )
+        "
+      />
+      <Headline2>My created Codebooks in other Projects</Headline2>
+    </button>
+    <Collapse :when="showOthers" v-if="userCodebooks.length > 0">
+      <ul
+        role="list"
+        class="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3"
       >
-        <CodebookItem
-          class="h-full"
-          :codebook="codebook"
-          :public="true"
-          @importCodebook="
-            (codebook) => handleWithReload(importCodebook, codebook)
-          "
-        ></CodebookItem>
-      </li>
-    </ul>
+        <li
+          v-for="codebook in userCodebooks"
+          :key="codebook.name"
+          class="col-span-1 flex flex-col relative"
+        >
+          <CodebookItem
+            class="h-full"
+            :codebook="codebook"
+            :public="true"
+            :show-email="true"
+            @importCodebook="
+              (codebook) => handleWithReload(importCodebook, codebook)
+            "
+          ></CodebookItem>
+        </li>
+      </ul>
+    </Collapse>
     <div v-else>
       <p class="text-sm text-gray-500">
         No codebooks from other projects available
@@ -144,32 +176,44 @@ const handleWithReload = async (fn, ...args) => {
   </div>
 
   <div class="pb-24">
-    <Headline2>Public Codebooks</Headline2>
-    <input
-      v-if="publicCodebooks.length > 0"
-      v-model="searchQueryPublicCodebooks"
-      type="search"
-      placeholder="Search public codebooks..."
-      class="mt-2 mb-3 w-1/2 rounded-md border-border shadow-sm"
-    />
-    <ul
-      v-if="filteredPublicCodebooks.length > 0"
-      role="list"
-      class="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6"
-    >
-      <li
-        v-for="codebook in filteredPublicCodebooks"
-        :key="codebook.name"
-        class="col-span-1 flex flex-col relative"
+    <button @click="showPublic = !showPublic" class="flex items-center">
+      <ChevronRightIcon
+        :class="
+          cn(
+            'w-4 h-4 transition-all duration-300 transform me-2',
+            showPublic && 'rotate-90'
+          )
+        "
+      />
+      <Headline2>Public Codebooks</Headline2>
+    </button>
+    <Collapse :when="showPublic" v-if="publicCodebooks.length > 0">
+      <input
+        v-model="searchQueryPublicCodebooks"
+        type="search"
+        placeholder="Search public codebooks..."
+        class="mt-2 mb-3 w-1/2 rounded-md border-border shadow-sm"
+      />
+      <ul
+        v-if="filteredPublicCodebooks.length > 0"
+        role="list"
+        class="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6"
       >
-        <CodebookItem
-          class="h-full"
-          :codebook="codebook"
-          :public="true"
-          @importCodebook="importCodebook(codebook)"
-        ></CodebookItem>
-      </li>
-    </ul>
+        <li
+          v-for="codebook in filteredPublicCodebooks"
+          :key="codebook.name"
+          class="col-span-1 flex flex-col relative"
+        >
+          <CodebookItem
+            class="h-full"
+            :codebook="codebook"
+            :public="true"
+            :show-email="false"
+            @importCodebook="importCodebook(codebook)"
+          ></CodebookItem>
+        </li>
+      </ul>
+    </Collapse>
     <div v-else>
       <p class="text-sm text-gray-500">No public codebooks available</p>
     </div>
@@ -188,16 +232,18 @@ const handleWithReload = async (fn, ...args) => {
     <template #info>
       <div class="w-full block italic text-foreground/60 text-sm">
         When you set a codebook "public", anyone can import it on their project.
-        When you set a codebook "shared with your teams", only members of your
-        teams can import it on their projects.
+        On private, only members of your teams can import it into their
+        projects.
       </div>
     </template>
   </CreateDialog>
   <CreateDialog
     :title="`Update ${codebookToUpdate?.name}`"
+    button-title="Update"
     :schema="updateCodebookSchema"
     :submit="updateCodebook"
     @cancelled="closeUpdate()"
+    @created="reload"
   >
   </CreateDialog>
   <CreateDialog

@@ -45,14 +45,9 @@ Codebooks.schemas.create = (codebook) => ({
   shared: {
     type: String,
     label: 'Shared with others',
-    defaultValue: codebook?.sharedWithPublic
-      ? 'public'
-      : codebook?.sharedWithTeams
-        ? 'teams'
-        : 'private',
+    defaultValue: codebook?.properties?.sharedWithPublic ? 'public' : 'private',
     options: [
       { value: 'private', label: 'Not shared' },
-      { value: 'teams', label: 'Shared with teams' },
       { value: 'public', label: 'Shared with public' },
     ],
   },
@@ -127,7 +122,7 @@ Codebooks.update = ({
     body.sharedWithTeams = sharedWithTeams;
   }
   if (isDefined(sharedWithPublic)) {
-    body.sharedWithTeams = sharedWithPublic;
+    body.sharedWithPublic = sharedWithPublic;
   }
 
   return request({
