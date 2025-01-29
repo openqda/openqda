@@ -371,7 +371,7 @@ const usersInRoute = (href = '') => {
   debug('usersInRoute', href, team.value);
   return team.value.filter((user) => {
     const url = user.url ?? '';
-    return href.includes(url) || url.includes(href);
+    return url && href && (href.includes(url) || url.includes(href));
   });
 };
 
