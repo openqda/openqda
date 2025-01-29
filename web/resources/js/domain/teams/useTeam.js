@@ -12,7 +12,7 @@ const state = reactive({
 });
 
 export const useTeam = () => {
-  const debug = useDebug();
+  const debug = useDebug({ scope: 'teams' });
   const { sharedTeam: team, auth, teamMembers } = usePage().props;
   const sharedTeam = team ?? {};
   const { usersInChannel, teamsInitialized, teamId } = toRefs(state);
@@ -45,10 +45,10 @@ export const useTeam = () => {
       );
 
       Echo.join(channel)
-        .error((e) => console.error(e))
+        .error((e) => debug(`error joining channel ${channel}`, e))
         .listen('UserNavigated', (event) => {
           if (userId === event.userId) return;
-
+          debug(channel, `user ${event.userId} navigated to`, event.url);
           if (!state.usersInChannel[event.userId]) {
             state.usersInChannel[event.userId] = {
               id: event.userId,
