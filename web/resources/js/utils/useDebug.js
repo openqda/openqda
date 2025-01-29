@@ -1,5 +1,11 @@
 import { noop } from './function/noop.js';
 
+const DEBUG = (import.meta.env.DEBUG_CLIENT);
+
 export const useDebug = () => {
-  return window.debugHandler ?? noop;
+  // eslint-disable-next-line no-console
+  const handler = console[DEBUG];
+  return handler
+    ? (...args) => handler.call(console, ...args)
+    : noop;
 };
