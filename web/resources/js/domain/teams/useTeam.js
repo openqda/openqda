@@ -49,6 +49,7 @@ export const useTeam = () => {
         .listen('UserNavigated', (event) => {
           if (userId === event.userId) return;
           debug(channel, `user ${event.userId} navigated to`, event.url);
+
           if (!state.usersInChannel[event.userId]) {
             state.usersInChannel[event.userId] = {
               id: event.userId,
@@ -57,8 +58,11 @@ export const useTeam = () => {
             };
           }
 
+          const name = state.usersInChannel[event.userId].name;
+
           state.usersInChannel[event.userId] = {
               id: event.userId,
+              name,
               url: event.url,
               profile_photo: event.event.profile_photo
           }
