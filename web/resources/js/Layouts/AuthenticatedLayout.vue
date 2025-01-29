@@ -367,10 +367,11 @@ watch(
   { deep: true }
 );
 
-const usersInRoute = (href) => {
+const usersInRoute = (href = '') => {
   debug('usersInRoute', href, team.value);
   return team.value.filter((user) => {
-    return href === user.url;
+    const url = user.url ?? '';
+    return href.includes(url) || url.includes(href);
   });
 };
 
