@@ -61,13 +61,16 @@ export const useTeam = () => {
           const name = state.usersInChannel[event.userId].name;
 
           state.usersInChannel[event.userId] = {
-              id: event.userId,
-              name,
-              url: event.url,
-              profile_photo: event.profile_photo
-          }
+            id: event.userId,
+            name,
+            url: event.url,
+            profile_photo: event.profile_photo,
+          };
 
-          debug('after navigation received', state.usersInChannel[event.userId])
+          debug(
+            'after navigation received',
+            state.usersInChannel[event.userId]
+          );
         })
         .here((users) => {
           debug(channel, 'here', users);
@@ -96,7 +99,7 @@ export const useTeam = () => {
         } else {
           state.usersInChannel[user.id].name = user.name;
         }
-        debug('after add user', state.usersInChannel[user.id])
+        debug('after add user', state.usersInChannel[user.id]);
       };
     }
     state.teamsInitialized[teamId] = true;
