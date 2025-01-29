@@ -41,7 +41,7 @@ return [
                 'useTLS' => env('REVERB_SCHEME', 'https') === 'https',
             ],
             'client_options' => [
-                "verify" => false,
+                "verify" => env('LARAVEL_WEBSOCKETS_SSL_CAFILE', true),
             ],
         ],
         'pusher' => [
