@@ -19,6 +19,7 @@ export const useTeam = () => {
   const userId = auth.user.id;
 
   if (teamId.value !== sharedTeam.id) {
+    debug('change team id to', sharedTeam.id);
     state.teamId = sharedTeam.id;
   }
 
@@ -28,6 +29,7 @@ export const useTeam = () => {
   };
 
   const initTeams = () => {
+    debug('init teams?', !teamsInitialized.value);
     const teamWasInitialized =
       teamId.value && teamsInitialized.value[teamId.value];
     const channel = `team.${teamId.value}`;
@@ -91,6 +93,7 @@ export const useTeam = () => {
   };
 
   const dispatchPresence = async () => {
+    debug('dispatch presence');
     const { response, error } = await request({
       url: '/user/navigation',
       type: 'post',
@@ -99,6 +102,8 @@ export const useTeam = () => {
         team: teamId.value,
       },
     });
+    debug('dispatch presence response?', response);
+    debug('dispatch presence error?', error);
     return { response, error };
   };
 
