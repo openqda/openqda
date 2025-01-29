@@ -64,7 +64,7 @@ export const useTeam = () => {
               id: event.userId,
               name,
               url: event.url,
-              profile_photo: event.event.profile_photo
+              profile_photo: event.profile_photo
           }
 
           debug('after navigation received', state.usersInChannel[event.userId])
