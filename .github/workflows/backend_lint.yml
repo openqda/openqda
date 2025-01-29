@@ -8,6 +8,7 @@ on:
 
 jobs:
   lint:
+    name: Backend Lint
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
