@@ -47,6 +47,7 @@ export const useTeam = () => {
       Echo.join(channel)
         .error((e) => debug(`error joining channel ${channel}`, e))
         .listen('UserNavigated', (event) => {
+          debug('UserNavigated', event);
           if (userId === event.userId) return;
           debug(channel, `user ${event.userId} navigated to`, event.url);
           if (!state.usersInChannel[event.userId]) {
@@ -76,6 +77,7 @@ export const useTeam = () => {
         });
 
       const addUser = (user) => {
+        debug('add user', user);
         if (userId === user.id) return;
 
         if (!state.usersInChannel[user.id]) {

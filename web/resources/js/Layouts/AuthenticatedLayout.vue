@@ -243,6 +243,7 @@ import { useTeam } from '../domain/teams/useTeam.js';
 import ProfileImage from '../Components/user/ProfileImage.vue';
 import { useConversion } from '../live/useConversion.js';
 import { flashMessage } from '../Components/notification/flashMessage.js';
+import { useDebug } from '../utils/useDebug.js';
 
 const websocket = useWebSocketConnection();
 const navigation = ref([]);
@@ -257,6 +258,7 @@ const {
   usersInChannel,
 } = useTeam();
 websocket.initWebSocket();
+const debug = useDebug({ scope: 'nav' });
 
 const props = defineProps({
   title: String,
@@ -359,12 +361,14 @@ const team = ref([]);
 watch(
   usersInChannel,
   (value) => {
+    debug('changed users in channel', value);
     team.value = Object.values(value ?? {});
   },
   { deep: true }
 );
 
 const usersInRoute = (href) => {
+  debug('usersInRoute', href, team.value);
   return team.value.filter((user) => {
     return href === user.url;
   });
