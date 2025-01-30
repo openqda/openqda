@@ -35,7 +35,6 @@ describe('Codebooks (ctx)', () => {
             defaultValue: 'private',
             options: [
               { value: 'private', label: 'Not shared' },
-              { value: 'teams', label: 'Shared with teams' },
               { value: 'public', label: 'Shared with public' },
             ],
           },
@@ -61,7 +60,6 @@ describe('Codebooks (ctx)', () => {
             defaultValue: 'private',
             options: [
               { value: 'private', label: 'Not shared' },
-              { value: 'teams', label: 'Shared with teams' },
               { value: 'public', label: 'Shared with public' },
             ],
           },
