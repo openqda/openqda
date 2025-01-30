@@ -55,7 +55,7 @@ class SourceResource extends Resource
                     Action::make('convertToHtml')
                         ->label('Convert to HTML')
                         ->action(function ($record) {
-                            $controller = new SourceController();
+                            $controller = new SourceController;
                             $controller->getHtmlContent($record->upload_path, $record->project_id, $record, true);
                         })
                         ->icon('heroicon-o-document-text')
@@ -160,7 +160,7 @@ class SourceResource extends Resource
                 Tables\Actions\Action::make('convertToHtml')
                     ->label('Convert to HTML')
                     ->action(function ($record) {
-                        $controller = new SourceController();
+                        $controller = new SourceController;
                         $controller->retryConversion(Project::find($record->project_id), $record);
                     })
                     ->requiresConfirmation()

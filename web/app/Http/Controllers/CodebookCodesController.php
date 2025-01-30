@@ -27,7 +27,7 @@ class CodebookCodesController extends Controller
             $xmlContent = file_get_contents($file->getRealPath());
 
             // Validate XML content with DOMDocument
-            $dom = new \DOMDocument();
+            $dom = new \DOMDocument;
             if (! @$dom->loadXML($xmlContent)) {
                 throw new Exception('Invalid XML format: Not well-formed.');
             }
@@ -103,7 +103,7 @@ class CodebookCodesController extends Controller
      */
     private function createCodebook(Request $request, SimpleXMLElement $codeBookElement, $origin)
     {
-        $codebook = new Codebook();
+        $codebook = new Codebook;
         $codebook->project_id = $request->project_id;
         $codebook->name = (string) $origin ? 'Codebook from '.$origin : 'Unnamed Codebook';
         $codebook->description = (string) $codeBookElement->Description ?: '';
@@ -142,7 +142,7 @@ class CodebookCodesController extends Controller
     private function processCodes($xmlCodes, $codebookId, $parentId = null)
     {
         foreach ($xmlCodes as $xmlCode) {
-            $code = new Code();
+            $code = new Code;
             $code->id = (string) Str::uuid();
             $code->name = (string) $xmlCode['name'] ?: 'Unnamed Code';
             $code->color = (string) $xmlCode['color'] ?: $this->getRandomColor(0.5);

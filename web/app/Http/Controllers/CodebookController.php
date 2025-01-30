@@ -44,7 +44,7 @@ class CodebookController extends Controller
 
                 // First pass: Create all codes without parent relationships
                 foreach ($codesToImport as $code) {
-                    $newCode = new Code();
+                    $newCode = new Code;
                     $newCode->name = $code->name;
                     $newCode->color = $code->color;
                     $newCode->codebook_id = $codebook->id;

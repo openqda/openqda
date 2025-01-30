@@ -175,7 +175,7 @@ class ProjectController extends Controller
                 'description' => $codebook->description,
                 'properties' => $codebook->properties,
                 'codes' => $codebook->codes,
-                'project_id' => $codebook->project_id
+                'project_id' => $codebook->project_id,
             ];
         });
 

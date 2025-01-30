@@ -22,7 +22,7 @@ class SourceControllerTest extends TestCase
 
     protected string $testFilePath;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -313,7 +313,7 @@ class SourceControllerTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         // Clean up test files
         if (file_exists($this->testFilePath)) {

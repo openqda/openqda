@@ -31,7 +31,7 @@ class CreateNewUser implements CreatesNewUsers
         if (app()->environment('testing')) {
             $rules['altcha'] = ['required', 'string'];
         } else {
-            $rules['altcha'] = ['required', new ValidAltcha()];
+            $rules['altcha'] = ['required', new ValidAltcha];
         }
 
         Validator::make($input, $rules)->validate();

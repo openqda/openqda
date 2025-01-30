@@ -30,7 +30,7 @@ class StoreCodeRequest extends FormRequest
             'title' => 'required|string|max:255',
             'color' => 'required|string',
             'codebook' => 'required|exists:codebooks,id',
-            'parent_id' => ['nullable', 'uuid', new PreventInvalidCodeHierarchy()],
+            'parent_id' => ['nullable', 'uuid', new PreventInvalidCodeHierarchy],
         ];
     }
 }

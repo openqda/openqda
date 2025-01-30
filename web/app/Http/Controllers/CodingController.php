@@ -26,7 +26,7 @@ class CodingController extends Controller
     public function store(StoreCodeRequest $request, Project $project)
     {
         // Now you can create the code
-        $code = new Code();
+        $code = new Code;
         $code->name = $request->input('title');
         $code->color = $request->input('color');
         $code->codebook_id = $request->input('codebook');
@@ -190,7 +190,7 @@ class CodingController extends Controller
      */
     private function createDefaultCodebook(Project $project, Request $request)
     {
-        $codebook = new Codebook();
+        $codebook = new Codebook;
         $codebook->name = $project->name.' Codebook';
         $codebook->project_id = $project->id;
         $codebook->creating_user_id = $request->user()->id;
