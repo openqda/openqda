@@ -4,15 +4,22 @@ const state = reactive({
   message: null,
 });
 
+/**
+ * This is used to listen to incoming
+ * flash messages, usually only used
+ * by the templates that implement the
+ * actual notification components.
+ * @return {Ref<null | { message: string, type: string=}>}
+ */
 export const useFlashMessage = () => {
   const { message } = toRefs(state);
   return message;
 };
 
 /**
- * invokes a new flash-message (notification)
+ * Globally available notification (flash-message) invoker.
  * @param message {string|null}
- * @param options {object}
+ * @param options {object=}
  * @param options.type {string}
  */
 export const flashMessage = (message, options = {}) => {

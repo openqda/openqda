@@ -5,10 +5,26 @@ import { asyncTimeout } from '../../utils/asyncTimeout.js';
 import { usePage } from '@inertiajs/vue3';
 import { reactive } from 'vue';
 
+/**
+ * Provides upload and download functionality for files (REFI:sources).
+ * As a composable it enables to run independent of the current template,
+ * which allows to handle uploads, while switching routes, as long as
+ * there is no full page reload.
+ *
+ * @composable
+ * @return {{queueFilesForUpload: queueFilesForUpload, downloadSource: ((function(*): Promise<void>)|*)}}
+ */
 export const useFiles = () => {
-  const { projectId, sources, auth } = usePage().props;
+  const { projectId, sources, auth } = usePage().props; // TODO (refactoring): decouple from props
   const profilePhotoUrl = auth.user.profile_photo_url;
 
+    /**
+     * Adds given list of files to an upload queue that processes
+     * each file sequentially.
+     *
+     * @param {File[]} files list of files (Browser API File class)
+     * @param {function} onError error handler
+     */
   const queueFilesForUpload = ({ files, onError }) => {
     for (const file of files) {
       const source = reactive({
@@ -44,6 +60,14 @@ export const useFiles = () => {
 const queue = [];
 let queueIsRunning = false;
 
+/**
+ * Runs the async upload queue until completion.
+ * To prevent breaking, all failures are forwarded to the
+ * error handler
+ * @private
+ * @param onError {function}
+ * @return {Promise<void>}
+ */
 const runQueue = async ({ onError }) => {
   queueIsRunning = true;
   queue.sort((a, b) => {
@@ -80,6 +104,16 @@ const runQueue = async ({ onError }) => {
   queueIsRunning = false;
 };
 
+/**
+ * Actual file upload request to the backend.
+ * Note the source is expected to already exist
+ * as part of the optimistic UI.
+ *
+ * @param file {File}
+ * @param source {object}
+ * @param projectId {string}
+ * @return {Promise<*>}
+ */
 async function uploadFile({ file, source, projectId }) {
   const isRtf =
     file.type === 'text/rtf' || (file.name && file.name.endsWith('.rtf'));
@@ -110,6 +144,16 @@ async function uploadFile({ file, source, projectId }) {
   throw new Error(`No response for ${file.name}`);
 }
 
+/**
+ * This is specific to audio files, where
+ * transcription is expected.
+ * TODO: replace with generic transformFile implementation,
+ *   once plugin protocol is final
+ * @param file
+ * @param source
+ * @param projectId
+ * @return {Promise<*>}
+ */
 async function transcribeFile({ file, source, projectId }) {
   const formData = new FormData();
   formData.append('file', file);
@@ -134,6 +178,13 @@ async function transcribeFile({ file, source, projectId }) {
   throw new Error(`No response for ${file.name}`);
 }
 
+/**
+ * Attempts to request a given source as downloadable content
+ * and invokes an immediate download by virtually clicking a
+ * temporary blob file.
+ * @param source {object}
+ * @return {Promise<void>}
+ */
 const downloadSource = async (source) => {
   try {
     // Perform the GET request to download the file
@@ -165,6 +216,7 @@ const downloadSource = async (source) => {
     // Clean up and remove the link from the DOM
     link.parentNode.removeChild(link);
   } catch (error) {
+    // TODO (refactoring): exclude from composable and wrap in attemptAsync on template level
     console.error('Error downloading source file:', error);
     flashMessage('An error occurred while downloading the source file.', {
       type: error,
