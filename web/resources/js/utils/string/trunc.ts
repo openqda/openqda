@@ -1,6 +1,11 @@
 /**
+ * @module
+ */
+
+/**
  * Truncates a string by given max length but adds
  * ... at the end. Does not add dots if its length is smaller than max - 3
+ * @function
  * @param str {string}
  * @param max {number}
  * @return {string}

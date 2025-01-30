@@ -1,5 +1,11 @@
 /**
+ * @module
+ */
+
+
+/**
  * Requests fullscreen mode for a given focus element
+ * @function
  * @param elem {HTMLElement}
  */
 export const openFullscreen = (elem) => {
@@ -14,6 +20,7 @@ export const openFullscreen = (elem) => {
 
 /**
  * Closes active fullscreen mode
+ * @function
  */
 export const closeFullscreen = () => {
   if (document.exitFullscreen) {

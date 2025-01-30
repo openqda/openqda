@@ -2,7 +2,12 @@ import { rgbaToValues } from './rgbaToValues.js';
 import { toHex } from './toHex.js';
 
 /**
+ * @module
+ */
+
+/**
  * Changes a color's alpha (opacity) value to the given value.
+ * @function
  * @param color {string}
  * @param opacity {number}
  * @return {string}
@@ -20,11 +25,23 @@ export const changeOpacity = (color, opacity = 1) => {
   throw new Error(`Unsupported color value ${color}`);
 };
 
+/**
+ * @private
+ * @param hex
+ * @param opacity
+ * @return {`${string}${string}`}
+ */
 const changeHexOpacity = (hex, opacity) => {
   const alpha = toHex(Math.floor(opacity * 255));
   return `${hex.substring(0, 7)}${alpha}`;
 };
 
+/**
+ * @private
+ * @param rgba
+ * @param opacity
+ * @return {*|string}
+ */
 const changeRGBAOpacity = (rgba, opacity) => {
   const rgbaValues = rgbaToValues(rgba);
   const resolved = opacity ?? rgbaValues[3] ?? 1;

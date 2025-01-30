@@ -1,11 +1,17 @@
 import FileSaver from 'file-saver';
 
 /**
+ * @module
+ */
+
+/**
  * Opens the save dialog to save a given text
  * as file.
  *
+ * @function
  * @param {string} text
  * @param {string} name
+ * @param {string} type
  * @param {string} [encoding=text/plain]
  * @param {string} [encoding=utf-8]
  * @return {Promise<void>}

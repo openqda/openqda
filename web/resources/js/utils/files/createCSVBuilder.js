@@ -1,7 +1,12 @@
 /**
+ * @module
+ */
+
+/**
  * Creates a new CSV builder that allows to construct a new csv
  * string by given options and added rows.
  *
+ * @function
  * @param {object} options
  * @param {string[]} options.header a list of strings to define the headers
  * @param {string} options.separator character for the separator

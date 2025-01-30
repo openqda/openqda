@@ -1,3 +1,11 @@
+/** @module **/
+
+/**
+ * Creates a simple memoization function, supported by a map
+ * @function
+ * @param fn {function}
+ * @return {function(...[*]): any}
+ */
 export const memoize = (fn) => {
   const map = new Map();
   return function memoized(...args) {
@@ -7,6 +15,12 @@ export const memoize = (fn) => {
   };
 };
 
+/**
+ * @private
+ * @param key
+ * @param value
+ * @return {*|string}
+ */
 const replacer = (key, value) => {
   if (typeof value === 'function') {
     return value.toString();

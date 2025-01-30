@@ -1,6 +1,11 @@
 /**
+ * @module
+ */
+
+/**
  * Creates a new Blob.
  * By default, it creates an empty text Blob.
+ * @function
  * @param options {object}
  * @param options.data {string?} the keyword representing archetype content of related file type
  * @param options.type {string?} the mimetype definition

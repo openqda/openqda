@@ -1,11 +1,16 @@
-/**#
+/**
+ * @module
+ */
+
+/**
  * Reads various types of content from a given File object.
  *
  * @async
+ * @function
+ * @see https://developer.mozilla.org/en-US/docs/Web/API/File
  * @param file
  * @param as {string?} defines the expected type of the content
  * @return {Promise<unknown>}
- * @see https://developer.mozilla.org/en-US/docs/Web/API/File
  */
 export const readFromFile = (file, as) =>
   new Promise((resolve, reject) => {

@@ -1,6 +1,11 @@
 /**
+ * @module
+ */
+
+/**
  * Extracts the values from a given css-compatible rgba() string.
  *
+ * @function
  * @throws {TypeError} if given param is not a valid rgb() or rgba() string.
  * @param rgba {string} the css-compatible rgba(r, g, b, a) string
  * @return {string[]}
@@ -17,4 +22,8 @@ export const rgbaToValues = (rgba) => {
   return rgbaValues;
 };
 
+/**
+ * @private
+ * @type {RegExp}
+ */
 const num = /[\d.]+/g;

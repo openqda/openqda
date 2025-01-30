@@ -1,4 +1,5 @@
 /**
+ * @class
  * @deprecated
  */
 export class ColorMap {
@@ -20,6 +21,13 @@ export class ColorMap {
   }
 }
 
+/**
+ * @private
+ * @param map
+ * @param key
+ * @param type
+ * @return {*|string}
+ */
 const extract = (map, key, type) => {
   let target;
   if (Object.hasOwn(map, key)) {

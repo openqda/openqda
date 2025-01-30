@@ -2,7 +2,12 @@ import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 /**
- * Common helper to easily merge tailwind classes.
+ * @module
+ */
+
+/**
+ * Common helper to easily merge tailwind classes and support conditional classes.
+ * @function
  * @param inputs
  * @return {string}
  */

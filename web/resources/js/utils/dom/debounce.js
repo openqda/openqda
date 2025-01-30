@@ -1,7 +1,13 @@
 /**
+ * @module
+ */
+
+/**
  * Debounces a function that is called often to run computation
  * only after given x milliseconds.
- * Credits: https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore#_debounce
+ *
+ * @function
+ * @see https://github.com/you-dont-need/You-Dont-Need-Lodash-Underscore#_debounce
  * @param func {function} the expensive computation fn
  * @param wait {number} timeout in ms
  * @param immediate {boolean=} run immediate

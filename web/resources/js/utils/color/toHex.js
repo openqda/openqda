@@ -1,7 +1,12 @@
 import { rgbaToValues } from './rgbaToValues.js';
 
 /**
+ * @module
+ */
+
+/**
  * Converts a given color value (0..255) to hex value.
+ * @function
  * @param val {number|string}
  * @return {string} zero-padded hex value
  */
@@ -20,6 +25,7 @@ export const toHex = (val) => {
 
 /**
  * Transforms a given rgb() or rgba() string to hex
+ * @function
  * @param rgb
  * @return {string}
  */

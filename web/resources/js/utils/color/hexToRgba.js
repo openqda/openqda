@@ -1,3 +1,13 @@
+/**
+ * @module
+ */
+
+/**
+ * Transforms a given hex value to an array of individual rgba components
+ * @function
+ * @param hex {string}
+ * @return {[number, number, number, number]}
+ */
 export const hexToRgbValues = (hex) => {
   // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
   let shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
@@ -18,11 +28,23 @@ export const hexToRgbValues = (hex) => {
     : [];
 };
 
+/**
+ * Transforms a given hex value to a css rgb(r, g, b) string
+ * @function
+ * @param hex {string}
+ * @return {`rgb(${number}, ${number}, ${number})`}
+ */
 export const hexToRgb = (hex) => {
   const [r, g, b] = hexToRgbValues(hex);
   return `rgb(${r}, ${g}, ${b})`;
 };
 
+/**
+ * Transforms a given hex value to a css rgba(r, g, b, a) string
+ * @function
+ * @param hex {string}
+ * @return {`rgba(${number}, ${number}, ${number}, ${number})`}
+ */
 export const hexToRgba = (hex) => {
   const [r, g, b, a] = hexToRgbValues(hex);
   const alpha = a > 0 ? Math.floor(a / 255) : a;

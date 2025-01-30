@@ -1,9 +1,13 @@
 /**
+ * @module
+ */
+
+/**
  * @typedef ThemeStorage
- * @property {function():Promise<Boolean>} isDefined
- * @property {function():Promise<String|null>} value
- * @property {function(name:string):Promise<Boolean>} update
- * @property {function():Promise<Boolean>} remove
+ * @property {function():Promise<Boolean>} isDefined checks if there is an entry in storage
+ * @property {function():Promise<String|null>} value returns the current value from strorage
+ * @property {function(name:string):Promise<Boolean>} update updates the value in storage
+ * @property {function():Promise<Boolean>} remove removes the value from storage
  */
 
 /**

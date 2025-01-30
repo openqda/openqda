@@ -1,3 +1,14 @@
+/** @module **/
+
+/**
+ * Failsafe way to stringify any object
+ * of arbitrary structure.
+ *
+ * @function
+ * @param obj {object}
+ * @param space {number}
+ * @return {string}
+ */
 export const safeStringify = (obj = {}, space = 0) => {
   const map = new WeakMap();
   let count = 0;

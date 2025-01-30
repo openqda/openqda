@@ -1,8 +1,15 @@
 /**
+ * @module
+ */
+
+/**
  * Common-purpose custom vue-directive
  * to run a callback when clicking outside a component.
  *
+ * @directive
  * @type {{unmounted(*): void, mounted(*, *): void}}
+ * @example
+ * <Component :v-click-outside="() => {}" />
  */
 export const vClickOutside = {
   mounted(el, binding /*, vnode */) {

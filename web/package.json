@@ -11,7 +11,8 @@
     "lint:check": "eslint ./resources/js",
     "lint:write": "eslint ./resources/js --fix",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "build:docs":"jsdoc -c jsdoc.conf.json  -r  -d ../docs/api/client ./resources/js/**/*"
   },
   "devDependencies": {
     "@eslint/js": "^9.2.0",
@@ -22,12 +23,15 @@
     "@vitejs/plugin-vue": "^5.2.1",
     "@vitest/coverage-v8": "^2.1.8",
     "@vitest/ui": "^2.1.8",
+    "@vue/compiler-sfc": "^3.5.13",
     "autoprefixer": "^10.4.17",
     "axios": "^1.7.9",
     "eslint": "^9.16.0",
     "eslint-plugin-vue": "^9.32.0",
     "globals": "^15.2.0",
     "happy-dom": "^15.11.7",
+    "jsdoc": "^4.0.4",
+    "jsdoc-vuejs": "^4.0.0",
     "laravel-echo": "^1.17.1",
     "laravel-vite-plugin": "^1.1.1",
     "postcss": "^8.4.49",

@@ -1,29 +1,37 @@
 import { ThemeEmptyStorage } from './ThemeEmptyStorage.js';
 
 /**
- * A facade to the underlying theming system that
- * supports different storage implementations.
+ * @module
  */
-export const Theme = {};
 
+
+/** @private **/
 let storage = null;
+/**
+ * @private
+ * @type {string}
+ */
 const dark = 'dark';
-const light = 'light';
 
-Theme.DARK = dark;
-Theme.LIGHT = light;
+/**
+ *  @private
+ * @type {string}
+ */
+const light = 'light';
 
 /**
  * Auto-detects stored decision for the theme and
  * falls back to system level preference.
  * Otherwise, uses light theme.
+ * @function
+ * @property
  * @param options {object}
  * @param options.storage {ThemeStorage}
  * @param options.useStorage {boolean}
  * @param options.usePreferred {boolean}
  * @return {Promise<{from: string, name: string}>} the name of the decision used for the theme.
  */
-Theme.init = async (options) => {
+const init = async (options) => {
   storage = options.storage ? options.storage : new ThemeEmptyStorage();
 
   // phase 1: fetch the preferred theme from storage
@@ -55,16 +63,43 @@ Theme.init = async (options) => {
   return { from: 'fallback', name: light };
 };
 
-Theme.is = (name) => name === DOM.current;
 
-Theme.current = () => DOM.current;
+/**
+ * Check if current applied theme (in DOM)
+ * is the theme of the given name
+ * @function
+ * @param name {string}
+ * @return {boolean}
+ */
+const is = (name) => name === DOM.current;
 
-Theme.update = async (name) => {
+/**
+ * Get the name of the current applied theme in DOM
+ * @function
+ * @return {null|string}
+ */
+const current = () => DOM.current;
+
+/**
+ * Updates the current theme by given value,
+ * if supported (light, dark)
+ * @function
+ * @async
+ * @param name {string}
+ * @return {Promise<*>}
+ */
+const update = async (name) => {
   DOM.add(name);
   return storage.update(name);
 };
 
-Theme.remove = async () => {
+/**
+ * Removes the current theme from DOM
+ * @function
+ * @async
+ * @return {Promise<*>}
+ */
+const remove = async () => {
   DOM.remove(DOM.current);
   return storage.remove();
 };
@@ -91,4 +126,21 @@ DOM.add = (name) => {
 DOM.remove = (name) => {
   DOM.current = null;
   document.documentElement.classList.remove(name);
+};
+
+
+/**
+ * A facade to the underlying theming system that
+ *  supports different storage implementations.
+ * @constant
+ * @default
+ */
+export const Theme = {
+    DARK: dark,
+    LIGHT: light,
+    init,
+    is,
+    current,
+    update,
+    remove
 };

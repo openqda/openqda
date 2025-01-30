@@ -1,5 +1,10 @@
 /**
+ * @module
+ */
+
+/**
  * Creates a new store
+ * @function
  * @param key
  * @param factory
  * @return {{key: string}}

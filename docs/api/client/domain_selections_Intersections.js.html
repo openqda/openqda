@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: domain/selections/Intersections.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: domain/selections/Intersections.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>export const Intersections = {};
+
+Intersections.from = (selections) => {
+  return segmentize(selections);
+};
+
+Intersections.sort = (list) => list.sort((a, b) => a[0] - b[0]);
+
+/**
+ * @typedef SelectionEntry
+ * @type object
+ * @property x {number} start index of this selection
+ * @property y {number} end index of this selection
+ * @property c {any} the linked code; the actual type is not relevant for operation
+ */
+
+/**
+ * @typedef Segment
+ * @type object
+ * @property x {number} start index of this segment
+ * @property y {number} end index of this segment
+ * @property c {Set&lt;any>} the linked codes as deduplicated Set
+ */
+
+/**
+ * Transform selections into segments with one or more
+ * related code, depending on the overlap (intersection)
+ * of selections.
+ *
+ * Inspired by Klee's 1D Measure Problem algorithm (union of intervals),
+ * the result is a list of segments with related codes, representing
+ * overlapping of selections of arbitrary depth.
+ *
+ * The input is a list of selections, where each
+ * entry contains a start (x), an end (y) and
+ * a related code (c).
+ *
+ * The time complexity is influenced by two factors
+ * - the size of the input N
+ * - the sorting of the 2N-sized point vector
+ * - the size of the potential range of indexes
+ *
+ * Choosing a different sorting (e.g. integer based)
+ * one could improve on the overall complexity.
+ *
+ * The space complexity
+ *
+ * @author Jan Küster
+ * @param seg {SelectionEntry[]}
+ * @return {Segment[]}
+ */
+export const segmentize = (seg) => {
+  // --------------------------------------------------------
+  // GENERIC PART
+  // --------------------------------------------------------
+  // the initial part of the algorithm follows
+  // Klee's 1D Measurement Problem:
+  // - the input  gets mapped into a 2N vector
+  // - additionally we add the linked code to each entry
+  // - the vector gets sorted
+  let n = seg.length;
+  let m = n * 2;
+
+  // Create a vector to store starting and ending
+  // points
+  let points = new Array(m);
+
+  for (let i = 0; i &lt; n; i++) {
+    points[i * 2] = [seg[i].x, false, seg[i].c];
+    points[i * 2 + 1] = [seg[i].y, true, seg[i].c];
+  }
+
+  // Sorting all points by point value
+  // This is the major computation effort
+  // lading to complexity of O(n log n) when
+  // using the default.
+  // However, this implementation enables to
+  // use different sorting algorithms to maximize the
+  // performance and scalability.
+  // Intersections.sort(points)
+  points.sort((a, b) => a[0] - b[0]);
+
+  const result = [];
+  let codes = new Set();
+  let current = {};
+  let value = null;
+  let code = null;
+  let prev = null;
+
+  // tp keep track of, whether we are in a state
+  // of open-ness, we need to check if there is
+  // opened > closed
+  let opened = 0;
+  let closed = 0;
+
+  // --------------------------------------------------------
+  // DOMAIN-SPECIFIC PART
+  // --------------------------------------------------------
+  // Traverse through all points.
+  //
+  // In contrast to Klee's measure problem
+  // there is no union to be computed but.
+  for (let i = 0; i &lt; m; i++) {
+    value = points[i][0];
+    code = points[i][2];
+    prev = result[result.length - 1];
+
+    // --------------------------------------------------------
+    // CLOSING
+    // --------------------------------------------------------
+    if (points[i][1]) {
+      // usually closing a segment involves
+      // an already opened segment, so we
+      // simply add the y value and end here
+      if (typeof current.x !== 'undefined') {
+        current.y = value;
+        current.c = [...codes];
+        result.push(current);
+      }
+      // however, there might be closing
+      // following by closings, in which
+      // we have to the y value from
+      // the previous segment as starting
+      // and closing with this one
+      else {
+        // edge case: the previous segment closed
+        // at the same as this one then only add the code
+        if (prev &amp;&amp; prev.y !== value) {
+          current.x = prev.y;
+          current.y = value;
+          current.c = [...codes];
+          result.push(current);
+        }
+      }
+
+      // start new segment immediately
+      current = {};
+
+      // always remove code from the set
+      codes.delete(code);
+      closed++;
+    }
+
+    // --------------------------------------------------------
+    // OPENING
+    // --------------------------------------------------------
+    else {
+      // segment already has a starting position
+      if (typeof current.x !== 'undefined') {
+        // Edge case: another new selection
+        // starts at the exact same point
+        // then we only add the code.
+        // Otherwise, the current segment ends,
+        // and we start a new segment with this
+        // starting point, ending with x - 1
+        if (current.x !== value) {
+          current.y = value;
+          current.c = [...codes];
+          result.push(current);
+        }
+      }
+
+      // new segment start
+      else {
+        // if we start a new segment
+        // but there is an open segment left
+        // then we have to cover the "void" first
+        // by adding a closing-segment between the prev
+        // and this one
+        if (prev &amp;&amp; opened > closed) {
+          current.x = prev.y;
+          current.y = value;
+          current.c = [...codes];
+          result.push(current);
+        }
+      }
+
+      // start new segment
+      // and assign new x
+      current = {};
+      current.x = value;
+
+      // always add code to the set
+      codes.add(code);
+      opened++;
+    }
+  }
+
+  return result;
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-state_Project.html">state/Project</a></li><li><a href="module-state_StoreRepository.html">state/StoreRepository</a></li><li><a href="module-theme_Theme.html">theme/Theme</a></li><li><a href="module-theme_ThemeBrowserStorage.html">theme/ThemeBrowserStorage</a></li><li><a href="module-utils_array_createByPropertySorter.html">utils/array/createByPropertySorter</a></li><li><a href="module-utils_asyncTimeout.html">utils/asyncTimeout</a></li><li><a href="module-utils_color_changeOpacity.html">utils/color/changeOpacity</a></li><li><a href="module-utils_color_hexToRgba.html">utils/color/hexToRgba</a></li><li><a href="module-utils_color_rgbaToValues.html">utils/color/rgbaToValues</a></li><li><a href="module-utils_color_toHex.html">utils/color/toHex</a></li><li><a href="module-utils_css_cn.html">utils/css/cn</a></li><li><a href="module-utils_css_variantAuthority.html">utils/css/variantAuthority</a></li><li><a href="module-utils_dom_debounce.html">utils/dom/debounce</a></li><li><a href="module-utils_dom_fullScreen.html">utils/dom/fullScreen</a></li><li><a href="module-utils_dom_isInViewport.html">utils/dom/isInViewport</a></li><li><a href="module-utils_dom_retry.html">utils/dom/retry</a></li><li><a href="module-utils_dom_throttle.html">utils/dom/throttle</a></li><li><a href="module-utils_files_createBlob.html">utils/files/createBlob</a></li><li><a href="module-utils_files_createCSVBuilder.html">utils/files/createCSVBuilder</a></li><li><a href="module-utils_files_ensureFileExtension.html">utils/files/ensureFileExtension</a></li><li><a href="module-utils_files_readFromFile.html">utils/files/readFromFile</a></li><li><a href="module-utils_files_saveTextFile.html">utils/files/saveTextFile</a></li><li><a href="module-utils_function_noop.html">utils/function/noop</a></li><li><a href="module-utils_isDev.html">utils/isDev</a></li><li><a href="module-utils_memoize.html">utils/memoize</a></li><li><a href="module-utils_random_randomColor.html">utils/random/randomColor</a></li><li><a href="module-utils_random_randomString.html">utils/random/randomString</a></li><li><a href="module-utils_random_randomUUID.html">utils/random/randomUUID</a></li><li><a href="module-utils_regex.html">utils/regex</a></li><li><a href="module-utils_safeStringify.html">utils/safeStringify</a></li><li><a href="module-utils_useDebug.html">utils/useDebug</a></li><li><a href="module-utils_vue_clickOutsideDirective.html">utils/vue/clickOutsideDirective</a></li></ul><h3>Classes</h3><ul><li><a href="AbstractStore.html">AbstractStore</a></li><li><a href="BackendRequest.html">BackendRequest</a></li><li><a href="ColorMap.html">ColorMap</a></li><li><a href="LineNumber.html">LineNumber</a></li><li><a href="Observable.html">Observable</a></li><li><a href="ThemeEmptyStorage.html">ThemeEmptyStorage</a></li></ul><h3>Global</h3><ul><li><a href="global.html#CodeList">CodeList</a></li><li><a href="global.html#NavRoutes">NavRoutes</a></li><li><a href="global.html#Project">Project</a></li><li><a href="global.html#Routes">Routes</a></li><li><a href="global.html#attemptAsync">attemptAsync</a></li><li><a href="global.html#downloadSource">downloadSource</a></li><li><a href="global.html#dragStarter">dragStarter</a></li><li><a href="global.html#dragTarget">dragTarget</a></li><li><a href="global.html#flashMessage">flashMessage</a></li><li><a href="global.html#getUserColor">getUserColor</a></li><li><a href="global.html#registerGlobalRequestHook">registerGlobalRequestHook</a></li><li><a href="global.html#request">request</a></li><li><a href="global.html#segmentize">segmentize</a></li><li><a href="global.html#transcribeFile">transcribeFile</a></li><li><a href="global.html#transformSchema">transformSchema</a></li><li><a href="global.html#unfoldCodes">unfoldCodes</a></li><li><a href="global.html#uploadFile">uploadFile</a></li><li><a href="global.html#useDragTarget">useDragTarget</a></li><li><a href="global.html#useEcho">useEcho</a></li><li><a href="global.html#useFiles">useFiles</a></li><li><a href="global.html#useFlashMessage">useFlashMessage</a></li><li><a href="global.html#useProjects">useProjects</a></li><li><a href="global.html#useRange">useRange</a></li><li><a href="global.html#useWebSocketConnection">useWebSocketConnection</a></li><li><a href="global.html#useWizard">useWizard</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu Jan 30 2025 10:43:47 GMT+0100 (Central European Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
