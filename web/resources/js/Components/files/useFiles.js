@@ -18,13 +18,13 @@ export const useFiles = () => {
   const { projectId, sources, auth } = usePage().props; // TODO (refactoring): decouple from props
   const profilePhotoUrl = auth.user.profile_photo_url;
 
-    /**
-     * Adds given list of files to an upload queue that processes
-     * each file sequentially.
-     *
-     * @param {File[]} files list of files (Browser API File class)
-     * @param {function} onError error handler
-     */
+  /**
+   * Adds given list of files to an upload queue that processes
+   * each file sequentially.
+   *
+   * @param {File[]} files list of files (Browser API File class)
+   * @param {function} onError error handler
+   */
   const queueFilesForUpload = ({ files, onError }) => {
     for (const file of files) {
       const source = reactive({

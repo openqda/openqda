@@ -4,7 +4,6 @@ import { ThemeEmptyStorage } from './ThemeEmptyStorage.js';
  * @module
  */
 
-
 /** @private **/
 let storage = null;
 /**
@@ -62,7 +61,6 @@ const init = async (options) => {
   DOM.add(light);
   return { from: 'fallback', name: light };
 };
-
 
 /**
  * Check if current applied theme (in DOM)
@@ -128,7 +126,6 @@ DOM.remove = (name) => {
   document.documentElement.classList.remove(name);
 };
 
-
 /**
  * A facade to the underlying theming system that
  *  supports different storage implementations.
@@ -136,11 +133,11 @@ DOM.remove = (name) => {
  * @default
  */
 export const Theme = {
-    DARK: dark,
-    LIGHT: light,
-    init,
-    is,
-    current,
-    update,
-    remove
+  DARK: dark,
+  LIGHT: light,
+  init,
+  is,
+  current,
+  update,
+  remove,
 };

@@ -2,7 +2,6 @@
  * @module
  */
 
-
 /**
  * Requests fullscreen mode for a given focus element
  * @function
