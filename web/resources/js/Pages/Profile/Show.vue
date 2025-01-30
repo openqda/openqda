@@ -1,38 +1,51 @@
 <script setup>
-import AppLayout from '@/Layouts/AppLayout.vue';
-import DeleteUserForm from '@/Pages/Profile/Partials/DeleteUserForm.vue';
-import LogoutOtherBrowserSessionsForm from '@/Pages/Profile/Partials/LogoutOtherBrowserSessionsForm.vue';
-import SectionBorder from '@/Components/SectionBorder.vue';
-import '@/Pages/Profile/Partials/TwoFactorAuthenticationForm.vue'; // TODO do we still need this?
-import UpdatePasswordForm from '@/Pages/Profile/Partials/UpdatePasswordForm.vue';
-import UpdateProfileInformationForm from '@/Pages/Profile/Partials/UpdateProfileInformationForm.vue';
-import Headline2 from '../../Components/layout/Headline2.vue';
+import DeleteUserForm from '../../Pages/Profile/Partials/DeleteUserForm.vue';
+import LogoutOtherBrowserSessionsForm from '../../Pages/Profile/Partials/LogoutOtherBrowserSessionsForm.vue';
+import UpdatePasswordForm from '../../Pages/Profile/Partials/UpdatePasswordForm.vue';
+import UpdateProfileInformationForm from '../../Pages/Profile/Partials/UpdateProfileInformationForm.vue';
+import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout.vue';
+import InputLabel from '../../form/InputLabel.vue';
+import ThemeSwitch from '../../theme/ThemeSwitch.vue';
+import Button from '../../Components/interactive/Button.vue';
+import { router } from '@inertiajs/vue3';
+import BaseContainer from '../../Layouts/BaseContainer.vue';
+// import '../../Pages/Profile/Partials/TwoFactorAuthenticationForm.vue';
 
 defineProps({
   confirmsTwoFactorAuthentication: Boolean,
   sessions: Array,
 });
+
+function onLogout() {
+  router.post(route('logout'));
+}
 </script>
 
 <template>
-  <AppLayout title="Profile">
-    <template #header>
-      <Headline2>Profile</Headline2>
-    </template>
-
-    <div>
-      <div class="max-w-7xl mx-auto py-10 sm:px-6 lg:px-8">
-        <div v-if="$page.props.jetstream.canUpdateProfileInformation">
-          <UpdateProfileInformationForm :user="$page.props.auth.user" />
-
-          <SectionBorder />
+  <AuthenticatedLayout :menu="false">
+    <template #main>
+      <BaseContainer class="w-full lg:w-3/4 xl:w-1/2 p-1 lg:p-3">
+        <form @submit.prevent="logout">
+          <div class="flex justify-between py-4 border-b border-foreground/10">
+            <InputLabel> Logout </InputLabel>
+            <Button variant="secondary" :onclick="onLogout">Logout</Button>
+          </div>
+        </form>
+        <div class="flex justify-between py-4 border-b border-foreground/10">
+          <InputLabel> Theme </InputLabel>
+          <ThemeSwitch />
         </div>
 
-        <div v-if="$page.props.jetstream.canUpdatePassword">
-          <UpdatePasswordForm class="mt-10 sm:mt-0" />
+        <UpdateProfileInformationForm
+          v-if="$page.props.jetstream.canUpdateProfileInformation"
+          class="py-4 border-b border-foreground/10"
+          :user="$page.props.auth.user"
+        />
 
-          <SectionBorder />
-        </div>
+        <UpdatePasswordForm
+          v-if="$page.props.jetstream.canUpdatePassword"
+          class="mt-10 sm:mt-0"
+        />
 
         <LogoutOtherBrowserSessionsForm
           :sessions="sessions"
@@ -40,11 +53,11 @@ defineProps({
         />
 
         <template v-if="$page.props.jetstream.hasAccountDeletionFeatures">
-          <SectionBorder />
-
           <DeleteUserForm class="mt-10 sm:mt-0" />
         </template>
-      </div>
-    </div>
-  </AppLayout>
+
+        <!-- LOGOUT Button -->
+      </BaseContainer>
+    </template>
+  </AuthenticatedLayout>
 </template>

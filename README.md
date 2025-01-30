@@ -2,10 +2,12 @@
     <h2>OpenQDA</h2>
     <p>Collaborative Qualitative Research</p>
 
-[![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 ![This is a research software](https://img.shields.io/badge/research-software-blue?style=plastic)
 [![DOI](https://zenodo.org/badge/793524421.svg)](https://zenodo.org/doi/10.5281/zenodo.11195871)
 
+[![Backend Tests](https://github.com/openqda/openqda/actions/workflows/backend_tests.yml/badge.svg)](https://github.com/openqda/openqda/actions/workflows/backend_tests.yml)
+[![Client Tests](https://github.com/openqda/openqda/actions/workflows/client_tests.yml/badge.svg)](https://github.com/openqda/openqda/actions/workflows/client_tests.yml)
 </div>
 
 
@@ -19,14 +21,6 @@
 <p align="center">
     <img src="https://github.com/openqda/.github/blob/main/profile/zemki-und-uni-logo-weiss-1x.png?raw=true" alt="img ZeMKI" width="200"/>
 </p>
-
-> **Important note**
->
-> OpenQDA is still under development and there are many parts
-> left out or still in discussion!
->
-> See our [development roadmap](https://github.com/openqda/openqda/milestones)
-> for ongoing and upcoming features and fixes.
 
 ## What is OpenQDA?
 OpenQDA is a sustainable, free/libre Open Source Software for collaborative qualitative data analysis.
@@ -51,10 +45,7 @@ If you are still unsure about what OpenQDA is or does, then please [consult our 
 
 ### Roadmap
 
-We are constantly updating our development roadmap in regard to the upcoming releases:
-
-- [pre-release (31.05.2024)](https://github.com/openqda/openqda/milestone/1)
-- [release 1.0 (to be announced)](https://github.com/openqda/openqda/milestone/2)
+We are constantly updating our [development roadmap](https://github.com/openqda/openqda/milestones) in regard to the upcoming releases.
 
 ## Development
 
@@ -77,6 +68,13 @@ Here are the quick links to the guides:
 - [core development](./docs/CORE.md)
 - [plugin development](./docs/PLUGINS.md)
 - [deployment guide](./docs/DEPLOYMENT.md)
+
+### API Docs
+
+In addition to the developer guides above, we also provide API docs:
+
+- [client api docs](docs/api/client)
+- backend api docs (coming soon!)
 
 ## Publications
 

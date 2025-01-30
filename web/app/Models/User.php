@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ModelType;
 use App\Services\AuditService;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -81,15 +82,10 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
         return $this->hasMany(Project::class, 'creating_user_id');
     }
 
-    public function invitedTeamProjects()
+    public function settings()
     {
-        // Use the belongsToMany relationship with the Team model
-        // and then use whereHas to filter projects belonging to those teams
-        return Project::whereHas('team', function ($query) {
-            $query->whereHas('users', function ($query) {
-                $query->where('users.id', $this->id);
-            });
-        })->withTrashed()->get();
+        return $this->hasMany(Setting::class, 'model_id')
+            ->where('model_type', ModelType::User->value); // or Project->value
     }
 
     /**
@@ -115,7 +111,7 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
             ->get();
     }
 
-    public function getAllAudits()
+    public function getAllAudits($filters = [])
     {
         $auditService = app(AuditService::class); // manually resolving the service from the container
 
@@ -167,10 +163,7 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
             }
         }
 
-        // Filter out null values
-        $allAudits = $allAudits->filter();
-
-        $allAudits = $allAudits->map([$auditService, 'formatAuditDates']);
+        $allAudits = $auditService->filterAudits($allAudits, $filters);
 
         return $allAudits->sortByDesc('created_at');
     }

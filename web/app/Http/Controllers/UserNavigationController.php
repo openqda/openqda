@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\UserNavigated;
-use App\Http\Controller\Log;
+use App\Http\Requests\SendFeedbackRequest;
 use App\Mail\UserFeedback;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,6 +12,11 @@ use Illuminate\Support\Facades\RateLimiter;
 
 class UserNavigationController extends Controller
 {
+    /**
+     * Update the location of the user by sending an event
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function update(Request $request)
     {
         // Validate the request data
@@ -25,23 +30,18 @@ class UserNavigationController extends Controller
         return response()->json(['status' => 'success']);
     }
 
-    public function feedback(Request $request)
+    /**
+     * submit feedback to the team
+     *
+     * @return \Illuminate\Http\JsonResponse
+     *
+     * @throws \Exception
+     */
+    public function feedback(SendFeedbackRequest $request)
     {
-        $data = $request->validate([
-            'title' => 'required|string',
-            'problem' => 'required|string',
-            'contact' => 'required|bool',
-            'projectId' => 'required|string',
-            'location' => 'required|url',
-        ]);
 
-        $user = Auth::user();
-        $userId = $user->id;
-        $data['userId'] = $userId;
-
-        if ($data['contact'] == true) {
-            $data['contact'] = $user->email;
-        }
+        $data = $request->feedbackData();
+        $userId = $data['userId'];
 
         // In order to avoid spam and mail flooding
         // we rate-limit message sending
@@ -55,7 +55,6 @@ class UserNavigationController extends Controller
         );
 
         if (! $executed) {
-            //Log::error('RateLimiter exceeded by userId '.$userId);
             throw new \Exception('Too many messages sent!');
         }
 

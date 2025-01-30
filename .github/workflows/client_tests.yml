@@ -1,4 +1,4 @@
-name: Client Test Suite
+name: Client Tests
 
 # This workflow contains all tests for the openqda core-client
 # which includes for now:
@@ -19,6 +19,7 @@ on:
 
 jobs:
   lint:
+    name: Client Lint
     runs-on: ubuntu-latest
     steps:
       - name: checkout
@@ -36,7 +37,7 @@ jobs:
             ${{ runner.os }}-node20-
 
       - name: install node modules
-        run: | 
+        run: |
           cd web
           npm ci
       - name: check format
@@ -48,6 +49,7 @@ jobs:
           cd web
           npm run lint:check
   unit:
+    name: Client Unit Tests
     runs-on: ubuntu-latest
     steps:
       - name: checkout
