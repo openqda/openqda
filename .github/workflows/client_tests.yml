@@ -1,4 +1,4 @@
-name: Client Test Suite
+name: Client Tests
 
 # This workflow contains all tests for the openqda core-client
 # which includes for now:

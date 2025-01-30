@@ -1,4 +1,4 @@
-name: Check Code Style for backend files
+name: Backend Lint
 
 on:
   push:
