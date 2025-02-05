@@ -240,7 +240,7 @@ watch(selected, async ({ code }) => {
 
 // TODO move to useContextMenu
 const showContextMenu = (event) => {
-    if (event.shiftKey) {
+  if (event.shiftKey) {
     // Allow the browser's context menu to appear
     return;
   }
