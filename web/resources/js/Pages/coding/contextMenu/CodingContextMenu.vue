@@ -66,7 +66,7 @@ const onClose = () => {
       )
     "
   >
-    <div v-if="toDeleteSize && !prevRange?.length" class="mb-6 space-y-2">
+    <div v-if="toDeleteSize" class="mb-6 space-y-2">
       <div class="block w-full text-xs font-semibold">
         Edit linked selections
       </div>
