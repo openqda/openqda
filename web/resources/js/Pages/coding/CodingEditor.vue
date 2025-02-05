@@ -240,10 +240,11 @@ watch(selected, async ({ code }) => {
 
 // TODO move to useContextMenu
 const showContextMenu = (event) => {
-  if (event.ctrlKey || event.metaKey) {
+    if (event.shiftKey) {
     // Allow the browser's context menu to appear
     return;
   }
+
   event.preventDefault();
 
   // XXX: it should be noted, that on Safari and mobile
