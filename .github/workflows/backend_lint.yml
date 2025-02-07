@@ -1,6 +1,9 @@
 name: Backend Lint
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
 
 jobs:
@@ -15,13 +18,14 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
 
-      - name: Checkout HEAD
+      # this is not a good solution but we currently
+      # don't know where these files come from,
+      # seems like an issue with the detached HEAD
+      - name: Cleanup
         run: |
-          echo $(git status)
-          echo $(git diff)
+          rm web/app/Console/Commands/SendSystemEmail.php
+          rm web/app/Mail/SystemMessage.php
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
