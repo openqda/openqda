@@ -76,14 +76,13 @@
  * https://dev.to/muratkemaldar/using-vue-3-with-d3-composition-api-3h1g
  * https://github.com/jasondavies/d3-cloud
  *-----------------------------------------------------------------------*/
-import { onMounted, ref, watch, watchEffect } from 'vue';
-import { debounce } from '../../../utils/dom/debounce.js';
+import { onMounted, ref, watch, watchEffect, inject } from 'vue';
 import * as d3Module from 'd3';
 import * as cloudModule from 'd3-cloud';
-import { useResizeObserver } from '../resizeObserver.js';
-import Button from '../../../Components/interactive/Button.vue';
 import { Cog6ToothIcon } from '@heroicons/vue/20/solid';
 
+const API = inject('api')
+const { Button } = inject('components')
 const d3 = d3Module.default ?? d3Module;
 const cloud = cloudModule.default ?? cloudModule;
 const props = defineProps([
@@ -97,7 +96,7 @@ const props = defineProps([
 
 const svgRef = ref(null);
 const gRef = ref(null);
-const { resizeRef, resizeState } = useResizeObserver();
+const { resizeRef, resizeState } = API.useResizeObserver();
 const words = ref(new Map());
 
 // options
@@ -116,7 +115,7 @@ function rebuild() {
 
 watch(
   minHeight,
-  debounce((val) => {
+    API.debounce((val) => {
     windowHeight.value = val;
   }, 500)
 );
@@ -155,7 +154,7 @@ onMounted(() => {
     generating.value = false;
   }
 
-  const _setupDebounced = debounce(({ width, height, wordsList, scale }) => {
+  const _setupDebounced = API.debounce(({ width, height, wordsList, scale }) => {
     layout
       .size([width, height])
       .words(

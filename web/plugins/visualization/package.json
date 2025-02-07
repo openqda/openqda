@@ -1,0 +1,20 @@
+{
+  "name": "@openqda/visualization",
+  "version": "1.0.0",
+  "description": "Collection of default visualizations",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Jan Küster",
+  "license": "MIT",
+  "dependencies": {
+    "d3": "^7.8.5",
+    "d3-cloud": "^1.2.7",
+    "plotly.js-basic-dist-min": "^3.0.0"
+  },
+  "peerDependencies": {
+    "@heroicons/vue": "*",
+    "vue": "*"
+  }
+}
