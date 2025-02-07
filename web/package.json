@@ -12,7 +12,7 @@
     "lint:write": "eslint ./resources/js --fix",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "build:docs":"jsdoc -c jsdoc.conf.json  -r  -d ../docs/api/client ./resources/js/**/*"
+    "build:docs": "jsdoc -c jsdoc.conf.json  -r  -d ../docs/api/client ./resources/js/**/*"
   },
   "devDependencies": {
     "@eslint/js": "^9.2.0",
@@ -47,14 +47,13 @@
   "dependencies": {
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.2.0",
+    "@openqda/visualization": "file:plugins/visualization",
     "@thin-storage/core": "^1.0.2",
     "@vitejs/plugin-basic-ssl": "^1.2.0",
     "@vueuse/core": "^12.0.0",
     "altcha": "^1.0.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "d3": "^7.8.5",
-    "d3-cloud": "^1.2.7",
     "file-saver": "^2.0.5",
     "plotly.js-dist": "^2.27.1",
     "quill": "^2.0.3",
