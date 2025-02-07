@@ -19,7 +19,9 @@ jobs:
           fetch-depth: 2
 
       - name: Checkout HEAD
-        run: git checkout HEAD^
+        run: |
+          git status
+          git checkout HEAD^
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
