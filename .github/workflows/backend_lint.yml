@@ -19,6 +19,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # this is not a good solution but we currently
+      # don't know where these files come from,
+      # seems like an issue with the detached HEAD
+      - name: Cleanup
+        run: |
+          rm web/app/Console/Commands/SendSystemEmail.php
+          rm web/app/Mail/SystemMessage.php
+
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
