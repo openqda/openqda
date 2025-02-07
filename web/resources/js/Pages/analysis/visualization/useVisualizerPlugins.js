@@ -1,6 +1,6 @@
 import { defineAsyncComponent, markRaw, reactive, ref, toRefs } from 'vue';
 import { OpenQDAPlugins } from '../../../exchange/OpenQDAPlugins.js';
-import '../../../../../plugins.js'
+import '../../../../../plugins.js';
 
 const state = reactive({
   visualizerComponent: null,
