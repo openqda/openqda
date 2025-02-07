@@ -20,8 +20,8 @@ jobs:
 
       - name: Checkout HEAD
         run: |
-          git status
-          git checkout HEAD^
+          echo $(git status)
+          echo $(git diff)
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
