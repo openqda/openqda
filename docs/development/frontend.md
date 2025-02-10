@@ -2,12 +2,14 @@
 
 ## Architectural Principles
 
+Coming soon!
+
 ## JavaScript-specific Principles
 
 ### Move globals into modules
 
 In order to avoid pollution of the global (`window`) namespace and also to avoid
-spaghetti code architecture any globals should be moved into modules.
+spaghetti code architecture any globals *should* be moved into modules.
 
 ```js
 window.Theme = Theme // don't do this!
@@ -19,16 +21,20 @@ export const Theme = { ... } // do this
 
 Modules can be imported anywhere, plus they help to encapsulate logic.
 
+> Note: there might be occasions where global scope is necessary to provide
+> access to certain functions at runtime, especially for debugging after
+> application has been build.
+
 ### Use only named exports internally
 
 While it makes sense for libraries to use default exports and allow for
 custom naming, internally we should stick with named exports.
 
 ```js
-export const Theme = { ... } // do this
+export const Theme = { ... } // prefer this
 
 const Foobar = {};
-export default Foobar // don't do this
+export default Foobar // avoid this
 ```
 
 There are several reasons to do so, from improved Intellisense/code-completion
@@ -114,8 +120,6 @@ within the current page (indicated by `$page`).
 ### Vue components
 
 The `<script>` part should begin with a summary comment:
-
-
 
 For higher-order-components and pages the script parts should be structured
 by topics:

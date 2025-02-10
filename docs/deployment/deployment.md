@@ -7,7 +7,7 @@ Currently, there are two options for deployment:
 ## Via Docker
 
 > Please note, that deployment via Docker is different from the Docker setup,
-described in the [docker instllation guide for local development!](./installation/docker.md)!
+described in the [docker installation guide for local development!](../installation/docker.md)!
 
 We will provide a comprehensive guide very soon. 
 Until then, we would like to point you to the following resources:

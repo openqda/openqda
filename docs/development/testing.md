@@ -1,18 +1,6 @@
 # OpenQDA Testing Guide
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [Server-Side Tests](#server-side-tests)
-  - [Prerequisites](#prerequisites)
-  - [Running Tests](#running-tests)
-  - [Important Notes](#important-notes)
-  - [Troubleshooting](#troubleshooting)
-  - [Additional Resources](#additional-resources)
-- [Client-Side Tests](#client-side-tests)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
+The commands, described on this page assume, you are located within the `/web` folder.
 
 ## Server-Side Tests
 
@@ -20,33 +8,36 @@ We use PEST to run server-side tests. These tests require the views to be render
 
 ### Prerequisites
 
+Make sure, to have [OpenQDA installed](../installation/preparations.md) and it's building + running properly.
+From there you can move to these next steps:
+
 1. **Install Dependencies**: Ensure all dependencies are installed.
 
-    ```shell
-    npm install
-    ```
+```shell
+npm install
+```
 
 2. **Render Views with Vite**: Start the development server to render views.
 
-    ```shell
-    npm run dev
-    ```
+```shell
+npm run dev
+```
 
 3. **Prepare Testing Environment**: Make sure to have a `.env.testing` file with the correct database settings. This file should include configurations similar to your main `.env` file but with a separate testing database to avoid data loss.
 
 To be sure you have the correct `.env.testing` file, you can copy the `.env.example` file and rename it to `.env.testing`:
 
-    ```shell
-    cp .env.example .env.testing
-    ```
+```shell
+cp .env.example .env.testing
+```
 
 ### Running Tests
 
 To execute the tests, use the following command:
 
-    ```shell
-    ./vendor/bin/pest
-    ```
+```shell
+./vendor/bin/pest
+```
 
 Some tests will be skipped because certain features are not yet implemented. However, all relevant features of the application will be tested.
 
@@ -74,13 +65,12 @@ To run the client tests you need to make sure, you have the
 client-side dependencies installed:
 
 ```shell
-$ cd web
-$ npm install
+npm install
 ```
 
 Still being in the `web` folder and once dependencies are installed, 
 you can run unit tests via
 
 ```shell
-$ npm run test:unit
+npm run test:unit
 ```
