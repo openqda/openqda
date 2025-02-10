@@ -13,7 +13,7 @@
 #### .env Configuration:
 Add or edit the following line to your `.env` file if it does not exist:
 
-```env
+```dotenv
 APP_HOST=web.test
 QUEUE_CONNECTION=database
 ```

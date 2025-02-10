@@ -90,12 +90,12 @@ If you have reached this section, chances are high your either want one of the f
 We provide an extensive developer documentation in the `/docs` folder.
 Here are the quick links to the guides:
 
-- [tech stack](./docs/TECH-STACK.md)
-- [architecture overview](./docs/ARCHITECTURE.md)
+- [tech stack](docs/introduction/tech-stack.md)
+- [architecture overview](docs/introduction/architecture.md)
 - [installation guide](./docs/INSTALLATION.md)
 - [core development](./docs/CORE.md)
 - [plugin development](./docs/PLUGINS.md)
-- [deployment guide](./docs/DEPLOYMENT.md)
+- [deployment guide](docs/deployment/deployment)
 
 ### API Docs
 

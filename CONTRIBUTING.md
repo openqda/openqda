@@ -174,7 +174,7 @@ There are a some conventions for testing when contributing:
 Our CI takes care of this check, however you should run tests locally
 to see if things break even before committing your changes.
 
-We therefore provide a comprehensive [testing guide](docs/TESTING.md) for you to
+We therefore provide a comprehensive [testing guide](docs/development/testing) for you to
 run your tests locally.
 
 ## Committing your contribution

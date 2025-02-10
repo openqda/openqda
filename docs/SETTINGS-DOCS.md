@@ -1,9 +1,11 @@
 # Settings API Documentation
 
-Update on 13.11.2024: at this point in time we don't validate settings with the allowed settings table, so the allowed settings table is not used at all. This means that the settings table can have any key-value pairs.
+Update on 13.11.2024: at this point in time we don't validate settings with the allowed settings table,
+so the allowed settings table is not used at all. This means that the settings table can have any key-value pairs.
 
 ## Overview
-This API manages settings for different entities (users, projects, codebooks). Settings are grouped and can have multiple key-value pairs.
+This API manages settings for different entities (users, projects, codebooks).
+Settings are grouped and can have multiple key-value pairs.
 
 ## Base URL
 All endpoints are prefixed with `/settings`
@@ -24,8 +26,10 @@ Each setting record has this structure:
    }
 ```
 
-This means that the settings table has a `model_type` and `model_id` column to associate settings with different entities.
-Note: the entity of a setting (project, user, code... ) is defined on creation and never changed again. Afterwards, the setting can only be updated.
+This means that the settings table has a `model_type` and `model_id` column to associate settings with different 
+entities.
+Note: the entity of a setting (project, user, code... ) is defined on creation and never changed again. 
+Afterwards, the setting can only be updated.
 
 
 ## Endpoints

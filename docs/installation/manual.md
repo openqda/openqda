@@ -2,20 +2,6 @@
 
 This guide is intended for users/developers, who want to install OpenQDA locally without using Docker.
 
-## Table of contents
-
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
-- [Set up Laravel](#set-up-laravel)
-- [Setup MySQL](#setup-mysql)
-- [Install Dependencies](#install-dependencies)
-- [Database and Application Setup](#database-and-application-setup)
-- [Real-Time Configuration](#real-time-configuration)
-- [Mail logging](#mail-logging)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-*generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 ## Set up Laravel
 
