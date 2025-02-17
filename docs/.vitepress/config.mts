@@ -51,6 +51,12 @@ export default defineConfig({
         ]
       },
       {
+        text: 'Plugins',
+        items: [
+          {text: 'Overview', link: '/plugins/overview'},
+        ]
+      },
+      {
         text: 'Deployment',
         items: [
           {text: 'Overview', link: '/deployment/deployment'},
@@ -59,7 +65,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      {icon: 'github', link: 'https://github.com/vuejs/vitepress'}
+      {icon: 'github', link: 'https://github.com/openqda/openqda'}
     ],
 
     search: {

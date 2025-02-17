@@ -1,4 +1,7 @@
-# What is OpenQDA and what is this guide for?
+# About OpenQDA and this guide
+
+> Note: If you are a user and want to learn OpenQDA, then we advise you to read
+> the [user documentation](https://openqda.github.io/user-docs/).
 
 OpenQDA is a sustainable, free/libre Open Source Software for collaborative qualitative data analysis.
 
@@ -7,6 +10,3 @@ at the [University of Bremen](https://www.uni-bremen.de/).
 
 It's publicly available under https://openqda.org and is hosted on servers,
 integrated in the university's infrastructure.
-
-> Note: If you are a user and want to learn OpenQDA, then we advise you to read
-> the [user documentation](https://openqda.github.io/user-docs/).
