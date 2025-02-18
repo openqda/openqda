@@ -68,8 +68,8 @@ class SelectionsStore extends AbstractStore {
   }
 
   init(selections, getCode) {
-    const selectionsToClean = []
-    const selectionsToAdd = []
+    const selectionsToClean = [];
+    const selectionsToAdd = [];
 
     if (this.size.value === 0 && selections.length !== 0) {
       selections.forEach((selection) => {
@@ -77,38 +77,41 @@ class SelectionsStore extends AbstractStore {
         const start = Number(selection.start_position);
         const end = Number(selection.end_position);
         if (code) {
-            selection.start = start;
-            selection.end = end;
-            selection.length = selection.end - selection.start;
-            selection.code = code;
-            selectionsToAdd.push(selection)
+          selection.start = start;
+          selection.end = end;
+          selection.length = selection.end - selection.start;
+          selection.code = code;
+          selectionsToAdd.push(selection);
         } else {
-            selectionsToClean.push({
-                id: selection.id,
-                name: `${start}:${end}`,
-                ref: selection.code_id,
-                type: 'selection',
-                reason: 'Linked code not found.',
-                actions: [{
-                  name: 'Delete Selection',
-                  type: 'delete',
-                  fn: () => Selections.delete({
-                      projectId: selection.project_id,
-                      sourceId: selection.source_id,
-                      selection,
-                      code: { id: null }
-                  })
-                }]
-            })
+          selectionsToClean.push({
+            id: selection.id,
+            name: `${start}:${end}`,
+            ref: selection.code_id,
+            type: 'selection',
+            reason: 'Linked code not found.',
+            actions: [
+              {
+                name: 'Delete Selection',
+                type: 'delete',
+                fn: () =>
+                  Selections.delete({
+                    projectId: selection.project_id,
+                    sourceId: selection.source_id,
+                    selection,
+                    code: { id: null },
+                  }),
+              },
+            ],
+          });
         }
       });
       this.add(...selectionsToAdd);
     }
 
     return {
-        added: selectionsToAdd,
-        clean: selectionsToClean
-    }
+      added: selectionsToAdd,
+      clean: selectionsToClean,
+    };
   }
 }
 

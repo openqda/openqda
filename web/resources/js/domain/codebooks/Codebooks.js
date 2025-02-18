@@ -24,7 +24,7 @@ class CodebookStore extends AbstractStore {
       this.add(...docs);
     }
 
-    return { added: docs, clean: [] }
+    return { added: docs, clean: [] };
   }
 }
 
