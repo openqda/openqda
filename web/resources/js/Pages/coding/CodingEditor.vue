@@ -240,12 +240,16 @@ watch(selected, async ({ code }) => {
 
 // TODO move to useContextMenu
 const showContextMenu = (event) => {
-  if (event.ctrlKey || event.metaKey) {
+  if (event.shiftKey) {
     // Allow the browser's context menu to appear
     return;
   }
+
   event.preventDefault();
 
+  // XXX: it should be noted, that on Safari and mobile
+  // browsers there is always a selection > 0 because they
+  // try to auto-select some text.
   const selectedArea = quillInstance.getSelection();
   const hasSelection = selectedArea?.length;
   const linkedCodeId = event.target.getAttribute('data-code-id');
@@ -254,10 +258,11 @@ const showContextMenu = (event) => {
     linkedCodeId
   );
 
-  if (!hasSelection && !currentSelections.length) {
+  const hasLinked = !!currentSelections?.length;
+  if (!hasSelection && !hasLinked) {
     return;
   }
-  markToDelete(currentSelections);
+  markToDelete(hasLinked ? currentSelections : null);
 
   let lowest = selectedArea.index;
   let highest = selectedArea.index + selectedArea.length;
