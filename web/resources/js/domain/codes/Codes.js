@@ -33,24 +33,41 @@ class CodeStore extends AbstractStore {
   }
 
   init(docs) {
+    const codeList = [];
+    const toClean = []
     if (this.size.value === 0 && docs.length > 0) {
-      const codeList = [];
       const parseCodes = (codes, parent = null) => {
         codes.forEach((code) => {
-          code.active = true;
-          code.parent = parent;
-          code.order = getOrder(code.codebook);
-          code.order = getOrder(code.codebook);
+          if (typeof code.codebook === 'undefined' || code.codebook === null) {
+              toClean.push({
+                  id: code.id,
+                  name: code.name,
+                  ref: code.codebook,
+                  type: 'code',
+                  reason: 'Linked codebook not found.',
+                  actions: [{
+                      name: 'Delete Code',
+                      type: 'delete',
+                      fn: () => alert('not implemented :-(')
+                  }]
+              })
+          } else {
+              code.active = true;
+              code.parent = parent;
+              code.order = getOrder(code.codebook);
+              code.order = getOrder(code.codebook);
 
-          codeList.push(code);
-          if (code.children?.length) {
-            parseCodes(code.children, code);
+              codeList.push(code);
+              if (code.children?.length) {
+                  parseCodes(code.children, code);
+              }
           }
         });
       };
       parseCodes(docs);
       this.add(...codeList);
     }
+    return { added: codeList, clean: toClean }
   }
 }
 

@@ -14,10 +14,23 @@ export const useCodes = () => {
   const codeStore = Codes.by(key);
   const codebookStore = Codebooks.by(projectId);
   const selectionStore = Selections.by(key);
+
   const initCoding = async () => {
-    codebookStore.init(codebooks);
-    codeStore.init(allCodes);
-    selectionStore.init(source.selections, (id) => codeStore.entry(id));
+    const results = { added: [], clean: [] }
+    const toResults = res => {
+        results.added.push(...res.added)
+        results.clean.push(...res.clean)
+    }
+    toResults(codebookStore.init(codebooks));
+    toResults(codeStore.init(allCodes));
+    toResults(selectionStore.init(source.selections, (id) => {
+        try {
+            return codeStore.entry(id)
+        } catch (e) {
+            console.error(e);
+        }
+    }));
+    return results;
   };
 
   //---------------------------------------------------------------------------

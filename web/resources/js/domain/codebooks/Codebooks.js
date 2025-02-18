@@ -23,6 +23,8 @@ class CodebookStore extends AbstractStore {
       });
       this.add(...docs);
     }
+
+    return { added: docs, clean: [] }
   }
 }
 

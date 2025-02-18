@@ -42,6 +42,9 @@
             @change="(value) => (codesView = value)"
           />
         </div>
+        <Cleanup
+            v-if="codesView === 'cleanup'"
+        />
         <CodeTree
           v-for="codebook in codebooks"
           :key="codebook.id"
@@ -97,6 +100,9 @@ import { asyncTimeout } from '../utils/asyncTimeout.js';
 import ActivityIndicator from '../Components/ActivityIndicator.vue';
 import { useCreateDialog } from '../dialogs/useCreateDialog.js';
 import { attemptAsync } from '../Components/notification/attemptAsync.js';
+import { useCleanup } from './coding/cleanup/useCleanup.js'
+import Cleanup from './coding/cleanup/Cleanup.vue'
+import { flashMessage } from '../Components/notification/flashMessage.js'
 
 const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
 //------------------------------------------------------------------------
@@ -161,6 +167,7 @@ const codingInitialized = ref(false);
 const codesTabs = [
   { value: 'codes', label: 'Codes' },
   { value: 'sources', label: 'Sources' },
+  { value: 'cleanup', label: 'Cleanup' },
 ];
 const codesView = ref(codesTabs[0].value);
 const openCreateDialogHandler = (view) => {
@@ -195,6 +202,11 @@ const createCodeHandler = async (formData) => {
 };
 
 //------------------------------------------------------------------------
+// CLEANUP
+//------------------------------------------------------------------------
+const CleanupCtx = useCleanup();
+
+//------------------------------------------------------------------------
 // PAGE
 //------------------------------------------------------------------------
 const pageTitle = ref('Coding');
@@ -208,7 +220,12 @@ onMounted(async () => {
   onSourceSelected(props.source);
   await asyncTimeout(100);
 
-  await attemptAsync(() => initCoding());
+  const result = await attemptAsync(() => initCoding());
+  if (result?.clean?.length) {
+    result.clean.forEach(entry => CleanupCtx.add(entry));
+    flashMessage('Unresolved references found. Please run cleanup.', { type: 'error' })
+  }
+
   codingInitialized.value = true;
 });
 
