@@ -44,10 +44,19 @@ export default defineConfig({
       {
         text: 'Development',
         items: [
-          {text: 'Backend', link: '/development/backend'},
-          {text: 'Frontend', link: '/development/frontend'},
-          {text: 'Websocket', link: '/development/websockets'},
-          {text: 'Testing', link: '/development/testing'},
+          { text: 'Backend', items: [
+              {text: 'Overview', link: '/development/backend/backend'},
+              {text: 'Websocket', link: '/development/backend/websockets'},
+              {text: 'Testing', link: '/development/backend/testing'},
+            ]
+          },
+          {
+            text: 'Frontend', items: [
+              {text: 'Overview', link: '/development/frontend/frontend'},
+              {text: 'Upload Queue', link: '/development/frontend/upload-queue.md'},
+              {text: 'Testing', link: '/development/frontend/testing'},
+            ]
+          }
         ]
       },
       {

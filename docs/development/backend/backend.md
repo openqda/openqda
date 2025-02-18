@@ -1,9 +1,23 @@
-> This is an opinionated structure of rules to create and refactor the backend logic, and it's subject to change and updates along the way.
+# Backend Development Guide
 
-Sources for these guidelines include:
+> This is an opinionated structure of rules to create and refactor the backend logic, 
+> and it's subject to change and updates along the way.
+
+## Requirements
+
+- You should be familiar with fundamentals of PHP development and backend development
+in general.
+
+- You should have [successfully installed OpenQDA](../../installation/preparations.md) on your system 
+
+- Optional - Get familiar with "Clean Code: A Handbook of Agile Software Craftsmanship" by Robert C. Martin 
+  [Read via Google Books](https://www.google.com/books/edition/_/hjEFCAAAQBAJ?hl=en).
+
+## Laravel
+
+We use Laravel as our PHP development framework. You can readm more about it here:
 
 - **Laravel Documentation:** [Laravel Latest Documentation](https://laravel.com/docs/latest)
-- **Clean Code:** "Clean Code: A Handbook of Agile Software Craftsmanship" by Robert C. Martin [Clean Code - Google Books](https://www.google.com/books/edition/_/hjEFCAAAQBAJ?hl=en).
 
 Laravel follows an MVC paradigm, with Models interacting directly with the database, Controllers processing the data and Views presenting the results.
 Since we installed Laravel JetStream with Inertia, we use this for user registration, authentication, and team management.

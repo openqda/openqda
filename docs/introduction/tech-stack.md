@@ -1,4 +1,7 @@
-# Tech Stack
+# Technology Stack
+
+This page intends to give you a broad overview
+of the technologies and tools, involved in the development of OpenQDA.
 
 ## OpenQDA server
 - Laravel 11

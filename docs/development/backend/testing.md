@@ -1,4 +1,4 @@
-# OpenQDA Testing Guide
+# OpenQDA Backend Tests
 
 The commands, described on this page assume, you are located within the `/web` folder.
 
@@ -8,7 +8,7 @@ We use PEST to run server-side tests. These tests require the views to be render
 
 ### Prerequisites
 
-Make sure, to have [OpenQDA installed](../installation/preparations.md) and it's building + running properly.
+Make sure, to have [OpenQDA installed](../../installation/preparations.md) and it's building + running properly.
 From there you can move to these next steps:
 
 1. **Install Dependencies**: Ensure all dependencies are installed.
@@ -55,22 +55,3 @@ Some tests will be skipped because certain features are not yet implemented. How
 ### Additional Resources
 
 For more information, refer to the [Pest documentation](https://pestphp.com/docs/installation).
-
-## Client-Side Tests
-
-We use vitest to run client-side tests.
-These unit- and component-tests do not require the server to run.
-
-To run the client tests you need to make sure, you have the
-client-side dependencies installed:
-
-```shell
-npm install
-```
-
-Still being in the `web` folder and once dependencies are installed, 
-you can run unit tests via
-
-```shell
-npm run test:unit
-```
