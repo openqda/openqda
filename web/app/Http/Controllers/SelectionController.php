@@ -78,4 +78,22 @@ class SelectionController extends Controller
             return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()]);
         }
     }
+
+    /**
+     * Remove the specified selection if there is no code found for it.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroyOrphan(DeleteSelectionRequest $request, Project $project, Source $source, Selection $selection)
+    {
+        try {
+            // Delete the database record
+            $selection->delete();
+
+            return response()->json(['success' => true, 'message' => 'Selection deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()]);
+        }
+    }
+
 }

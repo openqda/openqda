@@ -94,11 +94,10 @@ class SelectionsStore extends AbstractStore {
                 name: 'Delete Selection',
                 type: 'delete',
                 fn: () =>
-                  Selections.delete({
+                  Selections.deleteOrphan({
                     projectId: selection.project_id,
                     sourceId: selection.source_id,
                     selection,
-                    code: { id: null },
                   }),
               },
             ],
@@ -201,4 +200,18 @@ Selections.delete = async ({ projectId, sourceId, code, selection }) => {
   // else flash message?
 
   return { response, error };
+};
+
+Selections.deleteOrphan = async ({ projectId, sourceId, selection }) => {
+    const selectionId = selection.id;
+    const { response, error } = await request({
+        url: `/projects/${projectId}/sources/${sourceId}/selections/${selectionId}`,
+        type: 'delete',
+    });
+    if (!error && response.status < 400) {
+        Selections.by(`${projectId}-${sourceId}`).remove(selectionId);
+    }
+    // else flash message?
+
+    return { response, error, id: selectionId };
 };
