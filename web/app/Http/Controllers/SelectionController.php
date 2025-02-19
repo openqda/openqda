@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ChangeCodeRequest;
+use App\Http\Requests\DeleteOrphanSelectionRequest;
 use App\Http\Requests\DeleteSelectionRequest;
 use App\Http\Requests\StoreSelectionRequest;
 use App\Models\Code;
@@ -86,7 +87,7 @@ class SelectionController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroyOrphan(DeleteSelectionRequest $request, Project $project, Source $source, Selection $selection)
+    public function destroyOrphan(DeleteOrphanSelectionRequest $request, Project $project, Source $source, Selection $selection)
     {
         try {
             // Delete the database record
