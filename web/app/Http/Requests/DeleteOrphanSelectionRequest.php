@@ -31,7 +31,6 @@ class DeleteOrphanSelectionRequest extends FormRequest
         ];
     }
 
-
     /**
      * Modify the request data before it is validated.
      *
