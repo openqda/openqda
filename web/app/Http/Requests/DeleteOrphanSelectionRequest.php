@@ -30,4 +30,18 @@ class DeleteOrphanSelectionRequest extends FormRequest
             'source_id' => 'required|exists:sources,id',
         ];
     }
+
+
+    /**
+     * Modify the request data before it is validated.
+     *
+     * @return array
+     */
+    public function validationData()
+    {
+        return array_merge($this->all(), [
+            'source_id' => $this->source->id,
+            'selection_id' => $this->selection->id,
+        ]);
+    }
 }
