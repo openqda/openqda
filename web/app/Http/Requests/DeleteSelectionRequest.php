@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Selection;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 
 class DeleteSelectionRequest extends FormRequest
 {
@@ -13,9 +15,9 @@ class DeleteSelectionRequest extends FormRequest
      */
     public function authorize()
     {
-        // Optionally, add your authorization logic here.
-        // For example, you might want to check if the user has the right to delete the selection.
-        return true;
+        $selection = Selection::findOrFail($this->route('selection'));
+
+        return Gate::allows('delete', $selection);
     }
 
     /**

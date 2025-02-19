@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\Auth;
 
 class SelectionController extends Controller
 {
-    public function index() {}
+    public function index()
+    {
+    }
 
     /**
      * Store a newly created selection.
@@ -95,5 +97,4 @@ class SelectionController extends Controller
             return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()]);
         }
     }
-
 }

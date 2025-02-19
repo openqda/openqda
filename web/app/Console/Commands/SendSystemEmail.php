@@ -10,12 +10,13 @@ use Illuminate\Support\Facades\Mail;
 class SendSystemEmail extends Command
 {
     protected $signature = 'email:system';
+
     protected $description = 'Send a system email to specified recipients';
 
     public function handle()
     {
         // Initial warning with ASCII art
-        $warningArt = <<<ASCII
+        $warningArt = <<<'ASCII'
 
  █     █░ ▄▄▄       ██▀███   ███▄    █  ██▓ ███▄    █   ▄████
 ▓█░ █ ░█░▒████▄    ▓██ ▒ ██▒ ██ ▀█   █ ▓██▒ ██ ▀█   █  ██▒ ▀█▒
@@ -40,16 +41,18 @@ ASCII;
         $this->error('╚════════════════════════════════════════════════════════════════════╝');
         $this->newLine();
 
-        if (!$this->confirm('Would you like to proceed?', false)) {
+        if (! $this->confirm('Would you like to proceed?', false)) {
             $this->info('Operation cancelled');
+
             return 0;
         }
 
         // Get reply-to address
         $replyTo = $this->ask('Enter reply-to email address');
 
-        if (!filter_var($replyTo, FILTER_VALIDATE_EMAIL)) {
+        if (! filter_var($replyTo, FILTER_VALIDATE_EMAIL)) {
             $this->error('Invalid email address');
+
             return 1;
         }
 
@@ -61,7 +64,7 @@ ASCII;
             if (trim($line) === 'end') {
                 break;
             }
-            $message .= $line . "\n";
+            $message .= $line."\n";
         }
 
         // Offer preview first
@@ -70,10 +73,11 @@ ASCII;
             if (filter_var($previewEmail, FILTER_VALIDATE_EMAIL)) {
                 $email = new SystemMessage($message, $replyTo);
                 Mail::to($previewEmail)->send($email);
-                $this->info('Preview sent to ' . $previewEmail);
+                $this->info('Preview sent to '.$previewEmail);
 
-                if (!$this->confirm('Did you receive and check the preview? Would you like to continue?', false)) {
+                if (! $this->confirm('Did you receive and check the preview? Would you like to continue?', false)) {
                     $this->info('Operation cancelled');
+
                     return 0;
                 }
             }
@@ -89,8 +93,9 @@ ASCII;
         if ($sendMode === 'single user') {
             $recipient = $this->ask('Enter recipient email');
 
-            if (!filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
+            if (! filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
                 $this->error('Invalid email address');
+
                 return 1;
             }
 
@@ -99,7 +104,8 @@ ASCII;
                 Mail::bcc($recipient)->send($email);
                 $this->info('Message sent successfully!');
             } catch (\Exception $e) {
-                $this->error('Failed to send email: ' . $e->getMessage());
+                $this->error('Failed to send email: '.$e->getMessage());
+
                 return 1;
             }
         } else {
@@ -108,14 +114,16 @@ ASCII;
             $num2 = rand(5, 10);
             $answer = $this->ask("Safety check: What is $num1 + $num2? (Enter the number)");
 
-            if ((int)$answer !== ($num1 + $num2)) {
+            if ((int) $answer !== ($num1 + $num2)) {
                 $this->error('Incorrect answer - operation cancelled for safety');
+
                 return 1;
             }
 
             $userCount = User::count();
-            if (!$this->confirm("Are you absolutely sure you want to send this message to ALL $userCount users?", false)) {
+            if (! $this->confirm("Are you absolutely sure you want to send this message to ALL $userCount users?", false)) {
                 $this->info('Operation cancelled');
+
                 return 0;
             }
 
@@ -125,7 +133,8 @@ ASCII;
                 Mail::bcc($users)->send($email);
                 $this->info("Message sent successfully to $userCount users!");
             } catch (\Exception $e) {
-                $this->error('Failed to send email: ' . $e->getMessage());
+                $this->error('Failed to send email: '.$e->getMessage());
+
                 return 1;
             }
         }
