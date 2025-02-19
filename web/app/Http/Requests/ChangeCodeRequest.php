@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 
 class ChangeCodeRequest extends FormRequest
 {
@@ -13,8 +14,10 @@ class ChangeCodeRequest extends FormRequest
      */
     public function authorize()
     {
-        // Authorize the request if needed
-        return true;
+
+        $selection = $this->route('selection');
+
+        return Gate::allows('update', $selection);
     }
 
     /**

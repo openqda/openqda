@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ChangeCodeRequest;
+use App\Http\Requests\DeleteOrphanSelectionRequest;
 use App\Http\Requests\DeleteSelectionRequest;
 use App\Http\Requests\StoreSelectionRequest;
 use App\Models\Code;
@@ -74,6 +75,23 @@ class SelectionController extends Controller
             $selection->delete();
 
             return response()->json(['success' => true, 'message' => 'Text deleted successfully from code']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()]);
+        }
+    }
+
+    /**
+     * Remove the specified selection if there is no code found for it.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroyOrphan(DeleteOrphanSelectionRequest $request, Project $project, Source $source, Selection $selection)
+    {
+        try {
+            // Delete the database record
+            $selection->delete();
+
+            return response()->json(['success' => true, 'message' => 'Selection deleted successfully']);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()]);
         }
