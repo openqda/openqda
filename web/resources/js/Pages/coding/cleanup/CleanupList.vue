@@ -2,10 +2,10 @@
 import Button from '../../../Components/interactive/Button.vue';
 import Headline3 from '../../../Components/layout/Headline3.vue';
 import { TrashIcon } from '@heroicons/vue/24/solid';
-import { useCleanup } from "./useCleanup";
-import {attemptAsync} from "../../../Components/notification/attemptAsync";
+import { useCleanup } from './useCleanup';
+import { attemptAsync } from '../../../Components/notification/attemptAsync';
 
-const { remove } = useCleanup()
+const { remove } = useCleanup();
 const props = defineProps({
   entries: Array,
   title: String,
@@ -17,14 +17,15 @@ const variants = {
 };
 
 const handleRemove = async (fn) => {
-    const toRemove = await attemptAsync(async () => {
-        const  { response, error, id } = await fn()
-        if (error) throw error
-        if (response.status >= 400) throw new Error(`Failed: ${response.data?.message}`)
-        return id
-    })
-    if (toRemove) remove(toRemove)
-}
+  const toRemove = await attemptAsync(async () => {
+    const { response, error, id } = await fn();
+    if (error) throw error;
+    if (response.status >= 400)
+      throw new Error(`Failed: ${response.data?.message}`);
+    return id;
+  }, 'Action successful');
+  if (toRemove) remove(toRemove);
+};
 </script>
 
 <template>

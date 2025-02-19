@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { useCleanup } from './useCleanup';
-import { ref, onMounted } from 'vue';
+import { computed } from 'vue';
 import CleanupList from './CleanupList.vue';
 
 const Cleanup = useCleanup();
-const selections = ref([]);
-const codes = ref([]);
-const codebooks = ref([]);
-
-onMounted(() => {
-  const found = Object.values(Cleanup.entries.value);
-  selections.value.push(...found.filter((entry) => entry.type === 'selection'));
-  codes.value.push(...found.filter((entry) => entry.type === 'code'));
-  codebooks.value.push(...found.filter((entry) => entry.type === 'codebook'));
-});
+const { entries } = Cleanup;
+const selections = computed(() =>
+  Object.values(entries.value).filter((entry) => entry.type === 'selection')
+);
+const codes = computed(() =>
+  Object.values(entries.value).filter((entry) => entry.type === 'code')
+);
+const codebooks = computed(() =>
+  Object.values(entries.value).filter((entry) => entry.type === 'codebook')
+);
 </script>
 
 <template>

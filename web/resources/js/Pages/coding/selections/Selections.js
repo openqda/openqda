@@ -197,21 +197,21 @@ Selections.delete = async ({ projectId, sourceId, code, selection }) => {
     const index = code.text.findIndex((i) => i.id === selectionId);
     if (index > -1) code.text.splice(index, 1);
   }
-  // else flash message?
-
   return { response, error };
 };
 
 Selections.deleteOrphan = async ({ projectId, sourceId, selection }) => {
-    const selectionId = selection.id;
-    const { response, error } = await request({
-        url: `/projects/${projectId}/sources/${sourceId}/selections/${selectionId}`,
-        type: 'delete',
-    });
-    if (!error && response.status < 400) {
-        Selections.by(`${projectId}-${sourceId}`).remove(selectionId);
+  const selectionId = selection.id;
+  const { response, error } = await request({
+    url: `/projects/${projectId}/sources/${sourceId}/selections/${selectionId}`,
+    type: 'delete',
+  });
+  if (!error && response.status < 400) {
+    try {
+      Selections.by(`${projectId}-${sourceId}`).ha(selectionId);
+    } catch {
+      // might not exist so its not an error actually
     }
-    // else flash message?
-
-    return { response, error, id: selectionId };
+  }
+  return { response, error, id: selectionId };
 };
