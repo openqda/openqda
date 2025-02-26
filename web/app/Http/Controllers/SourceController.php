@@ -67,11 +67,11 @@ class SourceController extends Controller
         // Check if file exists and generate sequential number if needed
         $baseFilename = $filename;
         $counter = 1;
-        $uniqueFilename = $filename . '.' . $extension;
-        $relativePath = 'projects/' . $projectId . '/sources';
+        $uniqueFilename = $filename.'.'.$extension;
+        $relativePath = 'projects/'.$projectId.'/sources';
 
-        while (Storage::exists($relativePath . '/' . $uniqueFilename)) {
-            $uniqueFilename = $baseFilename . '_' . $counter . '.' . $extension;
+        while (Storage::exists($relativePath.'/'.$uniqueFilename)) {
+            $uniqueFilename = $baseFilename.'_'.$counter.'.'.$extension;
             $counter++;
         }
 
@@ -83,7 +83,7 @@ class SourceController extends Controller
         $keyword = 'Llanfair­pwllgwyngyll­gogery­chwyrn­drobwll­llan­tysilio­gogo­goch';
 
         // Use the same filename pattern for HTML output
-        $htmlOutputPath = storage_path('app/' . $relativePath . '/' . pathinfo($uniqueFilename, PATHINFO_FILENAME) . '.html');
+        $htmlOutputPath = storage_path('app/'.$relativePath.'/'.pathinfo($uniqueFilename, PATHINFO_FILENAME).'.html');
 
         $source = Source::updateOrCreate(
             ['id' => $request->input('sourceId', Str::uuid()->toString())],
@@ -163,13 +163,13 @@ class SourceController extends Controller
 
             // Lock the source (if not already locked)
             $source->lock();
-            $source->createAudit(Source::AUDIT_LOCKED, ['message' => $source->name . ' has been locked']);
+            $source->createAudit(Source::AUDIT_LOCKED, ['message' => $source->name.' has been locked']);
 
             return to_route('coding.show', ['project' => $source->project_id, 'source' => $source]);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
+                'message' => 'An error occurred: '.$e->getMessage(),
             ]);
         }
     }
@@ -185,13 +185,13 @@ class SourceController extends Controller
             $source = Source::findOrFail($sourceId);
 
             $source->unlock();
-            $source->createAudit(Source::AUDIT_UNLOCKED, ['message' => $source->name . ' has been unlocked']);
+            $source->createAudit(Source::AUDIT_UNLOCKED, ['message' => $source->name.' has been unlocked']);
 
             return response()->json(['success' => true, 'message' => 'Source unlocked successfully']);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred: ' . $e->getMessage(),
+                'message' => 'An error occurred: '.$e->getMessage(),
             ]);
         }
     }
@@ -223,7 +223,7 @@ class SourceController extends Controller
 
         try {
 
-            if (!$source) {
+            if (! $source) {
 
                 return response()->json(['success' => false, 'message' => 'Document not found']);
             }
@@ -240,7 +240,7 @@ class SourceController extends Controller
                 'event' => 'content updated',
                 'auditable_id' => $source->id,
                 'auditable_type' => get_class($source),
-                'new_values' => ['message' => 'content of ' . $source->name . ' has been modified'],
+                'new_values' => ['message' => 'content of '.$source->name.' has been modified'],
             ]);
 
             $audit->save();
@@ -276,24 +276,24 @@ class SourceController extends Controller
     private function convertFileToHtmlLocally($filePath, $projectId)
     {
         // Define the output directory for the HTML file using the projectId
-        $outputDirectory = storage_path('app/projects/' . $projectId . '/sources');
-        if (!File::exists($outputDirectory)) {
+        $outputDirectory = storage_path('app/projects/'.$projectId.'/sources');
+        if (! File::exists($outputDirectory)) {
             File::makeDirectory($outputDirectory, 0755, true);
         }
 
-        $outputHtmlPath = $outputDirectory . '/' . pathinfo($filePath, PATHINFO_FILENAME) . '.html';
+        $outputHtmlPath = $outputDirectory.'/'.pathinfo($filePath, PATHINFO_FILENAME).'.html';
 
         // Define the path to the Python script
-        $scriptPath = dirname(base_path(), 1) . '/services/transform/convert-rtf-to-html/convert_rtf_to_html_locally.py';
+        $scriptPath = dirname(base_path(), 1).'/services/transform/convert-rtf-to-html/convert_rtf_to_html_locally.py';
 
         // Check if the Python script file exists
-        if (!file_exists($scriptPath)) {
-            throw new Exception('Python script not found at: ' . $scriptPath);
+        if (! file_exists($scriptPath)) {
+            throw new Exception('Python script not found at: '.$scriptPath);
         }
 
         try {
             // Build the command to execute the Python script
-            $command = escapeshellcmd('python3 ' . $scriptPath) . ' ' . escapeshellarg($filePath) . ' ' . escapeshellarg($outputDirectory);
+            $command = escapeshellcmd('python3 '.$scriptPath).' '.escapeshellarg($filePath).' '.escapeshellarg($outputDirectory);
 
             // Execute the command
             $output = shell_exec($command);
@@ -302,10 +302,10 @@ class SourceController extends Controller
             if (file_exists($outputHtmlPath)) {
                 return file_get_contents($outputHtmlPath);
             } else {
-                throw new Exception('Conversion failed. Script output: ' . $output);
+                throw new Exception('Conversion failed. Script output: '.$output);
             }
         } catch (Exception $e) {
-            throw new Exception('Script execution failed: ' . $e->getMessage());
+            throw new Exception('Script execution failed: '.$e->getMessage());
         }
     }
 
@@ -332,7 +332,7 @@ class SourceController extends Controller
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'An error occurred while renaming the source: ' . $e->getMessage(),
+                'message' => 'An error occurred while renaming the source: '.$e->getMessage(),
             ]);
         }
     }
@@ -343,11 +343,11 @@ class SourceController extends Controller
     public function convertTxtToHtml($txtFilePath, $projectId)
     {
         // Define the output directory for the HTML file using the projectId
-        $outputDirectory = storage_path('app/projects/' . $projectId . '/sources');
-        if (!File::exists($outputDirectory)) {
+        $outputDirectory = storage_path('app/projects/'.$projectId.'/sources');
+        if (! File::exists($outputDirectory)) {
             File::makeDirectory($outputDirectory, 0755, true);
         }
-        $outputHtmlPath = $outputDirectory . '/' . pathinfo($txtFilePath, PATHINFO_FILENAME) . '.html';
+        $outputHtmlPath = $outputDirectory.'/'.pathinfo($txtFilePath, PATHINFO_FILENAME).'.html';
 
         // Read the contents of the TXT file
         $txtContent = file_get_contents($txtFilePath);
@@ -365,7 +365,7 @@ class SourceController extends Controller
         }
 
         // Simple approach: Only convert if not already UTF-8
-        if (!mb_check_encoding($txtContent, 'UTF-8')) {
+        if (! mb_check_encoding($txtContent, 'UTF-8')) {
             // If not UTF-8, try to convert from detected encoding
             $encoding = mb_detect_encoding($txtContent, mb_list_encodings(), true) ?: 'Windows-1252';
             $utf8Content = iconv($encoding, 'UTF-8//TRANSLIT//IGNORE', $txtContent);
@@ -393,7 +393,7 @@ class SourceController extends Controller
         $source = Source::findOrFail($id);  // This throws a 404 if the model is not found
 
         // It will automatically look for a method named 'delete' in the policy for the Source model
-        if (!Gate::allows('delete', $source)) {
+        if (! Gate::allows('delete', $source)) {
             return response()->json(['success' => false, 'message' => 'Not allowed'], 403);
         }
         try {
@@ -422,7 +422,7 @@ class SourceController extends Controller
 
             return response()->json(['success' => true, 'message' => 'Document deleted successfully']);
         } catch (Exception $e) {
-            return response()->json(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()]);
         }
     }
 
@@ -453,7 +453,7 @@ class SourceController extends Controller
     public function retryConversion(Project $project, Source $source)
     {
         // Check if the user can view the source
-        if (!Gate::allows('view', $source)) {
+        if (! Gate::allows('view', $source)) {
             return response()->json(['message' => 'Not authorized to view this source'], 403);
         }
 
@@ -472,9 +472,9 @@ class SourceController extends Controller
         $file = $request->file('file');
 
         try {
-            $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+            $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
             $projectId = $request->input('project_id');
-            $relativeFilePath = $file->storeAs('projects/' . $projectId . '/sources', $filename);
+            $relativeFilePath = $file->storeAs('projects/'.$projectId.'/sources', $filename);
             $path = storage_path("app/{$relativeFilePath}");
 
             $source = Source::create([
@@ -517,7 +517,7 @@ class SourceController extends Controller
         // retry job? restart job? what do here?
         $jobRef = Variable::where('source_id', $source->id)->where('name', 'transcription_job_status')->first();
 
-        if (!$jobRef) {
+        if (! $jobRef) {
             return response()->json(['message' => 'Conversion has finished', 'status' => 'finished']);
         }
 
@@ -538,7 +538,7 @@ class SourceController extends Controller
     public function download(DownloadSourceRequest $request, $sourceId)
     {
         $source = Source::findOrFail($sourceId);
-        $source->createAudit(Source::AUDIT_DOWNLOADED, ['message' => $source->name . ' was downloaded']);
+        $source->createAudit(Source::AUDIT_DOWNLOADED, ['message' => $source->name.' was downloaded']);
 
         return response()->download($source->upload_path, $source->name);
     }

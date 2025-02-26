@@ -15,7 +15,9 @@ use Illuminate\Support\Facades\Auth;
 
 class SelectionController extends Controller
 {
-    public function index() {}
+    public function index()
+    {
+    }
 
     /**
      * Store a newly created selection.
