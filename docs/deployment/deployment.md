@@ -17,4 +17,5 @@ Until then, we would like to point you to the following resources:
 
 ## Manual
 
-Coming soon!
+Manual installation has great overlap with [manual installation](http://localhost:5173/openqda/installation/manual.html).
+We will soon provide this guid to cover topics, specific to the production installation (webserver, certificates etc.).
