@@ -35,7 +35,7 @@ Project.getId = () => {
 
 /**
  * @private
- * @type {[]}
+ * @type {any[]}
  */
 const invalidIdValues = [
   0,

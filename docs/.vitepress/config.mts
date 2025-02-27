@@ -4,7 +4,7 @@ import {defineConfig} from 'vitepress'
 export default defineConfig({
   title: "OpenQDA Dev Docs",
   description: "OpenQDA development and deployment documentation.",
-  base: '/openqda/docs/',
+  base: '/openqda/',
   lang: 'en-US',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
@@ -12,9 +12,7 @@ export default defineConfig({
     nav: [
       {text: 'Guide', link: '/introduction/about'},
       {
-        text: 'API', items: [
-          {text: 'Client', link: '/api/client/'}
-        ]
+        text: 'API',  link: '/api.md'
       },
       {
         text: '1.0.0', items: [
@@ -44,14 +42,14 @@ export default defineConfig({
       {
         text: 'Development',
         items: [
-          { text: 'Backend', items: [
+          { text: 'Backend',         collapsed: false, items: [
               {text: 'Overview', link: '/development/backend/backend'},
               {text: 'Websocket', link: '/development/backend/websockets'},
               {text: 'Testing', link: '/development/backend/testing'},
             ]
           },
           {
-            text: 'Frontend', items: [
+            text: 'Frontend',         collapsed: false, items: [
               {text: 'Overview', link: '/development/frontend/frontend'},
               {text: 'Upload Queue', link: '/development/frontend/upload-queue.md'},
               {text: 'Testing', link: '/development/frontend/testing'},
@@ -71,6 +69,15 @@ export default defineConfig({
           {text: 'Overview', link: '/deployment/deployment'},
         ]
       },
+      {
+        text: 'Legal',
+        items: [
+          { text: 'Imprint', link: '/imprint' },
+          { text: 'Privacy / GDPR', link: '/privacy' },
+          { text: 'Code of Conduct', link: '/coc' },
+          { text: 'Contact', link: '/contact' },
+        ]
+      }
     ],
 
     socialLinks: [
@@ -87,5 +94,9 @@ export default defineConfig({
         timeStyle: 'medium'
       }
     }
+  },
+  footer: {
+    message: 'OpenQDA and this documentation are released under APGL-3.0 license',
+    copyright: 'Copyright © 2023-present The OpenQDA Team'
   }
 })

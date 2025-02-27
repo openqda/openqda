@@ -12,7 +12,7 @@
     "lint:write": "eslint ./resources/js --fix",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "build:docs": "jsdoc -c jsdoc.conf.json  -r  -d ../docs/api/client ./resources/js/**/*"
+    "build:docs": "jsdoc -c jsdoc.conf.json  -r  -d ../docs/public/api/client ./resources/js/**/* --readme ./resources/markdown/api.md"
   },
   "devDependencies": {
     "@eslint/js": "^9.2.0",
