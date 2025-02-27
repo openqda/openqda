@@ -141,6 +141,7 @@ Route::middleware([
      */
     Route::post('/projects/{project}/sources/{source}/codes/{code}', [SelectionController::class, 'store'])->name('selection.store');
     Route::delete('/projects/{project}/sources/{source}/codes/{code}/selections/{selection}', [SelectionController::class, 'destroy'])->name('selection.destroy');
+    Route::delete('/projects/{project}/sources/{source}/selections/{selection}', [SelectionController::class, 'destroyOrphan'])->name('selection.destroyOrphan');
 
     /**
      * Source

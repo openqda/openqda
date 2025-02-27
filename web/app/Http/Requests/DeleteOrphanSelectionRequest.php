@@ -2,20 +2,18 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Selection;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 
-class DeleteSelectionRequest extends FormRequest
+class DeleteOrphanSelectionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
-     *
-     * @return bool
      */
-    public function authorize()
+    public function authorize(): bool
     {
-        $selection = Selection::findOrFail($this->route('selection'));
+
+        $selection = $this->route('selection');
 
         return Gate::allows('delete', $selection);
     }
@@ -23,14 +21,13 @@ class DeleteSelectionRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array
+     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules()
+    public function rules(): array
     {
         return [
-            'source_id' => 'required|exists:sources,id',
-            'code_id' => 'required|exists:codes,id',
             'selection_id' => 'required|exists:selections,id',
+            'source_id' => 'required|exists:sources,id',
         ];
     }
 
@@ -43,7 +40,6 @@ class DeleteSelectionRequest extends FormRequest
     {
         return array_merge($this->all(), [
             'source_id' => $this->source->id,
-            'code_id' => $this->code->id,
             'selection_id' => $this->selection->id,
         ]);
     }

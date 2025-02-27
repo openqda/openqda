@@ -68,16 +68,49 @@ class SelectionsStore extends AbstractStore {
   }
 
   init(selections, getCode) {
+    const selectionsToClean = [];
+    const selectionsToAdd = [];
+
     if (this.size.value === 0 && selections.length !== 0) {
       selections.forEach((selection) => {
         const code = getCode(selection.code_id);
-        selection.start = Number(selection.start_position);
-        selection.end = Number(selection.end_position);
-        selection.length = selection.end - selection.start;
-        selection.code = code;
+        const start = Number(selection.start_position);
+        const end = Number(selection.end_position);
+        if (code) {
+          selection.start = start;
+          selection.end = end;
+          selection.length = selection.end - selection.start;
+          selection.code = code;
+          selectionsToAdd.push(selection);
+        } else {
+          selectionsToClean.push({
+            id: selection.id,
+            name: `${start}:${end}`,
+            ref: selection.code_id,
+            type: 'selection',
+            reason: 'Linked code not found.',
+            actions: [
+              {
+                name: 'Delete Selection',
+                type: 'delete',
+                fn: () =>
+                  Selections.deleteOrphan({
+                    projectId: selection.project_id,
+                    sourceId: selection.source_id,
+                    selection,
+                  }),
+              },
+            ],
+          });
+        }
       });
-      this.add(...selections);
+      this.add(...selectionsToAdd);
     }
+
+    return {
+      added: selectionsToAdd,
+      clean: selectionsToClean,
+    };
   }
 }
 
@@ -162,9 +195,23 @@ Selections.delete = async ({ projectId, sourceId, code, selection }) => {
   if (!error && response.status < 400) {
     Selections.by(`${projectId}-${sourceId}`).remove(selectionId);
     const index = code.text.findIndex((i) => i.id === selectionId);
-    code.text.splice(index, 1);
+    if (index > -1) code.text.splice(index, 1);
   }
-  // else flash message?
-
   return { response, error };
+};
+
+Selections.deleteOrphan = async ({ projectId, sourceId, selection }) => {
+  const selectionId = selection.id;
+  const { response, error } = await request({
+    url: `/projects/${projectId}/sources/${sourceId}/selections/${selectionId}`,
+    type: 'delete',
+  });
+  if (!error && response.status < 400) {
+    try {
+      Selections.by(`${projectId}-${sourceId}`).ha(selectionId);
+    } catch {
+      // might not exist so its not an error actually
+    }
+  }
+  return { response, error, id: selectionId };
 };
