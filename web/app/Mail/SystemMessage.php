@@ -4,16 +4,17 @@ namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Mail\Mailables\Address;
 
 class SystemMessage extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $messageContent;
+
     private $replyToAddress;
 
     public function __construct(string $messageContent, string $replyToAddress)
