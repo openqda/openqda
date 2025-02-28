@@ -19,7 +19,9 @@ class CodebookPolicy extends BasePolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Codebook $codebook): bool {}
+    public function view(User $user, Codebook $codebook): bool
+    {
+    }
 
     /**
      * Determine whether the user can create models.

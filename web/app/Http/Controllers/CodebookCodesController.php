@@ -203,7 +203,7 @@ class CodebookCodesController extends Controller
      */
     public function export(Project $project, Codebook $codebook, Request $request)
     {
-        $xml = new SimpleXMLElement('<CodeBook xmlns="urn:QDA-XML:codebook:1.0"/>');
+        $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><CodeBook xmlns="urn:QDA-XML:codebook:1.0" />');
         $xml->addAttribute('origin', config('app.name'));
         $codesXml = $xml->addChild('Codes');
         $this->addCodesToXml($codesXml, $codebook->codes);

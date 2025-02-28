@@ -20,7 +20,7 @@ class BackendRequest {
    * @param options {BackendRequestOptions}
    */
   constructor(options) {
-    const { url, type, body, query, headers, ...rest } = options;
+    const { url, type, body, query, headers, dry, ...rest } = options;
     this.url = url;
     this.type = type.toLowerCase();
     this.body = body;
@@ -29,6 +29,7 @@ class BackendRequest {
     this.error = null;
     this.headers = headers;
     this.extraOptions = rest;
+    this.dry = dry;
   }
 
   /**
@@ -38,6 +39,10 @@ class BackendRequest {
    * @return {Promise<BackendRequest>}
    */
   async send() {
+    if (this.dry) {
+      this.response = { status: 200, data: {} };
+      return this;
+    }
     try {
       const fn = axios[this.type];
       const args = [this.url];

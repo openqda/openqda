@@ -64,7 +64,8 @@ export const useSelections = () => {
   };
   const deleteSelection = async (selection) => {
     const sourceId = source.id;
-    const code = selection.code;
+    const code = selection.code ?? { id: null, texts: [] };
+
     const { response, error } = await Selections.delete({
       projectId,
       selection,
