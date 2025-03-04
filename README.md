@@ -5,6 +5,7 @@
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 ![This is a research software](https://img.shields.io/badge/research-software-blue?style=plastic)
 [![DOI](https://zenodo.org/badge/793524421.svg)](https://zenodo.org/doi/10.5281/zenodo.11195871)
+![GitHub License](https://img.shields.io/github/license/openqda/openqda)
 [![Backend Tests](https://github.com/openqda/openqda/actions/workflows/backend_tests.yml/badge.svg)](https://github.com/openqda/openqda/actions/workflows/backend_tests.yml)
 [![Client Tests](https://github.com/openqda/openqda/actions/workflows/client_tests.yml/badge.svg)](https://github.com/openqda/openqda/actions/workflows/client_tests.yml)
 [![CodeQL](https://github.com/openqda/openqda/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/openqda/openqda/actions/workflows/github-code-scanning/codeql)
