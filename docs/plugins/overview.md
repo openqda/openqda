@@ -10,7 +10,6 @@ and deployed to our live version at https://openqda.org
 ## Transform
 
 **Description**
-
 This steps takes the original input source and creates a new (transformed) output.
 
 **Example usecases**
@@ -35,4 +34,14 @@ is a full standalone service application.
 ## Visualization
 
 **Description**
+This step takes all selections from all codes and sources and
+provides them to a client-side visualization plugin.
 
+**Example usecases**
+
+- Create a Code Portrait
+
+**State**
+Implemented as proof of concept.
+See [the visualization plugin guide](./visualization.md) on how to
+create your own or extend the defaults.

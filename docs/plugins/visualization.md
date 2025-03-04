@@ -8,25 +8,9 @@ Integrating a visualization plugin requires only two major procedures:
 1. writing the plugin
 2. registering the plugin
 
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
-- [Requirements and setup](#requirements-and-setup)
-- [Writing a custom plugin](#writing-a-custom-plugin)
-  - [Initiating a new NPM module](#initiating-a-new-npm-module)
-  - [Adding dependencies](#adding-dependencies)
-  - [Create the entry point](#create-the-entry-point)
-  - [Create the renderer Template](#create-the-renderer-template)
-  - [API](#api)
-  - [Register the plugin](#register-the-plugin)
-- [Extending the default plugins](#extending-the-default-plugins)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 ## Requirements and setup
 
-You need to [have OpenQDA installed on your system](../INSTALLATION.md) 
+You need to [have OpenQDA installed on your system](../installation/preparations.md) 
 in order to locally test the written plugins.
 
 Usually with installation you will also have [NodeJS](https://nodejs.org/en) and [NPM](https://www.npmjs.com)
