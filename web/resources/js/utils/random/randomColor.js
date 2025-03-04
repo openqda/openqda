@@ -9,7 +9,7 @@ import { toHex } from '../color/toHex.js';
  * @function
  * @param type {'rgba'|'hex'|'rgb'} the type of the color
  * @param opacity {number} a value between 0 and 1, use -1 to omit opacity on hex colors
- * @return {`rgba(${number}, ${number}, ${number}, 1)`|string}
+ * @return {string} `rgba(${number}, ${number}, ${number}, 1)`
  */
 export const randomColor = ({ type = 'rgba', opacity = 1 } = {}) => {
   const r = color();

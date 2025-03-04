@@ -62,7 +62,7 @@ class SourceController extends Controller
         // Generate filename without timestamp
         $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $filename = str_replace(' ', '_', $filename);
-        $extension = $file->getClientOriginalExtension();
+        $extension = $file->extension();
 
         // Check if file exists and generate sequential number if needed
         $baseFilename = $filename;
@@ -364,13 +364,17 @@ class SourceController extends Controller
             return 'Error detecting encoding.';
         }
 
-        // Convert the content to UTF-8 encoding
-        $utf8Content = mb_convert_encoding($txtContent, 'UTF-8', $encoding);
+        // Simple approach: Only convert if not already UTF-8
+        if (! mb_check_encoding($txtContent, 'UTF-8')) {
+            // If not UTF-8, try to convert from detected encoding
+            $encoding = mb_detect_encoding($txtContent, mb_list_encodings(), true) ?: 'Windows-1252';
+            $utf8Content = iconv($encoding, 'UTF-8//TRANSLIT//IGNORE', $txtContent);
+        } else {
+            $utf8Content = $txtContent; // Already UTF-8, leave it alone
+        }
 
-        // Convert special characters to HTML entities to p1revent HTML injection
+        // Convert special characters to HTML entities
         $htmlContent = htmlspecialchars($utf8Content);
-
-        // Convert line breaks to <br> tags
         $htmlContent = nl2br($htmlContent);
 
         // Save the HTML content to the output file

@@ -8,25 +8,6 @@ Currently, this guide is tested using the following environments:
 |---|------|-------|
 |Ubuntu|22.04. LTS| -     |
 
-## Table of Contents
-
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-
-- [1. Install Docker](#1-install-docker)
-- [2. Install Laravel Sail](#2-install-laravel-sail)
-  - [UnderstandING Sail](#understanding-sail)
-- [3. Install OpenQDA](#3-install-openqda)
-  - [Build the containers for the first time](#build-the-containers-for-the-first-time)
-  - [Run the backend applications](#run-the-backend-applications)
-  - [Populate Database](#populate-database)
-  - [Connect Filesystem](#connect-filesystem)
-  - [Run the Collaboration Service](#run-the-collaboration-service)
-  - [Run the client application](#run-the-client-application)
-  - [View the local files, logs and E-Mails](#view-the-local-files-logs-and-e-mails)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-*generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
 ## 1. Install Docker
 
@@ -52,13 +33,13 @@ to locally install Sail and the
 > First, make sure to be located within the `/web` folder!
 
 ```shell
-$ cd web # if not already in the web folder
+cd web # if not already in the web folder
 ```
 
 There you have to run the following multiline command:
 
 ```shell
-$ docker run --rm \
+docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
     -w /var/www/html \
@@ -92,7 +73,7 @@ containers. This may take some time, but is usually only
 required once in a while unless you change PHP version, Laravel version etc.
 
 ```shell
-$ ./vendor/bin/sail build --no-cache
+./vendor/bin/sail build --no-cache
 ```
 
 ### Run the backend applications
@@ -101,14 +82,14 @@ The commands to run the backend are the same as with Docker Compose but
 using the `sail` binaries:
 
 ```shell
-$ ./vendor/bin/sail up # starts all backend services
+./vendor/bin/sail up # starts all backend services
 ```
 
 If you wish to stop the applications, you need to enter `ctrl + c` (Windows, Linux) or `cmd + c` (MacOS),
 or, you run sail in detached mode (using the `-d` option) the you need to enter
 
 ```shell
-$ ./vendor/bin/sail down
+./vendor/bin/sail down
 ```
 
 At this point, you should get familiar with how Sail works and the commands
@@ -123,28 +104,26 @@ it provides:
 On your **first run** you need to populate the database tables.
 
 ```shell
-$ ./vendor/bin/sail artisan config:cache
-$ ./vendor/bin/sail artisan config:clear
-$ ./vendor/bin/sail artisan migrate
+./vendor/bin/sail artisan config:cache
+./vendor/bin/sail artisan config:clear
+./vendor/bin/sail artisan migrate
 ```
 
 Additionally, you need some development data (such as initial Users) seeded
 into the database:
 
 ```shell
-$ ./vendor/bin/sail artisan db:seed
+./vendor/bin/sail artisan db:seed
 ```
 
-The users + their login credentials are located at 
-[`web/database/seeders/UserSeeder.php`](../../web/database/seeders/UserSeeder.php).
-
+The default users + their login credentials are located at `web/database/seeders/UserSeeder.php`.
 
 ### Connect Filesystem
 
 On your **first run** you also need to make images locally available:
 
 ```shell
-$ ./vendor/bin/sail artisan storage:link
+./vendor/bin/sail artisan storage:link
 ```
 
 
@@ -154,7 +133,7 @@ Collaborative features are enabled through a WebSocket connected, which in turn 
 (Laravel Reverb), which you can start in a new terminal via:
 
 ```shell
-$ docker exec -it web-laravel.test-1 /var/www/html/web/start_debug_services.sh
+docker exec -it web-laravel.test-1 /var/www/html/web/start_debug_services.sh
 ```
 
 This services needs to start everytime you start your backend apps, because it automatically stops,
@@ -174,8 +153,8 @@ or your own local NodeJs/npm installation.
 **Builtin NodeJs environment**
 
 ```shell
-$ ./vendor/bin/sail npm install
-$ ./vendor/bin/sail npm run dev
+./vendor/bin/sail npm install
+./vendor/bin/sail npm run dev
 ```
 
 **Your local NodeJs environment**
@@ -184,8 +163,8 @@ Tested with NodeJs 20 LTS but you should generally stick with the current NodeJs
 compatibility:
 
 ```shell
-$ npm install
-$ npm run dev
+npm install
+npm run dev
 ```
 
 ### View the local files, logs and E-Mails

@@ -15,7 +15,7 @@ export class LineNumber extends Module {
     this.container = document.querySelector(options.container);
     this.listeners = {
       resize: debounce(
-        this.update.bind(this, 'resize'),
+        this._update.bind(this, 'resize'),
         options.resize?.debounce ?? 100
       ),
       textChange: debounce(
@@ -35,7 +35,10 @@ export class LineNumber extends Module {
    */
   update(type, delta /*, old, source */) {
     if (!delta?.ops) return false;
+    return this._update();
+  }
 
+  _update() {
     // Clear old nodes - this is very performance demanding
     // which is why text changes should be done in bulk
     // or debounced when done programmatically

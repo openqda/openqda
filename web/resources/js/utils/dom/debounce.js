@@ -11,7 +11,7 @@
  * @param func {function} the expensive computation fn
  * @param wait {number} timeout in ms
  * @param immediate {boolean=} run immediate
- * @returns {(function(): void)|*} the debounced function
+ * @returns {(function(): void)} the debounced function
  */
 export const debounce = function debounce(func, wait, immediate) {
   let timeout;
