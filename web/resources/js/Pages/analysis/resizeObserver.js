@@ -1,5 +1,12 @@
 import { ref, reactive, onMounted, onBeforeUnmount } from 'vue';
 
+/**
+ * Creates a new reactive observer that triggers on
+ * window/screen resize. This is useful, if you
+ * want to implement responsive visualizations, relative
+ * to the current window size.
+ * @return {{resizeRef: Ref<any>, resizeState: Reactive<{dimensions: {}}>}}
+ */
 export const useResizeObserver = () => {
   // create a new ref,
   // which needs to be attached to an element in a template
