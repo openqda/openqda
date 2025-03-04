@@ -3,9 +3,9 @@ import { flashMessage } from './flashMessage.js';
 /**
  * Wraps any async call into a try/catch directive
  * and fires a flash message when an error occurs
- * @param fn {function:Promise<*>}
+ * @param fn {function(any):Promise<any>}
  * @param successMessage {string=} optional message to be flashed on success
- * @return {Promise<*>}
+ * @return {Promise<any>}
  */
 export const attemptAsync = async (fn, successMessage) => {
   try {

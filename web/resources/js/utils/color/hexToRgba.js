@@ -5,8 +5,8 @@
 /**
  * Transforms a given hex value to an array of individual rgba components
  * @function
- * @param hex {string}
- * @return {[number, number, number, number]}
+ * @param hex {string} the hex color
+ * @return {number[]} [r, g, b, a]
  */
 export const hexToRgbValues = (hex) => {
   // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
@@ -31,8 +31,8 @@ export const hexToRgbValues = (hex) => {
 /**
  * Transforms a given hex value to a css rgb(r, g, b) string
  * @function
- * @param hex {string}
- * @return {`rgb(${number}, ${number}, ${number})`}
+ * @param hex {string} the hex color
+ * @return {string} `rgb(${r}, ${g}, ${b})`
  */
 export const hexToRgb = (hex) => {
   const [r, g, b] = hexToRgbValues(hex);
@@ -42,8 +42,8 @@ export const hexToRgb = (hex) => {
 /**
  * Transforms a given hex value to a css rgba(r, g, b, a) string
  * @function
- * @param hex {string}
- * @return {`rgba(${number}, ${number}, ${number}, ${number})`}
+ * @param hex {string} the hex color
+ * @return {string} `rgba(${number}, ${number}, ${number}, ${number})`
  */
 export const hexToRgba = (hex) => {
   const [r, g, b, a] = hexToRgbValues(hex);

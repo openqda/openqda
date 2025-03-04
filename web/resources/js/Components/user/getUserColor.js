@@ -4,7 +4,8 @@ import { memoize } from '../../utils/memoize.js';
  * Generates a color code, specifically related
  * to this user's email.
  * Same inputs generate the same color.
- * @type {(function(...[*]): unknown)|*}
+ * @param email {string}
+ * @return string
  */
 export const getUserColor = memoize(
   (email) =>
