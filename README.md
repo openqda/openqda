@@ -7,6 +7,8 @@
 [![DOI](https://zenodo.org/badge/793524421.svg)](https://zenodo.org/doi/10.5281/zenodo.11195871)
 [![Backend Tests](https://github.com/openqda/openqda/actions/workflows/backend_tests.yml/badge.svg)](https://github.com/openqda/openqda/actions/workflows/backend_tests.yml)
 [![Client Tests](https://github.com/openqda/openqda/actions/workflows/client_tests.yml/badge.svg)](https://github.com/openqda/openqda/actions/workflows/client_tests.yml)
+[![CodeQL](https://github.com/openqda/openqda/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/openqda/openqda/actions/workflows/github-code-scanning/codeql)
+[![Deploy Docs](https://github.com/openqda/openqda/actions/workflows/deploy_docs.yml/badge.svg)](https://github.com/openqda/openqda/actions/workflows/deploy_docs.yml)
 </div>
 
 
