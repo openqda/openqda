@@ -27,8 +27,9 @@
 ### Quick links
 
 - 🚀 Register now: https://openqda.org
-- 📔 Read the user-docs: https://openqda.github.io/user-docs/
+- 📔 Read the **user** guide: https://openqda.github.io/user-docs/
 - 📢 Give feedback and join the discussion: https://github.com/openqda/feedback
+- 🏗️ Read the **developer** guide: https://openqda.github.io/openqda/
 - 📧 Contact us: [openqda@uni-bremen.de](mailto:openqda@uni-bremen.de)
 
 ## What is OpenQDA?
@@ -88,23 +89,16 @@ If you have reached this section, chances are high your either want one of the f
 - improve OpenQDA
 - learn research software engineering with OpenQDA as an example project
 
-### Developer Documentation
+### Developer Documentation and Guides
 
-We provide an extensive developer documentation in the `/docs` folder.
-Here are the quick links to the guides:
-
-- [tech stack](docs/introduction/tech-stack.md)
-- [architecture overview](docs/introduction/architecture.md)
-- [installation guide](./docs/INSTALLATION.md)
-- [core development](./docs/CORE.md)
-- [plugin development](./docs/PLUGINS.md)
-- [deployment guide](docs/deployment/deployment)
+We provide a hosted developer documentation via https://openqda.github.io/openqda/
+Note, the (markdown) files are also located in within the `/docs` folder.
 
 ### API Docs
 
-In addition to the developer guides above, we also provide API docs:
+In addition to the development guides above, we also provide API docs:
 
-- [client api docs](docs/api/client)
+- [client api docs](https://openqda.github.io/openqda/api/client/index.html)
 - backend api docs (coming soon!)
 
 ## Licenses

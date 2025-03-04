@@ -4,7 +4,7 @@ import {defineConfig} from 'vitepress'
 export default defineConfig({
   title: "OpenQDA Dev Docs",
   description: "OpenQDA development and deployment documentation.",
-  base: '/dev-docs/',
+  base: '/openqda/',
   lang: 'en-US',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
