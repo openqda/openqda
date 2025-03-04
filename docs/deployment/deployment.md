@@ -17,5 +17,5 @@ Until then, we would like to point you to the following resources:
 
 ## Manual
 
-Manual installation has great overlap with [manual installation](http://localhost:5173/openqda/installation/manual.html).
+Manual installation has great overlap with [the manual development installation](../installation/manual.md).
 We will soon provide this guid to cover topics, specific to the production installation (webserver, certificates etc.).

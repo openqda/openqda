@@ -116,9 +116,7 @@ into the database:
 ./vendor/bin/sail artisan db:seed
 ```
 
-The users + their login credentials are located at 
-[`web/database/seeders/UserSeeder.php`](../../web/database/seeders/UserSeeder.php).
-
+The default users + their login credentials are located at `web/database/seeders/UserSeeder.php`.
 
 ### Connect Filesystem
 
