@@ -2,18 +2,6 @@
   <div class="contents">
     <!-- editor toolbar -->
     <Headline1 class="px-3 py-6">{{ props.source?.name }}</Headline1>
-    <div
-      v-show="false"
-      class="block xl:flex lg:justify-center sticky top-0 py-2 z-40 bg-surface leading-10"
-    >
-      <div
-        id="toolbar"
-        class="rounded-none mb-3 xl:mb-0 lg:rounded-full border-2 bg-surface z-150 shadow-lg border-foreground/20 py-2 px-4 inline-flex !text-foreground/60"
-      >
-        <EditorToolbar />
-      </div>
-      <slot name="actions"></slot>
-    </div>
     <!-- editor content -->
     <div :class="cn('flex', loadingDocument && 'hidden')">
       <div id="lineNumber"></div>
@@ -55,7 +43,6 @@ import '../../editor/editor.css';
 import { LineNumber } from '../../editor/LineNumber.js';
 import { SelectionHighlightBG } from './editor/SelectionHighlightBG.js';
 import { SelectionHash } from '../../editor/SelectionHash.js';
-import EditorToolbar from '../../editor/EditorToolbar.vue';
 import CodingContextMenu from './contextMenu/CodingContextMenu.vue';
 import { flashMessage } from '../../Components/notification/flashMessage.js';
 import { useCodes } from '../../domain/codes/useCodes.js';
@@ -100,18 +87,8 @@ onMounted(() => {
     placeholder: 'Start writing or paste content...',
     modules: {
       syntax: false,
-      history: {
-        delay: 2000,
-        maxStack: 500,
-        userOnly: true,
-      },
-      toolbar: {
-        container: '#toolbar',
-        handlers: {
-          undo: undoChange,
-          redo: redoChange,
-        },
-      },
+      history: false,
+      toolbar: false,
       lineNumber: {
         container: '#lineNumber',
       },
