@@ -159,6 +159,24 @@
                 </div>
               </div>
             </li>
+              <li :class="Help.isActive ? 'w-full text-center' : ''">
+                  <button
+                      title="Help, contact, feedback"
+                      @click="Help.open"
+                      :class="
+                  cn(
+                    'group flex gap-x-3 rounded-md p-3 text-sm font-semibold leading-6',
+                    Help.isActive
+                      ? 'w-full justify-center rounded-none text-center bg-surface text-secondary rounded-l-md'
+                      : 'text-foreground/50 hover:bg-surface hover:text-foreground/50',
+                  )
+                ">
+                    <QuestionMarkCircleIcon
+                        class="h-6 w-6 shrink-0"
+                        aria-hidden="true"
+                    />
+                  </button>
+              </li>
           </ul>
           <div
             class="p-3 text-center"
@@ -197,7 +215,7 @@
       </div>
 
       <FlashMessage :flash="$page.props.flash" />
-
+        <HelpDialog />
       <div class="flex lg:pl-20">
         <aside
           v-show="$props.menu !== false"
@@ -233,7 +251,7 @@ import {
   TransitionChild,
   TransitionRoot,
 } from '@headlessui/vue';
-import { Bars3Icon, XMarkIcon, SignalIcon } from '@heroicons/vue/24/outline';
+import { Bars3Icon, XMarkIcon, SignalIcon, QuestionMarkCircleIcon } from '@heroicons/vue/24/outline';
 import LayoutContainer from './LayoutContainer.vue';
 import { NavRoutes } from '../routes/NavRoutes.js';
 import { Project } from '../state/Project.js';
@@ -244,6 +262,10 @@ import ProfileImage from '../Components/user/ProfileImage.vue';
 import { useConversion } from '../live/useConversion.js';
 import { flashMessage } from '../Components/notification/flashMessage.js';
 import { useDebug } from '../utils/useDebug.js';
+import Button from '../Components/interactive/Button.vue'
+import { useHelpDialog } from '../dialogs/help/useHelpDialog.js'
+import HelpDialog from '../dialogs/help/HelpDialog.vue'
+import ConfirmDialog from '../dialogs/ConfirmDialog.vue'
 
 const websocket = useWebSocketConnection();
 const navigation = ref([]);
@@ -259,6 +281,7 @@ const {
 } = useTeam();
 websocket.initWebSocket();
 const debug = useDebug({ scope: 'nav' });
+const Help = useHelpDialog();
 
 const props = defineProps({
   title: String,
