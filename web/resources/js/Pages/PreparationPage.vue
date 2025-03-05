@@ -34,18 +34,15 @@
             @autosave="saveQuillContent"
           >
             <template #status>
-              <div class="w-10 mr-2 self-center">
+              <div class="me-2 self-center">
                 <span
                   v-if="saving"
-                  class="text-xs inline-flex items-center border border-secondary rounded-lg p-3"
+                  class="text-xs inline-flex items-center p-1"
                 >
                   <ArrowPathIcon class="w-4 h-4 me-1 text-secondary" />
                   saving
                 </span>
-                <span
-                  v-if="saved"
-                  class="text-xs inline-flex items-center border border-confirmative rounded-lg p-3"
-                >
+                <span v-if="saved" class="text-xs inline-flex items-center p-1">
                   <CheckIcon class="w-4 h-4 me-1 text-confirmative" />
                   saved
                 </span>
