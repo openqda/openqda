@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Selection;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 
 class DeleteSelectionRequest extends FormRequest
 {
@@ -15,7 +16,11 @@ class DeleteSelectionRequest extends FormRequest
      */
     public function authorize()
     {
-        $selection = Selection::findOrFail($this->route('selection'));
+        $selection = $this->route('selection');
+
+        if (gettype($selection) == 'string') {
+            $selection = Selection::findOrFail($id);
+        }
 
         return Gate::allows('delete', $selection);
     }

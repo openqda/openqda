@@ -115,7 +115,6 @@ class CodingController extends Controller
      */
     public function destroy(DestroyCodeRequest $request, Project $project, Source $source, Code $code)
     {
-
         if ($code->parent_id) {
             $code->parent_id = null;
             $code->save();
