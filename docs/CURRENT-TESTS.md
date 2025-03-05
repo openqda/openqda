@@ -1,5 +1,5 @@
 # Current Tests
-Last updated: 2024-11-14 11:44:56
+Last updated: 2025-03-05 11:14:24
 ## Api Token Permissions
     - api token permissions can be updated
 
@@ -13,6 +13,7 @@ Last updated: 2024-11-14 11:44:56
 
 ## Code Controller
     - destroy code successfully
+    - destroy code with children successfully
     - destroy code unauthorized
     - update code color
     - update code title
