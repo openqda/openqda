@@ -13,7 +13,7 @@ const DEBUG = import.meta.env.VITE_DEBUG_CLIENT ?? import.meta.env.DEBUG_CLIENT;
  * @function
  * @param mode
  * @param scope
- * @return {(function(...[*]): *)|noop}
+ * @return {(function(any):any)}
  */
 export const useDebug = ({ mode, scope } = {}) => {
   const type = mode ?? DEBUG;

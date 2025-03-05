@@ -1,10 +1,12 @@
+/** @module */
+
 /**
  * @typedef Code
  * @property id {string}
  * @property name {string}
  * @property color {string}
  * @property description {description}
- * @property children {Code[]=}
+ * @property children {(Code[])=}
  * @property parent {Code=}
  */
 

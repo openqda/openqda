@@ -23,7 +23,6 @@ const light = 'light';
  * falls back to system level preference.
  * Otherwise, uses light theme.
  * @function
- * @property
  * @param options {object}
  * @param options.storage {ThemeStorage}
  * @param options.useStorage {boolean}

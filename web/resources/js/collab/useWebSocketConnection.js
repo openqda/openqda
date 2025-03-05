@@ -22,8 +22,8 @@ window.debugSocket = () => {
 /**
  * Exposes the state of the current websocket connection
  * that is a requirement for collaborative features.
- * @return {ToRefs<UnwrapNestedRefs<{connected: boolean, reason: null, unavailable: boolean, failed: boolean,
- *     connecting: boolean}> & {}>}
+ * @return {{connected: boolean, reason: null, unavailable: boolean, failed: boolean,
+ *     connecting: boolean}}
  */
 export const useWebSocketConnection = () => {
   const { connected, connecting, unavailable, failed, status, initialized } =

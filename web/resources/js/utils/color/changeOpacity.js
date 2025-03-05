@@ -29,7 +29,7 @@ export const changeOpacity = (color, opacity = 1) => {
  * @private
  * @param hex
  * @param opacity
- * @return {`${string}${string}`}
+ * @return {string}
  */
 const changeHexOpacity = (hex, opacity) => {
   const alpha = toHex(Math.floor(opacity * 255));
@@ -40,7 +40,7 @@ const changeHexOpacity = (hex, opacity) => {
  * @private
  * @param rgba
  * @param opacity
- * @return {*|string}
+ * @return {string}
  */
 const changeRGBAOpacity = (rgba, opacity) => {
   const rgbaValues = rgbaToValues(rgba);

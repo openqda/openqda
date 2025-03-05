@@ -5,8 +5,11 @@
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 ![This is a research software](https://img.shields.io/badge/research-software-blue?style=plastic)
 [![DOI](https://zenodo.org/badge/793524421.svg)](https://zenodo.org/doi/10.5281/zenodo.11195871)
+![GitHub License](https://img.shields.io/github/license/openqda/openqda)
 [![Backend Tests](https://github.com/openqda/openqda/actions/workflows/backend_tests.yml/badge.svg)](https://github.com/openqda/openqda/actions/workflows/backend_tests.yml)
 [![Client Tests](https://github.com/openqda/openqda/actions/workflows/client_tests.yml/badge.svg)](https://github.com/openqda/openqda/actions/workflows/client_tests.yml)
+[![CodeQL](https://github.com/openqda/openqda/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/openqda/openqda/actions/workflows/github-code-scanning/codeql)
+[![Deploy Docs](https://github.com/openqda/openqda/actions/workflows/deploy_docs.yml/badge.svg)](https://github.com/openqda/openqda/actions/workflows/deploy_docs.yml)
 </div>
 
 
@@ -24,8 +27,9 @@
 ### Quick links
 
 - 🚀 Register now: https://openqda.org
-- 📔 Read the user-docs: https://openqda.github.io/user-docs/
+- 📔 Read the **user** guide: https://openqda.github.io/user-docs/
 - 📢 Give feedback and join the discussion: https://github.com/openqda/feedback
+- 🏗️ Read the **developer** guide: https://openqda.github.io/openqda/
 - 📧 Contact us: [openqda@uni-bremen.de](mailto:openqda@uni-bremen.de)
 
 ## What is OpenQDA?
@@ -85,23 +89,16 @@ If you have reached this section, chances are high your either want one of the f
 - improve OpenQDA
 - learn research software engineering with OpenQDA as an example project
 
-### Developer Documentation
+### Developer Documentation and Guides
 
-We provide an extensive developer documentation in the `/docs` folder.
-Here are the quick links to the guides:
-
-- [tech stack](./docs/TECH-STACK.md)
-- [architecture overview](./docs/ARCHITECTURE.md)
-- [installation guide](./docs/INSTALLATION.md)
-- [core development](./docs/CORE.md)
-- [plugin development](./docs/PLUGINS.md)
-- [deployment guide](./docs/DEPLOYMENT.md)
+We provide a hosted developer documentation via https://openqda.github.io/openqda/
+Note, the (markdown) files are also located in within the `/docs` folder.
 
 ### API Docs
 
-In addition to the developer guides above, we also provide API docs:
+In addition to the development guides above, we also provide API docs:
 
-- [client api docs](docs/api/client)
+- [client api docs](https://openqda.github.io/openqda/api/client/index.html)
 - backend api docs (coming soon!)
 
 ## Licenses

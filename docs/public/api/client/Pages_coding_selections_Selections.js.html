@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Pages/coding/selections/Selections.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Pages/coding/selections/Selections.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { randomUUID } from '../../../utils/random/randomUUID.js';
+import { request } from '../../../utils/http/BackendRequest.js';
+import { createStoreRepository } from '../../../state/StoreRepository.js';
+import { getIntersection, isOverlapping } from './overlapping.js';
+import { AbstractStore } from '../../../state/AbstractStore.js';
+
+class SelectionsStore extends AbstractStore {
+  // returns list of coordinates
+  getIntersections(selections) {
+    const intersections = [];
+    this.all().forEach((s2) => {
+      selections.forEach((s1) => {
+        if (s1 !== s2 &amp;&amp; isOverlapping(s1.start, s1.end, s2.start, s2.end)) {
+          intersections.push(
+            getIntersection(s1.start, s1.end, s2.start, s2.end)
+          );
+        }
+      });
+    });
+    return intersections;
+  }
+
+  // returns list of selections
+  getIntersecting(selections) {
+    const intersecting = new Set();
+
+    this.all().forEach((s1) => {
+      selections.forEach((s2) => {
+        if (
+          s2 !== s1 &amp;&amp;
+          s2.id !== s1.id &amp;&amp;
+          s1.code.active !== false &amp;&amp; // don't include invisible codes!
+          isOverlapping(s2.start, s2.end, s1.start, s1.end)
+        ) {
+          intersecting.add(s1);
+        }
+      });
+    });
+
+    return [...intersecting];
+  }
+
+  update(docIdOrFn, value = undefined, { updateId = false } = {}) {
+    let updated; // array
+    const allDocs = this.all();
+
+    if (typeof docIdOrFn === 'function') {
+      // nested changes are applied directly by
+      // consumer and this reflected in a function
+      // that returns all ids of updated docs
+      updated = docIdOrFn(allDocs);
+    } else {
+      const entry = this.entries[docIdOrFn];
+      const { id, ...values } = value;
+      if (updateId) {
+        values.id = id;
+      }
+      Object.assign(entry, values);
+      updated = [entry];
+    }
+
+    if (updated) {
+      const relatedDocs = this.getIntersecting(updated);
+      if (relatedDocs.length) updated.push(...relatedDocs);
+      this.observable.run('updated', updated, allDocs);
+      this.observable.run('changed', { type: 'updated', docs: updated });
+    }
+  }
+
+  init(selections, getCode) {
+    if (this.size.value === 0 &amp;&amp; selections.length !== 0) {
+      selections.forEach((selection) => {
+        const code = getCode(selection.code_id);
+        selection.start = Number(selection.start_position);
+        selection.end = Number(selection.end_position);
+        selection.length = selection.end - selection.start;
+        selection.code = code;
+      });
+      this.add(...selections);
+    }
+  }
+}
+
+export const Selections = createStoreRepository({
+  key: 'store/selections',
+  factory: (options) => new SelectionsStore(options),
+});
+
+Selections.sort = {};
+
+Selections.sort.byRange = (a, b) => {
+  const length = b.length - a.length;
+  const start = a.start - b.start;
+  return length !== 0 ? length : start;
+};
+
+/**
+ * Stores a selection in DB
+ * @param projectId
+ * @param sourceId
+ * @param code
+ * @param text
+ * @param start
+ * @param end
+ * @return {Promise&lt;BackendRequest>}
+ */
+Selections.store = async ({ projectId, sourceId, code, text, start, end }) => {
+  const codeId = code.id;
+  const textId = randomUUID();
+  const payload = {
+    textId: textId,
+    text: text,
+    start_position: start,
+    end_position: end,
+  };
+
+  const { response, error } = await request({
+    url: `/projects/${projectId}/sources/${sourceId}/codes/${codeId}`,
+    type: 'post',
+    body: payload,
+  });
+
+  return { response, error };
+};
+
+Selections.reassign = async ({ projectId, source, code, selection }) => {
+  const oldCode = selection.code;
+  const newCode = code;
+  const key = `${projectId}-${source.id}`;
+  const selectionId = selection.id;
+  const { response, error } = await request({
+    url: `/projects/${projectId}/sources/${source.id}/codes/${newCode.id}/selections/${selectionId}/change-code`,
+    type: 'post',
+    body: {
+      oldCodeId: oldCode.id,
+      newCodeId: newCode.id,
+    },
+  });
+  if (!error &amp;&amp; response.status &lt; 400) {
+    Selections.by(key).update(selectionId, { code: newCode });
+
+    // remove from old code
+    const index = oldCode.text.findIndex((i) => i.id === selectionId);
+    oldCode.text.splice(index, 1);
+
+    // add to new code
+    if (!newCode.text?.length) {
+      newCode.text = [];
+    }
+    newCode.text.push(selection);
+  }
+  return { response, error };
+};
+
+Selections.delete = async ({ projectId, sourceId, code, selection }) => {
+  const codeId = code.id;
+  const selectionId = selection.id;
+  const { response, error } = await request({
+    url: `/projects/${projectId}/sources/${sourceId}/codes/${codeId}/selections/${selectionId}`,
+    type: 'delete',
+  });
+  if (!error &amp;&amp; response.status &lt; 400) {
+    Selections.by(`${projectId}-${sourceId}`).remove(selectionId);
+    const index = code.text.findIndex((i) => i.id === selectionId);
+    code.text.splice(index, 1);
+  }
+  // else flash message?
+
+  return { response, error };
+};
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+<<<<<<< HEAD:docs/api/client/Pages_coding_selections_Selections.js.html
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Pages_analysis_visualization_createVisualizationAPI.html">Pages/analysis/visualization/createVisualizationAPI</a></li><li><a href="module-state_Project.html">state/Project</a></li><li><a href="module-state_StoreRepository.html">state/StoreRepository</a></li><li><a href="module-theme_Theme.html">theme/Theme</a></li><li><a href="module-theme_ThemeBrowserStorage.html">theme/ThemeBrowserStorage</a></li><li><a href="module-utils_array_createByPropertySorter.html">utils/array/createByPropertySorter</a></li><li><a href="module-utils_asyncTimeout.html">utils/asyncTimeout</a></li><li><a href="module-utils_color_changeOpacity.html">utils/color/changeOpacity</a></li><li><a href="module-utils_color_hexToRgba.html">utils/color/hexToRgba</a></li><li><a href="module-utils_color_rgbaToValues.html">utils/color/rgbaToValues</a></li><li><a href="module-utils_color_toHex.html">utils/color/toHex</a></li><li><a href="module-utils_css_cn.html">utils/css/cn</a></li><li><a href="module-utils_css_variantAuthority.html">utils/css/variantAuthority</a></li><li><a href="module-utils_dom_debounce.html">utils/dom/debounce</a></li><li><a href="module-utils_dom_fullScreen.html">utils/dom/fullScreen</a></li><li><a href="module-utils_dom_isInViewport.html">utils/dom/isInViewport</a></li><li><a href="module-utils_dom_retry.html">utils/dom/retry</a></li><li><a href="module-utils_dom_throttle.html">utils/dom/throttle</a></li><li><a href="module-utils_files_createBlob.html">utils/files/createBlob</a></li><li><a href="module-utils_files_createCSVBuilder.html">utils/files/createCSVBuilder</a></li><li><a href="module-utils_files_ensureFileExtension.html">utils/files/ensureFileExtension</a></li><li><a href="module-utils_files_readFromFile.html">utils/files/readFromFile</a></li><li><a href="module-utils_files_saveTextFile.html">utils/files/saveTextFile</a></li><li><a href="module-utils_function_noop.html">utils/function/noop</a></li><li><a href="module-utils_isDev.html">utils/isDev</a></li><li><a href="module-utils_memoize.html">utils/memoize</a></li><li><a href="module-utils_random_randomColor.html">utils/random/randomColor</a></li><li><a href="module-utils_random_randomString.html">utils/random/randomString</a></li><li><a href="module-utils_random_randomUUID.html">utils/random/randomUUID</a></li><li><a href="module-utils_regex.html">utils/regex</a></li><li><a href="module-utils_safeStringify.html">utils/safeStringify</a></li><li><a href="module-utils_useDebug.html">utils/useDebug</a></li><li><a href="module-utils_vue_clickOutsideDirective.html">utils/vue/clickOutsideDirective</a></li></ul><h3>Classes</h3><ul><li><a href="AbstractStore.html">AbstractStore</a></li><li><a href="BackendRequest.html">BackendRequest</a></li><li><a href="ColorMap.html">ColorMap</a></li><li><a href="LineNumber.html">LineNumber</a></li><li><a href="Observable.html">Observable</a></li><li><a href="ThemeEmptyStorage.html">ThemeEmptyStorage</a></li></ul><h3>Global</h3><ul><li><a href="global.html#CodeList">CodeList</a></li><li><a href="global.html#NavRoutes">NavRoutes</a></li><li><a href="global.html#Project">Project</a></li><li><a href="global.html#Routes">Routes</a></li><li><a href="global.html#attemptAsync">attemptAsync</a></li><li><a href="global.html#downloadSource">downloadSource</a></li><li><a href="global.html#dragStarter">dragStarter</a></li><li><a href="global.html#dragTarget">dragTarget</a></li><li><a href="global.html#flashMessage">flashMessage</a></li><li><a href="global.html#getUserColor">getUserColor</a></li><li><a href="global.html#registerGlobalRequestHook">registerGlobalRequestHook</a></li><li><a href="global.html#request">request</a></li><li><a href="global.html#segmentize">segmentize</a></li><li><a href="global.html#transcribeFile">transcribeFile</a></li><li><a href="global.html#transformSchema">transformSchema</a></li><li><a href="global.html#unfoldCodes">unfoldCodes</a></li><li><a href="global.html#uploadFile">uploadFile</a></li><li><a href="global.html#useDragTarget">useDragTarget</a></li><li><a href="global.html#useEcho">useEcho</a></li><li><a href="global.html#useFiles">useFiles</a></li><li><a href="global.html#useFlashMessage">useFlashMessage</a></li><li><a href="global.html#useProjects">useProjects</a></li><li><a href="global.html#useRange">useRange</a></li><li><a href="global.html#useResizeObserver">useResizeObserver</a></li><li><a href="global.html#useWebSocketConnection">useWebSocketConnection</a></li><li><a href="global.html#useWizard">useWizard</a></li></ul>
+=======
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-Components_wizard_useWizard.html">Components/wizard/useWizard</a></li><li><a href="module-Pages_analysis_unfoldCodes.html">Pages/analysis/unfoldCodes</a></li><li><a href="module-domain_codes_CodeList.html">domain/codes/CodeList</a></li><li><a href="module-state_Project.html">state/Project</a></li><li><a href="module-state_StoreRepository.html">state/StoreRepository</a></li><li><a href="module-theme_Theme.html">theme/Theme</a></li><li><a href="module-theme_ThemeBrowserStorage.html">theme/ThemeBrowserStorage</a></li><li><a href="module-utils_NanoHooks.html">utils/NanoHooks</a></li><li><a href="module-utils_array_createByPropertySorter.html">utils/array/createByPropertySorter</a></li><li><a href="module-utils_asyncTimeout.html">utils/asyncTimeout</a></li><li><a href="module-utils_color_changeOpacity.html">utils/color/changeOpacity</a></li><li><a href="module-utils_color_hexToRgba.html">utils/color/hexToRgba</a></li><li><a href="module-utils_color_rgbaToValues.html">utils/color/rgbaToValues</a></li><li><a href="module-utils_color_toHex.html">utils/color/toHex</a></li><li><a href="module-utils_css_cn.html">utils/css/cn</a></li><li><a href="module-utils_css_variantAuthority.html">utils/css/variantAuthority</a></li><li><a href="module-utils_dom_debounce.html">utils/dom/debounce</a></li><li><a href="module-utils_dom_fullScreen.html">utils/dom/fullScreen</a></li><li><a href="module-utils_dom_isInViewport.html">utils/dom/isInViewport</a></li><li><a href="module-utils_dom_retry.html">utils/dom/retry</a></li><li><a href="module-utils_dom_throttle.html">utils/dom/throttle</a></li><li><a href="module-utils_files_createBlob.html">utils/files/createBlob</a></li><li><a href="module-utils_files_createCSVBuilder.html">utils/files/createCSVBuilder</a></li><li><a href="module-utils_files_ensureFileExtension.html">utils/files/ensureFileExtension</a></li><li><a href="module-utils_files_readFromFile.html">utils/files/readFromFile</a></li><li><a href="module-utils_files_saveTextFile.html">utils/files/saveTextFile</a></li><li><a href="module-utils_function_noop.html">utils/function/noop</a></li><li><a href="module-utils_isDev.html">utils/isDev</a></li><li><a href="module-utils_memoize.html">utils/memoize</a></li><li><a href="module-utils_random_randomColor.html">utils/random/randomColor</a></li><li><a href="module-utils_random_randomString.html">utils/random/randomString</a></li><li><a href="module-utils_random_randomUUID.html">utils/random/randomUUID</a></li><li><a href="module-utils_regex.html">utils/regex</a></li><li><a href="module-utils_safeStringify.html">utils/safeStringify</a></li><li><a href="module-utils_useDebug.html">utils/useDebug</a></li><li><a href="module-utils_vue_clickOutsideDirective.html">utils/vue/clickOutsideDirective</a></li></ul><h3>Classes</h3><ul><li><a href="AbstractStore.html">AbstractStore</a></li><li><a href="BackendRequest.html">BackendRequest</a></li><li><a href="ColorMap.html">ColorMap</a></li><li><a href="LineNumber.html">LineNumber</a></li><li><a href="ThemeEmptyStorage.html">ThemeEmptyStorage</a></li><li><a href="module-utils_NanoHooks.Observable.html">Observable</a></li></ul><h3>Global</h3><ul><li><a href="global.html#NavRoutes">NavRoutes</a></li><li><a href="global.html#Project">Project</a></li><li><a href="global.html#Routes">Routes</a></li><li><a href="global.html#attemptAsync">attemptAsync</a></li><li><a href="global.html#downloadSource">downloadSource</a></li><li><a href="global.html#dragStarter">dragStarter</a></li><li><a href="global.html#dragTarget">dragTarget</a></li><li><a href="global.html#flashMessage">flashMessage</a></li><li><a href="global.html#getUserColor">getUserColor</a></li><li><a href="global.html#isCurrent">isCurrent</a></li><li><a href="global.html#registerGlobalRequestHook">registerGlobalRequestHook</a></li><li><a href="global.html#request">request</a></li><li><a href="global.html#segmentize">segmentize</a></li><li><a href="global.html#transcribeFile">transcribeFile</a></li><li><a href="global.html#transformSchema">transformSchema</a></li><li><a href="global.html#uploadFile">uploadFile</a></li><li><a href="global.html#useDragTarget">useDragTarget</a></li><li><a href="global.html#useEcho">useEcho</a></li><li><a href="global.html#useFiles">useFiles</a></li><li><a href="global.html#useFlashMessage">useFlashMessage</a></li><li><a href="global.html#useProjects">useProjects</a></li><li><a href="global.html#useRange">useRange</a></li><li><a href="global.html#useWebSocketConnection">useWebSocketConnection</a></li></ul>
+>>>>>>> main:docs/public/api/client/Pages_coding_selections_Selections.js.html
+</nav>
+
+<br class="clear">
+
+<footer>
+<<<<<<< HEAD:docs/api/client/Pages_coding_selections_Selections.js.html
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Feb 07 2025 11:04:35 GMT+0100 (Central European Standard Time)
+=======
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu Feb 27 2025 17:35:26 GMT+0100 (Central European Standard Time)
+>>>>>>> main:docs/public/api/client/Pages_coding_selections_Selections.js.html
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

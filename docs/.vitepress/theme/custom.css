@@ -1,0 +1,5 @@
+/* .vitepress/theme/custom.css */
+:root {
+    --vp-c-brand-1: rgb(8 152 221);
+    --vp-c-brand-2: rgb(52 122 173);
+}

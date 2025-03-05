@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { provide } from 'vue';
 import AutoForm from '../../../form/AutoForm.vue';
 import { createVisualizationAPI } from './createVisualizationAPI';
 import { useAnalysis } from '../useAnalysis';
 import { useVisualizerPlugins } from './useVisualizerPlugins';
 import { useUsers } from '../../../domain/teams/useUsers';
+import Headline3 from '../../../Components/layout/Headline3.vue';
+import Button from '../../../Components/interactive/Button.vue';
 
 const {
   sources,
@@ -24,6 +27,11 @@ const { api, optionsSchema } = createVisualizationAPI({
 
 // additional functionality attached
 api.getMemberBy = getMemberBy;
+provide('api', api);
+provide('components', {
+  Headline3,
+  Button,
+});
 </script>
 
 <template>
@@ -38,8 +46,8 @@ api.getMemberBy = getMemberBy;
   </div>
   <component
     :is="visualizerComponent"
-    :api="api"
     :codes="codes"
+    :api="api"
     :sources="sources"
     :hasSelections="hasSelections"
     :checkedCodes="checkedCodes"

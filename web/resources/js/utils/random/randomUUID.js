@@ -7,7 +7,7 @@
  * and falls back to Math.random
  * @see https://stackoverflow.com/questions/65861596/explanation-of-syntax-on-guid-uuid-function-in-javascript
  * @function
- * @return {`${string}-${string}-${string}-${string}-${string}`|string}
+ * @return {string} `${string}-${string}-${string}-${string}-${string}`
  */
 export const randomUUID = () => {
   if (typeof window?.crypto?.randomUUID === 'function') {

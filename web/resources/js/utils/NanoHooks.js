@@ -1,9 +1,13 @@
+/** @module */
+
 /**
  * Minimal observable to register and run for any given names.
  * As opposed to Events (i.e. nanoevents) these also run
  * in sync mode and thus in registered order.
  * If you need async functionality then you might
  * consider an event emitter like nanoevents instead.
+ * @class
+ * @export
  */
 export class Observable {
   /**
@@ -54,7 +58,7 @@ export class Observable {
    * Run all registered hooks for a given
    * name. Args are optional
    * @param name {string}
-   * @param args {...[]=}
+   * @param args {...*}
    */
   run(name, ...args) {
     const listeners = this.src.get(name) ?? [];
