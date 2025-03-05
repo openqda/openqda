@@ -53,7 +53,7 @@ defineOptions({
 
 const props = defineProps({
   modelValue: Array,
-  groupId: String,
+  groupId: [Number, String],
   parentId: String,
   class: String,
 });
