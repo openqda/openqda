@@ -19,5 +19,5 @@ export default {
   /**
    * load Vue component
    */
-  load: () => import('./CodePortrait.vue')
+  load: () => import('./CodePortrait.vue'),
 };

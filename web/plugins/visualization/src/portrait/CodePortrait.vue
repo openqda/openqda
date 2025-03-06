@@ -11,27 +11,27 @@ const props = defineProps([
   'codes',
   'checkedSources',
   'checkedCodes',
-  'hasSelections'
+  'hasSelections',
 ]);
 
-const API = inject('api')
+const API = inject('api');
 const segments = ref(new Map());
 const currentSources = ref([]);
 const gridSize = ref(1);
 
 const getSegmentsForFile = (file) => {
   const codes = props.codes.filter(
-      (code) =>
-          !!props.checkedCodes.get(code.id) &&
-          (code.text ?? []).some((t) => t.source_id === file.id)
+    (code) =>
+      !!props.checkedCodes.get(code.id) &&
+      (code.text ?? []).some((t) => t.source_id === file.id)
   );
   return codes
-      .flatMap((code) => {
-        return code.text
-            .filter((t) => t.source_id === file.id)
-            .map((segment) => ({ segment, color: rgba2hex(code.color) }));
-      })
-      .sort((a, b) => a.segment.start - b.segment.start);
+    .flatMap((code) => {
+      return code.text
+        .filter((t) => t.source_id === file.id)
+        .map((segment) => ({ segment, color: rgba2hex(code.color) }));
+    })
+    .sort((a, b) => a.segment.start - b.segment.start);
 };
 
 const getColumns = (gridSize) => {
@@ -80,61 +80,66 @@ onMounted(() => {
 const rgba2hex = (color) => {
   if (color.startsWith('#')) return color;
   let rgb = color
-      .replace(/\s/g, '')
-      .match(/^rgba?\((\d+),(\d+),(\d+),?([^,\s)]+)?/i);
+    .replace(/\s/g, '')
+    .match(/^rgba?\((\d+),(\d+),(\d+),?([^,\s)]+)?/i);
   let hex = rgb
-      ? (rgb[1] | (1 << 8)).toString(16).slice(1) +
+    ? (rgb[1] | (1 << 8)).toString(16).slice(1) +
       (rgb[2] | (1 << 8)).toString(16).slice(1) +
       (rgb[3] | (1 << 8)).toString(16).slice(1)
-      : color;
+    : color;
   return `#${hex}`;
 };
 </script>
 <template>
-  <div class="block text-right">
-    <label for="portrait-grid-size" class="mr-2">Columns</label>
-    <input
+  <div class="block w-full">
+    <div class="block text-right">
+      <label for="portrait-grid-size" class="mr-2">Columns</label>
+      <input
         id="portrait-grid-size"
         class="rounded focus:ring-1 focus:ring-inset focus:ring-cerulean-700"
         type="number"
         v-model="gridSize"
         min="1"
         max="6"
-    />
-  </div>
-  <div :class="API.cn(`grid gap-3 my-5`, getColumns(gridSize))">
-    <div
+      />
+    </div>
+    <div :class="API.cn(`grid gap-3 my-5`, getColumns(gridSize))">
+      <div
         v-for="source in currentSources"
         class="border border-silver-300 p-2 col-span-1"
         :key="source.id"
-    >
-      <h3 class="font-semibold tracking-wide flex">
-        <span class="truncate flex-grow">
-          {{ source.name }}
-        </span>
-        <XMarkIcon
+      >
+        <h3 class="font-semibold tracking-wide flex">
+          <span class="truncate flex-grow">
+            {{ source.name }}
+          </span>
+          <XMarkIcon
             class="float-right h-5 w-5 text-silver-300 hover:text-porsche-400 cursor-pointer"
             @click="$emit('remove', source.id)"
-        />
-      </h3>
-      <div class="flex flex-wrap">
-        <span
+          />
+        </h3>
+        <div class="flex flex-wrap">
+          <span
             v-for="(entry, index) in segments.get(source.id)"
             :key="`${source.id}-${index}`"
             :title="`${entry.segment.start}-${entry.segment.end};\n\n${entry.segment.text.substring(0, 250)}...`"
             class="m-1"
-        >
-          <EllipsisHorizontalCircleIcon
+          >
+            <EllipsisHorizontalCircleIcon
               :style="{
-              color: entry.color,
-              backgroundColor: entry.color,
-            }"
+                color: entry.color,
+                backgroundColor: entry.color,
+              }"
               class="w-4 h-4"
-          />
-        </span>
-      </div>
-      <div v-if="!segments.has(source.id)" class="ml-2 mt-2 p-2 bg-silver-100">
-        No codes
+            />
+          </span>
+        </div>
+        <div
+          v-if="!segments.has(source.id)"
+          class="ml-2 mt-2 p-2 bg-silver-100"
+        >
+          No codes
+        </div>
       </div>
     </div>
   </div>

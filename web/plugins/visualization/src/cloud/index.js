@@ -18,5 +18,5 @@ export default {
   /**
    * load Vue component
    */
-  load: () => import('./WordCloudView.vue')
+  load: () => import('./WordCloudView.vue'),
 };
