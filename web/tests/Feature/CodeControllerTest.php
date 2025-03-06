@@ -29,6 +29,33 @@ class CodeControllerTest extends TestCase
         $this->assertDatabaseMissing('codes', ['id' => $code->id]);
     }
 
+    public function test_destroy_code_with_children_successfully()
+    {
+        // Create a user, project, source, and codes
+        $user = User::factory()->create();
+        $project = Project::factory()->create(['creating_user_id' => $user->id]);
+        $source = Source::factory()->create(['project_id' => $project->id]);
+        $codebook = Codebook::factory()->create(['project_id' => $project->id, 'creating_user_id' => $user->id]);
+
+        // Create parent and child codes
+        $parentCode = Code::factory()->create(['codebook_id' => $codebook->id]);
+        $childCode = Code::factory()->create([
+            'codebook_id' => $codebook->id,
+            'parent_id' => $parentCode->id,
+        ]);
+
+        // Acting as the created user, delete the parent code
+        $response = $this->actingAs($user)->delete(route('coding.destroy', [$project->id, $source->id, $parentCode->id]), [], ['Accept' => 'application/json']);
+
+        // Assert the parent code was deleted successfully
+        $response->assertStatus(200);
+        $response->assertJson(['message' => 'Code and its selections successfully deleted']);
+
+        // Assert both parent and child codes are removed from database
+        $this->assertDatabaseMissing('codes', ['id' => $parentCode->id]);
+        $this->assertDatabaseMissing('codes', ['id' => $childCode->id]);
+    }
+
     public function test_destroy_code_unauthorized()
     {
         // Create a user, project, source, and code

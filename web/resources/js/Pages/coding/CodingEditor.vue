@@ -15,15 +15,16 @@
       ></div>
     </div>
     <div
-      class="absolute flex items-end bottom-10 right-16"
-      style="z-index: 999"
+      class="fixed bottom-4 right-4 flex-grow flex items-end"
+      style="z-index: 50"
     >
       <span class="text-foreground/60 w-4 h-4 animate-spin" v-show="updating">
         <ArrowPathIcon class="w-4 h-4" />
       </span>
       <span
         id="selection-hash"
-        class="w-6 h-6 text-center text-xs ArrowPathIcon border-0 bg-surface p-2 float-end"
+        @mousedown.prevent=""
+        class="text-center text-xs ArrowPathIcon border-0 bg-surface p-1 font-mono"
         >0:0</span
       >
     </div>
@@ -76,7 +77,6 @@ const props = defineProps({
   locked: Boolean,
   CanUnlock: Boolean,
 });
-
 const disposables = new Set();
 
 let quillInstance;

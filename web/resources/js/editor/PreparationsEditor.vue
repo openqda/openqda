@@ -16,11 +16,15 @@
     <div id="lineNumber"></div>
     <div id="editor" class="flex-grow"></div>
   </div>
-  <div class="absolute bottom-10 right-10" style="z-index: 999">
+  <div
+    class="fixed bottom-4 right-4 flex-grow flex items-end"
+    style="z-index: 50"
+  >
     <slot name="status"></slot>
     <span
       id="selection-hash"
-      class="w-6 h-6 text-center text-xs text-foreground/60 border-0 bg-surface p-2"
+      @mousedown.prevent=""
+      class="text-center text-xs ArrowPathIcon border-0 bg-surface p-1 font-mono"
       >0:0</span
     >
   </div>
