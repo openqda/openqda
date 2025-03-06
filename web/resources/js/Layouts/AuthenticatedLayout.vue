@@ -1,8 +1,9 @@
 <template>
   <LayoutContainer
-      :title="props.title"
-      :menu="props.menu"
-      :showFooter="props.showFooter">
+    :title="props.title"
+    :menu="props.menu"
+    :showFooter="props.showFooter"
+  >
     <div class="h-full">
       <TransitionRoot as="template" :show="sidebarOpen">
         <Dialog class="relative z-50 lg:hidden" @close="sidebarOpen = false">

@@ -156,7 +156,7 @@ const cancel = () => {
         <span class="flex-grow text-right mx-1">
           <ActionMessage
             v-if="!complete && !error"
-            :on="!! submitting"
+            :on="!!submitting"
             class="text-destructive"
             >Deleting</ActionMessage
           >

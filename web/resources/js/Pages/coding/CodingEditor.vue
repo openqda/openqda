@@ -38,7 +38,7 @@
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 import Quill from 'quill';
 import QuillCursors from 'quill-cursors';
-import { formats, redoChange, undoChange } from '../../editor/EditorConfig.js';
+import { formats } from '../../editor/EditorConfig.js';
 import '../../editor/editor.css';
 import { LineNumber } from '../../editor/LineNumber.js';
 import { SelectionHighlightBG } from './editor/SelectionHighlightBG.js';
