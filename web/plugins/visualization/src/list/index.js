@@ -18,5 +18,5 @@ export default {
   /**
    * load Vue component
    */
-  load: () => import('./ListView.vue')
+  load: () => import('./ListView.vue'),
 };

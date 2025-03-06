@@ -1,5 +1,6 @@
 import './startup/theme.js';
 import './startup/axios.js';
+import './startup/errors.js';
 import '../css/app.css';
 import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';

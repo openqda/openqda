@@ -1,70 +1,78 @@
 <template>
-  <div class="p-3 mb-5">
-    <table class="table-auto word-cloud-settings w-full">
-      <thead>
-        <tr>
-          <th scope="col" class="text-left text-xs font-medium uppercase">
-            Height
-          </th>
-          <th scope="col" class="text-left text-xs font-medium uppercase">
-            Min word length
-          </th>
-          <th scope="col" class="text-left text-xs font-medium uppercase">
-            Scale
-          </th>
-          <th scope="col" class="text-left text-xs font-medium uppercase">
-            + Size
-          </th>
-          <th scope="col" class="text-left text-xs font-medium uppercase">
-            <Cog6ToothIcon
-              v-if="generating"
-              class="animate-spin h-6 w-6 text-cerulean-700"
-            />
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-            <input type="number" v-model="minHeight" min="100" max="2000" />
-          </td>
-          <td>
-            <input type="number" v-model="minWords" min="1" />
-          </td>
-          <td>
-            <input
-              type="range"
-              v-model="scaleFactor"
-              min="1"
-              max="50"
-              step="1"
-            />
-            <span>{{ scaleFactor }}</span>
-          </td>
-          <td>
-            <input type="range" v-model="scaleAdd" min="0" max="50" step="1" />
-            <span>{{ scaleAdd }}</span>
-          </td>
-          <td>
-            <Button @click="rebuild" :disabled="generating">Refresh</Button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <div class="w-full block">
+    <div class="p-3 mb-5">
+      <table class="table-auto word-cloud-settings w-full">
+        <thead>
+          <tr>
+            <th scope="col" class="text-left text-xs font-medium uppercase">
+              Height
+            </th>
+            <th scope="col" class="text-left text-xs font-medium uppercase">
+              Min word length
+            </th>
+            <th scope="col" class="text-left text-xs font-medium uppercase">
+              Scale
+            </th>
+            <th scope="col" class="text-left text-xs font-medium uppercase">
+              + Size
+            </th>
+            <th scope="col" class="text-left text-xs font-medium uppercase">
+              <Cog6ToothIcon
+                v-if="generating"
+                class="animate-spin h-6 w-6 text-cerulean-700"
+              />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <input type="number" v-model="minHeight" min="100" max="2000" />
+            </td>
+            <td>
+              <input type="number" v-model="minWords" min="1" />
+            </td>
+            <td>
+              <input
+                type="range"
+                v-model="scaleFactor"
+                min="1"
+                max="50"
+                step="1"
+              />
+              <span>{{ scaleFactor }}</span>
+            </td>
+            <td>
+              <input
+                type="range"
+                v-model="scaleAdd"
+                min="0"
+                max="50"
+                step="1"
+              />
+              <span>{{ scaleAdd }}</span>
+            </td>
+            <td>
+              <Button @click="rebuild" :disabled="generating">Refresh</Button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
-  <div
-    ref="resizeRef"
-    class="cloud-root"
-    :style="{ height: windowHeight + 'px' }"
-  >
-    <svg ref="svgRef" id="cloud-svg">
-      <g ref="gRef"></g>
-    </svg>
-  </div>
+    <div
+      ref="resizeRef"
+      class="cloud-root"
+      :style="{ height: windowHeight + 'px' }"
+    >
+      <svg ref="svgRef" id="cloud-svg">
+        <g ref="gRef"></g>
+      </svg>
+    </div>
 
-  <div class="text-center m-4">
-    <span class="p-2 border-t">{{ words.size }} unique words</span>
+    <div class="text-center m-4">
+      <span class="p-2 border-t">{{ words.size }} unique words</span>
+    </div>
   </div>
 </template>
 
@@ -81,8 +89,8 @@ import * as d3Module from 'd3';
 import * as cloudModule from 'd3-cloud';
 import { Cog6ToothIcon } from '@heroicons/vue/20/solid';
 
-const API = inject('api')
-const { Button } = inject('components')
+const API = inject('api');
+const { Button } = inject('components');
 const d3 = d3Module.default ?? d3Module;
 const cloud = cloudModule.default ?? cloudModule;
 const props = defineProps([
@@ -115,7 +123,7 @@ function rebuild() {
 
 watch(
   minHeight,
-    API.debounce((val) => {
+  API.debounce((val) => {
     windowHeight.value = val;
   }, 500)
 );
@@ -154,29 +162,32 @@ onMounted(() => {
     generating.value = false;
   }
 
-  const _setupDebounced = API.debounce(({ width, height, wordsList, scale }) => {
-    layout
-      .size([width, height])
-      .words(
-        wordsList.map(function ([d, count]) {
-          return {
-            text: d,
-            size: count * scale.factor + scale.addition,
-          };
+  const _setupDebounced = API.debounce(
+    ({ width, height, wordsList, scale }) => {
+      layout
+        .size([width, height])
+        .words(
+          wordsList.map(function ([d, count]) {
+            return {
+              text: d,
+              size: count * scale.factor + scale.addition,
+            };
+          })
+        )
+        .padding(5)
+        .rotate(function () {
+          return ~~(Math.random() * 2) * 90;
         })
-      )
-      .padding(5)
-      .rotate(function () {
-        return ~~(Math.random() * 2) * 90;
-      })
-      .font('Impact')
-      .fontSize(function (d) {
-        return d.size;
-      })
-      .on('end', (words) => draw(words, layout));
+        .font('Impact')
+        .fontSize(function (d) {
+          return d.size;
+        })
+        .on('end', (words) => draw(words, layout));
 
-    layout.start();
-  }, 500);
+      layout.start();
+    },
+    500
+  );
 
   const setup = (options) => {
     // always keep the loading icon active

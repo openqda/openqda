@@ -12,13 +12,6 @@
     >
       {{ msg.message }}
     </div>
-    <div
-      :class="[
-        'border-l-4  h-1 transition-[width] duration-1000',
-        colors.color({ bg: msg.type, border: msg.type }),
-      ]"
-      :style="{ width: `${widthPercentage}%` }"
-    ></div>
   </div>
 </template>
 
@@ -26,6 +19,7 @@
 import { ref, onMounted, watch, onUnmounted } from 'vue';
 import { useFlashMessage, flashMessage } from './flashMessage.js';
 import { ColorMap } from '../../utils/colors/ColorMap.js';
+
 const props = defineProps(['message', 'flash']);
 const getMessage = useFlashMessage();
 const msg = ref(null);
@@ -43,19 +37,23 @@ const colors = new ColorMap({
   },
 });
 
+let timeout;
+
 const clean = () => {
   msg.value = null;
   widthPercentage.value = 100;
+  clearTimeout(timeout);
 };
 
 onMounted(() => {
   watch(
     getMessage,
     (value) => {
-      if (!value) return clean();
-      widthPercentage.value = 0;
+      if (!value) {
+        return clean();
+      }
       msg.value = value;
-      setTimeout(() => clean(), 3000);
+      timeout = setTimeout(() => clean(), 3000);
     },
     { immediate: true, deep: true }
   );
@@ -74,5 +72,11 @@ onUnmounted(() => {
 <style scoped>
 .h-1 {
   height: 4px;
+}
+
+.progress {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 1s;
 }
 </style>

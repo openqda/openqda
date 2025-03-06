@@ -1,22 +1,22 @@
 export default {
-    key: 'bar',
+  key: 'bar',
 
-    /**
-     * Component name
-     */
-    name: 'CodeCount',
+  /**
+   * Component name
+   */
+  name: 'CodeCount',
 
-    /**
-     * Human-readable title
-     */
-    title: 'Code Selection Count',
-    /**
-     * For filtering
-     */
-    type: 'visualization',
+  /**
+   * Human-readable title
+   */
+  title: 'Code Selection Count',
+  /**
+   * For filtering
+   */
+  type: 'visualization',
 
-    /**
-     * load Vue component
-     */
-    load: () => import('./BarChart.vue')
+  /**
+   * load Vue component
+   */
+  load: () => import('./BarChart.vue'),
 };

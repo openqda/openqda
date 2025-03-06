@@ -15,7 +15,11 @@ class DeleteSelectionRequest extends FormRequest
      */
     public function authorize()
     {
-        $selection = Selection::findOrFail($this->route('selection'));
+        $selection = $this->route('selection');
+
+        if (gettype($selection) == 'string') {
+            $selection = Selection::findOrFail($id);
+        }
 
         return Gate::allows('delete', $selection);
     }

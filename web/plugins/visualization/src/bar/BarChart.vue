@@ -54,12 +54,11 @@ const rebuildList = () => {
     });
   const data = [trace1];
   const layout = {};
-  console.debug(trace1);
   const config = { responsive: true };
   Plotly.newPlot(plotlyId.value, data, layout, config);
 };
 
-const plotlyId: Ref<null | HTMLDivElement> = ref(null);
+const plotlyId = ref(null);
 const ready = ref(false);
 watch(props, API.debounce(rebuildList, 100), { immediate: true, deep: true });
 

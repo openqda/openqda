@@ -103,7 +103,7 @@ const cancel = () => {
           <ActionMessage :on="complete" class="text-secondary"
             >Saved</ActionMessage
           >
-          <ActionMessage :on="error" class="text-destructive">{{
+          <ActionMessage :on="!!error" class="text-destructive">{{
             error
           }}</ActionMessage>
         </span>
