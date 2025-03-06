@@ -5,7 +5,6 @@ namespace App\Http\Requests;
 use App\Models\Selection;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Log;
 
 class DeleteSelectionRequest extends FormRequest
 {
