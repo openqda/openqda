@@ -109,7 +109,7 @@
 </template>
 
 <script setup>
-import { defineProps, onMounted, provide, ref, unref, watch } from 'vue';
+import { defineProps, onMounted, provide, ref, watch } from 'vue';
 import PreparationsEditor from '../editor/PreparationsEditor.vue';
 import FilesManager from '../Components/files/FilesManager.vue';
 import Button from '../Components/interactive/Button.vue';
@@ -199,7 +199,6 @@ function loadFileIntoEditor(source) {
   if (!source?.content) {
     return;
   }
-
   editorSourceRef.value.content = source.content;
   editorSourceRef.value.selected = true;
   editorSourceRef.value.id = source.id;
@@ -230,14 +229,14 @@ function onDocumentDeleted(deletedDocumentId) {
 const saving = ref(false);
 const saved = ref(false);
 
-async function saveQuillContent() {
+async function saveQuillContent(html) {
   saving.value = true;
   const { response, error } = await request({
     url: '/source/update',
     type: 'post',
     body: {
       id: editorSourceRef.value.id,
-      content: unref(editorComponent.value),
+      content: { editorContent: html },
     },
   });
 

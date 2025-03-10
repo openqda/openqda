@@ -22,8 +22,13 @@
   >
     <slot name="status"></slot>
     <span
+      v-if="contentHash?.hash"
+      class="text-xs border-0 bg-surface p-1 font-mono me-3"
+      :title="contentHash.hash"
+      >Integrity: {{ contentHash.short }}</span
+    >
+    <span
       id="selection-hash"
-      @mousedown.prevent=""
       class="text-center text-xs ArrowPathIcon border-0 bg-surface p-1 font-mono"
       >0:0</span
     >
@@ -49,6 +54,8 @@ import { retry } from '../utils/dom/retry.js';
 import { asyncTimeout } from '../utils/asyncTimeout.js';
 import { cn } from '../utils/css/cn.js';
 import ActivityIndicator from '../Components/ActivityIndicator.vue';
+import { createHash } from '../utils/createHash.js';
+import { SelectionHighlightBG } from '../Pages/coding/editor/SelectionHighlightBG.js';
 
 const props = defineProps({
   source: String,
@@ -62,15 +69,18 @@ let quillInstance;
 const Delta = Quill.import('delta');
 const editorContent = ref('');
 const unsaved = ref(false);
+const contentHash = ref('');
 
 Quill.register('modules/lineNumber', LineNumber, true);
 Quill.register('modules/selectionHash', SelectionHash, true);
 Quill.register('modules/cursors', QuillCursors);
+Quill.register('modules/highlight', SelectionHighlightBG);
+
 const emit = defineEmits(['status', 'autosave', 'settings']);
 onMounted(() => {
   quillInstance = new Quill('#editor', {
     theme: 'snow',
-    formats,
+    formats: formats.concat(['id', 'title', 'class']),
     placeholder: 'Start writing or paste content...',
     modules: {
       syntax: false,
@@ -101,7 +111,7 @@ onMounted(() => {
   let change = new Delta();
   const runAutosave = debounce(() => {
     if (change.length() > 0) {
-      emit('autosave');
+      emit('autosave', quillInstance.getSemanticHTML());
       change = new Delta();
       unsaved.value = false;
       emit('status', { value: 'saved' });
@@ -123,6 +133,19 @@ onMounted(() => {
   quillInstance.on('editor-change', function (/* eventName, ...args */) {
     editorContent.value = quillInstance.root.innerHTML;
   });
+
+  quillInstance.on(
+    'text-change',
+    debounce(async () => {
+      const data = quillInstance.getContents();
+      const hash = (await createHash(data)) ?? '';
+      const short = hash.substring(0, 8);
+      contentHash.value = {
+        hash,
+        short,
+      };
+    }, 500)
+  );
 
   quillInstance.enable(!props.locked);
   const ln = quillInstance.getModule('lineNumber');
@@ -175,6 +198,9 @@ defineExpose({ editorContent });
 </script>
 
 <style scoped>
+.ql-clipboard {
+  white-space: pre-wrap !important;
+}
 .ql-container.ql-snow {
   line-height: 18.4667;
   border: none !important;

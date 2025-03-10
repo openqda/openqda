@@ -5,8 +5,8 @@
     <span class="ql-formats">
       <select class="ql-font" title="Font family">
         <option value="arial" selected>Arial</option>
-        <option value="comic-sans">Comic Sans</option>
-        <option value="courier-new">Courier New</option>
+        <option value="comic">Comic Sans</option>
+        <option value="courier">Courier New</option>
         <option value="georgia">Georgia</option>
         <option value="helvetica">Helvetica</option>
         <option value="lucida">Lucida</option>

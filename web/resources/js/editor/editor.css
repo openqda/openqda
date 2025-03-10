@@ -1320,9 +1320,14 @@
   font-family: 'Helvetica Neue', 'Helvetica', 'Open Sans', 'Arial', sans-serif;
 }
 
-.ql-font-courier-new {
+.ql-font-comic {
+  font-family: 'Comic Sans MS', 'Comic Sans', 'Comic Neue', cursive;
+}
+
+.ql-font-courier {
   font-family: 'Courier New', Courier, monospace;
 }
-.ql-font-lucidia {
-  font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+.ql-font-lucida {
+  font-family: 'Lucida Sans Unicode', 'Lucida Grande', 'Apple Chancery',
+    'Lucida Calligraphy', cursive;
 }
