@@ -22,9 +22,14 @@
         <ArrowPathIcon class="w-4 h-4" />
       </span>
       <span
+        v-if="contentHash?.hash"
+        class="text-xs border-0 bg-surface p-1 font-mono me-3"
+        :title="contentHash.hash"
+        >Integrity: {{ contentHash.short }}</span
+      >
+      <span
         id="selection-hash"
-        @mousedown.prevent=""
-        class="text-center text-xs ArrowPathIcon border-0 bg-surface p-1 font-mono"
+        class="text-center text-xs border-0 bg-surface p-1 font-mono"
         >0:0</span
       >
     </div>
@@ -56,6 +61,7 @@ import Headline1 from '../../Components/layout/Headline1.vue';
 import { asyncTimeout } from '../../utils/asyncTimeout.js';
 import ActivityIndicator from '../../Components/ActivityIndicator.vue';
 import { cn } from '../../utils/css/cn.js';
+import { createHash } from '../../utils/createHash.js';
 
 const editorContent = ref('');
 const contextMenu = useContextMenu();
@@ -78,6 +84,7 @@ const props = defineProps({
   CanUnlock: Boolean,
 });
 const disposables = new Set();
+const contentHash = ref('');
 
 let quillInstance;
 onMounted(() => {
@@ -113,7 +120,6 @@ onMounted(() => {
     setRange(data, text);
   });
   const hl = quillInstance.getModule('highlight');
-
   window.quill = quillInstance;
 
   const disposeSelectionObserver = observe('store/selections', {
@@ -165,6 +171,7 @@ onMounted(() => {
   );
 
   loadingDocument.value = false;
+  updateHash().catch(console.error);
 });
 
 watch(
@@ -174,8 +181,19 @@ watch(
     loadingDocument.value = true;
     await asyncTimeout(300);
     quillInstance.clipboard.dangerouslyPasteHTML(newValue.content);
+    await updateHash();
   }
 );
+
+const updateHash = async () => {
+  const data = quillInstance.getContents();
+  const hash = (await createHash(data)) ?? '';
+  const short = hash.substring(0, 8);
+  contentHash.value = {
+    hash,
+    short,
+  };
+};
 
 const loadingDocument = ref(true);
 const updating = ref(false);
