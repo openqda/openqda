@@ -14,11 +14,11 @@ Size.whitelist = ['extra-small', 'small', 'medium', 'large'];
 Quill.register(Size, true);
 
 // Add fonts to whitelist and register them
-const FontAttributor = Quill.import('formats/font');
+const FontAttributor = Quill.import('attributors/class/font');
 FontAttributor.whitelist = [
   'arial',
-  'comic-sans',
-  'courier-new',
+  'comic',
+  'courier',
   'georgia',
   'helvetica',
   'lucida',
