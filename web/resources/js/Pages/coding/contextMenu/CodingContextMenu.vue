@@ -66,19 +66,19 @@ const onClose = () => {
       )
     "
   >
-    <div v-if="toDeleteSize" class="mb-6 space-y-2">
+    <div v-if="toDeleteSize" class="mb-6 flex flex-col gap-2">
       <div class="block w-full text-xs font-semibold">
         Edit linked selections
       </div>
       <div
-        class="text-sm space-y-2"
+        class="text-sm flex flex-col gap-2"
         v-for="selection in toDelete"
         :key="selection.id"
       >
         <div class="contents" v-if="reassign ? reassign === selection : true">
           <div class="border-border border-t">
             <div class="flex items-baseline my-2">
-              <span class="text-xs font-semibold font-mono flex-grow">
+              <span class="text-xs font-semibold font-mono grow">
                 {{ selection.start }}:{{ selection.end }}
               </span>
               <ProfileImage

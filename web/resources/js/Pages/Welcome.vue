@@ -58,12 +58,12 @@ function onLogout() {
                 >
                   <a
                     :href="route('login')"
-                    class="rounded-md bg-cerulean-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-cerulean-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-500 sign-in-btn"
+                    class="rounded-md bg-cerulean-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-cerulean-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-500 sign-in-btn"
                     >Sign in</a
                   >
                   <a
                     :href="route('register')"
-                    class="rounded-md bg-porsche-400 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-porsche-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-porsche-400 register-btn"
+                    class="rounded-md bg-porsche-400 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-porsche-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-porsche-400 register-btn"
                     >Register</a
                   >
                 </div>
@@ -73,13 +73,13 @@ function onLogout() {
                 >
                   <a
                     :href="route('projects.index')"
-                    class="rounded-md bg-cerulean-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-cerulean-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-500"
+                    class="rounded-md bg-cerulean-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-cerulean-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-500"
                     >Projects</a
                   >
                   <form @submit.prevent="logout" class="cursor-pointer">
                     <a
                       @click="onLogout"
-                      class="rounded-md bg-cerulean-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-cerulean-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-500"
+                      class="rounded-md bg-cerulean-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-cerulean-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-500"
                       >Log out</a
                     >
                   </form>

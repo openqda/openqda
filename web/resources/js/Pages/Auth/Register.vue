@@ -37,7 +37,7 @@ const submit = () => {
       Register an Account
     </Headline1>
 
-    <form @submit.prevent="submit" class="space-y-10">
+    <form @submit.prevent="submit" class="flex flex-col gap-10">
       <div>
         <InputLabel
           for="name"
@@ -126,7 +126,7 @@ const submit = () => {
           <span class="me-1">Already registered?</span>
           <Link
             href="/"
-            class="hover:underline text-sm text-secondary-foreground dark:text-foreground hover:text-opacity-60 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-foreground"
+            class="hover:underline text-sm text-secondary-foreground hover:text-secondary-foreground/60 dark:text-foreground dark:hover:text-foreground/60 rounded-md focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-foreground"
           >
             Log in
           </Link>

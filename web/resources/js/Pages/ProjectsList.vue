@@ -49,7 +49,7 @@ const createProjectSchema = ref(null);
               Select a project from the list or create a new one. You can search
               for project titles, descriptions and ids.
             </div>
-            <HelpResources class="space-y-4" />
+            <HelpResources class="flex flex-col gap-4" />
           </div>
         </div>
       </BaseContainer>

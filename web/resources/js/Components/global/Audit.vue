@@ -18,7 +18,7 @@
           id="searchQuery"
           @input="handleSearch"
           :disabled="isLoading"
-          class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+          class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
         />
         <!-- Search loading indicator -->
         <div
@@ -49,7 +49,7 @@
       </div>
 
       <!-- Date Filters -->
-      <div class="flex justify-center space-x-4 mb-4">
+      <div class="flex justify-center gap-4 mb-4">
         <div>
           <label class="block text-sm font-medium text-gray-700">Before</label>
           <input
@@ -57,7 +57,7 @@
             v-model="filters.before_date"
             @change="handleDateChange"
             :disabled="isLoading"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm disabled:bg-gray-100"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-xs disabled:bg-gray-100"
           />
         </div>
         <div>
@@ -67,32 +67,32 @@
             v-model="filters.after_date"
             @change="handleDateChange"
             :disabled="isLoading"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm disabled:bg-gray-100"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-xs disabled:bg-gray-100"
           />
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700">Between</label>
-          <div class="flex space-x-2">
+          <div class="flex gap-2">
             <input
               type="date"
               v-model="filters.start_date"
               @change="handleDateChange"
               :disabled="isLoading"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm disabled:bg-gray-100"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-xs disabled:bg-gray-100"
             />
             <input
               type="date"
               v-model="filters.end_date"
               @change="handleDateChange"
               :disabled="isLoading"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm disabled:bg-gray-100"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-xs disabled:bg-gray-100"
             />
           </div>
         </div>
       </div>
 
       <!-- Model Type Filters -->
-      <div class="filters flex space-x-4 w-full justify-center mb-4">
+      <div class="filters flex gap-4 w-full justify-center mb-4">
         <label
           v-for="type in modelTypes"
           :key="type"
@@ -119,7 +119,7 @@
       <!-- Loading overlay -->
       <div
         v-if="isLoading && localAudits.data.length"
-        class="absolute inset-0 bg-white bg-opacity-50 flex items-center justify-center z-10"
+        class="absolute inset-0 bg-white/50 flex items-center justify-center z-10"
       >
         <svg
           class="animate-spin h-8 w-8 text-cerulean-600"
@@ -151,7 +151,7 @@
               class="absolute left-5 top-5 -ml-px h-full w-0.5 bg-gray-200"
               aria-hidden="true"
             ></span>
-            <div class="relative flex items-start space-x-3">
+            <div class="relative flex items-start gap-3">
               <div>
                 <div class="relative px-1">
                   <div
@@ -159,7 +159,7 @@
                   >
                     <div
                       v-if="audit.user_profile_picture"
-                      class="flex text-sm relative overflow-hidden transition w-8 h-8 border-2 border-transparent focus:outline-none focus:border-gray-300"
+                      class="flex text-sm relative overflow-hidden transition w-8 h-8 border-2 border-transparent focus:outline-hidden focus:border-gray-300"
                     >
                       <img
                         class="object-cover w-full h-auto rounded-full"

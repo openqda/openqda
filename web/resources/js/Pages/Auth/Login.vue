@@ -27,7 +27,7 @@ defineProps({
       <p class="text-secondary-foreground">You are already logged in.</p>
       <a
         :href="route('projects.index')"
-        class="my-12 rounded-full border-2 border-secondary-foreground uppercase font-bold block w-full py-3 text-secondary-foreground dark:text-foreground bg-transparent hover:bg-secondary-foreground hover:text-secondary hover:dark:text-background focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-foreground"
+        class="my-12 rounded-full border-2 border-secondary-foreground uppercase font-bold block w-full py-3 text-secondary-foreground dark:text-foreground bg-transparent hover:bg-secondary-foreground hover:text-secondary dark:hover:text-background focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-foreground"
       >
         Show my projects
       </a>

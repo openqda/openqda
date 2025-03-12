@@ -141,7 +141,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="flex flex-col gap-6">
     <div>
       <!-- Team Owner Information -->
       <InputLabel class="mb-3">
@@ -182,7 +182,7 @@ onMounted(() => {
               >
             </InputLabel>
           </div>
-          <div class="space-y-6">
+          <div class="flex flex-col gap-6">
             <div
               v-for="user in team.users"
               :key="user.id"
@@ -202,7 +202,7 @@ onMounted(() => {
                 </div>
               </div>
 
-              <div class="flex items-center space-x-2">
+              <div class="flex items-center gap-2">
                 <!-- Manage Team Member Role -->
 
                 <Button
@@ -275,7 +275,7 @@ onMounted(() => {
 
         <!-- Pending Team Member Invitation List -->
         <template #content>
-          <div class="space-y-6">
+          <div class="flex flex-col gap-6">
             <div
               v-for="invitation in team.team_invitations"
               :key="invitation.id"
@@ -289,7 +289,7 @@ onMounted(() => {
                 <!-- Cancel Team Invitation -->
                 <button
                   v-if="userPermissions.canRemoveTeamMembers"
-                  class="cursor-pointer ml-6 text-sm text-red-700 focus:outline-none"
+                  class="cursor-pointer ml-6 text-sm text-red-700 focus:outline-hidden"
                   @click="cancelTeamInvitation(invitation)"
                 >
                   Cancel
@@ -317,7 +317,7 @@ onMounted(() => {
               v-for="(role, i) in availableRoles"
               :key="role.key"
               type="button"
-              class="relative px-4 py-3 inline-flex w-full rounded-lg focus:z-10 focus:outline-none focus:border-cerulean-700 focus:ring-2 focus:ring-cerulean-700"
+              class="relative px-4 py-3 inline-flex w-full rounded-lg focus:z-10 focus:outline-hidden focus:border-cerulean-700 focus:ring-2 focus:ring-cerulean-700"
               :class="{
                 'border-t border-gray-200 focus:border-none rounded-t-none':
                   i > 0,
@@ -396,7 +396,7 @@ onMounted(() => {
 
         <template #form>
           <!-- Member Email -->
-          <div class="col-span-6 sm:col-span-4 space-y-3">
+          <div class="col-span-6 sm:col-span-4 flex flex-col gap-3">
             <InputLabel for="email" value="Email" />
             <InputField
               id="email"
@@ -414,7 +414,7 @@ onMounted(() => {
           <!-- Role -->
           <div
             v-if="availableRoles.length > 0"
-            class="col-span-6 lg:col-span-4 space-y-3 mt-5 hidden"
+            class="col-span-6 lg:col-span-4 flex flex-col gap-3 mt-5 hidden"
           >
             <InputLabel for="roles" value="Role" />
             <InputError :message="addTeamMemberForm.errors.role" class="mt-2" />
@@ -426,7 +426,7 @@ onMounted(() => {
                 v-for="(role, i) in availableRoles"
                 :key="role.key"
                 type="button"
-                class="relative px-4 py-3 inline-flex w-full rounded-lg focus:z-10 focus:outline-none focus:border-cerulean-700 focus:ring-2 focus:ring-cerulean-700"
+                class="relative px-4 py-3 inline-flex w-full rounded-lg focus:z-10 focus:outline-hidden focus:border-cerulean-700 focus:ring-2 focus:ring-cerulean-700"
                 :class="{
                   'border-t border-gray-200 focus:border-none rounded-t-none':
                     i > 0,

@@ -35,7 +35,7 @@ const submit = () => {
       {{ status }}
     </div>
 
-    <form @submit.prevent="submit" class="space-y-10">
+    <form @submit.prevent="submit" class="flex flex-col gap-10">
       <div>
         <InputLabel
           for="email"
@@ -57,7 +57,7 @@ const submit = () => {
 
       <button
         type="submit"
-        class="my-12 rounded-full border-2 border-secondary-foreground uppercase font-bold block w-full py-3 text-secondary-foreground dark:text-foreground bg-transparent hover:bg-secondary-foreground hover:text-secondary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-foreground"
+        class="my-12 rounded-full border-2 border-secondary-foreground uppercase font-bold block w-full py-3 text-secondary-foreground dark:text-foreground bg-transparent hover:bg-secondary-foreground hover:text-secondary focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-foreground"
         :disabled="form.processing"
       >
         Email Password Reset Link
@@ -68,14 +68,14 @@ const submit = () => {
         <!--
             <label class="flex items-center" v-show="false">
                 <Checkbox v-model:checked="form.remember" name="remember" />
-                <span class="ml-2 text-sm text-secondary-foreground text-opacity-60 dark:text-foreground">Remember me</span>
+                <span class="ml-2 text-sm text-secondary-foreground/60 dark:text-foreground/60">Remember me</span>
             </label>
             -->
         <div class="text-left text-secondary-foreground text-sm">
           <span class="mr-2">Not registered yet?</span>
           <Link
             :href="route('register')"
-            class="hover:underline text-sm text-secondary-foreground dark:text-foreground hover:text-opacity-60 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-foreground"
+            class="hover:underline text-sm text-secondary-foreground hover:text-secondary-foreground/60 dark:text-foreground dark:hover:text-foreground/60 rounded-md focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-foreground"
             >Create an account</Link
           >
         </div>
@@ -83,7 +83,7 @@ const submit = () => {
           <span class="me-1">Already registered?</span>
           <Link
             href="/"
-            class="hover:underline text-sm text-secondary-foreground dark:text-foreground hover:text-opacity-60 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-foreground"
+            class="hover:underline text-sm text-secondary-foreground hover:text-secondary-foreground/60 dark:text-foreground dark:hover:text-foreground/60 rounded-md focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-foreground"
           >
             Log in
           </Link>

@@ -31,7 +31,7 @@
           </Button>
         </div>
 
-        <div v-show="menuView === 'sources'" class="space-y-4">
+        <div v-show="menuView === 'sources'" class="flex flex-col gap-4">
           <FilesList
             :focus-on-hover="false"
             :fields="{
@@ -104,7 +104,7 @@
                       opacity: checkedCodes.get(code.id) ? 1 : 0.3,
                     }"
                   >
-                    <ContrastText class="flex-grow line-clamp-1">{{
+                    <ContrastText class="grow line-clamp-1">{{
                       code.name
                     }}</ContrastText>
                     <span class="flex items-center">
@@ -131,7 +131,7 @@
     <template #main>
       <BaseContainer>
         <div class="flex justify-between items-center">
-          <div class="flex-shrink">
+          <div class="shrink">
             <SelectField
               v-if="contentView === 'visualize'"
               id="location"
