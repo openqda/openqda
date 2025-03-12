@@ -9,7 +9,7 @@
         'peer input-field block w-full bg-transparent border-0  border-b-2 border-b-foreground/10',
         'outline outline-0 px-0.5',
         'focus:outline-0 focus:ring-0 rounded-none focus:border-b-foreground/80',
-        'text-foreground placeholder-foreground/30  !autofill:text-foreground',
+        'text-foreground placeholder-foreground active:text-foreground',
         $props.class
       )
     "
@@ -48,7 +48,15 @@ defineExpose({ focus: () => input.value.focus() });
 </script>
 
 <style scoped>
+@reference "../../css/app.css";
 input {
-  -webkit-background-clip: text !important;
+    background-clip:text !important;
+    -webkit-background-clip: text !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-foreground);
 }
 </style>
