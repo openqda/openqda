@@ -48,6 +48,7 @@
     "@headlessui/vue": "^1.7.23",
     "@heroicons/vue": "^2.2.0",
     "@openqda/visualization": "file:plugins/visualization",
+    "@tailwindcss/vite": "^4.0.13",
     "@thin-storage/core": "^1.0.2",
     "@vitejs/plugin-basic-ssl": "^1.2.0",
     "@vueuse/core": "^12.0.0",
