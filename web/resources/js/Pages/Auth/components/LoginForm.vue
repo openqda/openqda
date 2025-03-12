@@ -36,7 +36,7 @@ const submit = () => {
     {{ status }}
   </div>
 
-  <form @submit.prevent="submit" :class="$props.class" class="space-y-10">
+  <form @submit.prevent="submit" :class="$props.class" class="flex flex-col gap-10">
     <div>
       <InputLabel
         for="email"
@@ -82,7 +82,7 @@ const submit = () => {
     <button
       type="submit"
       :disabled="form.processing"
-      class="my-12 rounded-full border-2 border-secondary-foreground uppercase font-bold block w-full py-3 text-secondary-foreground dark:text-foreground bg-transparent hover:bg-secondary-foreground hover:text-secondary hover:dark:text-background focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-foreground"
+      class="my-12 rounded-full border-2 border-secondary-foreground uppercase font-bold block w-full py-3 text-secondary-foreground dark:text-foreground bg-transparent hover:bg-secondary-foreground hover:text-secondary dark:hover:text-background focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-foreground"
     >
       Log in
     </button>
@@ -92,7 +92,7 @@ const submit = () => {
       <!--
             <label class="flex items-center" v-show="false">
                 <Checkbox v-model:checked="form.remember" name="remember" />
-                <span class="ml-2 text-sm text-secondary-foreground text-opacity-60 dark:text-foreground">Remember me</span>
+                <span class="ml-2 text-sm text-secondary-foreground/60 dark:text-foreground">Remember me</span>
             </label>
             -->
       <div class="text-left text-secondary-foreground text-sm">
@@ -100,14 +100,14 @@ const submit = () => {
         <Link
           v-if="canResetPassword"
           :href="route('register')"
-          class="hover:underline text-sm text-secondary-foreground dark:text-foreground hover:text-opacity-60 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-foreground"
+          class="hover:underline text-sm text-secondary-foreground hover:text-secondary-foreground/60 dark:text-foreground dark:hover:text-foreground/60 rounded-md focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-foreground"
           >Create an account
         </Link>
       </div>
       <Link
         v-if="canResetPassword"
         :href="route('password.request')"
-        class="hover:underline text-sm text-secondary-foreground dark:text-foreground hover:text-opacity-60 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-foreground"
+        class="hover:underline text-sm text-secondary-foreground hover:text-secondary-foreground/60 dark:text-foreground dark:hover:text-foreground/60 rounded-md focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-foreground"
       >
         Forgot password?
       </Link>

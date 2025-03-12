@@ -45,7 +45,7 @@ const setCurrent = (value) => {
     <div class="hidden sm:block">
       <div class="">
         <nav
-          class="flex justify-start -mb-px space-x-8 tracking-wider font-semibold"
+          class="flex justify-start -mb-px gap-8 tracking-wider font-semibold"
           aria-label="Tabs"
         >
           <a

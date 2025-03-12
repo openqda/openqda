@@ -7,7 +7,7 @@ defineProps(['class']);
   <div
     :class="
       cn(
-        ' w-full h-full p-1 sm:p-4 lg:p-5 space-y-1 md:space-y-3 lg:space-y-6',
+        ' w-full h-full p-1 sm:p-4 lg:p-5 flex flex-col gap-1 md:gap-3 lg:gap-6',
         $props.class
       )
     "

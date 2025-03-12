@@ -2,7 +2,7 @@
   <div :class="cn(props.class)">
     <div class="flex h-full">
       <div
-        class="flex w-16 flex-shrink-0 items-center justify-center rounded-tl-md rounded-bl-md text-sm font-normal overflow-visible text-white border-t border-b border-l border-border"
+        class="flex w-16 shrink-0 items-center justify-center rounded-tl-md rounded-bl-md text-sm font-normal overflow-visible text-white border-t border-b border-l border-border"
         :style="getBackgroundStyle(codebook)"
       >
         <button
@@ -13,7 +13,7 @@
         </button>
       </div>
       <div
-        class="relative flex-grow flex items-start justify-between rounded-tr-md rounded-br-md border-b border-r border-t border-gray-200 bg-surface text-foreground"
+        class="relative grow flex items-start justify-between rounded-tr-md rounded-br-md border-b border-r border-t border-gray-200 bg-surface text-foreground"
       >
         <div class="flex-1 px-4 py-2 text-sm">
           <a
@@ -37,7 +37,7 @@
             }}
             Codes
           </p>
-          <div class="flex items-center space-x-2 font-mono align-center">
+          <div class="flex items-center gap-2 font-mono align-center">
             <div class="flex items-center">
               <div
                 class="w-2 h-2 rounded-full mr-1 shadow-xl box-decoration-slice"
@@ -54,11 +54,11 @@
           </div>
         </div>
 
-        <div class="flex-shrink-0 pr-2 self-start mt-2">
+        <div class="shrink-0 pr-2 self-start mt-2">
           <Dropdown>
             <template #trigger>
               <button
-                class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent text-foreground hover:text-secondary focus:outline-none"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent text-foreground hover:text-secondary focus:outline-hidden"
               >
                 <span class="sr-only">Open options</span>
                 <EllipsisVerticalIcon class="h-5 w-5" aria-hidden="true" />

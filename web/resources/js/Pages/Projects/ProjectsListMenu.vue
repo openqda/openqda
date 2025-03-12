@@ -121,7 +121,7 @@ onMounted(() => {
       "
     >
       <Link
-        class="flex items-center space-x-4"
+        class="flex items-center gap-4"
         :href="Routes.project.path(entry.id)"
         :title="
           currentProject?.id === entry.id

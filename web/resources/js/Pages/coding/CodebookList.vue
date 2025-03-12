@@ -7,7 +7,7 @@ const { codebooks, toggleCodebook } = useCodes();
 </script>
 
 <template>
-  <ul class="space-y-6">
+  <ul class="flex flex-col gap-6">
     <li
       v-for="codebook in codebooks"
       :key="codebook.id"
@@ -19,7 +19,7 @@ const { codebooks, toggleCodebook } = useCodes();
         :class="
           cn(
             codebook.active ? 'bg-secondary' : 'bg-background',
-            'relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-background transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-offset-2'
+            'relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-background transition-colors duration-200 ease-in-out focus:outline-hidden focus:ring-2 focus:ring-secondary focus:ring-offset-2'
           )
         "
       >
@@ -29,7 +29,7 @@ const { codebooks, toggleCodebook } = useCodes();
           :class="
             cn(
               codebook.active ? 'translate-x-5' : 'translate-x-0',
-              'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-input shadow ring-0 transition duration-200 ease-in-out'
+              'pointer-events-none inline-block h-5 w-5 transform rounded-full bg-input shadow-sm ring-0 transition duration-200 ease-in-out'
             )
           "
         />

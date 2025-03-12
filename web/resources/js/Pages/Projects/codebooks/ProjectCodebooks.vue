@@ -96,7 +96,7 @@ const handleWithReload = async (fn, ...args) => {
         />
         <Headline2>Codebooks of current Project</Headline2>
       </button>
-      <span class="space-x-1">
+      <span class="flex gap-1">
         <Button variant="outline-secondary" @click="openCreateForm()">
           <PlusIcon class="w-4 h-4" />
           <span>Create</span>
@@ -192,7 +192,7 @@ const handleWithReload = async (fn, ...args) => {
         v-model="searchQueryPublicCodebooks"
         type="search"
         placeholder="Search public codebooks..."
-        class="mt-2 mb-3 w-1/2 rounded-md border-border shadow-sm"
+        class="mt-2 mb-3 w-1/2 rounded-md border-border shadow-xs"
       />
       <ul
         v-if="filteredPublicCodebooks.length > 0"

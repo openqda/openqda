@@ -5,7 +5,7 @@
   >
     <div
       id="toolbar"
-      class="rounded-none mb-3 xl:mb-0 lg:rounded-full border-2 bg-surface z-150 shadow-lg border-foreground/20 py-2 px-4 inline-flex !text-foreground/60 text-center"
+      class="rounded-none mb-3 xl:mb-0 lg:rounded-full border-2 bg-surface z-150 shadow-lg border-foreground/20 py-2 px-4 inline-flex text-foreground/60! text-center"
     >
       <EditorToolbar />
     </div>
@@ -14,10 +14,10 @@
   <!-- editor content -->
   <div :class="cn('flex', loadingDocument && 'hidden')">
     <div id="lineNumber"></div>
-    <div id="editor" class="flex-grow"></div>
+    <div id="editor" class="grow"></div>
   </div>
   <div
-    class="fixed bottom-4 right-4 flex-grow flex items-end"
+    class="fixed bottom-4 right-4 grow flex items-end"
     style="z-index: 50"
   >
     <slot name="status"></slot>

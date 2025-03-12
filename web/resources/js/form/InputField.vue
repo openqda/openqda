@@ -9,7 +9,7 @@
         'peer input-field block w-full bg-transparent border-0  border-b-2 border-b-foreground/10',
         'outline outline-0 px-0.5',
         'focus:outline-0 focus:ring-0 rounded-none focus:border-b-foreground/80',
-        'text-foreground placeholder-opacity-30  !autofill:text-foreground',
+        'text-foreground placeholder-foreground/30  !autofill:text-foreground',
         $props.class
       )
     "

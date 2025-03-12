@@ -44,7 +44,7 @@ const deleteProject = async () => {
       <InputLabel>Project Name</InputLabel>
 
       <div class="flex justify-between items-center">
-        <span class="flex-grow text-foreground/80 tracking-wide pe-4">{{
+        <span class="grow text-foreground/80 tracking-wide pe-4">{{
           project.name
         }}</span>
         <Button
@@ -71,7 +71,7 @@ const deleteProject = async () => {
         <span
           :class="
             cn(
-              'flex-grow tracking-wide pe-4',
+              'grow tracking-wide pe-4',
               project.description ? 'text-foreground/80' : 'text-foreground/40'
             )
           "

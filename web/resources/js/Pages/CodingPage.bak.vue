@@ -86,13 +86,13 @@
         <!-- Left Column -->
         <div class="flex flex-col w-3/4 overflow-y-auto">
           <!-- First Row in Left Column with Centered Text -->
-          <div class="flex flex-grow justify-between">
+          <div class="flex grow justify-between">
             <!-- Adjust height as needed -->
             <h1 class="my-2 text-lg flex font-bold text-porsche-400">
               <button
                 type="button"
                 @click="showDocumentSettings = true"
-                class="ml-2 text-center gap-x-1.5 rounded-md bg-cerulean-700 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-cerulean-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-700"
+                class="ml-2 text-center gap-x-1.5 rounded-md bg-cerulean-700 px-2.5 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-cerulean-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-700"
               >
                 <Bars3Icon class="h-4 w-4" aria-hidden="true"></Bars3Icon>
               </button>
@@ -100,7 +100,7 @@
             </h1>
             <div
               id="selection-info"
-              class="text-center opacity-50 hover:right-0 fixed justify-self-end flex bg-cerulean-700 p-2 mt-1.5 text-sm font-semibold text-white shadow-sm z-50"
+              class="text-center opacity-50 hover:right-0 fixed justify-self-end flex bg-cerulean-700 p-2 mt-1.5 text-sm font-semibold text-white shadow-xs z-50"
             >
               Selection: 0 characters
             </div>
@@ -119,12 +119,12 @@
                     <ChevronDownIcon class="h-5 w-5 mr-1" />
                   </div>
                   <div v-if="showFilesMenu" class="relative left-0 w-full">
-                    <div class="bg-white rounded-md shadow-xs">
+                    <div class="bg-white rounded-md shadow-2xs">
                       <a
                         v-for="file in props.sources"
                         :key="file.id"
                         @click="codeThisFile(file)"
-                        class="block text-sm px-2 py-2 hover:bg-porsche-400 hover:text-white overflow-hidden overflow-ellipsis cursor-pointer flex align-content-start gap-2"
+                        class="block text-sm px-2 py-2 hover:bg-porsche-400 hover:text-white overflow-hidden text-ellipsis cursor-pointer flex align-content-start gap-2"
                       >
                         <span>
                           <DocumentTextIcon
@@ -194,8 +194,8 @@
             </SideOverlay>
           </div>
           <!-- Second Row in Left Column -->
-          <div class="flex flex-grow">
-            <div class="w-full px-2 mt-4 editor-container flex flex-grow">
+          <div class="flex grow">
+            <div class="w-full px-2 mt-4 editor-container flex grow">
               <div
                 id="editor"
                 contenteditable="false"
@@ -224,7 +224,7 @@
               color="cerulean"
               :icon="Cog6ToothIcon"
               @click="showCodesSettings = true"
-              class="ml-2 flex items-center gap-x-1.5 rounded-md bg-cerulean-700 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-cerulean-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-700"
+              class="ml-2 flex items-center gap-x-1.5 rounded-md bg-cerulean-700 px-2.5 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-cerulean-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-700"
             />
 
             <SideOverlay
@@ -246,7 +246,7 @@
                   <SwitchGroup as="div" class="inline-flex items-center w-full">
                     <SwitchLabel
                       as="dt"
-                      class="flex-grow pr-2 font-medium text-gray-700 sm:w-auto"
+                      class="grow pr-2 font-medium text-gray-700 sm:w-auto"
                       passive
                     >
                       <span>{{ codebook.name }}</span>
@@ -269,7 +269,7 @@
                         >
                           <span
                             aria-hidden="true"
-                            class="h-4 w-4 transform rounded-full bg-white shadow-sm ring-1 ring-gray-900/5 transition duration-200 ease-in-out"
+                            class="h-4 w-4 transform rounded-full bg-white shadow-xs ring-1 ring-gray-900/5 transition duration-200 ease-in-out"
                             :class="
                               checked ? 'translate-x-3.5' : 'translate-x-0'
                             "
@@ -287,7 +287,7 @@
                 <button
                   @click="hideAllCodes"
                   type="button"
-                  class="inline-flex items-center gap-x-1.5 rounded-md bg-cerulean-700 px-2.5 py-1.5 my-1 text-sm font-semibold text-white shadow-sm hover:bg-cerulean-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-700 w-full"
+                  class="inline-flex items-center gap-x-1.5 rounded-md bg-cerulean-700 px-2.5 py-1.5 my-1 text-sm font-semibold text-white shadow-xs hover:bg-cerulean-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-700 w-full"
                 >
                   <eye-slash-icon class="-ml-0.5 h-5 w-5" aria-hidden="true" />
                   Hide Codes
@@ -295,7 +295,7 @@
                 <button
                   @click="showAllCodes"
                   type="button"
-                  class="inline-flex items-center gap-x-1.5 rounded-md bg-cerulean-700 px-2.5 py-1.5 my-1 text-sm font-semibold text-white shadow-sm hover:bg-cerulean-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-700 w-full"
+                  class="inline-flex items-center gap-x-1.5 rounded-md bg-cerulean-700 px-2.5 py-1.5 my-1 text-sm font-semibold text-white shadow-xs hover:bg-cerulean-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-700 w-full"
                 >
                   <rectangle-stack-icon
                     class="-ml-0.5 h-5 w-5"
@@ -307,7 +307,7 @@
                 <button
                   @click="toggleAllCodesText"
                   type="button"
-                  class="inline-flex items-center gap-x-1.5 rounded-md bg-cerulean-700 px-2.5 py-1.5 my-1 text-sm font-semibold text-white shadow-sm hover:bg-cerulean-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-700 w-full"
+                  class="inline-flex items-center gap-x-1.5 rounded-md bg-cerulean-700 px-2.5 py-1.5 my-1 text-sm font-semibold text-white shadow-xs hover:bg-cerulean-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-700 w-full"
                 >
                   <eye-slash-icon class="-ml-0.5 h-5 w-5" aria-hidden="true" />
                   Toggle all text in codes
@@ -318,7 +318,7 @@
                     >Background Opacity</span
                   >
 
-                  <span class="isolate inline-flex rounded-md shadow-sm">
+                  <span class="isolate inline-flex rounded-md shadow-xs">
                     <button
                       @click="toggleOrResetOpacity(0.25)"
                       type="button"
@@ -377,7 +377,7 @@
                 >
                   <SwitchLabel
                     as="dt"
-                    class="flex-grow pr-2 font-medium text-gray-700 sm:w-auto"
+                    class="grow pr-2 font-medium text-gray-700 sm:w-auto"
                     passive
                   >
                     <span>Code dimming</span>
@@ -393,7 +393,7 @@
                         :class="
                           consultCodes ? 'translate-x-3.5' : 'translate-x-0'
                         "
-                        class="h-4 w-4 transform rounded-full bg-white shadow-sm ring-1 ring-gray-900/5 transition duration-200 ease-in-out"
+                        class="h-4 w-4 transform rounded-full bg-white shadow-xs ring-1 ring-gray-900/5 transition duration-200 ease-in-out"
                       />
                     </Switch>
                   </dd>
@@ -417,7 +417,7 @@
                 :disabled="
                   activeCodebook.length > 1 || activeCodebook.length === 0
                 "
-                class="inline-flex items-center gap-x-1.5 rounded-md bg-cerulean-700 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-cerulean-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-700 w-full mt-2"
+                class="inline-flex items-center gap-x-1.5 rounded-md bg-cerulean-700 px-2.5 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-cerulean-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-700 w-full mt-2"
                 :class="{
                   'bg-gray-400 hover:bg-gray-400':
                     activeCodebook.length > 1 || activeCodebook.length === 0,
@@ -447,12 +447,12 @@
                 type="text"
                 name="searchQuery"
                 id="searchQuery"
-                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
             </div>
           </div>
           <div class="flex flex-col min-h-screen">
-            <div class="flex-grow overflow-auto">
+            <div class="grow overflow-auto">
               <ul class="py-1 list-none pb-40">
                 <li
                   class="my-2 text-2xl text-center"
@@ -466,11 +466,11 @@
                   :key="codebookId"
                 >
                   <div
-                    class="flex flex-col text-white select-none mb-2 mr-2 p-2 rounded font-bold :focus:outline-none :focus:ring-2 :focus:ring-sky-500 :focus:border-sky-500 w-full bg-cerulean-700"
+                    class="flex flex-col text-white select-none mb-2 mr-2 p-2 rounded font-bold :focus:outline-hidden :focus:ring-2 :focus:ring-sky-500 :focus:border-sky-500 w-full bg-cerulean-700"
                     @click="toggleCodebookDescription(codebookId)"
                   >
                     <div class="flex justify-between items-center">
-                      <p class="text-lg flex-grow text-center">
+                      <p class="text-lg grow text-center">
                         {{ codebookDetails.get(parseInt(codebookId)).name }}
                       </p>
                       <div>
@@ -530,7 +530,7 @@
                       :data-id="code.id"
                     >
                       <div
-                        class="flex items-center justify-between space-x-4 p-2"
+                        class="flex items-center justify-between gap-4 p-2"
                         :style="{ backgroundColor: code.color }"
                       >
                         <CodeLabel
@@ -548,7 +548,7 @@
                             callback: handleCodeDescriptionClickOutside,
                           }"
                         >
-                          <div class="flex space-x-4">
+                          <div class="flex gap-4">
                             <ChevronUpIcon
                               v-if="code.showDescription"
                               class="-ml-0.5 h-5 w-5"
