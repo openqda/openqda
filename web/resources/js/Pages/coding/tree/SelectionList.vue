@@ -4,16 +4,16 @@ import { attemptAsync } from '../../../Components/notification/attemptAsync';
 import { useSelections } from '../selections/useSelections';
 import { useCodingEditor } from '../useCodingEditor';
 import ProfileImage from '../../../Components/user/ProfileImage.vue';
-import {rgbToHex} from "../../../utils/color/toHex";
+import { rgbToHex } from '../../../utils/color/toHex';
 
 const props = defineProps({
   texts: Array,
-  color: String
+  color: String,
 });
 
 const hexCol = props.color.startsWith('#')
-    ? props.color
-    : rgbToHex(props.color)
+  ? props.color
+  : rgbToHex(props.color);
 const Selections = useSelections();
 const { focusSelection } = useCodingEditor();
 </script>

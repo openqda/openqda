@@ -16,10 +16,7 @@
     <div id="lineNumber"></div>
     <div id="editor" class="grow"></div>
   </div>
-  <div
-    class="fixed bottom-4 right-4 grow flex items-end"
-    style="z-index: 50"
-  >
+  <div class="fixed bottom-4 right-4 grow flex items-end" style="z-index: 50">
     <slot name="status"></slot>
     <span
       v-if="contentHash?.hash"

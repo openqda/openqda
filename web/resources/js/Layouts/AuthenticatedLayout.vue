@@ -121,7 +121,10 @@
           </Link>
         </div>
         <nav class="mt-0 flex flex-col items-stretch">
-          <ul role="list" class="flex flex-col items-center flex flex-col gap-1">
+          <ul
+            role="list"
+            class="flex flex-col items-center flex flex-col gap-1"
+          >
             <li
               v-for="item in navigation"
               :key="item.name"

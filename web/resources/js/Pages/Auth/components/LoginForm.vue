@@ -36,7 +36,11 @@ const submit = () => {
     {{ status }}
   </div>
 
-  <form @submit.prevent="submit" :class="$props.class" class="flex flex-col gap-10">
+  <form
+    @submit.prevent="submit"
+    :class="$props.class"
+    class="flex flex-col gap-10"
+  >
     <div>
       <InputLabel
         for="email"

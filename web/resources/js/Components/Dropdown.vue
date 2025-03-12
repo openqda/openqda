@@ -89,10 +89,7 @@ function handleClose() {
         style="display: none"
         @click="handleClose"
       >
-        <div
-          class="rounded-md ring-1 ring-primary/5"
-          :class="contentClasses"
-        >
+        <div class="rounded-md ring-1 ring-primary/5" :class="contentClasses">
           <slot name="content" />
         </div>
       </div>

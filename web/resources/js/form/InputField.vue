@@ -50,13 +50,13 @@ defineExpose({ focus: () => input.value.focus() });
 <style scoped>
 @reference "../../css/app.css";
 input {
-    background-clip:text !important;
-    -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-background-clip: text !important;
 }
 
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus {
-    -webkit-text-fill-color: var(--color-foreground);
+  -webkit-text-fill-color: var(--color-foreground);
 }
 </style>

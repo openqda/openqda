@@ -288,7 +288,10 @@ const { range } = useRange();
         :style="`border-color: ${changeOpacity(code.color ?? 'rgba(0,0,0,1)', 1)};`"
         class="bg-surface border text-sm ms-4 me-16 my-1 rounded"
       >
-        <SelectionList :texts="sortedTexts" :color="code.color ?? 'rgba(0,0,0,1)'" />
+        <SelectionList
+          :texts="sortedTexts"
+          :color="code.color ?? 'rgba(0,0,0,1)'"
+        />
       </div>
     </Collapse>
   </div>

@@ -68,9 +68,7 @@ const close = () => {
                       as="h3"
                       class="text-base font-semibold leading-6 text-foreground flex justify-between items-center"
                     >
-                      <span class="grow"
-                        >{{ title }}<slot name="title"
-                      /></span>
+                      <span class="grow">{{ title }}<slot name="title" /></span>
                       <span><slot name="close" /></span>
                     </DialogTitle>
                     <div class="mt-2">
