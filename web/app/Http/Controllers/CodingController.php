@@ -113,21 +113,43 @@ class CodingController extends Controller
      *
      * @return JsonResponse
      */
-    public function destroy(DestroyCodeRequest $request, Project $project, Source $source, Code $code)
+    public function destroy(DestroyCodeRequest $request, Project $project, Source $source, Code $code, bool $isRecursiveCall = false)
     {
+        try {
+            // Use a database transaction to ensure atomicity
+            return \DB::transaction(function () use ($request, $project, $source, $code, $isRecursiveCall) {
+                // Get all child codes that have this code as their parent
+                $childCodes = Code::where('parent_id', $code->id)->get();
 
-        if ($code->parent_id) {
-            $code->parent_id = null;
-            $code->save();
+                // Recursively delete all children
+                foreach ($childCodes as $childCode) {
+                    $this->destroy($request, $project, $source, $childCode, true);
+                }
+
+                if ($code->parent_id) {
+                    $code->parent_id = null;
+                    $code->save();
+                }
+
+                // Delete all associated selections
+                $code->selections()->delete();
+
+                // Delete the code itself
+                $code->delete();
+
+                // Only return JSON response for the initial call, not for recursive calls
+                if (! $isRecursiveCall) {
+                    return response()->json(['message' => 'Code and its selections successfully deleted']);
+                }
+
+                return true;
+            });
+        } catch (\Exception $e) {
+            if (! $isRecursiveCall) {
+                return response()->json(['error' => 'Failed to delete code: '.$e->getMessage()], 500);
+            }
+            throw $e;
         }
-
-        // Delete all associated selections
-        $code->selections()->delete();
-
-        // Delete the code itself
-        $code->delete();
-
-        return response()->json(['message' => 'Code and its selections successfully deleted']);
     }
 
     /**

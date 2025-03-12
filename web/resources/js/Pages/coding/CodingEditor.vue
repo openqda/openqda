@@ -2,18 +2,6 @@
   <div class="contents">
     <!-- editor toolbar -->
     <Headline1 class="px-3 py-6">{{ props.source?.name }}</Headline1>
-    <div
-      v-show="false"
-      class="block xl:flex lg:justify-center sticky top-0 py-2 z-40 bg-surface leading-10"
-    >
-      <div
-        id="toolbar"
-        class="rounded-none mb-3 xl:mb-0 lg:rounded-full border-2 bg-surface z-150 shadow-lg border-foreground/20 py-2 px-4 inline-flex !text-foreground/60"
-      >
-        <EditorToolbar />
-      </div>
-      <slot name="actions"></slot>
-    </div>
     <!-- editor content -->
     <div :class="cn('flex', loadingDocument && 'hidden')">
       <div id="lineNumber"></div>
@@ -27,15 +15,21 @@
       ></div>
     </div>
     <div
-      class="absolute flex items-end bottom-10 right-16"
-      style="z-index: 999"
+      class="fixed bottom-4 right-4 flex-grow flex items-end"
+      style="z-index: 50"
     >
       <span class="text-foreground/60 w-4 h-4 animate-spin" v-show="updating">
         <ArrowPathIcon class="w-4 h-4" />
       </span>
       <span
+        v-if="contentHash?.hash"
+        class="text-xs border-0 bg-surface p-1 font-mono me-3"
+        :title="contentHash.hash"
+        >Integrity: {{ contentHash.short }}</span
+      >
+      <span
         id="selection-hash"
-        class="w-6 h-6 text-center text-xs ArrowPathIcon border-0 bg-surface p-2 float-end"
+        class="text-center text-xs border-0 bg-surface p-1 font-mono"
         >0:0</span
       >
     </div>
@@ -50,12 +44,11 @@
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 import Quill from 'quill';
 import QuillCursors from 'quill-cursors';
-import { formats, redoChange, undoChange } from '../../editor/EditorConfig.js';
+import { formats } from '../../editor/EditorConfig.js';
 import '../../editor/editor.css';
 import { LineNumber } from '../../editor/LineNumber.js';
 import { SelectionHighlightBG } from './editor/SelectionHighlightBG.js';
 import { SelectionHash } from '../../editor/SelectionHash.js';
-import EditorToolbar from '../../editor/EditorToolbar.vue';
 import CodingContextMenu from './contextMenu/CodingContextMenu.vue';
 import { flashMessage } from '../../Components/notification/flashMessage.js';
 import { useCodes } from '../../domain/codes/useCodes.js';
@@ -68,6 +61,7 @@ import Headline1 from '../../Components/layout/Headline1.vue';
 import { asyncTimeout } from '../../utils/asyncTimeout.js';
 import ActivityIndicator from '../../Components/ActivityIndicator.vue';
 import { cn } from '../../utils/css/cn.js';
+import { createHash } from '../../utils/createHash.js';
 
 const editorContent = ref('');
 const contextMenu = useContextMenu();
@@ -89,8 +83,8 @@ const props = defineProps({
   locked: Boolean,
   CanUnlock: Boolean,
 });
-
 const disposables = new Set();
+const contentHash = ref('');
 
 let quillInstance;
 onMounted(() => {
@@ -100,18 +94,8 @@ onMounted(() => {
     placeholder: 'Start writing or paste content...',
     modules: {
       syntax: false,
-      history: {
-        delay: 2000,
-        maxStack: 500,
-        userOnly: true,
-      },
-      toolbar: {
-        container: '#toolbar',
-        handlers: {
-          undo: undoChange,
-          redo: redoChange,
-        },
-      },
+      history: false,
+      toolbar: false,
       lineNumber: {
         container: '#lineNumber',
       },
@@ -136,7 +120,6 @@ onMounted(() => {
     setRange(data, text);
   });
   const hl = quillInstance.getModule('highlight');
-
   window.quill = quillInstance;
 
   const disposeSelectionObserver = observe('store/selections', {
@@ -188,6 +171,7 @@ onMounted(() => {
   );
 
   loadingDocument.value = false;
+  updateHash().catch(console.error);
 });
 
 watch(
@@ -197,8 +181,19 @@ watch(
     loadingDocument.value = true;
     await asyncTimeout(300);
     quillInstance.clipboard.dangerouslyPasteHTML(newValue.content);
+    await updateHash();
   }
 );
+
+const updateHash = async () => {
+  const data = quillInstance.getContents();
+  const hash = (await createHash(data)) ?? '';
+  const short = hash.substring(0, 8);
+  contentHash.value = {
+    hash,
+    short,
+  };
+};
 
 const loadingDocument = ref(true);
 const updating = ref(false);

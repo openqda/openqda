@@ -1,4 +1,4 @@
-import { reactive, toRefs } from 'vue';
+import { reactive, toRaw, toRefs } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import { Selections } from './Selections.js';
 import { randomUUID } from '../../../utils/random/randomUUID.js';
@@ -24,6 +24,9 @@ export const useSelections = () => {
       return;
     }
 
+    // XXX: we have to reference the raw code
+    // in order to have inertia preserve the state
+    const rawCode = toRaw(code);
     const start = index;
     const end = start + length;
 
@@ -37,13 +40,13 @@ export const useSelections = () => {
       end,
       length,
       text,
-      code,
+      code: rawCode,
     };
 
     const { response, error } = await Selections.store({
       projectId: projectId,
       sourceId: source.id,
-      code,
+      code: rawCode,
       start,
       end,
       text,

@@ -34,18 +34,15 @@
             @autosave="saveQuillContent"
           >
             <template #status>
-              <div class="w-10 mr-2 self-center">
+              <div class="me-2 self-center">
                 <span
                   v-if="saving"
-                  class="text-xs inline-flex items-center border border-secondary rounded-lg p-3"
+                  class="text-xs inline-flex items-center p-1"
                 >
                   <ArrowPathIcon class="w-4 h-4 me-1 text-secondary" />
                   saving
                 </span>
-                <span
-                  v-if="saved"
-                  class="text-xs inline-flex items-center border border-confirmative rounded-lg p-3"
-                >
+                <span v-if="saved" class="text-xs inline-flex items-center p-1">
                   <CheckIcon class="w-4 h-4 me-1 text-confirmative" />
                   saved
                 </span>
@@ -112,7 +109,7 @@
 </template>
 
 <script setup>
-import { defineProps, onMounted, provide, ref, unref, watch } from 'vue';
+import { defineProps, onMounted, provide, ref, watch } from 'vue';
 import PreparationsEditor from '../editor/PreparationsEditor.vue';
 import FilesManager from '../Components/files/FilesManager.vue';
 import Button from '../Components/interactive/Button.vue';
@@ -202,7 +199,6 @@ function loadFileIntoEditor(source) {
   if (!source?.content) {
     return;
   }
-
   editorSourceRef.value.content = source.content;
   editorSourceRef.value.selected = true;
   editorSourceRef.value.id = source.id;
@@ -233,14 +229,14 @@ function onDocumentDeleted(deletedDocumentId) {
 const saving = ref(false);
 const saved = ref(false);
 
-async function saveQuillContent() {
+async function saveQuillContent(html) {
   saving.value = true;
   const { response, error } = await request({
     url: '/source/update',
     type: 'post',
     body: {
       id: editorSourceRef.value.id,
-      content: unref(editorComponent.value),
+      content: { editorContent: html },
     },
   });
 
