@@ -2,6 +2,7 @@
 import Button from '../../Components/interactive/Button.vue';
 import DialogBase from '../DialogBase.vue';
 import { useHelpDialog } from './useHelpDialog';
+import { ChevronRightIcon } from "@heroicons/vue/24/solid";
 
 const Help = useHelpDialog();
 const emit = defineEmits(['closed']);
@@ -25,15 +26,16 @@ const close = () => {
     @close="close"
   >
     <template #body>
-        <div class="flex items-center">
+        <div class="flex items-center my-3">
             <img :src="$page.props.logo" alt="Qdi logo" width="64" height="64" />
-            <p>How can I help you?</p>
+            <p class="text-sm">How can I help you?</p>
         </div>
-        <div class="flex items-center text-xs space-x-1">
-            <Button size="sm" variant="default">Help</Button>
-            <Button size="sm" variant="default">Provide feedback</Button>
-            <Button size="sm" variant="default">Report an issue</Button>
-        </div>
+        <ul class="text-sm space-y-3">
+            <li class="flex">
+                <button class="flex-grow hover:font-semibold">I need help</button>
+                <ChevronRightIcon class="w-4 h-4 text-secondary" />
+            </li>
+        </ul>
       <slot name="info"></slot>
     </template>
     <template #footer>
