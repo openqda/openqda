@@ -9,5 +9,5 @@ import { ThemeBrowserStorage } from '../theme/ThemeBrowserStorage.js';
 Theme.init({
   storage: ThemeBrowserStorage,
   usePreferred: false,
-  useStorage: false,
+  useStorage: true,
 }).catch(console.error);
