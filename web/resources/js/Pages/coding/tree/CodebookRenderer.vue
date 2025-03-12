@@ -16,6 +16,8 @@ import { cn } from '../../../utils/css/cn';
 const props = defineProps({
   codebook: Object,
   codes: Array,
+  canSort: Boolean,
+  canToggle: Boolean,
 });
 
 const codesCount = computed(() => {
@@ -60,6 +62,7 @@ const handleTogglingCodebook = async (codebook) => {
         <span v-if="sorting === codebook.id">, sorting mode</span>
       </span>
       <button
+        v-if="props.canToggle != false"
         class="p-0 m-0 text-foreground/80"
         @click="handleTogglingCodebook(codebook)"
         :title="codebook.active ? 'Hide all codes' : 'Show all codes'"
@@ -75,6 +78,7 @@ const handleTogglingCodebook = async (codebook) => {
         <EyeIcon v-else class="w-4 h-4" />
       </button>
       <button
+        v-if="props.canSort != false"
         :class="
           cn(
             'p-0 m-0',

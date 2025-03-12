@@ -40,6 +40,7 @@ const props = defineProps({
   code: Object,
   class: String,
   sorting: Boolean,
+  search: String,
 });
 
 //------------------------------------------------------------------------
@@ -101,6 +102,16 @@ const handleCodeToggle = async (code) => {
 };
 
 //------------------------------------------------------------------------
+// SEARCH
+//------------------------------------------------------------------------
+const hasSearch = computed(() => props.search?.length > 2);
+const searchMatches = computed(() => {
+  if (!hasSearch.value) return false;
+  const terms = props.search.split('|');
+  return terms.some((term) => props.code.name.includes(term));
+});
+
+//------------------------------------------------------------------------
 // DIALOGS
 //------------------------------------------------------------------------
 const { open: openDeleteDialog } = useDeleteDialog();
@@ -150,7 +161,7 @@ const { range } = useRange();
         :title="open ? 'Hide children' : 'Show children'"
         variant="default"
         size="sm"
-        :disabled="sorting"
+        :disabled="sorting || hasSearch"
         class="bg-transparent !text-foreground hover:text-background w-4 !p-0 rounded"
         @click="toggle()"
       >
@@ -158,7 +169,7 @@ const { range } = useRange();
           :class="
             cn(
               'w-4 h-4 transition-all duration-300 transform',
-              open && 'rotate-90'
+              (hasSearch || open) && 'rotate-90'
             )
           "
         />
@@ -173,7 +184,7 @@ const { range } = useRange();
             sorting && 'cursor-grab'
           )
         "
-        :style="`background: ${changeOpacity(code.color ?? 'rgba(0,0,0,1)', 1)};`"
+        :style="`background: ${changeOpacity(code.color ?? 'rgba(0,0,0,1)', !hasSearch || searchMatches ? 1 : 0.2)};`"
       >
         <button
           v-if="!sorting && range?.length"
@@ -216,7 +227,7 @@ const { range } = useRange();
         >
           <BarsArrowDownIcon class="w-4 -h-4" />
           <span class="text-xs">{{
-            open ? (code.text?.length ?? 0) : textCount
+            hasSearch || open ? (code.text?.length ?? 0) : textCount
           }}</span>
         </Button>
 

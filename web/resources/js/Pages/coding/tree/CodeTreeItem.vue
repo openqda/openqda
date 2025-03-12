@@ -19,14 +19,21 @@
         :group-id="groupId"
         :open="collapsed[el.id]"
         :sorting="groupId === sorting"
+        :search="search"
         class="w-full"
       />
       <Collapse
-        :when="sorting === groupId || !el.children?.length || collapsed[el.id]"
+        :when="
+          search.length > 2 ||
+          sorting === groupId ||
+          !el.children?.length ||
+          collapsed[el.id]
+        "
         class="v-collapse"
       >
         <CodeTreeItem
           class="pl-4"
+          :search="search"
           v-model="el.children"
           :group-id="groupId"
           :parent-id="el.id"
@@ -56,6 +63,7 @@ const props = defineProps({
   groupId: [Number, String],
   parentId: String,
   class: String,
+  search: String,
 });
 
 const emits = defineEmits(['update:modelValue']);
