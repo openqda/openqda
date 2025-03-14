@@ -5,6 +5,9 @@ import CodeTreeItem from './CodeTreeItem.vue';
 import { useCodebookOrder } from '../../../domain/codebooks/useCodebookOrder';
 import { attemptAsync } from '../../../Components/notification/attemptAsync';
 import CodebookRenderer from './CodebookRenderer.vue';
+import { useLocalSearch } from '../../../utils/search/useLocalSearch';
+import InputField from '../../../form/InputField.vue';
+import { toArray } from '../../../utils/array/toArray';
 
 const props = defineProps({
   codes: Array,
@@ -23,10 +26,17 @@ const {
 } = useCodebookOrder();
 
 //------------------------------------------------------------------------
-// CODE LIST FOR DRAGGABLE
+// CODE ORDER AND FILTER
 //------------------------------------------------------------------------
 const bySortOrder = getSortOrderBy(props.codebook);
-const codeList = ref(props.codes ?? []);
+const { searchTerm } = useLocalSearch({
+  fields: { name: String, id: String },
+  recursive: {
+    field: 'children',
+    depth: 2,
+  },
+});
+const codeList = ref(toArray(props.codes));
 const sortCodes = (list = []) => {
   list.sort(bySortOrder);
   list.forEach((entry) => {
@@ -77,10 +87,20 @@ observe('store/codes', {
 
 <template>
   <div class="w-full">
-    <CodebookRenderer :codebook="codebook" :codes="codes" />
+    <CodebookRenderer
+      :codebook="codebook"
+      :codes="codeList"
+      :can-toggle="!searchTerm.length"
+      :can-sort="!searchTerm.length"
+    />
+    <InputField type="search" placeholder="Search..." v-model="searchTerm" />
+    <div v-if="!codeList?.length" class="text-sm text-foreground/50">
+      <p v-if="searchTerm?.length">No entries matched for your search.</p>
+    </div>
     <CodeTreeItem
       v-model="codeList"
       class="py-4"
+      :search="searchTerm"
       :group-id="props.codebook.id"
       :parent-id="null"
     />
