@@ -41,8 +41,8 @@ defineExpose({ focus: () => input.value.focus() });
     :rows="rows"
     :class="[
       'input-field peer mt-1 block w-full bg-transparent border-outline-l/50 dark:border-outline-d/50',
-      'placeholder-opacity-40 focus:outline-none focus:ring-0 focus:border-2 focus:border-outline-l dark:focus:border-outline-d rounded-none',
-      'text-label-l dark:text-label-d',
+      'placeholder-foreground/40 focus:outline-hidden focus:ring-0 focus:border-2 focus:border-outline-l dark:focus:border-outline-d rounded-none',
+      'text-foreground',
       $props.class,
     ]"
     v-model="value"

@@ -56,7 +56,7 @@
                   </div>
                 </TransitionChild>
                 <div
-                  class="flex grow flex-col gap-y-5 overflow-y-auto bg-surface/95 px-6 pb-2 ring-1 ring-white/10 shadow-sm"
+                  class="flex grow flex-col gap-y-5 overflow-y-auto bg-surface/95 px-6 pb-2 ring-1 ring-white/10 shadow-xs"
                 >
                   <div class="flex h-16 shrink-0 items-center">
                     <Link
@@ -72,7 +72,7 @@
                     </Link>
                   </div>
                   <nav class="flex flex-1 flex-col">
-                    <ul role="list" class="-mx-2 flex-1 space-y-1">
+                    <ul role="list" class="-mx-2 flex-1 flex flex-col gap-4">
                       <li v-for="item in navigation" :key="item.name">
                         <a
                           :href="item.href"
@@ -121,7 +121,10 @@
           </Link>
         </div>
         <nav class="mt-0 flex flex-col items-stretch">
-          <ul role="list" class="flex flex-col items-center space-y-1">
+          <ul
+            role="list"
+            class="flex flex-col items-center flex flex-col gap-1"
+          >
             <li
               v-for="item in navigation"
               :key="item.name"
@@ -185,7 +188,7 @@
 
       <!-- sticky top sidebar for mobile -->
       <div
-        class="sticky top-0 z-40 flex items-center gap-x-6 bg-surface-l dark:bg-surface-d px-4 py-4 shadow-sm sm:px-6 lg:hidden"
+        class="sticky top-0 z-40 flex items-center gap-x-6 bg-surface-l dark:bg-surface-d px-4 py-4 shadow-xs sm:px-6 lg:hidden"
       >
         <button
           type="button"
@@ -205,7 +208,7 @@
       <div class="flex lg:pl-20">
         <aside
           v-show="$props.menu !== false"
-          class="bg-surface hidden md:w-2/5 xl:w-1/3 2xl:w-1/3 h-screen overflow-y-auto border-background lg:block border-r-background border-r-8 flex-shrink-0 max-w-[50%]"
+          class="bg-surface hidden md:w-2/5 xl:w-1/3 2xl:w-1/3 h-screen overflow-y-auto border-background lg:block border-r-background border-r-8 shrink-0 max-w-[50%]"
         >
           <slot name="menu" />
         </aside>
@@ -213,7 +216,7 @@
         <main
           :class="
             cn(
-              'h-screen overflow-y-auto bg-surface text-surface-foreground flex-grow'
+              'h-screen overflow-y-auto bg-surface text-surface-foreground grow'
             )
           "
         >

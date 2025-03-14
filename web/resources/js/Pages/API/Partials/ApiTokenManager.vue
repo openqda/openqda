@@ -150,7 +150,7 @@ const deleteApiToken = () => {
 
           <!-- API Token List -->
           <template #content>
-            <div class="space-y-6">
+            <div class="flex flex-col gap-6">
               <div
                 v-for="token in tokens"
                 :key="token.id"

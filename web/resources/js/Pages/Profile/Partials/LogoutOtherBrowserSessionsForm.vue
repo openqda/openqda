@@ -58,7 +58,7 @@ const closeModal = () => {
       </div>
 
       <!-- Other Browser Sessions -->
-      <div v-if="sessions.length > 0" class="mt-5 space-y-6">
+      <div v-if="sessions.length > 0" class="mt-5 flex flex-col gap-6">
         <div
           v-for="(session, i) in sessions"
           :key="i"

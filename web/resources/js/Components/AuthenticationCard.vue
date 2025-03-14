@@ -8,7 +8,7 @@ import HelpResources from './HelpResources.vue';
     <div class="grid grid-cols-1 lg:grid-cols-2 items-stretch min-h-screen">
       <!--left side -->
       <div
-        class="flex-1 bg-gradient-to-b from-secondary to-primary dark:from-background dark:to-background flex justify-center"
+        class="flex-1 bg-linear-to-b from-secondary to-primary dark:from-background dark:to-background flex justify-center"
       >
         <div
           class="p-2 m-2 md:p-5 md:m-5 text-center xl:w-3/4 md:w-full self-center"
@@ -57,7 +57,7 @@ import HelpResources from './HelpResources.vue';
             },
           ]"
         />
-        <HelpResources class="self-center space-y-4" v-else />
+        <HelpResources class="self-center flex flex-col gap-4" v-else />
       </div>
     </div>
   </LayoutContainer>

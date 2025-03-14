@@ -34,7 +34,7 @@ function changeTab(index, option) {
       </select>
     </div>
     <div class="hidden sm:block">
-      <nav class="flex space-x-4 w-full" aria-label="Tabs">
+      <nav class="flex gap-4 w-full" aria-label="Tabs">
         <Button
           v-for="(option, index) in props.options"
           :key="option.next"
@@ -45,7 +45,7 @@ function changeTab(index, option) {
               selectedTab === index
                 ? 'bg-secondary text-secondary-foreground'
                 : 'text-foreground/60 hover:text-foreground bg-background',
-              'rounded-md px-3 py-2 text-sm font-medium flex-grow text-center',
+              'rounded-md px-3 py-2 text-sm font-medium grow text-center',
               option.class
             )
           "

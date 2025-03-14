@@ -7,17 +7,14 @@
       <div id="lineNumber"></div>
       <div
         id="editor"
-        class="flex-grow"
+        class="grow"
         @contextmenu="showContextMenu"
         @dragenter.prevent
         @dragover.prevent
         @drop.prevent
       ></div>
     </div>
-    <div
-      class="fixed bottom-4 right-4 flex-grow flex items-end"
-      style="z-index: 50"
-    >
+    <div class="fixed bottom-4 right-4 grow flex items-end" style="z-index: 50">
       <span class="text-foreground/60 w-4 h-4 animate-spin" v-show="updating">
         <ArrowPathIcon class="w-4 h-4" />
       </span>

@@ -2,7 +2,7 @@
   <footer class="bg-surface text-foreground border-t">
     <div class="mx-auto max-w-7xl overflow-hidden px-6 py-20 sm:py-24 lg:px-8">
       <nav
-        class="-mb-6 columns-2 sm:flex sm:justify-center sm:space-x-12"
+        class="-mb-6 columns-2 sm:flex sm:justify-center sm:gap-12"
         aria-label="Footer"
       >
         <div v-for="item in navigation.main" :key="item.name" class="pb-6">
@@ -15,7 +15,7 @@
           </Anchor>
         </div>
       </nav>
-      <div class="mt-10 flex justify-center space-x-10">
+      <div class="mt-10 flex justify-center gap-10">
         <a
           v-for="item in navigation.social"
           :key="item.name"

@@ -56,7 +56,7 @@ const handleTogglingCodebook = async (codebook) => {
   <div class="flex justify-between items-center">
     <Headline3>{{ codebook.name }}</Headline3>
     <!-- codebook options -->
-    <span class="flex justify-between items-center space-x-2">
+    <span class="flex justify-between items-center gap-2">
       <span class="text-foreground/50 text-xs mx-2">
         <span>{{ codesCount ?? 0 }} codes</span>
         <span v-if="sorting === codebook.id">, sorting mode</span>
