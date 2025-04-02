@@ -28,7 +28,7 @@
 
 - 🚀 Register now: https://openqda.org
 - 📔 Read the **user** guide: https://openqda.github.io/user-docs/
-- 📢 Give feedback and join the discussion: https://github.com/openqda/feedback
+- 📢 Give feedback and join the discussion: https://github.com/openqda/openqda/discussions
 - 🏗️ Read the **developer** guide: https://openqda.github.io/openqda/
 - 📧 Contact us: [openqda@uni-bremen.de](mailto:openqda@uni-bremen.de)
 
