@@ -63,8 +63,6 @@ class BackendRequest {
     }
 
     if (
-      !this.error &&
-      this.response &&
       this.response.success === false &&
       this.response.message
     ) {
