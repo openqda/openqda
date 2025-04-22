@@ -133,7 +133,7 @@ Collaborative features are enabled through a WebSocket connected, which in turn 
 (Laravel Reverb), which you can start in a new terminal via:
 
 ```shell
-docker exec -it web-laravel.test-1 /var/www/html/web/start_debug_services.sh
+docker exec -it web-laravel.test-1 /var/www/html/start_debug_services.sh
 ```
 
 This services needs to start everytime you start your backend apps, because it automatically stops,
