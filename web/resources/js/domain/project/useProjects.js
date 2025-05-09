@@ -94,7 +94,7 @@ export const useProjects = () => {
   const searchTerm = ref('');
   const compare = (a = '', b = '') => a && a.trim().toLowerCase().includes(b);
   const byTerm = (p) => {
-    const term = searchTerm.value;
+    const term = searchTerm.value.trim().toLowerCase();
     const value = term.trim().toLowerCase();
     return (
       !p.isTrashed &&
