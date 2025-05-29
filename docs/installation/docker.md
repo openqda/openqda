@@ -13,7 +13,7 @@ Currently, this guide is tested using the following environments:
 
 First of all, make sure you have Docker installed and operable on your system.
 
-> Warning: **Do not install Docker Desktop** but the original Docker CLI.
+> Warning: **Do not install Docker Desktop** but the original Docker CLI (unless you are on macOS, then you can install Docker Desktop which will also install the CLI).
 
 A comprehensive installation guide can be found on the
 [official Docker installation guide](https://docs.docker.com/engine/install/) or alternatively on the
