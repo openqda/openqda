@@ -125,8 +125,22 @@ const loadPublicCodebooks = async (page = 1) => {
 };
 
 const changePageSize = async () => {
-  currentPage.value = 1; // Reset to first page
-  await loadPublicCodebooks(1);
+  // When page size changes, we need to reload data
+  // If total items would fit in fewer pages with new size, adjust current page
+  const maxPageWithNewSize = Math.ceil(totalCount.value / pageSize.value);
+  
+  // Ensure we're not on a page that doesn't exist with the new page size
+  if (currentPage.value > maxPageWithNewSize && maxPageWithNewSize > 0) {
+    currentPage.value = maxPageWithNewSize;
+  } else if (currentPage.value === 0 && totalCount.value > 0) {
+    currentPage.value = 1;
+  }
+  
+  // Force reload by temporarily clearing the current page
+  const targetPage = currentPage.value || 1;
+  currentPage.value = 0; // This ensures loadPublicCodebooks won't skip the load
+  
+  await loadPublicCodebooks(targetPage);
 };
 
 const nextPage = async () => {
