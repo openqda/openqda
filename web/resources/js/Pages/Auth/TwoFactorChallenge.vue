@@ -1,12 +1,12 @@
 <script setup>
 import { nextTick, ref } from 'vue';
 import { Head, useForm } from '@inertiajs/vue3';
-import AuthenticationCard from '@/Components/AuthenticationCard.vue';
-import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import AuthenticationCard from '../../Components/AuthenticationCard.vue';
+import AuthenticationCardLogo from '../../Components/AuthenticationCardLogo.vue';
+import InputError from '../../form/InputError.vue';
+import InputLabel from '../../form/InputLabel.vue';
+import PrimaryButton from '../../Components/PrimaryButton.vue';
+import InputField from '../../form/InputField.vue';
 import Footer from '../../Layouts/Footer.vue';
 
 const recovery = ref(false);
@@ -61,7 +61,7 @@ const submit = () => {
     <form @submit.prevent="submit">
       <div v-if="!recovery">
         <InputLabel for="code" value="Code" />
-        <TextInput
+        <InputField
           id="code"
           ref="codeInput"
           v-model="form.code"
@@ -76,7 +76,7 @@ const submit = () => {
 
       <div v-else>
         <InputLabel for="recovery_code" value="Recovery Code" />
-        <TextInput
+        <InputField
           id="recovery_code"
           ref="recoveryCodeInput"
           v-model="form.recovery_code"

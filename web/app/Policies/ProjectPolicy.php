@@ -41,6 +41,7 @@ class ProjectPolicy extends BasePolicy
      */
     public function delete(User $user, Project $project): bool
     {
+
         return $this->isUserInProjectOrTeam($user, null, $project) || in_array($user->email, $this->allowedEmails);
     }
 

@@ -1,8 +1,11 @@
+/** @module */
+
 /**
  * Flattens a given list of nested codes by shallow-copying items to a new array.
  * Does not alter the original array.
+ * @function
  * @param codeList {object[]}
- * @param destination {object[]=} the new list of codes
+ * @param destination {(object[])=} the new list of codes
  * @param cache {Set=} prevents duplicates
  * @return {object[]}
  */

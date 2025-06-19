@@ -1,24 +1,19 @@
 <script setup>
-import { computed } from 'vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
-import AuthenticationCard from '@/Components/AuthenticationCard.vue';
+import { ArrowPathIcon } from '@heroicons/vue/24/solid/index.js';
+import Link from '../../Components/Link.vue';
+import Button from '../../Components/interactive/Button.vue';
+import { Head, useForm } from '@inertiajs/vue3';
+import AuthenticationCard from '../../Components/AuthenticationCard.vue';
 import AuthenticationCardLogo from '@/Components/AuthenticationCardLogo.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import Footer from '../../Layouts/Footer.vue';
-
-const props = defineProps({
-  status: String,
-});
+import { ref } from 'vue';
 
 const form = useForm({});
-
+const verificationLinkSent = ref(false);
 const submit = () => {
-  form.post(route('verification.send'));
+  form.post(route('verification.send'), {
+    onSuccess: () => (verificationLinkSent.value = true),
+  });
 };
-
-const verificationLinkSent = computed(
-  () => props.status === 'verification-link-sent'
-);
 </script>
 
 <template>
@@ -29,7 +24,7 @@ const verificationLinkSent = computed(
       <AuthenticationCardLogo />
     </template>
 
-    <div class="mb-4 text-sm text-gray-600">
+    <div class="mb-4 text-sm text-foreground">
       Before continuing, could you verify your email address by clicking on the
       link we just emailed to you? If you didn't receive the email, we will
       gladly send you another.
@@ -37,40 +32,32 @@ const verificationLinkSent = computed(
 
     <div
       v-if="verificationLinkSent"
-      class="mb-4 font-medium text-sm text-green-600"
+      class="mb-4 font-medium text-sm text-confirmative"
     >
       A new verification link has been sent to the email address you provided in
       your profile settings.
     </div>
 
-    <form @submit.prevent="submit">
+    <form v-else @submit.prevent="submit">
       <div class="mt-4 flex items-center justify-between">
-        <PrimaryButton
+        <ArrowPathIcon v-if="form.processing" class="w-4 h-4 animate-spin" />
+        <Button
+          data-id="sbumitbtn"
+          type="submit"
           :class="{ 'opacity-25': form.processing }"
           :disabled="form.processing"
         >
           Resend Verification Email
-        </PrimaryButton>
+        </Button>
 
-        <div>
-          <Link
-            :href="route('profile.show')"
-            class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cerulean-700"
-          >
-            Edit Profile</Link
-          >
+        <div class="flex flex-row gap-2">
+          <Link :href="route('profile.show')"> Edit Profile</Link>
 
-          <Link
-            :href="route('logout')"
-            method="post"
-            as="button"
-            class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cerulean-700 ml-2"
-          >
+          <Link :href="route('logout')" method="post" as="button">
             Log Out
           </Link>
         </div>
       </div>
     </form>
   </AuthenticationCard>
-  <Footer />
 </template>

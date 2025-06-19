@@ -2,13 +2,14 @@
 import { ref } from 'vue';
 import Dropdown from './Dropdown.vue';
 import DropdownLink from './DropdownLink.vue';
-import { router, useForm, usePage } from '@inertiajs/vue3';
+import { router, useForm } from '@inertiajs/vue3';
 import { Project } from '../state/Project.js';
 import ProfileImage from './user/ProfileImage.vue';
 import Button from './interactive/Button.vue';
-import TextInput from './TextInput.vue';
-import TextArea from './TextArea.vue';
+import TextInput from '../form/InputField.vue';
+import TextArea from '../form/TextArea.vue';
 import Checkbox from './Checkbox.vue';
+import { flashMessage } from './notification/flashMessage.js';
 
 function onLogout() {
   router.post(route('logout'));
@@ -54,14 +55,15 @@ async function submitFeedback(e) {
   try {
     const response = await axios.post('/user/feedback', payload);
     if (response.data.sent) {
-      usePage().props.flash.message = 'Your feedback has been submitted';
+      flashMessage('Your feedback has been submitted');
       feedbackFormIsActive.value = false;
     }
   } catch (error) {
     console.error('Error during feedback submission:', error);
-    usePage().props.flash.message =
+    flashMessage(
       error.response.data.message ||
-      'Error while sending feedback, likely too many feedbacks in a short time.';
+        'Error while sending feedback, likely too many feedbacks in a short time.'
+    );
   }
 }
 </script>
@@ -70,15 +72,18 @@ async function submitFeedback(e) {
   <Dropdown align="right" width="48" :prevent="feedbackFormIsActive">
     <template #trigger>
       <button
-        class="flex text-sm relative transition w-16 h-16 border-2 border-transparent focus:outline-none focus:border-gray-300"
+        class="flex text-sm relative transition w-16 h-16"
         v-if="$page.props.jetstream.managesProfilePhotos"
       >
-        <ProfileImage />
+        <ProfileImage
+          :alt="$page.props.auth.user.name"
+          :src="$page.props.auth.user.profile_photo_url"
+        />
       </button>
 
       <span v-else class="inline-flex">
         <button
-          class="inline-flex items-center px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out bg-white border border-transparent rounded-md hover:text-gray-700 focus:outline-none focus:bg-gray-50 active:bg-gray-50"
+          class="inline-flex items-center px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out bg-white border border-transparent rounded-md hover:text-gray-700 focus:outline-hidden focus:bg-gray-50 active:bg-gray-50"
           type="button"
         >
           {{ $page.props.auth.user.name }}

@@ -1,4 +1,4 @@
-name: Check Code Style for backend files
+name: Backend Lint
 
 on:
   push:
@@ -8,15 +8,24 @@ on:
 
 jobs:
   lint:
+    name: Backend Lint
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
       matrix:
-        php: [8.3]
+        php: [8.4]
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      # this is not a good solution but we currently
+      # don't know where these files come from,
+      # seems like an issue with the detached HEAD
+      - name: Cleanup
+        run: |
+          rm web/app/Console/Commands/SendSystemEmail.php
+          rm web/app/Mail/SystemMessage.php
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -25,12 +34,8 @@ jobs:
           extensions: json, dom, curl, libxml, mbstring
           coverage: none
 
-      - name: Install dependencies
-        run: |
-          cd web
-          composer install
+      - name: Install Pint
+        run: composer global require laravel/pint:1.21.0
 
       - name: Run Pint
-        run: |
-          cd web
-          ./vendor/bin/pint --test
+        run: pint --test

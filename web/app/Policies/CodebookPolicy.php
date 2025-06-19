@@ -19,10 +19,7 @@ class CodebookPolicy extends BasePolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Codebook $codebook): bool
-    {
-
-    }
+    public function view(User $user, Codebook $codebook): bool {}
 
     /**
      * Determine whether the user can create models.
@@ -39,6 +36,7 @@ class CodebookPolicy extends BasePolicy
      */
     public function update(User $user, Codebook $codebook): bool
     {
+
         return $this->isUserInProjectOrTeam($user, null, $codebook->project) || in_array($user->email, $this->allowedEmails);
     }
 

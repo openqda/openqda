@@ -1,395 +1,232 @@
 <template>
-  <AppLayout>
-    <div class="lg:flex">
-      <!-- left - content preview -->
-      <div class="w-full lg:w-2/3 p-4" id="analysis-root">
-        <Headline2>Output</Headline2>
-
-        <component
-          :is="visualizerComponent"
-          :files="files"
-          :api="VisualizationPluginAPI"
-          :codes="allCodes"
-          :hasSelections="hasSelections"
-          :checkedCodes="checkedCodes"
-          :checkedFiles="checkedFiles"
-          @remove="(id) => checkFile(undefined, id)"
-        />
-      </div>
-      <!-- right side -->
-      <div class="w-full lg:w-1/3 p-4">
-        <Headline2 class="mb-3">
-          <span>Code Selections</span>
-          <span class="float-right">
-            <Button
-              @click="saveCSV()"
-              color="cerulean"
-              :disabled="!hasSelections"
-              :icon="ArrowDownTrayIcon"
-              :label="'CSV'"
-            />
-          </span>
-        </Headline2>
-        <p class="mt-1 text-sm leading-6 mb-4">
-          Select the files and codes to display your code selections.
-        </p>
-
-        <div>
-          <select
-            id="location"
-            name="location"
-            @change="selectVisualizerPlugin($event.target)"
-            class="mt-2 block w-full rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
-          >
-            <option
-              v-for="(plugin, pluginIndex) in availablePlugins"
-              :value="plugin.name"
-              :key="pluginIndex"
-            >
-              {{ plugin.title }}
-            </option>
-          </select>
+  <AuthenticatedLayout :menu="true" :showFooter="false" :title="pageTitle">
+    <template #menu>
+      <BaseContainer>
+        <div class="flex justify-end">
+          <ResponsiveTabList
+            :tabs="menuTabs"
+            :initial="menuView"
+            @change="(value) => (menuView = value)"
+          />
         </div>
 
-        <table class="w-full mt-4 border-collapse border-0">
-          <thead>
-            <tr>
-              <th style="width: 3rem"></th>
-              <th
-                scope="col"
-                class="p-2 text-xs text-left font-medium uppercase tracking-wide text-silver-300 sm:pl-0"
-              >
-                Files
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="text-sm hover:bg-silver-300">
-              <td class="py-2 text-center tracking-wide">
+        <div
+          v-if="menuView === 'export'"
+          class="p-3 rounded-md border border-border flex items-center"
+        >
+          <p class="text-sm text-foreground/60 me-3">
+            You can export your data to a table in csv format. Note, that data
+            is filtered, based on selected sources and codes.
+          </p>
+          <Button
+            @click="exportToCSV({ contents: selection, users: allUsers })"
+            :disabled="!hasSelections"
+            :title="
+              hasSelections
+                ? 'Export to CSV'
+                : 'Select at least one File and Code to export'
+            "
+          >
+            Export to CSV
+          </Button>
+        </div>
+
+        <div v-show="menuView === 'sources'" class="flex flex-col gap-4">
+          <FilesList
+            :focus-on-hover="false"
+            :fields="{
+              lock: false,
+              file: true,
+              type: true,
+              date: false,
+              user: false,
+            }"
+            :documents="sources"
+            :fixed="false"
+            @select="(doc) => checkSource(doc.id)"
+          >
+            <template #custom-head>
+              <th class="w-6 text-right">
                 <input
                   id="all_files"
                   type="checkbox"
-                  class="cursor-pointer"
-                  :checked="checkedFiles.get('all_files')"
-                  @change="checkFile($event, 'all_files')"
+                  :checked="allSourcesChecked"
+                  @change="checkSource('all')"
                 />
-              </td>
-              <td class="py-2 tracking-wide">
-                <label for="all_files" class="cursor-pointer select-none"
-                  >All files</label
-                >
-              </td>
-            </tr>
-            <tr
-              v-for="file in files"
-              :key="file.id"
-              class="text-sm hover:bg-silver-300"
-            >
-              <td class="py-2 text-center tracking-wide">
-                <input
-                  type="checkbox"
-                  class="cursor-pointer"
-                  :checked="checkedFiles.get(file.id)"
-                  @change="checkFile($event, file.id)"
-                />
-              </td>
-              <td
-                class="py-2 tracking-wide"
-                @click="checkFile($event, file.id)"
-              >
-                <label :for="file.id" class="cursor-pointer select-none">{{
-                  file.name
-                }}</label>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
-        <table class="w-full mt-4 border-collapse border-0">
-          <thead>
-            <tr class="border-0">
-              <th style="width: 3rem"></th>
-              <th
-                scope="col"
-                class="p-2 text-left text-xs font-medium uppercase tracking-wide text-silver-300 sm:pl-0"
-              >
-                Codes
               </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="text-sm border-0 hover:bg-silver-300">
-              <td class="py-2 text-center tracking-wide">
+            </template>
+            <template v-slot:custom-cells="{ source }">
+              <td class="text-right">
                 <input
-                  id="all_codes"
+                  :id="source.id"
                   type="checkbox"
-                  :checked="checkedCodes.get('all_codes')"
-                  @change="checkCode($event, 'all_codes')"
-                />
-              </td>
-              <td class="py-2 tracking-wide">
-                <label for="all_codes">All Codes</label>
-              </td>
-            </tr>
-            <tr
-              v-for="code in allCodes"
-              :key="code.id"
-              class="text-sm border-0 hover:bg-silver-300"
-            >
-              <td class="py-2 text-center tracking-wide border-0">
-                <input
-                  :id="code.id"
-                  type="checkbox"
-                  :checked="checkedCodes.get(code.id)"
-                  @change="checkCode($event, code.id)"
+                  :checked="checkedSources.get(source.id)"
+                  @change="checkSource(source.id)"
                   class="cursor-pointer"
                 />
               </td>
-              <td
-                class="py-2 tracking-wide border-0"
-                :style="{ backgroundColor: code.color }"
-              >
-                <label :for="code.id" class="cursor-pointer select-none">{{
-                  code.name
-                }}</label>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </AppLayout>
+            </template>
+          </FilesList>
+        </div>
+
+        <div v-if="menuView === 'codes'">
+          <table class="w-full border-collapse border-0">
+            <thead>
+              <tr class="border-0">
+                <th
+                  scope="col"
+                  class="p-2 text-left text-xs font-medium uppercase tracking-wide text-silver-300 sm:pl-0"
+                ></th>
+                <th style="width: 3rem"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="text-sm border-0 hover:bg-silver-300">
+                <td class="py-2 tracking-wide text-right">
+                  <label for="all_codes">All Codes</label>
+                </td>
+                <td class="py-2 text-center tracking-wide">
+                  <input
+                    id="all_codes"
+                    type="checkbox"
+                    :checked="allCodesChecked"
+                    @change="checkCode('all')"
+                  />
+                </td>
+              </tr>
+              <tr v-for="code in codes" :key="code.id" class="text-sm border-0">
+                <td class="tracking-wide border-0 rounded-md">
+                  <label
+                    :for="code.id"
+                    class="cursor-pointer select-none line-clamp-1 rounded-md p-2 my-2 flex"
+                    :style="{
+                      backgroundColor: code.color,
+                      opacity: checkedCodes.get(code.id) ? 1 : 0.3,
+                    }"
+                  >
+                    <ContrastText class="grow line-clamp-1">{{
+                      code.name
+                    }}</ContrastText>
+                    <span class="flex items-center">
+                      <BarsArrowDownIcon class="w-4 h-4 me-1" />
+                      {{ code.text.length }}
+                    </span>
+                  </label>
+                </td>
+                <td class="py-2 text-center tracking-wide border-0">
+                  <input
+                    :id="code.id"
+                    type="checkbox"
+                    :checked="checkedCodes.get(code.id)"
+                    @change="checkCode(code.id)"
+                    class="cursor-pointer"
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </BaseContainer>
+    </template>
+    <template #main>
+      <BaseContainer>
+        <div class="flex justify-between items-center">
+          <div class="shrink">
+            <SelectField
+              v-if="contentView === 'visualize'"
+              id="location"
+              name="location"
+              class="text-foreground"
+              :options="availablePlugins"
+              :value="visualizerName ?? 'list'"
+              @change="selectVisualizerPlugin($event.target)"
+            />
+          </div>
+          <ResponsiveTabList
+            v-show="false"
+            :tabs="contentTabs"
+            :initial="contentView"
+            @change="(value) => (contentView = value)"
+          />
+        </div>
+        <div v-if="contentView === 'visualize'">
+          <VisualizeCoding />
+        </div>
+      </BaseContainer>
+    </template>
+  </AuthenticatedLayout>
 </template>
 
 <script setup>
-import { onMounted, ref, defineAsyncComponent, markRaw } from 'vue';
-import AppLayout from '@/Layouts/AppLayout.vue';
+import { onMounted, ref } from 'vue';
 import Button from '../Components/interactive/Button.vue';
-import { ArrowDownTrayIcon } from '@heroicons/vue/24/solid';
-import { createCSV } from '../files/createCSV.js';
-import { saveTextFile } from '../files/saveTextFile.js';
-import { debounce } from '../utils/debounce.js';
-import { unfoldCodes } from './analysis/unfoldCodes.js';
-import Headline2 from '../Components/layout/Headline2.vue';
-import { createByPropertySorter } from '../utils/sortByProperty.js';
+import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
+import BaseContainer from '../Layouts/BaseContainer.vue';
+import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue';
+import FilesList from '../Components/files/FilesList.vue';
+import { useExport } from '../exchange/useExport.js';
+import { trunc } from '../utils/string/trunc.ts';
+import { BarsArrowDownIcon } from '@heroicons/vue/24/solid/index.js';
+import { useAnalysis } from './analysis/useAnalysis.js';
+import VisualizeCoding from './analysis/visualization/VisualizeCoding.vue';
+import { useVisualizerPlugins } from './analysis/visualization/useVisualizerPlugins.js';
+import SelectField from '../form/SelectField.vue';
+import ContrastText from '../Components/text/ContrastText.vue';
+import { useUsers } from '../domain/teams/useUsers.js';
 
-// TODO: https://www.npmjs.com/package/html-to-rtf
-const hasSelections = ref(false);
-const props = defineProps(['sources', 'codes', 'codeBooks']);
+//------------------------------------------------------------------------
+// DATA / PROPS
+//------------------------------------------------------------------------
+const props = defineProps(['codebooks', 'project']);
+const { allUsers } = useUsers();
 
-const byName = createByPropertySorter('name');
+//------------------------------------------------------------------------
+// VIEWS / TABS
+//------------------------------------------------------------------------
+const menuTabs = [
+  { value: 'sources', label: 'Sources' },
+  { value: 'codes', label: 'Codes' },
+  { value: 'export', label: 'Export' },
+];
+const menuView = ref(menuTabs[0].value);
+const contentTabs = [
+  { value: 'visualize', label: 'Visualize' },
+  { value: 'analyze', label: 'Analyze' },
+];
+const contentView = ref(contentTabs[0].value);
 
-const files = ref([]);
-const allCodes = ref([]);
-const checkedFiles = ref(new Map());
-const checkedCodes = ref(new Map());
-const selection = ref([]);
+//------------------------------------------------------------------------
+// PAGE
+//------------------------------------------------------------------------
+const pageTitle = ref(`Analysis - ${trunc(props.project.name, 50)}`);
 
-const getAllFiles = () => props.sources;
-const getAllCodes = () => allCodes.value;
+//------------------------------------------------------------------------
+// SOURCES AND CODES
+//------------------------------------------------------------------------
+const {
+  codes,
+  checkedCodes,
+  allCodesChecked,
+  checkCode,
+  sources,
+  checkedSources,
+  allSourcesChecked,
+  checkSource,
+  hasSelections,
+  selection,
+} = useAnalysis();
 
-const eachCheckedFiles = (callback) => {
-  for (const file of files.value) {
-    if (checkedFiles.value.get(file.id)) {
-      callback();
-    }
-  }
-};
+const { availablePlugins, visualizerName, selectVisualizerPlugin } =
+  useVisualizerPlugins();
 
-const eachCheckedCodes = (callback) => {
-  for (const code of allCodes.value) {
-    if (checkedCodes.value.get(code.id)) {
-      callback(code);
-    }
-  }
-};
-
-const getAllSelections = () => {
-  const out = [];
-  eachCheckedFiles((file) => {
-    eachCheckedCodes((code) => {
-      for (const selection of code.text) {
-        if (file.id === selection.source_id) {
-          out.push(selection);
-        }
-      }
-    });
-  });
-  return out;
-};
-
-const getCodesForFile = (file) => {
-  return allCodes.value.filter(
-    (code) =>
-      !!checkedCodes.value.get(code.id) &&
-      code.text.some((t) => t.source_id === file.id)
-  );
-};
-
-// TODO move to external module, make functions "pure" and injectable etc.
-const VisualizationPluginAPI = {
-  getAllFiles,
-  getAllCodes,
-  eachCheckedFiles,
-  eachCheckedCodes,
-  getAllSelections,
-  getCodesForFile,
-};
-
-let visualizerComponent = ref(null);
-const plugins = {
-  list: {
-    title: 'List',
-    load: () => import('./analysis/ListView.vue'),
-  },
-  portrait: {
-    title: 'Code Portrait',
-    load: () => import('./analysis/CodePortrait.vue'),
-  },
-  cloud: {
-    title: 'Word Cloud',
-    load: () => import('./analysis/WordCloudView.vue'),
-  },
-};
-const availablePlugins = ref(
-  Object.entries(plugins).map(([name, val]) => {
-    return { name, title: val.title };
-  })
-);
-const selectVisualizerPlugin = ({ value }) => {
-  const loader = plugins[value].load;
-  visualizerComponent.value =
-    loader === null ? loader : markRaw(defineAsyncComponent(loader));
-};
-
-const checkFile = (event, id) => {
-  const isAllFiles = id === 'all_files';
-  const isChecked = !!checkedFiles.value.get(id);
-
-  if (isAllFiles) {
-    getAllFiles().forEach((file) => {
-      checkedFiles.value.set(file.id, !isChecked);
-    });
-  } else {
-    checkedFiles.value.set('all_files', false);
-  }
-
-  checkedFiles.value.set(id, !isChecked);
-  updateHasSelection();
-};
-const checkCode = (event, id) => {
-  const isAllCodes = id === 'all_codes';
-  const isChecked = !!checkedCodes.value.get(id);
-
-  if (isAllCodes) {
-    getAllCodes().forEach((code) => {
-      checkedCodes.value.set(code.id, !isChecked);
-    });
-  } else {
-    checkedCodes.value.set('all_codes', false);
-  }
-
-  checkedCodes.value.set(id, !isChecked);
-  updateHasSelection();
-};
-
-const updateHasSelection = debounce(() => {
-  // TODO debounce or throttle?
-  const values = [];
-
-  props.sources.forEach((file) => {
-    if (!checkedFiles.value.get(file.id)) {
-      return;
-    }
-
-    const entry = {
-      name: file.name,
-      codes: [],
-    };
-
-    const iterateCodes = (list) => {
-      list.forEach((code) => {
-        if (checkedCodes.value.get(code.id) && code.text) {
-          const current = {
-            name: code.name,
-            segments: [],
-          };
-
-          code.text.forEach((t) => {
-            if (t.source_id === file.id) {
-              current.segments.push(t);
-            }
-          });
-
-          if (current.segments.length > 0) {
-            entry.codes.push(current);
-          }
-        }
-
-        if (code.children) {
-          iterateCodes(code.children);
-        }
-      });
-    };
-
-    iterateCodes(allCodes.value);
-
-    if (entry.codes.length > 0) {
-      values.push(entry);
-    }
-  });
-
-  selection.value = values;
-  hasSelections.value = values.length > 0;
-}, 500);
-
-const saveCSV = () => {
-  const doubleQuote = /"/g;
-  const quote = "'";
-  const whitespace = /\s+/g;
-  const csv = createCSV({
-    header: [
-      'file',
-      'code category',
-      'created by',
-      'created at',
-      'last update',
-      'start pos',
-      'end pos',
-      'selection',
-    ],
-  });
-  selection.value.forEach((entry) => {
-    entry.codes.forEach((code) => {
-      code.segments.forEach((segment) => {
-        csv.addRow([
-          entry.name,
-          code.name,
-          segment.createdBy,
-          segment.createdAt,
-          segment.updatedAt !== segment.createdAt ? segment.updatedAt : '',
-          segment.start,
-          segment.end,
-          `"${segment.text.replace(doubleQuote, quote).replace(whitespace, ' ')}"`,
-        ]);
-      });
-    });
-  });
-
-  const out = csv.build();
-  const date = new Date().toLocaleDateString().replace(/[_.:,\s]+/g, '-');
-
-  saveTextFile({
-    text: out,
-    name: `codes-${date}.csv`,
-    type: 'text/csv',
-  });
-};
+//------------------------------------------------------------------------
+// EXPORTS
+//------------------------------------------------------------------------
+const { exportToCSV } = useExport();
 
 onMounted(async () => {
-  allCodes.value = unfoldCodes(props.codes).sort(byName);
-  selectVisualizerPlugin({ value: 'list' });
-  files.value = props.sources;
-  files.value.sort(byName);
+  selectVisualizerPlugin({ value: 'list', unlessExists: true });
+  if (checkedSources.value.size === 0) checkSource('all');
+  if (checkedCodes.value.size === 0) checkCode('all');
 });
 </script>

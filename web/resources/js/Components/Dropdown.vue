@@ -51,7 +51,6 @@ const alignmentClasses = computed(() => {
 });
 
 function handleClick() {
-  console.debug('drop down click event', props.prevent);
   if (!props.prevent) {
     open.value = !open.value;
     const name = open.value ? 'open' : 'close';
@@ -90,10 +89,7 @@ function handleClose() {
         style="display: none"
         @click="handleClose"
       >
-        <div
-          class="rounded-md ring-1 ring-black ring-opacity-5"
-          :class="contentClasses"
-        >
+        <div class="rounded-md ring-1 ring-primary/5" :class="contentClasses">
           <slot name="content" />
         </div>
       </div>

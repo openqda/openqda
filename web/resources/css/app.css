@@ -1,10 +1,165 @@
-@import 'quill/dist/quill.core.css';
-@import "quill/dist/quill.snow.css";
+@import 'tailwindcss';
+
+@plugin 'tailwindcss-animate';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../vendor/laravel/jetstream/**/*.blade.php';
+@source '../../vendor/filament/**/*.blade.php';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --color-border: rgb(var(--border));
+  --color-input: rgb(var(--input));
+  --color-ring: rgb(var(--ring));
+  --color-background: rgb(var(--background));
+  --color-foreground: rgb(var(--foreground));
+
+  --color-primary: rgb(var(--primary));
+  --color-primary-foreground: rgb(var(--primary-foreground));
+
+  --color-secondary: rgb(var(--secondary));
+  --color-secondary-foreground: rgb(var(--secondary-foreground));
+
+  --color-surface: rgb(var(--surface));
+  --color-surface-foreground: rgb(var(--surface-foreground));
+
+  --color-destructive: rgb(var(--destructive));
+  --color-destructive-foreground: rgb(var(--destructive-foreground));
+
+  --color-confirmative: rgb(var(--confirmative));
+  --color-confirmative-foreground: rgb(var(--confirmative-foreground));
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  --font-sans:
+    var(--font-sans), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+    'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
+
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+  @media (width >= --theme(--breakpoint-sm)) {
+    max-width: none;
+  }
+  @media (width >= 1400px) {
+    max-width: 1400px;
+  }
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentColor);
+  }
+}
+
+@layer base {
+    :root {
+        --background: 211 211 211;
+        --foreground: 0 0 0;
+
+        --surface: 255 255 255;
+        --surface-foreground: 0 0 0;
+
+        --confirmative: 76 172 74;
+        --confirmative-foreground: 0 0 0;
+
+        --destructive: 220 103 103;
+        --destructive-foreground: 0 0 0;
+
+        --border: 243 243 244;
+        --input: 243 243 244;
+
+        --primary: 52 122 173;
+        --primary-foreground: 243 243 244;
+
+        --secondary: 8 152 221;
+        --secondary-foreground: 243 243 244;
+
+        --ring: 0 0 0;
+        --ring-primary: 243 243 244;
+
+        --radius: 0.5rem;
+        --font-sans: -apple-system, BlinkMacSystemFont, "Open Sans", Helvetica, Arial, sans-serif;
+    }
+
+    .dark {
+        --background: 8 17 24;
+        --foreground: 231 232 232;
+
+        --surface: 16 24 30;
+        --surface-foreground: 231 232 232;
+
+        --confirmative: 110 211 108;
+        --confirmative-foreground: 255 255 255;
+
+        --destructive: 250 85 85;
+        --destructive-foreground: 255 255 255;
+
+        --border: 231, 232, 232;
+        --input: 231, 232, 232;
 
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+        --primary: 231 232 232;
+        --primary-foreground: 0 0 0;
+
+        --secondary: 50 196 255;
+        --secondary-foreground: 243 243 244;
+
+        --ring: 243 243 244;
+        --ring-primary: 243 243 244;
+
+        --radius: 0.5rem;
+    }
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+        font-feature-settings: "rlig" 1, "calt" 1;
+    }
+}
 
 [x-cloak] {
     display: none;
@@ -18,17 +173,17 @@
 
 
 /* Tailwind font family for quill classes */
-.ql-font-monospace{
+.ql-font-monospace {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
-.ql-font-serif{
+.ql-font-serif {
 
     font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 
 }
 
-.ql-font-sans-serif{
+.ql-font-sans-serif {
 
     font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
 }
@@ -40,4 +195,12 @@
     font-family: "Courier New", Courier, monospace;
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
     z-index: 1; /* To make sure it appears above other elements */
+}
+
+/* Tailwind v4 upgrade adjustments */
+@layer base {
+    button:not(:disabled),
+    [role="button"]:not(:disabled) {
+        cursor: pointer;
+    }
 }

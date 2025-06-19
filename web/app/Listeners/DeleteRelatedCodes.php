@@ -21,7 +21,7 @@ class DeleteRelatedCodes
 
         foreach ($codes as $code) {
             // Delete all associated selections
-            $code->selections()->delete(); //<-- why this didn't work?
+            $code->selections()->delete(); // <-- why this didn't work?
 
             // Delete the code itself
             $code->delete();

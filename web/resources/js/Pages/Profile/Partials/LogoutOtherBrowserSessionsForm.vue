@@ -1,13 +1,12 @@
 <script setup>
 import { ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
-import ActionMessage from '@/Components/ActionMessage.vue';
-import ActionSection from '@/Components/ActionSection.vue';
-import DialogModal from '@/Components/DialogModal.vue';
-import InputError from '@/Components/InputError.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
+import ActionMessage from '../../../Components/ActionMessage.vue';
+import ActionSection from '../../../Components/ActionSection.vue';
+import DialogModal from '../../../Components/DialogModal.vue';
+import InputError from '../../../form/InputError.vue';
+import InputField from '../../../form/InputField.vue';
+import Button from '../../../Components/interactive/Button.vue';
 
 defineProps({
   sessions: Array,
@@ -44,14 +43,14 @@ const closeModal = () => {
 
 <template>
   <ActionSection>
-    <template #title> Browser Sessions </template>
+    <template #title> Browser Sessions</template>
 
     <template #description>
       Manage and log out your active sessions on other browsers and devices.
     </template>
 
     <template #content>
-      <div class="max-w-xl text-sm text-gray-600">
+      <div class="max-w-xl text-sm">
         If necessary, you may log out of all of your other browser sessions
         across all of your devices. Some of your recent sessions are listed
         below; however, this list may not be exhaustive. If you feel your
@@ -59,7 +58,7 @@ const closeModal = () => {
       </div>
 
       <!-- Other Browser Sessions -->
-      <div v-if="sessions.length > 0" class="mt-5 space-y-6">
+      <div v-if="sessions.length > 0" class="mt-5 flex flex-col gap-6">
         <div
           v-for="(session, i) in sessions"
           :key="i"
@@ -68,7 +67,7 @@ const closeModal = () => {
           <div>
             <svg
               v-if="session.agent.is_desktop"
-              class="w-8 h-8 text-gray-500"
+              class="w-8 h-8"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -84,7 +83,7 @@ const closeModal = () => {
 
             <svg
               v-else
-              class="w-8 h-8 text-gray-500"
+              class="w-8 h-8"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -100,14 +99,14 @@ const closeModal = () => {
           </div>
 
           <div class="ml-3">
-            <div class="text-sm text-gray-600">
+            <div class="text-sm">
               {{ session.agent.platform ? session.agent.platform : 'Unknown' }}
               -
               {{ session.agent.browser ? session.agent.browser : 'Unknown' }}
             </div>
 
             <div>
-              <div class="text-xs text-gray-500">
+              <div class="text-xs">
                 {{ session.ip_address }},
 
                 <span
@@ -123,9 +122,9 @@ const closeModal = () => {
       </div>
 
       <div class="flex items-center mt-5">
-        <PrimaryButton @click="confirmLogout">
+        <Button @click="confirmLogout" variant="outline">
           Log Out Other Browser Sessions
-        </PrimaryButton>
+        </Button>
 
         <ActionMessage :on="form.recentlySuccessful" class="ml-3">
           Done.
@@ -134,14 +133,14 @@ const closeModal = () => {
 
       <!-- Log Out Other Devices Confirmation Modal -->
       <DialogModal :show="confirmingLogout" @close="closeModal">
-        <template #title> Log Out Other Browser Sessions </template>
+        <template #title> Log Out Other Browser Sessions</template>
 
         <template #content>
           Please enter your password to confirm you would like to log out of
           your other browser sessions across all of your devices.
 
           <div class="mt-4">
-            <TextInput
+            <InputField
               ref="passwordInput"
               v-model="form.password"
               type="password"
@@ -156,16 +155,17 @@ const closeModal = () => {
         </template>
 
         <template #footer>
-          <SecondaryButton @click="closeModal"> Cancel </SecondaryButton>
+          <Button variant="secondary" @click="closeModal"> Cancel</Button>
 
-          <PrimaryButton
+          <Button
+            variant="outline"
             class="ml-3"
             :class="{ 'opacity-25': form.processing }"
             :disabled="form.processing"
             @click="logoutOtherBrowserSessions"
           >
             Log Out Other Browser Sessions
-          </PrimaryButton>
+          </Button>
         </template>
       </DialogModal>
     </template>

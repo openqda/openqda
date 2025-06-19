@@ -1,13 +1,14 @@
-import './bootstrap';
+import './startup/theme.js';
+import './startup/axios.js';
+import './startup/errors.js';
 import '../css/app.css';
-
 import { createApp, h } from 'vue';
 import { createInertiaApp } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy/dist/vue.m';
 
 const appName =
-  window.document.getElementsByTagName('title')[0]?.innerText || 'openQDA';
+  window.document.getElementsByTagName('title')[0]?.innerText || 'OpenQDA';
 
 createInertiaApp({
   title: (title) => `${title} - ${appName}`,
@@ -23,6 +24,6 @@ createInertiaApp({
       .mount(el);
   },
   progress: {
-    color: '#4B5563',
+    color: '#88eeff',
   },
-});
+}).catch(console.error);

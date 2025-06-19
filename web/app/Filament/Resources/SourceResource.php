@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\SourceResource\Pages;
 use App\Http\Controllers\SourceController;
+use App\Models\Project;
 use App\Models\Source;
 use Filament\Forms;
 use Filament\Forms\Components\Actions;
@@ -54,7 +55,7 @@ class SourceResource extends Resource
                     Action::make('convertToHtml')
                         ->label('Convert to HTML')
                         ->action(function ($record) {
-                            $controller = new SourceController();
+                            $controller = new SourceController;
                             $controller->getHtmlContent($record->upload_path, $record->project_id, $record, true);
                         })
                         ->icon('heroicon-o-document-text')
@@ -99,7 +100,7 @@ class SourceResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
                 Tables\Columns\IconColumn::make('converted->path_exists')
-                    ->label('Rich Text')
+                    ->label('Converted')
                     ->getStateUsing(function ($record) {
 
                         return (filled($record->converted->path) && $record->converted->path !== ' ' && $record->converted->path !== '') && (file_exists($record->converted->path));
@@ -159,8 +160,8 @@ class SourceResource extends Resource
                 Tables\Actions\Action::make('convertToHtml')
                     ->label('Convert to HTML')
                     ->action(function ($record) {
-                        $controller = new SourceController();
-                        $controller->getHtmlContent($record->upload_path, $record->project_id, $record, true);
+                        $controller = new SourceController;
+                        $controller->retryConversion(Project::find($record->project_id), $record);
                     })
                     ->requiresConfirmation()
                     ->modalDescription('convert this will overwrite the current html content, if exists')

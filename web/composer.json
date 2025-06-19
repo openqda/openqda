@@ -8,7 +8,7 @@
         "php": "^8.2",
         "ext-dom": "*",
         "filament/filament": "^3.2",
-        "filament/forms": "^3.2",
+        "filament/forms": "^v3.2.117",
         "filipfonal/filament-log-manager": "^2.0",
         "grantholle/laravel-altcha": "dev-main",
         "guzzlehttp/guzzle": "^7.2",
@@ -16,7 +16,7 @@
         "inertiajs/inertia-laravel": "^1.0.0",
         "laravel/framework": "^11.0",
         "laravel/jetstream": "^5.0",
-        "laravel/reverb": "@beta",
+        "laravel/reverb": "^1.4.6",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.8",
         "owen-it/laravel-auditing": "^13.5",
@@ -30,11 +30,12 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
-        "laravel/pint": "^1.0",
+        "laravel/pint": "^1.21",
         "laravel/sail": "^1.18",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^8.1",
         "pestphp/pest": "^2.34",
+        "pestphp/pest-plugin-laravel": "^2.3",
         "spatie/laravel-ignition": "^2.0"
     },
     "autoload": {

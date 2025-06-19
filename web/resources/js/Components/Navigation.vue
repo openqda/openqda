@@ -1,4 +1,6 @@
 <script setup>
+// TODO deprecated
+
 import { Link } from '@inertiajs/vue3';
 
 import { computed, inject, onMounted, ref, watch } from 'vue';
@@ -136,7 +138,7 @@ const selectTab = (selectedTab) => {
           <div class="w-full mt-1 h-6">
             <div
               v-if="usersInPages && usersInPages.length > 0"
-              class="flex justify-center -space-x-2"
+              class="flex justify-center -gap-2"
             >
               <span v-for="(luser, index) in usersInPages" :key="index">
                 <img

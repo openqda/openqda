@@ -17,25 +17,25 @@ defineProps(['html', 'background', 'canLogin', 'canRegister']);
     <div class="flex relative items-center justify-center py-8 gap-x-6">
       <a
         :href="route('welcome')"
-        class="rounded-md bg-cerulean-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-cerulean-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-500"
+        class="rounded-md bg-cerulean-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-cerulean-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-500"
         >Home</a
       >
       <a
         v-if="!$page.props.auth.user"
         :href="route('login')"
-        class="rounded-md bg-cerulean-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-cerulean-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-500"
+        class="rounded-md bg-cerulean-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-cerulean-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-500"
         >Login</a
       >
       <a
         v-if="!$page.props.auth.user"
         :href="route('register')"
-        class="rounded-md bg-cerulean-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-cerulean-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-500"
+        class="rounded-md bg-cerulean-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-cerulean-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-500"
         >Register</a
       >
       <a
         v-if="$page.props.auth.user"
         :href="route('projects.index')"
-        class="rounded-md bg-cerulean-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-cerulean-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-500"
+        class="rounded-md bg-cerulean-700 px-3.5 py-2.5 text-sm font-semibold text-white shadow-xs hover:bg-cerulean-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cerulean-500"
         >Projects</a
       >
     </div>
