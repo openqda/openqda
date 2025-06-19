@@ -96,8 +96,8 @@ const handleWithReload = async (fn, ...args) => {
 
 // Public Codebooks Methods
 const loadPublicCodebooks = async (page = 1) => {
-  if (showPublic.value && publicCodebooksLoaded.value && page === 1) {
-    return; // Already loaded
+  if (showPublic.value && publicCodebooksLoaded.value && page === currentPage.value) {
+    return; // Already showing this page
   }
   
   showPublic.value = true;
