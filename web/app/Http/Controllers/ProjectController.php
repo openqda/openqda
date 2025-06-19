@@ -6,7 +6,6 @@ use App\Http\Requests\DeleteProjectRequest;
 use App\Http\Requests\ShowProjectRequest;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
-use App\Models\Codebook;
 use App\Models\Project;
 use App\Services\AuditService;
 use Illuminate\Http\Request;
@@ -147,7 +146,7 @@ class ProjectController extends Controller
         $allAudits = app(AuditService::class)->getProjectAudits($project);
 
         $paginator = app(AuditService::class)->paginateAudit($allAudits, $request);
-        
+
         $publicCodebooks = collect();
 
         // Fetch codebooks for the project with creating user's information
