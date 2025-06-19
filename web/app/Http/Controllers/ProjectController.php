@@ -147,13 +147,12 @@ class ProjectController extends Controller
         $allAudits = app(AuditService::class)->getProjectAudits($project);
 
         $paginator = app(AuditService::class)->paginateAudit($allAudits, $request);
-        $publicCodebooks = Codebook::where('properties->sharedWithPublic', true)
-            ->with('codes', 'creatingUser')
-            ->where('project_id', '!=', $project->id)
-            ->get();
+        
+        $publicCodebooks = collect();
 
         // Fetch codebooks for the project with creating user's information
-        $projectCodebooks = $project->codebooks()->with('codes', 'creatingUser')->get();
+        // Use withCount instead of with to avoid loading ALL codes
+        $projectCodebooks = $project->codebooks()->withCount('codes')->with('creatingUser')->get();
 
         // Format the codebooks data to include the creating user's email
         $formattedCodebooks = $projectCodebooks->map(function ($codebook) {
@@ -162,22 +161,13 @@ class ProjectController extends Controller
                 'name' => $codebook->name,
                 'description' => $codebook->description,
                 'properties' => $codebook->properties,
-                'codes' => $codebook->codes,
+                'codes_count' => $codebook->codes_count, // Use count instead of full codes
                 'project_id' => $codebook->project_id,
                 'creatingUserEmail' => $codebook->creatingUser->email ?? '',
             ];
         });
 
-        $formattedPublicCodebooks = $publicCodebooks->map(function ($codebook) {
-            return [
-                'id' => $codebook->id,
-                'name' => $codebook->name,
-                'description' => $codebook->description,
-                'properties' => $codebook->properties,
-                'codes' => $codebook->codes,
-                'project_id' => $codebook->project_id,
-            ];
-        });
+        $formattedPublicCodebooks = [];
 
         $inertiaData = [
             'project' => [

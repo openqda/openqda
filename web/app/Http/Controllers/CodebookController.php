@@ -133,4 +133,58 @@ class CodebookController extends Controller
         }
 
     }
+
+    /**
+     * Get paginated public codebooks
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getPublicCodebooks(\Illuminate\Http\Request $request)
+    {
+        $perPage = $request->get('per_page', 10); // Default 10, allow 15/20
+        $allowedPerPage = [10, 15, 20];
+        
+        if (!in_array($perPage, $allowedPerPage)) {
+            $perPage = 10;
+        }
+        
+        $codebooks = Codebook::where('properties->sharedWithPublic', true)
+            ->with(['creatingUser:id,name,email'])
+            ->withCount('codes')
+            ->latest()
+            ->paginate($perPage);
+        
+        return response()->json($codebooks);
+    }
+
+    /**
+     * Search public codebooks by name or user email
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function searchPublicCodebooks(\Illuminate\Http\Request $request)
+    {
+        $query = $request->get('q');
+        
+        if (strlen($query) < 3) {
+            return response()->json(['data' => []]);
+        }
+        
+        $codebooks = Codebook::where('properties->sharedWithPublic', true)
+            ->where(function($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                  ->orWhereHas('creatingUser', function($q) use ($query) {
+                      $q->where('email', 'like', "%{$query}%")
+                        ->orWhere('name', 'like', "%{$query}%");
+                  });
+            })
+            ->with(['creatingUser:id,name,email'])
+            ->withCount('codes')
+            ->take(20) // Limit results
+            ->get();
+        
+        return response()->json(['data' => $codebooks]);
+    }
 }
