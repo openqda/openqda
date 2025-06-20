@@ -154,6 +154,23 @@ class CodebookController extends Controller
             ->latest()
             ->paginate($perPage);
 
+        // Transform the data to match the expected format
+        $codebooks->getCollection()->transform(function ($codebook) {
+            return [
+                'id' => $codebook->id,
+                'name' => $codebook->name,
+                'description' => $codebook->description,
+                'properties' => $codebook->properties,
+                'codes_count' => $codebook->codes_count,
+                'project_id' => $codebook->project_id,
+                'creating_user_id' => $codebook->creating_user_id,
+                'creatingUser' => $codebook->creatingUser,
+                'creatingUserEmail' => $codebook->creatingUser->email ?? '',
+                'created_at' => $codebook->created_at,
+                'updated_at' => $codebook->updated_at,
+            ];
+        });
+
         return response()->json($codebooks);
     }
 
@@ -183,6 +200,23 @@ class CodebookController extends Controller
             ->take(20) // Limit results
             ->get();
 
-        return response()->json(['data' => $codebooks]);
+        // Transform the data to match the expected format
+        $transformedCodebooks = $codebooks->map(function ($codebook) {
+            return [
+                'id' => $codebook->id,
+                'name' => $codebook->name,
+                'description' => $codebook->description,
+                'properties' => $codebook->properties,
+                'codes_count' => $codebook->codes_count,
+                'project_id' => $codebook->project_id,
+                'creating_user_id' => $codebook->creating_user_id,
+                'creatingUser' => $codebook->creatingUser,
+                'creatingUserEmail' => $codebook->creatingUser->email ?? '',
+                'created_at' => $codebook->created_at,
+                'updated_at' => $codebook->updated_at,
+            ];
+        });
+
+        return response()->json(['data' => $transformedCodebooks]);
     }
 }
