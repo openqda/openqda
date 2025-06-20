@@ -23,8 +23,11 @@ import { useDeleteDialog } from '../../../dialogs/useDeleteDialog';
 import { attemptAsync } from '../../../Components/notification/attemptAsync';
 import { cn } from '../../../utils/css/cn';
 
-const { codebook: previewCodebook, loading: previewLoading, close: closeCodebookPreview } =
-  useCodebookPreview();
+const {
+  codebook: previewCodebook,
+  loading: previewLoading,
+  close: closeCodebookPreview,
+} = useCodebookPreview();
 const {
   importCodebookSchema,
   createCodebook,
@@ -96,27 +99,30 @@ const handleWithReload = async (fn, ...args) => {
 
 // Public Codebooks Methods
 const loadPublicCodebooks = async (page = 1) => {
-  if (showPublic.value && publicCodebooksLoaded.value && page === currentPage.value) {
+  if (
+    showPublic.value &&
+    publicCodebooksLoaded.value &&
+    page === currentPage.value
+  ) {
     return; // Already showing this page
   }
-  
+
   showPublic.value = true;
   loading.value = true;
-  
+
   try {
     const response = await axios.get('/api/codebooks/public', {
-      params: { 
-        page, 
-        per_page: pageSize.value 
-      }
+      params: {
+        page,
+        per_page: pageSize.value,
+      },
     });
-    
+
     publicCodebooks.value = response.data.data;
     currentPage.value = response.data.current_page;
     totalPages.value = response.data.last_page;
     totalCount.value = response.data.total;
     publicCodebooksLoaded.value = true;
-    
   } catch (error) {
     console.error('Failed to load public codebooks:', error);
   } finally {
@@ -128,18 +134,18 @@ const changePageSize = async () => {
   // When page size changes, we need to reload data
   // If total items would fit in fewer pages with new size, adjust current page
   const maxPageWithNewSize = Math.ceil(totalCount.value / pageSize.value);
-  
+
   // Ensure we're not on a page that doesn't exist with the new page size
   if (currentPage.value > maxPageWithNewSize && maxPageWithNewSize > 0) {
     currentPage.value = maxPageWithNewSize;
   } else if (currentPage.value === 0 && totalCount.value > 0) {
     currentPage.value = 1;
   }
-  
+
   // Force reload by temporarily clearing the current page
   const targetPage = currentPage.value || 1;
   currentPage.value = 0; // This ensures loadPublicCodebooks won't skip the load
-  
+
   await loadPublicCodebooks(targetPage);
 };
 
@@ -160,14 +166,14 @@ const performSearch = async () => {
     searchResults.value = [];
     return;
   }
-  
+
   searching.value = true;
   try {
     const response = await axios.get('/api/codebooks/search', {
-      params: { 
+      params: {
         q: searchQuery.value,
-        limit: 20
-      }
+        limit: 20,
+      },
     });
     searchResults.value = response.data.data;
   } catch (error) {
@@ -290,9 +296,11 @@ const debounceSearch = debounce(performSearch, 300);
         "
       />
       <Headline2>Public Codebooks</Headline2>
-      <span v-if="!publicCodebooksLoaded" class="ml-2 text-sm text-gray-500">●</span>
+      <span v-if="!publicCodebooksLoaded" class="ml-2 text-sm text-gray-500"
+        >●</span
+      >
     </button>
-    
+
     <Collapse :when="showPublic">
       <div class="mt-3">
         <!-- Controls Bar -->
@@ -300,8 +308,8 @@ const debounceSearch = debounce(performSearch, 300);
           <!-- Page Size Selector -->
           <div class="flex items-center gap-2">
             <label class="text-sm font-medium text-gray-700">Show:</label>
-            <select 
-              v-model="pageSize" 
+            <select
+              v-model="pageSize"
               @change="changePageSize"
               class="rounded-md border-gray-300 text-sm"
             >
@@ -315,16 +323,16 @@ const debounceSearch = debounce(performSearch, 300);
           <!-- Search Box -->
           <div class="flex-1 max-w-md">
             <div class="relative">
-              <input 
+              <input
                 v-model="searchQuery"
                 @input="debounceSearch"
                 type="search"
                 placeholder="Search by codebook name or user email..."
                 class="w-full rounded-md border-gray-300 pr-8"
               />
-              <button 
-                v-if="searchQuery" 
-                @click="clearSearch" 
+              <button
+                v-if="searchQuery"
+                @click="clearSearch"
                 class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
               >
                 ×
@@ -335,7 +343,9 @@ const debounceSearch = debounce(performSearch, 300);
 
         <!-- Loading State -->
         <div v-if="loading" class="flex items-center justify-center py-8">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          <div
+            class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"
+          ></div>
           <span class="ml-2">Loading public codebooks...</span>
         </div>
 
@@ -361,23 +371,28 @@ const debounceSearch = debounce(performSearch, 300);
           </ul>
 
           <!-- Pagination Controls (only show when not searching) -->
-          <div v-if="!searchQuery && totalPages > 1" class="mt-6 flex items-center justify-center">
+          <div
+            v-if="!searchQuery && totalPages > 1"
+            class="mt-6 flex items-center justify-center"
+          >
             <nav class="flex items-center gap-2">
-              <button 
-                @click="previousPage" 
+              <button
+                @click="previousPage"
                 :disabled="currentPage === 1"
                 class="px-3 py-1 rounded-md bg-white border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Previous
               </button>
-              
+
               <span class="px-3 py-1 text-sm text-gray-700">
-                Page {{ currentPage }} of {{ totalPages }}
-                ({{ totalCount }} total)
+                Page {{ currentPage }} of {{ totalPages }} ({{
+                  totalCount
+                }}
+                total)
               </span>
-              
-              <button 
-                @click="nextPage" 
+
+              <button
+                @click="nextPage"
                 :disabled="currentPage === totalPages"
                 class="px-3 py-1 rounded-md bg-white border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -480,7 +495,9 @@ const debounceSearch = debounce(performSearch, 300);
   >
     <template #info>
       <div v-if="previewLoading" class="flex items-center justify-center py-8">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        <div
+          class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"
+        ></div>
         <span class="ml-2">Loading codebook codes...</span>
       </div>
       <div v-else-if="previewCodebook">

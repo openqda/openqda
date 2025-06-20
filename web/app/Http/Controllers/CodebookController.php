@@ -233,7 +233,7 @@ class CodebookController extends Controller
             ->withCount('codes')
             ->first();
 
-        if (!$codebook) {
+        if (! $codebook) {
             return response()->json(['error' => 'Codebook not found or not public'], 404);
         }
 

@@ -11,7 +11,7 @@ export const useCodebookPreview = () => {
 
   const open = async ({ codebook }) => {
     state.loading = true;
-    
+
     // If this is a public codebook without codes, fetch them
     if (codebook.properties?.sharedWithPublic && !codebook.codes) {
       try {
@@ -25,10 +25,10 @@ export const useCodebookPreview = () => {
     } else {
       state.codebook = codebook;
     }
-    
+
     state.loading = false;
   };
-  
+
   const close = () => {
     state.codebook = null;
     state.loading = false;

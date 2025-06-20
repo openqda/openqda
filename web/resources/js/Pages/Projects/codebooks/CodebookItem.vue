@@ -27,13 +27,17 @@
             {{ codebook.description }}
           </p>
           <p class="text-foreground/60 text-xs" v-if="props.showEmail">
-            {{ codebook.creatingUserEmail || codebook.creatingUser?.email || '' }}
+            {{
+              codebook.creatingUserEmail || codebook.creatingUser?.email || ''
+            }}
           </p>
           <p class="text-foreground/60">
             {{
               codebook.codes_count !== undefined
                 ? codebook.codes_count
-                : (codebook.codes && codebook.codes.length ? codebook.codes.length : 0)
+                : codebook.codes && codebook.codes.length
+                  ? codebook.codes.length
+                  : 0
             }}
             Codes
           </p>
@@ -181,9 +185,14 @@ const reorderCodes = (codesArray) => {
 
 const getBackgroundStyle = function (target) {
   // Check if there are any codes or if codes_count is 0
-  const codesCount = target.codes_count !== undefined ? target.codes_count : (target.codes ? target.codes.length : 0);
-  
-  if (codesCount === 0 || (!target.codes || target.codes.length === 0)) {
+  const codesCount =
+    target.codes_count !== undefined
+      ? target.codes_count
+      : target.codes
+        ? target.codes.length
+        : 0;
+
+  if (codesCount === 0 || !target.codes || target.codes.length === 0) {
     // Return a default style for the empty rectangle
     return `background-color: #E5E7EB;`; // This is a light gray color, adjust as needed
   }
