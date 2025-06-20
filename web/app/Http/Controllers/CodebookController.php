@@ -219,4 +219,40 @@ class CodebookController extends Controller
 
         return response()->json(['data' => $transformedCodebooks]);
     }
+
+    /**
+     * Get a single codebook with its codes
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCodebookWithCodes($codebookId)
+    {
+        $codebook = Codebook::where('id', $codebookId)
+            ->where('properties->sharedWithPublic', true)
+            ->with(['creatingUser:id,name,email', 'codes'])
+            ->withCount('codes')
+            ->first();
+
+        if (!$codebook) {
+            return response()->json(['error' => 'Codebook not found or not public'], 404);
+        }
+
+        // Transform the data to match the expected format
+        $transformedCodebook = [
+            'id' => $codebook->id,
+            'name' => $codebook->name,
+            'description' => $codebook->description,
+            'properties' => $codebook->properties,
+            'codes' => $codebook->codes,
+            'codes_count' => $codebook->codes_count,
+            'project_id' => $codebook->project_id,
+            'creating_user_id' => $codebook->creating_user_id,
+            'creatingUser' => $codebook->creatingUser,
+            'creatingUserEmail' => $codebook->creatingUser->email ?? '',
+            'created_at' => $codebook->created_at,
+            'updated_at' => $codebook->updated_at,
+        ];
+
+        return response()->json($transformedCodebook);
+    }
 }

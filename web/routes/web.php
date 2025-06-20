@@ -132,6 +132,7 @@ Route::middleware([
 
     Route::get('/api/codebooks/public', [CodebookController::class, 'getPublicCodebooks'])->name('api.codebooks.public');
     Route::get('/api/codebooks/search', [CodebookController::class, 'searchPublicCodebooks'])->name('api.codebooks.search');
+    Route::get('/api/codebooks/{codebook}/codes', [CodebookController::class, 'getCodebookWithCodes'])->name('api.codebooks.codes');
 
     /**
      * Analysis

@@ -23,7 +23,7 @@ import { useDeleteDialog } from '../../../dialogs/useDeleteDialog';
 import { attemptAsync } from '../../../Components/notification/attemptAsync';
 import { cn } from '../../../utils/css/cn';
 
-const { codebook: previewCodebook, close: closeCodebookPreview } =
+const { codebook: previewCodebook, loading: previewLoading, close: closeCodebookPreview } =
   useCodebookPreview();
 const {
   importCodebookSchema,
@@ -470,33 +470,40 @@ const debounceSearch = debounce(performSearch, 300);
     :submit="deleteCodebook"
   />
   <ConfirmDialog
-    :title="`Preview of ${previewCodebook?.name}`"
-    :show="!!previewCodebook"
+    :title="`Preview of ${previewCodebook?.name || 'Codebook'}`"
+    :show="!!previewCodebook || previewLoading"
     :showConfirm="false"
     cancelButtonLabel="Close"
     :static="false"
     @confirmed="closeCodebookPreview()"
     @cancelled="closeCodebookPreview()"
   >
-    <template #info v-if="previewCodebook">
-      <p class="py-4">
-        {{ previewCodebook.name }} has
-        {{ previewCodebook.codes?.length ?? 0 }} codes
-      </p>
-      <ul>
-        <li
-          v-for="code in previewCodebook.codes"
-          :key="code.id"
-          class="flex items-center my-2"
-        >
-          <div
-            class="rounded-md w-full p-3 text-sm font-medium"
-            :style="'background-color: ' + code.color"
+    <template #info>
+      <div v-if="previewLoading" class="flex items-center justify-center py-8">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        <span class="ml-2">Loading codebook codes...</span>
+      </div>
+      <div v-else-if="previewCodebook">
+        <p class="py-4">
+          {{ previewCodebook.name }} has
+          {{ previewCodebook.codes?.length ?? 0 }} codes
+        </p>
+        <ul v-if="previewCodebook.codes && previewCodebook.codes.length > 0">
+          <li
+            v-for="code in previewCodebook.codes"
+            :key="code.id"
+            class="flex items-center my-2"
           >
-            <ContrastText>{{ code.name }}</ContrastText>
-          </div>
-        </li>
-      </ul>
+            <div
+              class="rounded-md w-full p-3 text-sm font-medium"
+              :style="'background-color: ' + code.color"
+            >
+              <ContrastText>{{ code.name }}</ContrastText>
+            </div>
+          </li>
+        </ul>
+        <p v-else class="text-sm text-gray-500">This codebook has no codes.</p>
+      </div>
     </template>
   </ConfirmDialog>
 </template>
