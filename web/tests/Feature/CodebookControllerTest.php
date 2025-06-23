@@ -438,7 +438,7 @@ class CodebookControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $project = Project::factory()->create(['creating_user_id' => $user->id]);
-        
+
         $codebook = Codebook::factory()->create([
             'project_id' => $project->id,
             'creating_user_id' => $user->id,
