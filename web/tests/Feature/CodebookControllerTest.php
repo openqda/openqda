@@ -428,4 +428,37 @@ class CodebookControllerTest extends TestCase
             'codes_count' => 0,
         ]);
     }
+
+    /**
+     * Test fetching a private codebook without properties array.
+     *
+     * @return void
+     */
+    public function test_get_private_codebook_without_properties_as_creator()
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create(['creating_user_id' => $user->id]);
+        
+        $codebook = Codebook::factory()->create([
+            'project_id' => $project->id,
+            'creating_user_id' => $user->id,
+            'properties' => null, // No properties set
+        ]);
+
+        // Create some codes for the codebook
+        $codes = \App\Models\Code::factory()->count(2)->create([
+            'codebook_id' => $codebook->id,
+        ]);
+
+        // Creator should be able to access their own codebook even without properties
+        $response = $this->actingAs($user)
+            ->getJson("/api/codebooks/{$codebook->id}/codes");
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(2, 'codes');
+        $response->assertJson([
+            'id' => $codebook->id,
+            'codes_count' => 2,
+        ]);
+    }
 }

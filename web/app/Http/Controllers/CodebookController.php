@@ -243,7 +243,7 @@ class CodebookController extends Controller
         $hasAccess = false;
 
         // Check if it's a public codebook
-        if ($codebook->properties && $codebook->properties['sharedWithPublic'] ?? false) {
+        if ($codebook->properties && ($codebook->properties['sharedWithPublic'] ?? false)) {
             $hasAccess = true;
         }
         // Check if user is the creator
