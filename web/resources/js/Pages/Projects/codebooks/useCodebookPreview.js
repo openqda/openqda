@@ -12,8 +12,8 @@ export const useCodebookPreview = () => {
   const open = async ({ codebook }) => {
     state.loading = true;
 
-    // If this is a public codebook without codes, fetch them
-    if (codebook.properties?.sharedWithPublic && !codebook.codes) {
+    // If codebook doesn't have codes loaded, fetch them
+    if (!codebook.codes) {
       try {
         const response = await axios.get(`/api/codebooks/${codebook.id}/codes`);
         state.codebook = response.data;

@@ -385,9 +385,7 @@ const debounceSearch = debounce(performSearch, 300);
               </button>
 
               <span class="px-3 py-1 text-sm text-gray-700">
-                Page {{ currentPage }} of {{ totalPages }} ({{
-                  totalCount
-                }}
+                Page {{ currentPage }} of {{ totalPages }} ({{ totalCount }}
                 total)
               </span>
 

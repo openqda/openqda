@@ -227,14 +227,39 @@ class CodebookController extends Controller
      */
     public function getCodebookWithCodes($codebookId)
     {
+        $user = auth()->user();
+
+        // First try to find the codebook
         $codebook = Codebook::where('id', $codebookId)
-            ->where('properties->sharedWithPublic', true)
             ->with(['creatingUser:id,name,email', 'codes'])
             ->withCount('codes')
             ->first();
 
         if (! $codebook) {
-            return response()->json(['error' => 'Codebook not found or not public'], 404);
+            return response()->json(['error' => 'Codebook not found'], 404);
+        }
+
+        // Check if user has access to this codebook
+        $hasAccess = false;
+
+        // Check if it's a public codebook
+        if ($codebook->properties && $codebook->properties['sharedWithPublic'] ?? false) {
+            $hasAccess = true;
+        }
+        // Check if user is the creator
+        elseif ($codebook->creating_user_id === $user->id) {
+            $hasAccess = true;
+        }
+        // Check if user has access through the project
+        elseif ($codebook->project_id) {
+            $project = Project::find($codebook->project_id);
+            if ($project && $user->can('view', $project)) {
+                $hasAccess = true;
+            }
+        }
+
+        if (! $hasAccess) {
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
 
         // Transform the data to match the expected format

@@ -221,4 +221,211 @@ class CodebookControllerTest extends TestCase
         $this->assertTrue($codebook->properties['sharedWithPublic']);
         $this->assertFalse($codebook->properties['sharedWithTeams']);
     }
+
+    /**
+     * Test fetching a public codebook with its codes.
+     *
+     * @return void
+     */
+    public function test_get_public_codebook_with_codes()
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create();
+        $codebook = Codebook::factory()->create([
+            'project_id' => $project->id,
+            'creating_user_id' => $user->id,
+            'properties' => [
+                'sharedWithPublic' => true,
+                'sharedWithTeams' => false,
+            ],
+        ]);
+
+        // Create some codes for the codebook
+        $codes = \App\Models\Code::factory()->count(3)->create([
+            'codebook_id' => $codebook->id,
+        ]);
+
+        // Anyone should be able to access a public codebook
+        $anotherUser = User::factory()->create();
+        $response = $this->actingAs($anotherUser)
+            ->getJson("/api/codebooks/{$codebook->id}/codes");
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'id',
+            'name',
+            'description',
+            'properties',
+            'codes',
+            'codes_count',
+            'project_id',
+            'creating_user_id',
+            'creatingUser',
+            'creatingUserEmail',
+            'created_at',
+            'updated_at',
+        ]);
+        $response->assertJsonCount(3, 'codes');
+        $response->assertJson([
+            'codes_count' => 3,
+            'properties' => [
+                'sharedWithPublic' => true,
+            ],
+        ]);
+    }
+
+    /**
+     * Test fetching a private codebook with codes as the creator.
+     *
+     * @return void
+     */
+    public function test_get_private_codebook_with_codes_as_creator()
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create();
+        $codebook = Codebook::factory()->create([
+            'project_id' => $project->id,
+            'creating_user_id' => $user->id,
+            'properties' => [
+                'sharedWithPublic' => false,
+                'sharedWithTeams' => false,
+            ],
+        ]);
+
+        // Create some codes for the codebook
+        $codes = \App\Models\Code::factory()->count(2)->create([
+            'codebook_id' => $codebook->id,
+        ]);
+
+        // Creator should be able to access their own private codebook
+        $response = $this->actingAs($user)
+            ->getJson("/api/codebooks/{$codebook->id}/codes");
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(2, 'codes');
+        $response->assertJson([
+            'id' => $codebook->id,
+            'codes_count' => 2,
+            'properties' => [
+                'sharedWithPublic' => false,
+            ],
+        ]);
+    }
+
+    /**
+     * Test fetching a private codebook with codes as a project member.
+     *
+     * @return void
+     */
+    public function test_get_private_codebook_with_codes_as_project_member()
+    {
+        $creator = User::factory()->create();
+        $projectMember = User::factory()->create();
+
+        // Create a project with team
+        $team = \App\Models\Team::factory()->create(['user_id' => $creator->id]);
+        $project = Project::factory()->create([
+            'creating_user_id' => $creator->id,
+            'team_id' => $team->id,
+        ]);
+
+        // Add the project member to the team
+        $team->users()->attach($projectMember, ['role' => 'editor']);
+
+        $codebook = Codebook::factory()->create([
+            'project_id' => $project->id,
+            'creating_user_id' => $creator->id,
+            'properties' => [
+                'sharedWithPublic' => false,
+                'sharedWithTeams' => true,
+            ],
+        ]);
+
+        // Create some codes for the codebook
+        $codes = \App\Models\Code::factory()->count(2)->create([
+            'codebook_id' => $codebook->id,
+        ]);
+
+        // Project member should be able to access the codebook
+        $response = $this->actingAs($projectMember)
+            ->getJson("/api/codebooks/{$codebook->id}/codes");
+
+        $response->assertStatus(200);
+        $response->assertJsonCount(2, 'codes');
+    }
+
+    /**
+     * Test unauthorized access to a private codebook.
+     *
+     * @return void
+     */
+    public function test_cannot_access_private_codebook_without_permission()
+    {
+        $user = User::factory()->create();
+        $anotherUser = User::factory()->create();
+        $project = Project::factory()->create(['creating_user_id' => $user->id]);
+
+        $codebook = Codebook::factory()->create([
+            'project_id' => $project->id,
+            'creating_user_id' => $user->id,
+            'properties' => [
+                'sharedWithPublic' => false,
+                'sharedWithTeams' => false,
+            ],
+        ]);
+
+        // Another user should not be able to access the private codebook
+        $response = $this->actingAs($anotherUser)
+            ->getJson("/api/codebooks/{$codebook->id}/codes");
+
+        $response->assertStatus(403);
+        $response->assertJson(['error' => 'Unauthorized']);
+    }
+
+    /**
+     * Test accessing a non-existent codebook.
+     *
+     * @return void
+     */
+    public function test_get_non_existent_codebook_returns_404()
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)
+            ->getJson('/api/codebooks/non-existent-id/codes');
+
+        $response->assertStatus(404);
+        $response->assertJson(['error' => 'Codebook not found']);
+    }
+
+    /**
+     * Test fetching a codebook without codes returns empty array.
+     *
+     * @return void
+     */
+    public function test_get_codebook_without_codes()
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create(['creating_user_id' => $user->id]);
+
+        $codebook = Codebook::factory()->create([
+            'project_id' => $project->id,
+            'creating_user_id' => $user->id,
+            'properties' => [
+                'sharedWithPublic' => true,
+                'sharedWithTeams' => false,
+            ],
+        ]);
+
+        // No codes created for this codebook
+
+        $response = $this->actingAs($user)
+            ->getJson("/api/codebooks/{$codebook->id}/codes");
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'codes' => [],
+            'codes_count' => 0,
+        ]);
+    }
 }
