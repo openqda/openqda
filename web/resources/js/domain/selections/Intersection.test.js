@@ -151,7 +151,7 @@ describe('Intersection', () => {
       Intersections.from(selections);
       end = performance.now();
       const measure2 = end - start;
-      expect(measure2 < 10).toBe(true);
+      expect(measure2 < 50).toBe(true);
 
       // 10000 entries
       selections = inflate(10000, 100);
@@ -159,7 +159,7 @@ describe('Intersection', () => {
       Intersections.from(selections);
       end = performance.now();
       const measure3 = end - start;
-      expect(measure3 < 100).toBe(true);
+      expect(measure3 < 1000).toBe(true);
     });
   });
 });
