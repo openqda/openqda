@@ -111,8 +111,9 @@ The core software of this project is released under the APGL-3.0 license,
 which you can read in our [license file](./LICENSE).
 
 ### Media Files
-The OpenQDA logo and images are licenses under CC BY-NC-SA 4.0, which you can read
-in our [media license file](./LICENSE_MEDIA).
+The OpenQDA logo and images are created by [Florian Hohmann](https://github.com/orgs/openqda/people/hohse)
+and are licenses under CC BY-NC-SA 4.0, which you can read in our
+[media license file](./LICENSE_MEDIA).
 
 ### Plugins
 Plugins (which includes services) may be distributed under a different license.
