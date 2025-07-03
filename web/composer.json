@@ -5,7 +5,7 @@
     "keywords": ["QDA", "Qualitative Data Analysis", "Laravel"],
     "license": "MIT",
     "require": {
-        "php": "^8.2",
+        "php": "^8.3",
         "ext-dom": "*",
         "filament/filament": "^3.2",
         "filament/forms": "^v3.2.117",
