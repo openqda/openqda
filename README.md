@@ -112,7 +112,7 @@ which you can read in our [license file](./LICENSE).
 
 ### Media Files
 The OpenQDA logo and images are created by [Florian Hohmann](https://github.com/orgs/openqda/people/hohse)
-and are licenses under CC BY-NC-SA 4.0, which you can read in our
+and are licensed under CC BY-NC-SA 4.0, which you can read in our
 [media license file](./LICENSE_MEDIA).
 
 ### Plugins
