@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, inject, ref } from 'vue';
+import axios from 'axios';
+import { debounce } from 'lodash';
 import CodebookItem from './CodebookItem.vue';
 import Headline2 from '../../../Components/layout/Headline2.vue';
 import Button from '../../../Components/interactive/Button.vue';
@@ -21,8 +23,11 @@ import { useDeleteDialog } from '../../../dialogs/useDeleteDialog';
 import { attemptAsync } from '../../../Components/notification/attemptAsync';
 import { cn } from '../../../utils/css/cn';
 
-const { codebook: previewCodebook, close: closeCodebookPreview } =
-  useCodebookPreview();
+const {
+  codebook: previewCodebook,
+  loading: previewLoading,
+  close: closeCodebookPreview,
+} = useCodebookPreview();
 const {
   importCodebookSchema,
   createCodebook,
@@ -54,15 +59,26 @@ initCodebooks();
 
 // File handling for importing XML
 const userCodebooks = inject('userCodebooks');
-const publicCodebooks = inject('publicCodebooks');
-const searchQueryPublicCodebooks = ref('');
 
-const filteredPublicCodebooks = computed(() => {
-  return publicCodebooks.filter((codebook) =>
-    codebook.name
-      .toLowerCase()
-      .includes(searchQueryPublicCodebooks.value.toLowerCase())
-  );
+// Public Codebooks - Lazy Loading State
+const publicCodebooksLoaded = ref(false);
+const loading = ref(false);
+const searchQuery = ref('');
+const searching = ref(false);
+
+// Pagination state
+const currentPage = ref(1);
+const pageSize = ref(10);
+const totalPages = ref(0);
+const totalCount = ref(0);
+
+// Data state
+const publicCodebooks = ref([]);
+const searchResults = ref([]);
+
+// Computed
+const displayedCodebooks = computed(() => {
+  return searchQuery.value ? searchResults.value : publicCodebooks.value;
 });
 
 const reload = () => {
@@ -80,6 +96,99 @@ const handleWithReload = async (fn, ...args) => {
   setTimeout(() => window.location.reload(), 1000);
   return result;
 };
+
+// Public Codebooks Methods
+const loadPublicCodebooks = async (page = 1) => {
+  if (
+    showPublic.value &&
+    publicCodebooksLoaded.value &&
+    page === currentPage.value
+  ) {
+    return; // Already showing this page
+  }
+
+  showPublic.value = true;
+  loading.value = true;
+
+  try {
+    const response = await axios.get('/api/codebooks/public', {
+      params: {
+        page,
+        per_page: pageSize.value,
+      },
+    });
+
+    publicCodebooks.value = response.data.data;
+    currentPage.value = response.data.current_page;
+    totalPages.value = response.data.last_page;
+    totalCount.value = response.data.total;
+    publicCodebooksLoaded.value = true;
+  } catch (error) {
+    console.error('Failed to load public codebooks:', error);
+  } finally {
+    loading.value = false;
+  }
+};
+
+const changePageSize = async () => {
+  // When page size changes, we need to reload data
+  // If total items would fit in fewer pages with new size, adjust current page
+  const maxPageWithNewSize = Math.ceil(totalCount.value / pageSize.value);
+
+  // Ensure we're not on a page that doesn't exist with the new page size
+  if (currentPage.value > maxPageWithNewSize && maxPageWithNewSize > 0) {
+    currentPage.value = maxPageWithNewSize;
+  } else if (currentPage.value === 0 && totalCount.value > 0) {
+    currentPage.value = 1;
+  }
+
+  // Force reload by temporarily clearing the current page
+  const targetPage = currentPage.value || 1;
+  currentPage.value = 0; // This ensures loadPublicCodebooks won't skip the load
+
+  await loadPublicCodebooks(targetPage);
+};
+
+const nextPage = async () => {
+  if (currentPage.value < totalPages.value) {
+    await loadPublicCodebooks(currentPage.value + 1);
+  }
+};
+
+const previousPage = async () => {
+  if (currentPage.value > 1) {
+    await loadPublicCodebooks(currentPage.value - 1);
+  }
+};
+
+const performSearch = async () => {
+  if (searchQuery.value.length < 3) {
+    searchResults.value = [];
+    return;
+  }
+
+  searching.value = true;
+  try {
+    const response = await axios.get('/api/codebooks/search', {
+      params: {
+        q: searchQuery.value,
+        limit: 20,
+      },
+    });
+    searchResults.value = response.data.data;
+  } catch (error) {
+    console.error('Search failed:', error);
+  } finally {
+    searching.value = false;
+  }
+};
+
+const clearSearch = () => {
+  searchQuery.value = '';
+  searchResults.value = [];
+};
+
+const debounceSearch = debounce(performSearch, 300);
 </script>
 
 <template>
@@ -175,8 +284,9 @@ const handleWithReload = async (fn, ...args) => {
     </div>
   </div>
 
+  <!-- Public Codebooks Section with Lazy Loading -->
   <div class="pb-24">
-    <button @click="showPublic = !showPublic" class="flex items-center">
+    <button @click="loadPublicCodebooks()" class="flex items-center">
       <ChevronRightIcon
         :class="
           cn(
@@ -186,37 +296,123 @@ const handleWithReload = async (fn, ...args) => {
         "
       />
       <Headline2>Public Codebooks</Headline2>
-    </button>
-    <Collapse :when="showPublic" v-if="publicCodebooks.length > 0">
-      <input
-        v-model="searchQueryPublicCodebooks"
-        type="search"
-        placeholder="Search public codebooks..."
-        class="mt-2 mb-3 w-1/2 rounded-md border-border shadow-xs"
-      />
-      <ul
-        v-if="filteredPublicCodebooks.length > 0"
-        role="list"
-        class="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6"
+      <span v-if="!publicCodebooksLoaded" class="ml-2 text-sm text-gray-500"
+        >●</span
       >
-        <li
-          v-for="codebook in filteredPublicCodebooks"
-          :key="codebook.name"
-          class="col-span-1 flex flex-col relative"
-        >
-          <CodebookItem
-            class="h-full"
-            :codebook="codebook"
-            :public="true"
-            :show-email="false"
-            @importCodebook="importCodebook(codebook)"
-          ></CodebookItem>
-        </li>
-      </ul>
+    </button>
+
+    <Collapse :when="showPublic">
+      <div class="mt-3">
+        <!-- Controls Bar -->
+        <div class="flex flex-col sm:flex-row gap-4 mb-4">
+          <!-- Page Size Selector -->
+          <div class="flex items-center gap-2">
+            <label class="text-sm font-medium text-gray-700">Show:</label>
+            <select
+              v-model="pageSize"
+              @change="changePageSize"
+              class="rounded-md border-gray-300 text-sm"
+            >
+              <option value="10">10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+            </select>
+            <span class="text-sm text-gray-700">per page</span>
+          </div>
+
+          <!-- Search Box -->
+          <div class="flex-1 max-w-md">
+            <div class="relative">
+              <input
+                v-model="searchQuery"
+                @input="debounceSearch"
+                type="search"
+                placeholder="Search by codebook name or user email..."
+                class="w-full rounded-md border-gray-300 pr-8"
+              />
+              <button
+                v-if="searchQuery"
+                @click="clearSearch"
+                class="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div v-if="loading" class="flex items-center justify-center py-8">
+          <div
+            class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"
+          ></div>
+          <span class="ml-2">Loading public codebooks...</span>
+        </div>
+
+        <!-- Codebooks Grid -->
+        <div v-else-if="displayedCodebooks.length > 0">
+          <ul
+            role="list"
+            class="grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3"
+          >
+            <li
+              v-for="codebook in displayedCodebooks"
+              :key="codebook.id"
+              class="col-span-1 flex flex-col relative"
+            >
+              <CodebookItem
+                class="h-full"
+                :codebook="codebook"
+                :public="true"
+                :show-email="true"
+                @importCodebook="importCodebook(codebook)"
+              />
+            </li>
+          </ul>
+
+          <!-- Pagination Controls (only show when not searching) -->
+          <div
+            v-if="!searchQuery && totalPages > 1"
+            class="mt-6 flex items-center justify-center"
+          >
+            <nav class="flex items-center gap-2">
+              <button
+                @click="previousPage"
+                :disabled="currentPage === 1"
+                class="px-3 py-1 rounded-md bg-white border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+
+              <span class="px-3 py-1 text-sm text-gray-700">
+                Page {{ currentPage }} of {{ totalPages }} ({{ totalCount }}
+                total)
+              </span>
+
+              <button
+                @click="nextPage"
+                :disabled="currentPage === totalPages"
+                class="px-3 py-1 rounded-md bg-white border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </nav>
+          </div>
+        </div>
+
+        <!-- No Results -->
+        <div v-else-if="searchQuery && !loading" class="py-8 text-center">
+          <p class="text-sm text-gray-500">
+            No public codebooks found matching "{{ searchQuery }}"
+          </p>
+        </div>
+
+        <!-- Empty State -->
+        <div v-else-if="!loading" class="py-8 text-center">
+          <p class="text-sm text-gray-500">No public codebooks available</p>
+        </div>
+      </div>
     </Collapse>
-    <div v-else>
-      <p class="text-sm text-gray-500">No public codebooks available</p>
-    </div>
   </div>
 
   <CreateDialog
@@ -287,33 +483,42 @@ const handleWithReload = async (fn, ...args) => {
     :submit="deleteCodebook"
   />
   <ConfirmDialog
-    :title="`Preview of ${previewCodebook?.name}`"
-    :show="!!previewCodebook"
+    :title="`Preview of ${previewCodebook?.name || 'Codebook'}`"
+    :show="!!previewCodebook || previewLoading"
     :showConfirm="false"
     cancelButtonLabel="Close"
     :static="false"
     @confirmed="closeCodebookPreview()"
     @cancelled="closeCodebookPreview()"
   >
-    <template #info v-if="previewCodebook">
-      <p class="py-4">
-        {{ previewCodebook.name }} has
-        {{ previewCodebook.codes?.length ?? 0 }} codes
-      </p>
-      <ul>
-        <li
-          v-for="code in previewCodebook.codes"
-          :key="code.id"
-          class="flex items-center my-2"
-        >
-          <div
-            class="rounded-md w-full p-3 text-sm font-medium"
-            :style="'background-color: ' + code.color"
+    <template #info>
+      <div v-if="previewLoading" class="flex items-center justify-center py-8">
+        <div
+          class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"
+        ></div>
+        <span class="ml-2">Loading codebook codes...</span>
+      </div>
+      <div v-else-if="previewCodebook">
+        <p class="py-4">
+          {{ previewCodebook.name }} has
+          {{ previewCodebook.codes?.length ?? 0 }} codes
+        </p>
+        <ul v-if="previewCodebook.codes && previewCodebook.codes.length > 0">
+          <li
+            v-for="code in previewCodebook.codes"
+            :key="code.id"
+            class="flex items-center my-2"
           >
-            <ContrastText>{{ code.name }}</ContrastText>
-          </div>
-        </li>
-      </ul>
+            <div
+              class="rounded-md w-full p-3 text-sm font-medium"
+              :style="'background-color: ' + code.color"
+            >
+              <ContrastText>{{ code.name }}</ContrastText>
+            </div>
+          </li>
+        </ul>
+        <p v-else class="text-sm text-gray-500">This codebook has no codes.</p>
+      </div>
     </template>
   </ConfirmDialog>
 </template>

@@ -133,4 +133,151 @@ class CodebookController extends Controller
         }
 
     }
+
+    /**
+     * Get paginated public codebooks
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getPublicCodebooks(\Illuminate\Http\Request $request)
+    {
+        $perPage = $request->get('per_page', 10); // Default 10, allow 15/20
+        $allowedPerPage = [10, 15, 20];
+
+        if (! in_array($perPage, $allowedPerPage)) {
+            $perPage = 10;
+        }
+
+        $codebooks = Codebook::where('properties->sharedWithPublic', true)
+            ->with(['creatingUser:id,name,email'])
+            ->withCount('codes')
+            ->latest()
+            ->paginate($perPage);
+
+        // Transform the data to match the expected format
+        $codebooks->getCollection()->transform(function ($codebook) {
+            return [
+                'id' => $codebook->id,
+                'name' => $codebook->name,
+                'description' => $codebook->description,
+                'properties' => $codebook->properties,
+                'codes_count' => $codebook->codes_count,
+                'project_id' => $codebook->project_id,
+                'creating_user_id' => $codebook->creating_user_id,
+                'creatingUser' => $codebook->creatingUser,
+                'creatingUserEmail' => $codebook->creatingUser->email ?? '',
+                'created_at' => $codebook->created_at,
+                'updated_at' => $codebook->updated_at,
+            ];
+        });
+
+        return response()->json($codebooks);
+    }
+
+    /**
+     * Search public codebooks by name or user email
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function searchPublicCodebooks(\Illuminate\Http\Request $request)
+    {
+        $query = $request->get('q');
+
+        if (strlen($query) < 3) {
+            return response()->json(['data' => []]);
+        }
+
+        $codebooks = Codebook::where('properties->sharedWithPublic', true)
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                    ->orWhereHas('creatingUser', function ($q) use ($query) {
+                        $q->where('email', 'like', "%{$query}%")
+                            ->orWhere('name', 'like', "%{$query}%");
+                    });
+            })
+            ->with(['creatingUser:id,name,email'])
+            ->withCount('codes')
+            ->take(20) // Limit results
+            ->get();
+
+        // Transform the data to match the expected format
+        $transformedCodebooks = $codebooks->map(function ($codebook) {
+            return [
+                'id' => $codebook->id,
+                'name' => $codebook->name,
+                'description' => $codebook->description,
+                'properties' => $codebook->properties,
+                'codes_count' => $codebook->codes_count,
+                'project_id' => $codebook->project_id,
+                'creating_user_id' => $codebook->creating_user_id,
+                'creatingUser' => $codebook->creatingUser,
+                'creatingUserEmail' => $codebook->creatingUser->email ?? '',
+                'created_at' => $codebook->created_at,
+                'updated_at' => $codebook->updated_at,
+            ];
+        });
+
+        return response()->json(['data' => $transformedCodebooks]);
+    }
+
+    /**
+     * Get a single codebook with its codes
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCodebookWithCodes($codebookId)
+    {
+        $user = auth()->user();
+
+        // First try to find the codebook
+        $codebook = Codebook::where('id', $codebookId)
+            ->with(['creatingUser:id,name,email', 'codes'])
+            ->withCount('codes')
+            ->first();
+
+        if (! $codebook) {
+            return response()->json(['error' => 'Codebook not found'], 404);
+        }
+
+        // Check if user has access to this codebook
+        $hasAccess = false;
+
+        // Check if it's a public codebook
+        if ($codebook->properties && ($codebook->properties['sharedWithPublic'] ?? false)) {
+            $hasAccess = true;
+        }
+        // Check if user is the creator
+        elseif ($codebook->creating_user_id === $user->id) {
+            $hasAccess = true;
+        }
+        // Check if user has access through the project
+        elseif ($codebook->project_id) {
+            $project = Project::find($codebook->project_id);
+            if ($project && $user->can('view', $project)) {
+                $hasAccess = true;
+            }
+        }
+
+        if (! $hasAccess) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Transform the data to match the expected format
+        $transformedCodebook = [
+            'id' => $codebook->id,
+            'name' => $codebook->name,
+            'description' => $codebook->description,
+            'properties' => $codebook->properties,
+            'codes' => $codebook->codes,
+            'codes_count' => $codebook->codes_count,
+            'project_id' => $codebook->project_id,
+            'creating_user_id' => $codebook->creating_user_id,
+            'creatingUser' => $codebook->creatingUser,
+            'creatingUserEmail' => $codebook->creatingUser->email ?? '',
+            'created_at' => $codebook->created_at,
+            'updated_at' => $codebook->updated_at,
+        ];
+
+        return response()->json($transformedCodebook);
+    }
 }

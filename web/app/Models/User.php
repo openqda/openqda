@@ -182,10 +182,9 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
      */
     public function getCodebooksAsCreator($excludeProjectId = null)
     {
-        $query = Codebook::with('codes')
+        $query = Codebook::withCount('codes')
             ->where('creating_user_id', '=', $this->id)
             ->whereHas('project', function ($query) use ($excludeProjectId) {
-                // Exclude codebooks from the specified project if an ID is provided
                 if (! is_null($excludeProjectId)) {
                     $query->where('id', '!=', $excludeProjectId);
                 }
@@ -197,7 +196,7 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
                 'name' => $codebook->name,
                 'description' => $codebook->description,
                 'properties' => $codebook->properties,
-                'codes' => $codebook->codes,
+                'codes_count' => $codebook->codes_count, // Use count instead of full codes
                 'project_id' => $codebook->project_id,
                 // Include other codebook attributes as needed
                 'creatingUserEmail' => $codebook->creatingUser->email ?? '', // Include the creating user's email

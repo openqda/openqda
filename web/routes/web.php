@@ -130,6 +130,10 @@ Route::middleware([
     Route::get('/projects/{project}/codebooks/export/{codebook}', [CodebookCodesController::class, 'export'])->name('codebook-codes.export');
     Route::patch('/projects/{project}/codebooks/{codebook}/code-order', [CodebookCodesController::class, 'updateCodeOrder'])->name('codebook-codes.update-order');
 
+    Route::get('/api/codebooks/public', [CodebookController::class, 'getPublicCodebooks'])->name('api.codebooks.public');
+    Route::get('/api/codebooks/search', [CodebookController::class, 'searchPublicCodebooks'])->name('api.codebooks.search');
+    Route::get('/api/codebooks/{codebook}/codes', [CodebookController::class, 'getCodebookWithCodes'])->name('api.codebooks.codes');
+
     /**
      * Analysis
      */

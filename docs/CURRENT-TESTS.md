@@ -1,5 +1,5 @@
 # Current Tests
-Last updated: 2025-03-05 11:14:24
+Last updated: 2025-06-23 09:57:00
 ## Api Token Permissions
     - api token permissions can be updated
 
@@ -11,6 +11,21 @@ Last updated: 2025-03-05 11:14:24
 ## Browser Sessions
     - other browser sessions can be logged out
 
+## Codebook Controller
+    - store codebook successfully
+    - store codebook validation failure
+    - store codebook unauthorized
+    - destroy codebook successfully
+    - destroy codebook unsuccessfully
+    - update code order successfully
+    - update code order invalid data
+    - get public codebook with codes
+    - get private codebook with codes as creator
+    - get private codebook with codes as project member
+    - cannot access private codebook without permission
+    - get non existent codebook returns 404
+    - get codebook without codes
+
 ## Code Controller
     - destroy code successfully
     - destroy code with children successfully
@@ -21,15 +36,6 @@ Last updated: 2025-03-05 11:14:24
     - create code with valid parent
     - prevent self referential code creation
     - prevent self referential code on create
-
-## Codebook Controller
-    - store codebook successfully
-    - store codebook validation failure
-    - store codebook unauthorized
-    - destroy codebook successfully
-    - destroy codebook unsuccessfully
-    - update code order successfully
-    - update code order invalid data
 
 ## Create Api Token
     - api tokens can be created
