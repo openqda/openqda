@@ -35,7 +35,7 @@ This guide targets everyone who wants to contribute to
 - translation (i18n), language, grammar and typos
 
 Other contributions can be done here:
-- [user documentation](https://github.com/openqda/user-docs))
+- [user documentation](https://github.com/openqda/user-docs)
 - [report bugs and issues](https://github.com/openqda/openqda/issues)
 - [discuss new features, ideas or questions](https://github.com/orgs/openqda/discussions)
 
