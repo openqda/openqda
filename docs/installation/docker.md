@@ -85,7 +85,7 @@ The commands to run the backend are the same as with Docker Compose but
 using the `sail` binaries:
 
 ```shell
-./vendor/bin/sail up # starts all backend services
+./vendor/bin/sail up
 ```
 
 If you wish to stop the applications, you need to enter `ctrl + c` (Windows, Linux) or `cmd + c` (MacOS),
