@@ -67,7 +67,7 @@ You should always start your contribution on a new branch, coming from
 the latest state of the `main` branch:
 
 ```shell
-$ get checkout main
+$ git checkout main
 $ git pull --ff-only
 ```
 
