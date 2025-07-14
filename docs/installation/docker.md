@@ -71,7 +71,7 @@ https://laravel.com/docs/11.x/sail
 Before your very first run, you need to build the
 containers. This may take some time, but is usually only
 required once in a while unless you change PHP version, Laravel version etc.
-(If you get an error regarding "invalid hostPort: your reverb port", edit the .env file and set REVERB_HOST=0.0.0.0 and REVERB_PORT=8080. Also you may comment out in the docker-compose.yml file all of the plugin.transform.atrain - services configurations)
+(If you get an error regarding "invalid hostPort: your reverb port", edit the .env file and set REVERB_HOST=0.0.0.0 and REVERB_PORT=8080. Also you may comment out in the docker-compose.yml file all of the plugin.transform.atrain - services configurations. Depending on your platform it may be a good idea to change in docker-compose.yml the entry unter ports "127.0.0.1:{REVERB_PORT:-8080}:8080" to '${REVERB_PORT:-8080}:8080')
 
 ```shell
 ./vendor/bin/sail build --no-cache
