@@ -60,7 +60,7 @@ Then you need to clone the repository
 
 ### Create a new branch
 
-Make sure, your have [installed OpenQDA](./docs/INSTALLATION.md) and 
+Make sure, your have [installed OpenQDA](https://github.com/openqda/openqda/blob/main/docs/installation/manual.md) and 
 that it runs locally.
 
 You should always start your contribution on a new branch, coming from
