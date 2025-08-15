@@ -9,13 +9,17 @@ const state = reactive({
   userInAteam: false,
   teamsInitialized: {},
   teamId: null,
+  teamConfig: {
+    loaded: false,
+  },
 });
 
 export const useTeam = () => {
   const debug = useDebug({ scope: 'teams' });
   const { sharedTeam: team, auth, teamMembers } = usePage().props;
   const sharedTeam = team ?? {};
-  const { usersInChannel, teamsInitialized, teamId } = toRefs(state);
+  const { usersInChannel, teamsInitialized, teamId, teamConfig } =
+    toRefs(state);
   const userId = auth.user.id;
 
   if (teamId.value !== sharedTeam.id) {
@@ -128,11 +132,22 @@ export const useTeam = () => {
   };
 
   const hasTeam = () => !!teamId.value;
+  const loadTeamConfig = async ({ projectId }) => {
+    const { response, error } = await request({
+      url: `/projects/${projectId}/team`,
+      type: 'get',
+    });
 
+    if (!error) {
+      Object.assign(state.teamConfig, response.data, { loaded: true });
+    }
+  };
   return {
     usersInChannel,
     sharedTeam,
     teamId,
+    teamConfig,
+    loadTeamConfig,
     getMemberBy,
     hasTeam,
     teamInitialized: (id) => !!teamsInitialized.value[id],

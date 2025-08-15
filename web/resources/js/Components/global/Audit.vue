@@ -1,11 +1,5 @@
 <template>
-  <div
-    :class="
-      context === 'homePage'
-        ? 'flow-root w-full ml-auto mr-auto'
-        : 'flow-root md:w-3/4 lg:w-1/2 ml-auto mr-auto'
-    "
-  >
+  <div class="flow-root w-full ml-auto mr-auto">
     <div class="pb-1.5 mt-2 rounded-md">
       <!-- Search Input with loading indicator -->
       <div class="flex items-center gap-x-1.5 mb-2 relative">
@@ -49,7 +43,7 @@
       </div>
 
       <!-- Date Filters -->
-      <div class="flex justify-center gap-4 mb-4">
+      <div class="flex justify-start gap-4 mb-4">
         <div>
           <label class="block text-sm font-medium text-gray-700">Before</label>
           <input
@@ -92,7 +86,7 @@
       </div>
 
       <!-- Model Type Filters -->
-      <div class="filters flex gap-4 w-full justify-center mb-4">
+      <div class="filters flex gap-4 w-full justify-start mb-4">
         <label
           v-for="type in modelTypes"
           :key="type"
@@ -118,7 +112,7 @@
     <div class="relative">
       <!-- Loading overlay -->
       <div
-        v-if="isLoading && localAudits.data.length"
+        v-if="isLoading"
         class="absolute inset-0 bg-white/50 flex items-center justify-center z-10"
       >
         <svg
@@ -144,11 +138,11 @@
       </div>
 
       <ul role="list" class="-mb-8 mt-4">
-        <li v-for="(audit, auditIdx) in localAudits.data" :key="audit.id">
+        <li v-for="(audit, auditIdx) in audits.data" :key="audit.id">
           <div class="relative pb-8">
             <span
-              v-if="auditIdx !== localAudits.data.length - 1"
-              class="absolute left-5 top-5 -ml-px h-full w-0.5 bg-gray-200"
+              v-if="auditIdx !== audits.data.length - 1"
+              class="absolute left-5 top-5 -ml-px h-full w-0.5 bg-background"
               aria-hidden="true"
             ></span>
             <div class="relative flex items-start gap-3">
@@ -281,34 +275,32 @@
       </ul>
 
       <!-- Pagination -->
-      <div v-if="localAudits.last_page > 1" class="mt-4 flex justify-center">
+      <div v-if="audits.last_page > 1" class="mt-4 flex justify-center">
         <nav
           class="flex items-center justify-between"
           :class="{ 'opacity-50': isLoading }"
         >
           <button
-            :disabled="localAudits.current_page === 1 || isLoading"
-            @click="changePage(localAudits.current_page - 1)"
+            :disabled="audits.current_page === 1 || isLoading"
+            @click="changePage(audits.current_page - 1)"
             class="px-3 py-1 rounded-md bg-white border"
             :class="{
               'opacity-50 cursor-not-allowed':
-                localAudits.current_page === 1 || isLoading,
+                audits.current_page === 1 || isLoading,
             }"
           >
             Previous
           </button>
           <span class="mx-4">
-            Page {{ localAudits.current_page }} of {{ localAudits.last_page }}
+            Page {{ audits.current_page }} of {{ audits.last_page }}
           </span>
           <button
-            :disabled="
-              localAudits.current_page === localAudits.last_page || isLoading
-            "
-            @click="changePage(localAudits.current_page + 1)"
+            :disabled="audits.current_page === audits.last_page || isLoading"
+            @click="changePage(audits.current_page + 1)"
             class="px-3 py-1 rounded-md bg-white border"
             :class="{
               'opacity-50 cursor-not-allowed':
-                localAudits.current_page === localAudits.last_page || isLoading,
+                audits.current_page === audits.last_page || isLoading,
             }"
           >
             Next
@@ -322,16 +314,18 @@
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { UserCircleIcon } from '@heroicons/vue/20/solid';
 import Checkbox from '../Checkbox.vue';
+import { useAudit } from '../../domain/audit/useAudit.js';
 
 const searchInput = ref(null);
 const props = defineProps({
-  audits: Object,
   projectId: {
     type: String,
     default: null,
   },
   context: String,
 });
+
+const { audits, loadAudits, forProjectId } = useAudit();
 
 // Constants
 const modelTypes = ['Source', 'Selection', 'Code', 'Project', 'Codebook'];
@@ -353,18 +347,11 @@ const isSearching = ref(false);
 const error = ref(null);
 let searchTimeout = null;
 
-// Initialize localAudits with empty array
-const localAudits = ref({
-  data: [],
-  current_page: 1,
-  last_page: 1,
-});
-
 const getModelCount = (type) => {
-  if (!Array.isArray(localAudits.value.data)) {
+  if (!Array.isArray(audits.value.data)) {
     return 0;
   }
-  return localAudits.value.data.filter((audit) => audit.model === type).length;
+  return audits.value.data.filter((audit) => audit.model === type).length;
 };
 
 // Utility functions
@@ -413,35 +400,17 @@ const fetchAudits = async (page = 1) => {
     isLoading.value = true;
     error.value = null;
     const wasSearchFocused = document.activeElement === searchInput.value;
-    const params = new URLSearchParams();
-
-    Object.entries(filters.value).forEach(([key, value]) => {
-      if (value !== null && value !== '') {
-        if (Array.isArray(value)) {
-          value.forEach((v) => params.append(`${key}[]`, v));
-        } else {
-          params.append(key, value);
-        }
-      }
+    const {
+      success,
+      response,
+      error: loadError,
+    } = await loadAudits({
+      page,
+      projectId: props.projectId,
+      filters: filters.value,
     });
-
-    params.append('page', page);
-
-    const endpoint =
-      props.context === 'projectPage'
-        ? `/audits/${props.projectId}`
-        : '/audits';
-
-    const response = await axios.get(`${endpoint}?${params.toString()}`);
-    if (response.data.success) {
-      localAudits.value = {
-        ...response.data.audits,
-        data: Array.isArray(response.data.audits.data)
-          ? response.data.audits.data
-          : Object.values(response.data.audits.data || {}),
-      };
-    } else {
-      throw new Error(response.data.message || 'Failed to fetch localAudits');
+    if (!success || loadError) {
+      throw new Error(response.data.message || 'Failed to fetch audits');
     }
 
     // After successful fetch, restore focus if it was on search
@@ -451,9 +420,8 @@ const fetchAudits = async (page = 1) => {
       });
     }
   } catch (err) {
-    console.error('Error fetching localAudits:', err);
+    console.error('Error fetching audits:', err);
     error.value = err.message || 'An error occurred while fetching audit data';
-    localAudits.value = { data: [], current_page: 1, last_page: 1 };
   } finally {
     isLoading.value = false;
   }
@@ -474,18 +442,10 @@ const changePage = (page) => {
   }
 };
 
-// Lifecycle
 onMounted(() => {
-  if (props.audits) {
-    localAudits.value = {
-      ...props.audits,
-      data: Array.isArray(props.audits.data)
-        ? props.audits.data
-        : Object.values(props.audits.data || {}),
-    };
-  }
-  // Fetch initial data if no props provided
-  else {
+  // we load new audits on mount when we have switched
+  // the project
+  if (forProjectId.value !== props.projectId) {
     fetchAudits(1);
   }
 });

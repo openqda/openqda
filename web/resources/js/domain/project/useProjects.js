@@ -76,7 +76,7 @@ export const useProjects = () => {
     }
   };
 
-  const updateProjects = () => {
+  const updateSortOder = () => {
     sortedProjects.value = (Array.isArray(projects) ? projects : [])
       .filter(projectsFilter)
       .sort(byConfig);
@@ -84,7 +84,7 @@ export const useProjects = () => {
   const updateSorter = (sorter) => {
     sortBy.value = sorter;
     state.sortBy = sorter;
-    updateProjects();
+    updateSortOder();
   };
 
   // ---------------------------------------------------------------
@@ -117,12 +117,12 @@ export const useProjects = () => {
         if (value.length > 2) {
           projectsFilter = byTerm;
         }
-        updateProjects();
+        updateSortOder();
       }, 300)
     );
 
   // initial / default sort and filter
-  updateProjects();
+  updateSortOder();
 
   return {
     currentProject: project,
@@ -132,6 +132,7 @@ export const useProjects = () => {
     sortOptions,
     createSchema,
     createProject: Project.create.method,
+    updateProject: Project.update.method,
     open,
     updateSorter,
     sortBy,
