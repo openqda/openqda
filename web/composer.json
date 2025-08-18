@@ -29,6 +29,7 @@
         "ext-simplexml": "*"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.16",
         "fakerphp/faker": "^1.9.1",
         "laravel/pint": "^1.21",
         "laravel/sail": "^1.18",

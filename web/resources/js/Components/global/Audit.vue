@@ -325,7 +325,7 @@ const props = defineProps({
   context: String,
 });
 
-const { audits, loadAudits, forProjectId } = useAudit();
+const { audits, auditCounts, loadAudits, forProjectId } = useAudit();
 
 // Constants
 const modelTypes = ['Source', 'Selection', 'Code', 'Project', 'Codebook'];
@@ -348,10 +348,7 @@ const error = ref(null);
 let searchTimeout = null;
 
 const getModelCount = (type) => {
-  if (!Array.isArray(audits.value.data)) {
-    return 0;
-  }
-  return audits.value.data.filter((audit) => audit.model === type).length;
+  return auditCounts.value[type] || 0;
 };
 
 // Utility functions

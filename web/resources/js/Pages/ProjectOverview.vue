@@ -20,13 +20,22 @@
         <ResponsiveTabList
           :tabs="tabs"
           :initial="currentSubView"
-          @change="changeCurrentView"
+          @change="(value) => (currentSubView = value)"
         />
         <ProjectSummary v-if="currentSubView === 'overview'" />
-        <ProjectTeams v-if="currentSubView === 'collab'" :project="project" />
+        <ProjectTeams
+          v-if="currentSubView === 'collab'"
+          :has-team="hasTeam"
+          :team="team"
+          :permissions="permissions"
+          :available-roles="availableRoles"
+          :team-owner="teamOwner"
+          :project="project"
+        />
         <ProjectCodebooks v-if="currentSubView === 'codebooks'" />
         <Audit
           v-if="currentSubView === 'history'"
+          ref="auditComponent"
           :project-id="projectId"
           context="projectPage"
         />
@@ -43,7 +52,7 @@
  | Page-level component, that represents the current project and allows
  | to manage settings, teams, codebooks and audits.
  */
-import { onBeforeUnmount, onMounted, ref, provide } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch, provide } from 'vue';
 import Audit from '../Components/global/Audit.vue';
 import ProjectTeams from './Teams/ProjectTeams.vue';
 import ProjectsListMenu from './Projects/ProjectsListMenu.vue';
@@ -55,42 +64,55 @@ import BaseContainer from '../Layouts/BaseContainer.vue';
 import CreateDialog from '../dialogs/CreateDialog.vue';
 import { useProjects } from '../domain/project/useProjects.js';
 
-const props = defineProps(['project', 'projects']);
+const props = defineProps([
+  'project',
+  'projects',
+  'teamMembers',
+  'hasTeam',
+  'availableRoles',
+  'permissions',
+  'team',
+  'userCodebooks',
+  'publicCodebooks',
+  'hasCodebooksTab',
+  'teamOwner',
+]);
 
+const codebooks = ref([]);
 const name = ref(props.project.name);
 const url = window.location.pathname;
 const segments = url.split('/');
 let projectId = segments[2]; // Assuming project id is the third segment in URL path
 const { createProject, createSchema, open } = useProjects();
 const createProjectSchema = ref(null);
-provide('project', props.project);
 
-const Tabs = {
-  overview: {
+provide('project', props.project);
+provide('userCodebooks', props.userCodebooks);
+provide('publicCodebooks', props.publicCodebooks);
+
+const tabs = ref([
+  {
+    value: 'overview',
     label: 'Overview',
     href: '#overview',
   },
-  collab: {
+
+  {
+    value: 'collab',
     label: 'Collaboration',
     href: '#collab',
   },
-  codebooks: {
+  {
+    value: 'codebooks',
     label: 'Codebooks',
     href: '#codebooks',
   },
-  history: {
+  {
+    value: 'history',
     label: 'History',
     href: '#history',
   },
-};
-
-const tabs = ref(
-  Object.entries(Tabs).map(([value, { label, href }]) => ({
-    value,
-    label,
-    href,
-  }))
-);
+]);
 const currentSubView = ref('');
 const hash = window.location.hash;
 if (hash) {
@@ -104,25 +126,28 @@ if (!currentSubView.value) {
   currentSubView.value = tabs.value[0].value;
 }
 
-/**
- * When clicking a tab, this function will be called to change the current view
- * and load the necessary data for that view
- * @param viewName
- * @return {Promise<void>}
- */
-const changeCurrentView = async (viewName) => {
-  const tab = Tabs[viewName];
-  if (tab && tab.load) {
-    await tab.load(); // Load data for the tab if needed
+const auditComponent = ref(null);
+watch(currentSubView, (newValue) => {
+  if (newValue === 'history' && auditComponent.value) {
+    auditComponent.value.fetchAudits(1);
   }
-  currentSubView.value = viewName;
-};
+});
 
 onMounted(() => {
   if (typeof projectId === 'undefined') {
     projectId = props.project.id;
   }
+
+  codebooks.value = props.project.codebooks;
 });
+
+// Watch for changes in props.audits and update localAudits accordingly
+watch(
+  () => props.audits,
+  (newVal) => {
+    localAudits.value = newVal;
+  }
+);
 
 onBeforeUnmount(() => {
   localStorage.clear();

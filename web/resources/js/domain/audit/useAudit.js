@@ -7,6 +7,7 @@ const state = reactive({
     current_page: 1,
     last_page: 1,
   },
+  auditCounts: {},
   forProjectId: null,
 });
 
@@ -15,7 +16,7 @@ const state = reactive({
  * reactive update beyond a single template.
  */
 export const useAudit = () => {
-  const { audits, forProjectId } = toRefs(state);
+  const { audits, auditCounts, forProjectId } = toRefs(state);
   const loadAudits = async ({ projectId, page, filters }) => {
     const params = new URLSearchParams();
     params.append('page', page);
@@ -43,6 +44,7 @@ export const useAudit = () => {
           ? response.data.audits.data
           : Object.values(response.data.audits.data || {}),
       };
+      state.auditCounts = response.data.audit_counts;
       state.forProjectId = projectId;
     } else {
       state.audits = { data: [], current_page: 1, last_page: 1 };
@@ -52,6 +54,7 @@ export const useAudit = () => {
   };
   return {
     audits,
+    auditCounts,
     loadAudits,
     forProjectId,
   };

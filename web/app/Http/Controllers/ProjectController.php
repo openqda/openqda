@@ -7,7 +7,6 @@ use App\Http\Requests\ShowProjectRequest;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Project;
-use App\Services\AuditService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -26,17 +25,8 @@ class ProjectController extends Controller
         $user = Auth::user();
         $visibleProjects = $this->visibleProjects();
 
-        // Combine the two types of projects
-        $allProjectModels = $user->allRelatedProjects();
-
-        // Fetch all related audits using the User model's method
-        $allAudits = $user->getAllAudits()->values();
-
-        $paginator = app(AuditService::class)->paginateAudit($allAudits, $request);
-
         return Inertia::render('ProjectsList', [
             'projects' => $visibleProjects,
-            'audits' => $paginator,
             'bgtl' => config('app.bgtl'),
             'bgtr' => config('app.bgtr'),
             'bgbr' => config('app.bgbr'),
@@ -52,7 +42,7 @@ class ProjectController extends Controller
         $ownedProjects = $user->projects()->withTrashed()->get();
 
         // Combine the two types of projects
-        $allProjectModels = $user->allRelatedProjects();
+        $allProjectModels = $user->allRelatedProjects(false);
 
         // Transform projects for frontend
         return $allProjectModels->map(function ($project) use ($user) {
@@ -142,11 +132,6 @@ class ProjectController extends Controller
         // to provide the project list we also need to load them here
         $visibleProjects = $this->visibleProjects();
 
-        // Retrieve audits related to the project
-        $allAudits = app(AuditService::class)->getProjectAudits($project);
-
-        $paginator = app(AuditService::class)->paginateAudit($allAudits, $request);
-
         $publicCodebooks = collect();
 
         // Fetch codebooks for the project with creating user's information
@@ -180,7 +165,6 @@ class ProjectController extends Controller
             'projects' => $visibleProjects,
             'userCodebooks' => $user->getCodebooksAsCreator($project->id),
             'publicCodebooks' => $formattedPublicCodebooks,
-            'audits' => $paginator,
             'availableRoles' => array_values(Jetstream::$roles),
             'availablePermissions' => Jetstream::$permissions,
             'defaultPermissions' => Jetstream::$defaultPermissions,
