@@ -79,11 +79,7 @@ const closeModal = () => {
           Projects with your teams:
         </div>
         <ul>
-          <li
-            v-for="team in ownTeams"
-            :key="team.id"
-            class="mb-2"
-          >
+          <li v-for="team in ownTeams" :key="team.id" class="mb-2">
             <a
               target="_blank"
               v-if="team.projects.length > 0"

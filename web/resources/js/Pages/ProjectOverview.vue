@@ -23,14 +23,10 @@
           @change="(value) => (currentSubView = value)"
         />
         <ProjectSummary v-if="currentSubView === 'overview'" />
-        <ProjectTeams
-          v-if="currentSubView === 'collab'"
-          :project="project"
-        />
+        <ProjectTeams v-if="currentSubView === 'collab'" :project="project" />
         <ProjectCodebooks v-if="currentSubView === 'codebooks'" />
         <Audit
           v-if="currentSubView === 'history'"
-          ref="auditComponent"
           :project-id="projectId"
           context="projectPage"
         />
@@ -47,7 +43,7 @@
  | Page-level component, that represents the current project and allows
  | to manage settings, teams, codebooks and audits.
  */
-import { onBeforeUnmount, onMounted, ref, watch, provide } from 'vue';
+import { onBeforeUnmount, onMounted, ref, provide } from 'vue';
 import Audit from '../Components/global/Audit.vue';
 import ProjectTeams from './Teams/ProjectTeams.vue';
 import ProjectsListMenu from './Projects/ProjectsListMenu.vue';
@@ -115,13 +111,6 @@ if (!currentSubView.value) {
   currentSubView.value = tabs.value[0].value;
 }
 
-const auditComponent = ref(null);
-watch(currentSubView, (newValue) => {
-  if (newValue === 'history' && auditComponent.value) {
-    auditComponent.value.fetchAudits(1);
-  }
-});
-
 onMounted(() => {
   if (typeof projectId === 'undefined') {
     projectId = props.project.id;
@@ -129,14 +118,6 @@ onMounted(() => {
 
   codebooks.value = props.project.codebooks;
 });
-
-// Watch for changes in props.audits and update localAudits accordingly
-watch(
-  () => props.audits,
-  (newVal) => {
-    localAudits.value = newVal;
-  }
-);
 
 onBeforeUnmount(() => {
   localStorage.clear();

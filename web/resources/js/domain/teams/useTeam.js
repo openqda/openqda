@@ -24,7 +24,7 @@ export const useTeam = () => {
   const getMemberBy = (id) => {
     if (id === userId) return auth.user;
     if (state.teamConfig && state.teamConfig.teamMembers) {
-        return state.teamConfig.teamMembers.find((member) => member.id === id);
+      return state.teamConfig.teamMembers.find((member) => member.id === id);
     }
     return null;
   };
