@@ -16,20 +16,17 @@ const state = reactive({
 
 export const useTeam = () => {
   const debug = useDebug({ scope: 'teams' });
-  const { sharedTeam: team, auth, teamMembers } = usePage().props;
-  const sharedTeam = team ?? {};
   const { usersInChannel, teamsInitialized, teamId, teamConfig } =
     toRefs(state);
+  const { auth } = usePage().props;
   const userId = auth.user.id;
-
-  if (teamId.value !== sharedTeam.id) {
-    debug('change team id to', sharedTeam.id);
-    state.teamId = sharedTeam.id;
-  }
 
   const getMemberBy = (id) => {
     if (id === userId) return auth.user;
-    return teamMembers.find((member) => member.id === id);
+    if (state.teamConfig && state.teamConfig.teamMembers) {
+        return state.teamConfig.teamMembers.find((member) => member.id === id);
+    }
+    return null;
   };
 
   const initTeams = () => {
@@ -140,11 +137,11 @@ export const useTeam = () => {
 
     if (!error) {
       Object.assign(state.teamConfig, response.data, { loaded: true });
+      state.teamId = response.data.team ? response.data.team.id : null;
     }
   };
   return {
     usersInChannel,
-    sharedTeam,
     teamId,
     teamConfig,
     loadTeamConfig,

@@ -10,6 +10,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SelectionController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SourceController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserNavigationController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -99,6 +100,7 @@ Route::middleware([
     Route::get('/dashboard', [ProjectController::class, 'index'])->name('projects.dashboard');
     Route::post('/projects/new', [ProjectController::class, 'store'])->name('project.store');
     Route::get('/projects/{project}/overview', [ProjectController::class, 'show'])->name('project.show');
+    Route::get('/projects/{project}/team', [ProjectController::class, 'getTeamData'])->name('project.team-data');
     Route::post('/projects/update/{project}', [ProjectController::class, 'updateProjectAttributes'])->name('project.update');
     Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('project.destroy');
 
@@ -168,6 +170,7 @@ Route::middleware([
      */
     Route::post('/user/navigation', [UserNavigationController::class, 'update']);
     Route::post('/user/feedback', [UserNavigationController::class, 'feedback']);
+    Route::get('/user/{user}/owned-teams', [UserController::class, 'getOwnedTeams'])->name('user.owned-teams');
 
     /**
      * Teams

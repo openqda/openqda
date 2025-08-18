@@ -171,33 +171,49 @@ class ProjectController extends Controller
             'hasTeam' => (bool) $project->team_id,
         ];
 
+        $inertiaData['hasCodebooksTab'] = $request->has('codebookstab');
+
+        return Inertia::render('ProjectOverview', $inertiaData);
+    }
+
+    public function getTeamData(Request $request, Project $project)
+    {
+        $user = Auth::user();
+        $team = null;
+        $teamOwner = false;
+        $teamMembers = [];
+        $permissions = [];
+
         if ($project->team_id) {
             $user->switchTeam($project->team);
             $team = $project->team->load('owner', 'users', 'teamInvitations');
-            $inertiaData['teamOwner'] = $team->owner->email === $user->email;
+            $teamOwner = $team->owner->email === $user->email;
 
-            $teamMembers = $team->users;
-
-            $inertiaData['team'] = $team;
-            $inertiaData['permissions'] = [
-                'canAddTeamMembers' => Gate::check('addTeamMember', $team),
-                'canDeleteTeam' => Gate::check('delete', $team),
-                'canRemoveTeamMembers' => Gate::check('removeTeamMember', $team),
-                'canUpdateTeam' => Gate::check('update', $team),
-                'canUpdateTeamMembers' => Gate::check('updateTeamMember', $team),
-            ];
-            $inertiaData['teamMembers'] = $teamMembers->map(function ($user) {
+            $teamMembers = $team->users->map(function ($user) {
                 return [
                     'id' => $user->id,
                     'name' => $user->name,
                     'email' => $user->email,
                 ];
             });
+
+            $permissions = [
+                'canAddTeamMembers' => Gate::check('addTeamMember', $team),
+                'canDeleteTeam' => Gate::check('delete', $team),
+                'canRemoveTeamMembers' => Gate::check('removeTeamMember', $team),
+                'canUpdateTeam' => Gate::check('update', $team),
+                'canUpdateTeamMembers' => Gate::check('updateTeamMember', $team),
+            ];
         }
 
-        $inertiaData['hasCodebooksTab'] = $request->has('codebookstab');
-
-        return Inertia::render('ProjectOverview', $inertiaData);
+        return response()->json([
+            'team' => $team,
+            'teamOwner' => $teamOwner,
+            'teamMembers' => $teamMembers,
+            'permissions' => $permissions,
+            'hasTeam' => (bool) $project->team_id,
+            'availableRoles' => array_values(Jetstream::$roles),
+        ]);
     }
 
     /**

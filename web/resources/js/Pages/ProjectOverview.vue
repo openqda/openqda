@@ -25,11 +25,6 @@
         <ProjectSummary v-if="currentSubView === 'overview'" />
         <ProjectTeams
           v-if="currentSubView === 'collab'"
-          :has-team="hasTeam"
-          :team="team"
-          :permissions="permissions"
-          :available-roles="availableRoles"
-          :team-owner="teamOwner"
           :project="project"
         />
         <ProjectCodebooks v-if="currentSubView === 'codebooks'" />
@@ -67,15 +62,9 @@ import { useProjects } from '../domain/project/useProjects.js';
 const props = defineProps([
   'project',
   'projects',
-  'teamMembers',
-  'hasTeam',
-  'availableRoles',
-  'permissions',
-  'team',
   'userCodebooks',
   'publicCodebooks',
   'hasCodebooksTab',
-  'teamOwner',
 ]);
 
 const codebooks = ref([]);
