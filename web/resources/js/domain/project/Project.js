@@ -68,7 +68,7 @@ Project.update = {
     }
 
     if (!response.data.success) {
-      const message = `Failed to updat project: ${response.data.message}`;
+      const message = `Failed to update project: ${response.data.message}`;
       throw new Error(message);
     }
 
