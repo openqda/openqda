@@ -19,6 +19,7 @@ import { asyncTimeout } from '../../../utils/asyncTimeout.js';
 import Headline3 from '../../../Components/layout/Headline3.vue';
 import { flashMessage } from '../../../Components/notification/flashMessage.js';
 import ActivityIndicator from '../../../Components/ActivityIndicator.vue';
+import { useTeam } from '../../../domain/teams/useTeam.js';
 
 const props = defineProps({
   team: Object,
@@ -47,23 +48,26 @@ const managingRoleFor = ref(null);
 const confirmingLeavingTeam = ref(false);
 const confirmingMakeOwner = ref(false);
 const teamMemberBeingRemoved = ref(null);
+const { loadTeamConfig } = useTeam();
 
 const addTeamMember = () => {
   addTeamMemberForm.post(route('team-members.store', props.team), {
     errorBag: 'addTeamMember',
     preserveScroll: true,
-    onSuccess: () => {
+    onSuccess: async () => {
       addTeamMemberForm.reset();
       addTeamMemberForm.role = props.availableRoles[0].key;
+      await loadTeamConfig({ projectId: props.project.id });
     },
     onError: (err) => flashMessage(err.message, { type: 'error ' }),
   });
 };
 
-const cancelTeamInvitation = (invitation) => {
-  router.delete(route('team-invitations.destroy', invitation), {
+const cancelTeamInvitation = async (invitation) => {
+  await router.delete(route('team-invitations.destroy', invitation), {
     preserveScroll: true,
   });
+  await loadTeamConfig({ projectId: props.project.id });
 };
 
 const manageRole = (teamMember) => {
@@ -77,7 +81,10 @@ const updateRole = () => {
     route('team-members.update', [props.team, managingRoleFor.value]),
     {
       preserveScroll: true,
-      onSuccess: () => (currentlyManagingRole.value = false),
+      onSuccess: async () => {
+        currentlyManagingRole.value = false;
+        await loadTeamConfig({ projectId: props.project.id });
+      },
     }
   );
 };
@@ -86,10 +93,11 @@ const confirmLeavingTeam = () => {
   confirmingLeavingTeam.value = true;
 };
 
-const leaveTeam = () => {
-  leaveTeamForm.delete(
+const leaveTeam = async () => {
+  await leaveTeamForm.delete(
     route('team-members.destroy', [props.team, usePage().props.auth.user])
   );
+  await loadTeamConfig({ projectId: props.project.id });
 };
 
 /**
@@ -104,8 +112,9 @@ const makeOwner = () => {
   router.post(route('team-members.make-owner'), payload, {
     preserveScroll: true,
     reload: true,
-    onSuccess: () => {
+    onSuccess: async () => {
       confirmingMakeOwner.value = false;
+      await loadTeamConfig({ projectId: props.project.id });
     },
   });
 };
@@ -121,7 +130,10 @@ const removeTeamMember = async () => {
       errorBag: 'removeTeamMember',
       preserveScroll: true,
       preserveState: true,
-      onSuccess: () => (teamMemberBeingRemoved.value = null),
+      onSuccess: async () => {
+        teamMemberBeingRemoved.value = null;
+        await loadTeamConfig({ projectId: props.project.id });
+      },
     }
   );
 

@@ -91,24 +91,28 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
     /**
      * Get all projects where the user is part of the team or the creator.
      */
-    public function allRelatedProjects(): Collection|array|\LaravelIdea\Helper\App\Models\_IH_Project_C
+    public function allRelatedProjects($withAudits = false): Collection|array|\LaravelIdea\Helper\App\Models\_IH_Project_C
     {
         // Get the ids of all the teams the user belongs to
         $teamIds = $this->teams->pluck('id');
 
         // Use whereHas to filter projects where the user is part of the team
         // or where the user is the creator
-        return Project::whereHas('team', function (Builder $query) use ($teamIds) {
+        $query = Project::whereHas('team', function (Builder $query) use ($teamIds) {
             $query->whereIn('id', $teamIds);
         })
-            ->orWhere('creating_user_id', $this->id)
-            ->with([
+            ->orWhere('creating_user_id', $this->id);
+
+        if ($withAudits) {
+            $query->with([
                 'audits',
                 'sources.audits',
                 'sources.selections.audits',
                 'codebooks.codes.audits',
-            ])
-            ->get();
+            ]);
+        }
+
+        return $query->get();
     }
 
     public function getAllAudits($filters = [])
@@ -116,7 +120,7 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
         $auditService = app(AuditService::class); // manually resolving the service from the container
 
         // Eager load audits for all related models
-        $projects = $this->allRelatedProjects();
+        $projects = $this->allRelatedProjects(true);
 
         $allAudits = collect();
 

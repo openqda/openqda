@@ -15,7 +15,6 @@ import { useProjects } from '../domain/project/useProjects.js';
 import HelpResources from '../Components/HelpResources.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
 
-defineProps(['audits']);
 sessionStorage.clear();
 
 const projectSelected = async () => {};

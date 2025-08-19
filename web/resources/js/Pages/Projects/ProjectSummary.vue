@@ -1,29 +1,28 @@
 <script setup lang="ts">
 import { ExclamationTriangleIcon, PencilIcon } from '@heroicons/vue/20/solid';
 import { inject, ref } from 'vue';
-import { request } from '../../utils/http/BackendRequest';
 import RenameDialog from '../../dialogs/RenameDialog.vue';
 import InputLabel from '../../form/InputLabel.vue';
 import Button from '../../Components/interactive/Button.vue';
 import { cn } from '../../utils/css/cn';
 import DeleteDialog from '../../dialogs/DeleteDialog.vue';
 import { router } from '@inertiajs/vue3';
+import { useProjects } from '../../domain/project/useProjects';
 
 const project = inject('project');
 const renameTarget = ref(null);
 const deleteTarget = ref(null);
+const { updateProject } = useProjects();
 
 const submitRename = async ({ name }) => {
   const { type } = renameTarget.value;
-  const payload = { value: name, type };
-
-  const response = await request({
-    url: `/projects/update/${project.id}`,
-    type: 'post',
-    body: payload,
+  const { response, error } = await updateProject({
+    projectId: project.id,
+    value: name,
+    type,
   });
 
-  if (!response.error) {
+  if (!error) {
     project[type] = name;
   }
 

@@ -62,7 +62,6 @@ class HandleInertiaRequests extends Middleware
             'projectId' => session('projectId'),
             'sharedTeam' => $team?->only('id', 'name'),
             'usersInPages' => [],
-            'ownTeams' => ($request->user()?->ownedTeams()->where('id', '!=', $request->user()?->personalTeam()->id ?? null)->with('Projects', 'users')->has('users')->get()),
             // Lazily...
             'auth.user' => fn () => $request->user()
                 ? $request->user()->only('id', 'name', 'email', 'profile_photo_url')

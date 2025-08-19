@@ -91,6 +91,14 @@ class AuditService
     }
 
     /**
+     * Get the counts of audits for each model type.
+     */
+    public function getAuditCountsByModel(Collection $audits): array
+    {
+        return $audits->groupBy('model')->map->count()->toArray();
+    }
+
+    /**
      * Collect all audit types for a project.
      */
     private function collectProjectAudits(Project $project): Collection
