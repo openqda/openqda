@@ -157,7 +157,7 @@ onMounted(() => {
           </span>
           <span class="self-center flex" title="Sources in this project">
             <DocumentDuplicateIcon class="w-4 h-4" />
-            <small>{{entry.sourcesCount  ?? 0}}</small>
+            <small>{{ entry.sourcesCount ?? 0 }}</small>
           </span>
         </template>
         <div class="text-center w-1/6">

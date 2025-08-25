@@ -4,7 +4,7 @@ import { ExclamationTriangleIcon, PencilIcon } from '@heroicons/vue/20/solid';
 import RenameDialog from '../../dialogs/RenameDialog.vue';
 import InputLabel from '../../form/InputLabel.vue';
 import Button from '../../Components/interactive/Button.vue';
-import Link from "../../Components/Link.vue";
+import Link from '../../Components/Link.vue';
 import DeleteDialog from '../../dialogs/DeleteDialog.vue';
 import { router } from '@inertiajs/vue3';
 import { useProjects } from '../../domain/project/useProjects';
@@ -44,9 +44,10 @@ const deleteProject = async () => {
       <InputLabel>Project Name</InputLabel>
 
       <div class="flex justify-between items-center">
-        <span class="grow font-semibold text-foreground/80 tracking-wide pe-4">{{
-          project.name
-        }}</span>
+        <span
+          class="grow font-semibold text-foreground/80 tracking-wide pe-4"
+          >{{ project.name }}</span
+        >
         <Button
           variant="outline-secondary"
           @click="
@@ -100,19 +101,33 @@ const deleteProject = async () => {
       <InputLabel>Project Sources</InputLabel>
 
       <ul class="flex flex-col gap-2 mt-4">
-         <li v-for="source in project.sources ?? []" :key="source.id" class="py-2 text-foreground/80">
+        <li
+          v-for="source in project.sources ?? []"
+          :key="source.id"
+          class="py-2 text-foreground/80"
+        >
           <div class="flex justify-between items-center">
             <span class="grow tracking-wide pe-4">
-                <Link :href="route('source.index', { project: project.id, file: source.id })" class="hover:underline">
-                    {{ source.name }}
-                </Link>
+              <Link
+                :href="
+                  route('source.index', {
+                    project: project.id,
+                    file: source.id,
+                  })
+                "
+                class="hover:underline"
+              >
+                {{ source.name }}
+              </Link>
             </span>
-            <span class="text-xs font-mono px-2 py-1 rounded-lg bg-foreground/10 text-foreground/60">
+            <span
+              class="text-xs font-mono px-2 py-1 rounded-lg bg-foreground/10 text-foreground/60"
+            >
               {{ source.type }}
             </span>
-            <span class="text-xs font-mono px-2 py-1">{{source.date}}</span>
+            <span class="text-xs font-mono px-2 py-1">{{ source.date }}</span>
           </div>
-         </li>
+        </li>
       </ul>
     </div>
 
