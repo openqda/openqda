@@ -7,6 +7,7 @@ use App\Http\Requests\ShowProjectRequest;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Project;
+use App\Models\Source;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -55,6 +56,7 @@ class ProjectController extends Controller
                 'isOwner' => $project->creating_user_id == $user->id,
                 'isCollaborative' => ($project->team_id !== null),
                 'isTrashed' => $project->trashed(),
+                'sourcesCount' => $project->sources()->count()
             ];
         })->filter(function ($project) {
             return ! $project['isTrashed'];
@@ -152,15 +154,27 @@ class ProjectController extends Controller
         });
 
         $formattedPublicCodebooks = [];
+        $projectId = $project->id;
 
+        $sources = Source::where('project_id', $projectId)->get();
         $inertiaData = [
             'project' => [
                 'name' => $project->name,
                 'description' => $project->description,
                 'created_at' => $project->created_at,
-                'id' => $project->id,
-                'projectId' => $project->id,
+                'id' => $projectId,
+                'projectId' => $projectId,
                 'codebooks' => $formattedCodebooks,
+                'sources' =>  $sources->map(function ($source) {
+                     return [
+                         'id' => $source->id,
+                         'name' => $source->name,
+                         'type' => $source->type,
+                         'user' => $source->creatingUser->name,
+                         'userPicture' => $source->creatingUser->profile_photo_url,
+                         'date' => $source->created_at->toDateString(),
+                     ];
+                 })
             ],
             'projects' => $visibleProjects,
             'userCodebooks' => $user->getCodebooksAsCreator($project->id),

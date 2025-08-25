@@ -4,6 +4,7 @@ import Button from '../../Components/interactive/Button.vue';
 import {
   PlusIcon,
   ChevronDownIcon,
+  DocumentDuplicateIcon,
   UsersIcon,
   KeyIcon,
 } from '@heroicons/vue/24/outline';
@@ -153,6 +154,10 @@ onMounted(() => {
           </span>
           <span class="self-center" title="I own this project">
             <KeyIcon v-if="entry.isOwner" class="w-4 h-4" />
+          </span>
+          <span class="self-center flex" title="Sources in this project">
+            <DocumentDuplicateIcon class="w-4 h-4" />
+            <small>{{entry.sourcesCount  ?? 0}}</small>
           </span>
         </template>
         <div class="text-center w-1/6">
