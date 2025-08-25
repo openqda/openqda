@@ -2,6 +2,7 @@
   <TransitionRoot as="template" :show="open">
     <Dialog
       as="div"
+      :unmount="false"
       class="relative z-10"
       @close="
         open = false;
@@ -41,20 +42,20 @@
                   :class="
                     props.transparency
                       ? 'bg-transparent'
-                      : 'bg-white shadow-2xl'
+                      : 'bg-surface shadow-2xl'
                   "
                 >
-                  <div class="bg-cerulean-700 px-4 py-6 sm:px-6">
+                  <div class="bg-primary px-4 py-6 sm:px-6">
                     <div class="flex items-center justify-between">
                       <DialogTitle
-                        class="text-base font-semibold leading-6 text-white"
+                        class="text-base font-semibold leading-6 text-primary-foreground"
                       >
                         {{ props.title }}
                       </DialogTitle>
                       <div class="ml-3 flex h-7 items-center">
                         <button
                           type="button"
-                          class="relative border-0 rounded-md bg-cerulean-700 text-white hover:text-silver-900"
+                          class="relative border-0 rounded-md bg-primary text-primary-foreground text-primary-foreground/60"
                           @click="open = false"
                         >
                           <span class="absolute -inset-2.5" />
@@ -64,7 +65,7 @@
                       </div>
                     </div>
                     <div class="mt-1" v-if="props.description">
-                      <p class="text-sm text-grey-300">
+                      <p class="text-sm text-foreground/60">
                         {{ props.description }}
                       </p>
                     </div>
@@ -106,8 +107,8 @@ const open = ref(false);
 
 watch(
   () => props.show,
-  (first, second) => {
-    open.value = second;
+  (next) => {
+    open.value = next;
   }
 );
 </script>

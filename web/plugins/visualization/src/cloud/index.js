@@ -19,4 +19,12 @@ export default {
    * load Vue component
    */
   load: () => import('./WordCloudView.vue'),
+
+  schemas: {
+    config: () => {
+      return {
+        title: String
+      }
+    }
+  }
 };

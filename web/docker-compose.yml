@@ -51,21 +51,21 @@ services:
                 - '-p${DB_PASSWORD}'
             retries: 3
             timeout: 5s
-    plugin.transform.atrain:
-        container_name: plugin-transform-aTrain
-        build:
-            context: ../services/transform/atrain
-            dockerfile: Dockerfile
-        ports:
-            - '4040:80'
-        volumes:
-            - ../services/transform/atrain/.volume/models:/root/Documents/aTrain/models
-            - ../services/transform/atrain/.volume/uploads:/uploads
-        environment:
-            MAX_WORKERS: 4
-            WEB_CONCURRENCY: 2
-        networks:
-            - sail
+#    plugin.transform.atrain:
+#        container_name: plugin-transform-aTrain
+#        build:
+#            context: ../services/transform/atrain
+#            dockerfile: Dockerfile
+#        ports:
+#            - '4040:80'
+#        volumes:
+#            - ../services/transform/atrain/.volume/models:/root/Documents/aTrain/models
+#            - ../services/transform/atrain/.volume/uploads:/uploads
+#        environment:
+#            MAX_WORKERS: 4
+#            WEB_CONCURRENCY: 2
+#        networks:
+#            - sail
 networks:
     sail:
         driver: bridge

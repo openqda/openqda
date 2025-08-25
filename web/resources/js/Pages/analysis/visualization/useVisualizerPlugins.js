@@ -6,12 +6,13 @@ const state = reactive({
   visualizerComponent: null,
   visualizerName: null,
   loaded: {},
+    showMenu: false
 });
 
 const type = 'visualization';
 
 export const useVisualizerPlugins = () => {
-  const { visualizerComponent, visualizerName } = toRefs(state);
+  const { visualizerComponent, visualizerName, showMenu } = toRefs(state);
   const selectVisualizerPlugin = ({ value, unlessExists = false }) => {
     if (visualizerComponent.value && unlessExists) {
       return;
@@ -31,10 +32,17 @@ export const useVisualizerPlugins = () => {
     }))
   );
 
+  const setShowMenu = value => {
+      console.debug('set show menu', value)
+      state.showMenu = value;
+  }
+
   return {
     availablePlugins,
     selectVisualizerPlugin,
     visualizerComponent,
     visualizerName,
+    showMenu,
+    setShowMenu,
   };
 };
