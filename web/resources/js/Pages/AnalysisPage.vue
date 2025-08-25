@@ -150,9 +150,7 @@
             :initial="contentView"
             @change="(value) => (contentView = value)"
           />
-            <Button @click="setShowMenu(true)">
-                Options
-            </Button>
+          <Button v-if="hasOptions" @click="setShowMenu(true)">Options</Button>
         </div>
         <div v-if="contentView === 'visualize'">
           <VisualizeCoding />
@@ -222,7 +220,7 @@ const {
   selection,
 } = useAnalysis();
 
-const { availablePlugins, visualizerName, setShowMenu, selectVisualizerPlugin } = useVisualizerPlugins();
+const { availablePlugins, visualizerName, hasOptions, setShowMenu, selectVisualizerPlugin } = useVisualizerPlugins();
 
 //------------------------------------------------------------------------
 // EXPORTS

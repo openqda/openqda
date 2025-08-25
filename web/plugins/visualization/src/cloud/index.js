@@ -20,11 +20,8 @@ export default {
    */
   load: () => import('./WordCloudView.vue'),
 
-  schemas: {
-    config: () => {
-      return {
-        title: String
-      }
-    }
-  }
+  /**
+   * let host render options button
+   */
+  hasOptions: true,
 };

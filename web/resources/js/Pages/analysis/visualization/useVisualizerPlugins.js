@@ -6,13 +6,14 @@ const state = reactive({
   visualizerComponent: null,
   visualizerName: null,
   loaded: {},
-    showMenu: false
+  hasOptions: false,
+  showMenu: false
 });
 
 const type = 'visualization';
 
 export const useVisualizerPlugins = () => {
-  const { visualizerComponent, visualizerName, showMenu } = toRefs(state);
+  const { visualizerComponent, visualizerName, showMenu, hasOptions } = toRefs(state);
   const selectVisualizerPlugin = ({ value, unlessExists = false }) => {
     if (visualizerComponent.value && unlessExists) {
       return;
@@ -20,9 +21,11 @@ export const useVisualizerPlugins = () => {
 
     const plugin = OpenQDAPlugins.get({ type, key: value });
     const loader = plugin.load;
-    state.visualizerComponent =
-      loader === null ? loader : markRaw(defineAsyncComponent(loader));
+    state.visualizerComponent = loader === null
+        ? loader
+        : markRaw(defineAsyncComponent(loader));
     state.visualizerName = value;
+    state.hasOptions = plugin.hasOptions ?? false;
   };
 
   const availablePlugins = ref(
@@ -33,9 +36,8 @@ export const useVisualizerPlugins = () => {
   );
 
   const setShowMenu = value => {
-      console.debug('set show menu', value)
-      state.showMenu = value;
-  }
+    state.showMenu = value;
+  };
 
   return {
     availablePlugins,
@@ -43,6 +45,7 @@ export const useVisualizerPlugins = () => {
     visualizerComponent,
     visualizerName,
     showMenu,
+    hasOptions,
     setShowMenu,
   };
 };
