@@ -12,6 +12,8 @@ const props = defineProps([
   'checkedSources',
   'checkedCodes',
   'hasSelections',
+  'menu',
+  'showMenu'
 ]);
 
 const API = inject('api');
@@ -91,18 +93,20 @@ const rgba2hex = (color) => {
 };
 </script>
 <template>
+    <component :is="props.menu" title="Word Cloud options" :show="props.showMenu" @close="API.setShowMenu(false)">
+        <div class="p-4 block text-right">
+            <label for="portrait-grid-size" class="mr-2">Columns</label>
+            <input
+                id="portrait-grid-size"
+                class="w-full rounded focus:ring-1 focus:ring-inset focus:ring-primary"
+                type="number"
+                v-model="gridSize"
+                min="1"
+                max="6"
+            />
+        </div>
+    </component>
   <div class="block w-full">
-    <div class="block text-right">
-      <label for="portrait-grid-size" class="mr-2">Columns</label>
-      <input
-        id="portrait-grid-size"
-        class="rounded focus:ring-1 focus:ring-inset focus:ring-cerulean-700"
-        type="number"
-        v-model="gridSize"
-        min="1"
-        max="6"
-      />
-    </div>
     <div :class="API.cn(`grid gap-3 my-5`, getColumns(gridSize))">
       <div
         v-for="source in currentSources"

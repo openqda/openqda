@@ -1,68 +1,77 @@
 <template>
+    <component :is="props.menu" title="Word Cloud options" :show="props.showMenu" @close="API.setShowMenu(false)">
+        <ul class="p-4 flex flex-col gap-4">
+            <li>
+                <label class="text-left text-xs font-medium uppercase  w-full">
+                    Height
+                </label>
+                <input type="number" v-model="minHeight" min="100" max="2000" class="w-full" />
+            </li>
+            <li>
+                <label class="text-left text-xs font-medium uppercase  w-full">
+                    Min word length
+                </label>
+                <input type="number" v-model="minWords" min="1" class="w-full" />
+            </li>
+            <li>
+                <label class="text-left text-xs font-medium uppercase  w-full">
+                    <span>Scale</span>
+                    <span class="float-end">{{ scaleFactor }}</span>
+                </label>
+                <input
+                    type="range"
+                    v-model="scaleFactor"
+                    min="1"
+                    max="50"
+                    step="1"
+                    class="w-full"
+                />
+            </li>
+            <li>
+                <label class="text-left text-xs font-medium uppercase  w-full">
+                    <span>Size</span>
+                    <span class="float-end">{{ scaleAdd }}</span>
+                </label>
+                <input
+                    type="range"
+                    v-model="scaleAdd"
+                    min="0"
+                    max="50"
+                    step="1"
+                    class="w-full"
+                />
+            </li>
+            <li>
+                <label class="text-left text-xs font-medium uppercase  w-full">
+                    Include Words
+                </label>
+                <textarea type="string" v-model="includes" rows="2" class="w-full resize-y p-1" placeholder="...one word per line"></textarea>
+            </li>
+            <li>
+                <label class="text-left text-xs font-medium uppercase  w-full">
+                    Exclude Words
+                </label>
+                <textarea type="string" v-model="excludes" rows="2" class="w-full resize-y p-1" placeholder="...one word per line"></textarea>
+            </li>
+            <li>
+                <Button @click="rebuild" :disabled="generating">
+                    <Cog6ToothIcon
+                        v-if="generating"
+                        class="animate-spin h-6 w-6 text-cerulean-700"
+                    />
+                    <span v-else>Force Refresh</span>
+                </Button>
+            </li>
+        </ul>
+    </component>
   <div class="w-full block">
-    <div class="p-3 mb-5">
-      <table class="table-auto word-cloud-settings w-full">
-        <thead>
-          <tr>
-            <th scope="col" class="text-left text-xs font-medium uppercase">
-              Height
-            </th>
-            <th scope="col" class="text-left text-xs font-medium uppercase">
-              Min word length
-            </th>
-            <th scope="col" class="text-left text-xs font-medium uppercase">
-              Scale
-            </th>
-            <th scope="col" class="text-left text-xs font-medium uppercase">
-              + Size
-            </th>
-            <th scope="col" class="text-left text-xs font-medium uppercase">
-              <Cog6ToothIcon
-                v-if="generating"
-                class="animate-spin h-6 w-6 text-cerulean-700"
-              />
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <input type="number" v-model="minHeight" min="100" max="2000" />
-            </td>
-            <td>
-              <input type="number" v-model="minWords" min="1" />
-            </td>
-            <td>
-              <input
-                type="range"
-                v-model="scaleFactor"
-                min="1"
-                max="50"
-                step="1"
-              />
-              <span>{{ scaleFactor }}</span>
-            </td>
-            <td>
-              <input
-                type="range"
-                v-model="scaleAdd"
-                min="0"
-                max="50"
-                step="1"
-              />
-              <span>{{ scaleAdd }}</span>
-            </td>
-            <td>
-              <Button @click="rebuild" :disabled="generating">Refresh</Button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
+      <Cog6ToothIcon
+          v-if="generating"
+          class="animate-spin h-6 w-6 text-cerulean-700"
+      />
     <div
       ref="resizeRef"
-      class="cloud-root"
+      class="cloud-root border border-border"
       :style="{ height: windowHeight + 'px' }"
     >
       <svg ref="svgRef" id="cloud-svg">
@@ -100,6 +109,8 @@ const props = defineProps([
   'checkedCodes',
   'hasSelections',
   'api',
+  'menu',
+  'showMenu'
 ]);
 
 const svgRef = ref(null);
@@ -109,13 +120,14 @@ const words = ref(new Map());
 
 // options
 const minWords = ref(4);
-const underThresholdTransparency = ref(1.0);
 const scaleFactor = ref(12);
 const scaleAdd = ref(3);
 const seed = ref(Math.random());
 const generating = ref(false);
 const minHeight = ref(500);
 const windowHeight = ref(500);
+const includes = ref('');
+const excludes = ref('');
 
 function rebuild() {
   seed.value = Math.random();
@@ -201,7 +213,18 @@ onMounted(() => {
 
   watchEffect(() => {
     const { width, height } = resizeState.dimensions;
-    const wordsList = [...words.value.entries()];
+    const excluded = wordsToSet(excludes.value);
+    const included = wordsToSet(includes.value);
+    const wordsList = [...words.value.entries()].filter(w => {
+        const word = w[0].toLowerCase();
+        if (excluded.has(word)) {
+            return false;
+        }
+        if (included.has(word)) {
+            return true;
+        }
+        return w[0].length >= minWords.value;
+    });
     const scale = {
       factor: Number(scaleFactor.value),
       addition: Number(scaleAdd.value),
@@ -226,9 +249,6 @@ onMounted(() => {
                   .replace(/[^\w\s]+/g, '')
                   .split(/\s+/g)
                   .forEach((word) => {
-                    if (word.length < minWords.value) {
-                      return;
-                    }
                     const map = words.value;
                     if (!map.has(word)) {
                       map.set(word, 0);
@@ -244,10 +264,15 @@ onMounted(() => {
   });
 });
 
-const randomColor = (word) => {
-  return word.length > minWords.value
-    ? `hsla(${Math.random() * 360}, 75%, 50%, 1)`
-    : `hsla(${Math.random() * 360}, 75%, 85%, ${underThresholdTransparency.value})`;
+const wordsToSet = list => {
+    return new Set((list ?? '')
+        .split('\n')
+        .map((w) => w.trim().toLowerCase())
+        .filter((w) => w.length > 0));
+}
+
+const randomColor = () => {
+  return  `hsla(${Math.random() * 360}, 75%, 50%, 1)`
 };
 </script>
 
