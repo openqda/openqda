@@ -1,4 +1,4 @@
-# AGENTS instructions
+# Agent Instructions
 
 ## Repository Layout
 - `.github` - GitHub configuration files (workflows, issue templates, etc.) - do not change anything in here
