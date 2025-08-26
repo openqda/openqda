@@ -1,10 +1,16 @@
 # Agent Instructions
 
+## About OpenQDA
+OpenQDA is a web-based software for qualitative data analysis.
+It's designed for collaborative research by providing tools for coding, analyzing, and visualizing qualitative data.
+The user documentation can be found at https://openqda.github.io/user-docs/.
+
 ## Repository Layout
 - `.github` - GitHub configuration files (workflows, issue templates, etc.) - do not change anything in here
-- `docs` - Developer documentation (this is a VitePress application)
+- `docs` - Developer documentation (this is a VitePress application); do not confuse with the user documentation
 - `services` - External plugins, runnable as standalone services
 - `web` - The main web application (a Laravel application with Vue.js frontend)
+
 ## General Guidelines
 
 ### Laravel Backend
