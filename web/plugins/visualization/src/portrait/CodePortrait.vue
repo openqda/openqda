@@ -13,13 +13,14 @@ const props = defineProps([
   'checkedCodes',
   'hasSelections',
   'menu',
-  'showMenu'
+  'showMenu',
 ]);
 
 const API = inject('api');
 const segments = ref(new Map());
 const currentSources = ref([]);
 const gridSize = ref(1);
+const scale = ref(1);
 
 const getSegmentsForFile = (file) => {
   const codes = props.codes.filter(
@@ -93,19 +94,41 @@ const rgba2hex = (color) => {
 };
 </script>
 <template>
-    <component :is="props.menu" title="Word Cloud options" :show="props.showMenu" @close="API.setShowMenu(false)">
-        <div class="p-4 block text-right">
-            <label for="portrait-grid-size" class="mr-2">Columns</label>
-            <input
-                id="portrait-grid-size"
-                class="w-full rounded focus:ring-1 focus:ring-inset focus:ring-primary"
-                type="number"
-                v-model="gridSize"
-                min="1"
-                max="6"
-            />
-        </div>
-    </component>
+  <component
+    :is="props.menu"
+    title="Word Cloud options"
+    :show="props.showMenu"
+    @close="API.setShowMenu(false)"
+  >
+    <ul class="p-4 flex flex-col gap-4">
+      <li>
+        <label class="text-left text-xs font-medium uppercase w-full">
+          Columns
+        </label>
+        <input
+          id="portrait-grid-size"
+          class="w-full rounded focus:ring-1 focus:ring-inset focus:ring-primary"
+          type="number"
+          v-model="gridSize"
+          min="1"
+          max="6"
+        />
+      </li>
+      <li>
+        <label class="text-left text-xs font-medium uppercase w-full">
+          Scale
+        </label>
+        <input
+          type="range"
+          v-model="scale"
+          min="0.5"
+          max="10"
+          step="0.5"
+          class="w-full"
+        />
+      </li>
+    </ul>
+  </component>
   <div class="block w-full">
     <div :class="API.cn(`grid gap-3 my-5`, getColumns(gridSize))">
       <div
@@ -133,8 +156,8 @@ const rgba2hex = (color) => {
               :style="{
                 color: entry.color,
                 backgroundColor: entry.color,
+                height: `${scale}rem`,
               }"
-              class="w-4 h-4"
             />
           </span>
         </div>

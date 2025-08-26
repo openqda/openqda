@@ -141,7 +141,10 @@
               class="text-foreground"
               :options="availablePlugins"
               :value="visualizerName ?? 'list'"
-              @change="selectVisualizerPlugin($event.target); setShowMenu(false);"
+              @change="
+                selectVisualizerPlugin($event.target);
+                setShowMenu(false);
+              "
             />
           </div>
           <ResponsiveTabList
@@ -220,7 +223,13 @@ const {
   selection,
 } = useAnalysis();
 
-const { availablePlugins, visualizerName, hasOptions, setShowMenu, selectVisualizerPlugin } = useVisualizerPlugins();
+const {
+  availablePlugins,
+  visualizerName,
+  hasOptions,
+  setShowMenu,
+  selectVisualizerPlugin,
+} = useVisualizerPlugins();
 
 //------------------------------------------------------------------------
 // EXPORTS
