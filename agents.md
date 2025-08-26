@@ -5,7 +5,6 @@
 - `docs` - Developer documentation (this is a VitePress application)
 - `services` - External plugins, runnable as standalone services
 - `web` - The main web application (a Laravel application with Vue.js frontend)
-- 
 ## General Guidelines
 
 ### Laravel Backend
