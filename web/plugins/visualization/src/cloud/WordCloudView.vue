@@ -63,6 +63,15 @@
                 </Button>
             </li>
         </ul>
+        <ul class="p-4 flex flex-col gap-4">
+            <li>
+                <label class="text-left text-xs font-medium uppercase  w-full flex justify-between">
+                    <span>All words</span>
+                    <span>{{words.size}}</span>
+                </label>
+                <textarea type="string" v-model="wordsList" rows="4" class="w-full resize-y p-1" placeholder="...one word per line" readonly></textarea>
+            </li>
+        </ul>
     </component>
   <div class="w-full block">
       <Cog6ToothIcon
@@ -77,10 +86,6 @@
       <svg ref="svgRef" id="cloud-svg">
         <g ref="gRef"></g>
       </svg>
-    </div>
-
-    <div class="text-center m-4">
-      <span class="p-2 border-t">{{ words.size }} unique words</span>
     </div>
   </div>
 </template>
@@ -117,6 +122,7 @@ const svgRef = ref(null);
 const gRef = ref(null);
 const { resizeRef, resizeState } = API.useResizeObserver();
 const words = ref(new Map());
+const wordsList = ref('');
 
 // options
 const minWords = ref(4);
@@ -236,6 +242,8 @@ onMounted(() => {
     const { sources, codes, checkedSources, checkedCodes } = props;
     words.value.clear();
 
+    const list = []
+
     for (const source of sources) {
       if (checkedSources.get(source.id)) {
         for (const code of codes) {
@@ -252,6 +260,7 @@ onMounted(() => {
                     const map = words.value;
                     if (!map.has(word)) {
                       map.set(word, 0);
+                      list.push(word);
                     }
                     map.set(word, map.get(word) + 1);
                   });
@@ -261,6 +270,9 @@ onMounted(() => {
         }
       }
     }
+
+    list.sort((a, b) => a.localeCompare(b));
+    wordsList.value = list.join('\n');
   });
 });
 
