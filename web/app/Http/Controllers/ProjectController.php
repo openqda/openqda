@@ -156,7 +156,7 @@ class ProjectController extends Controller
         $formattedPublicCodebooks = [];
         $projectId = $project->id;
 
-        $sources = Source::where('project_id', $projectId)->get();
+        $sources = $project->sources()->with('creatingUser')->get();
         $inertiaData = [
             'project' => [
                 'name' => $project->name,
