@@ -21,6 +21,8 @@ const segments = ref(new Map());
 const currentSources = ref([]);
 const gridSize = ref(1);
 const scale = ref(1);
+const gap = ref(1);
+const radius = ref(0);
 
 const getSegmentsForFile = (file) => {
   const codes = props.codes.filter(
@@ -116,8 +118,9 @@ const rgba2hex = (color) => {
           />
         </li>
         <li>
-          <label class="text-left text-xs font-medium uppercase w-full">
-            Scale
+          <label class="text-left text-xs font-medium uppercase w-full flex justify-between">
+            <span>Scale</span>
+            <span>{{scale}}</span>
           </label>
           <input
             type="range"
@@ -128,6 +131,34 @@ const rgba2hex = (color) => {
             class="w-full"
           />
         </li>
+          <li>
+              <label class="text-left text-xs font-medium uppercase w-full flex justify-between">
+                  <span>Gap</span>
+                  <span>{{gap}}</span>
+              </label>
+              <input
+                  type="range"
+                  v-model="gap"
+                  min="0"
+                  max="5"
+                  step="1"
+                  class="w-full"
+              />
+          </li>
+          <li>
+              <label class="text-left text-xs font-medium uppercase w-full flex justify-between">
+                  <span>Radius</span>
+                  <span>{{radius}}</span>
+              </label>
+              <input
+                  type="range"
+                  v-model="radius"
+                  min="0"
+                  max="5"
+                  step="1"
+                  class="w-full"
+              />
+          </li>
       </ul>
     </component>
     <div class="block w-full">
@@ -151,9 +182,22 @@ const rgba2hex = (color) => {
               v-for="(entry, index) in segments.get(source.id)"
               :key="`${source.id}-${index}`"
               :title="`${entry.segment.start}-${entry.segment.end};\n\n${entry.segment.text.substring(0, 250)}...`"
-              class="m-1"
+              :class="API.cn(
+                gap == 1 && 'm-1',
+                gap == 2 && 'm-2',
+                gap == 3 && 'm-3',
+                gap == 4 && 'm-4',
+                gap == 5 && 'm-5',
+              )"
             >
               <EllipsisHorizontalCircleIcon
+                  :class="API.cn(
+                radius == 1 && 'rounded-sm',
+                radius == 2 && 'rounded-md',
+                radius == 3 && 'rounded-xl',
+                radius == 4 && 'rounded-2xl',
+                radius == 5 && 'rounded-full',
+              )"
                 :style="{
                   color: entry.color,
                   backgroundColor: entry.color,
