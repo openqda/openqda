@@ -101,7 +101,8 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
         $query = Project::whereHas('team', function (Builder $query) use ($teamIds) {
             $query->whereIn('id', $teamIds);
         })
-            ->orWhere('creating_user_id', $this->id);
+            ->orWhere('creating_user_id', $this->id)
+            ->withCount('sources');
 
         if ($withAudits) {
             $query->with([

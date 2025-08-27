@@ -39,9 +39,6 @@ class ProjectController extends Controller
     {
         $user = Auth::user();
 
-        // Fetch projects directly created by the user
-        $ownedProjects = $user->projects()->withTrashed()->get();
-
         // Combine the two types of projects
         $allProjectModels = $user->allRelatedProjects(false);
 
