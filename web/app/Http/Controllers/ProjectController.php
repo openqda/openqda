@@ -38,9 +38,6 @@ class ProjectController extends Controller
     {
         $user = Auth::user();
 
-        // Fetch projects directly created by the user
-        $ownedProjects = $user->projects()->withTrashed()->get();
-
         // Combine the two types of projects
         $allProjectModels = $user->allRelatedProjects(false);
 
@@ -55,6 +52,7 @@ class ProjectController extends Controller
                 'isOwner' => $project->creating_user_id == $user->id,
                 'isCollaborative' => ($project->team_id !== null),
                 'isTrashed' => $project->trashed(),
+                'sourcesCount' => $project->sources_count,
             ];
         })->filter(function ($project) {
             return ! $project['isTrashed'];
@@ -152,15 +150,27 @@ class ProjectController extends Controller
         });
 
         $formattedPublicCodebooks = [];
+        $projectId = $project->id;
 
+        $sources = $project->sources()->with('creatingUser')->get();
         $inertiaData = [
             'project' => [
                 'name' => $project->name,
                 'description' => $project->description,
                 'created_at' => $project->created_at,
-                'id' => $project->id,
-                'projectId' => $project->id,
+                'id' => $projectId,
+                'projectId' => $projectId,
                 'codebooks' => $formattedCodebooks,
+                'sources' => $sources->map(function ($source) {
+                    return [
+                        'id' => $source->id,
+                        'name' => $source->name,
+                        'type' => $source->type,
+                        'user' => $source->creatingUser->name,
+                        'userPicture' => $source->creatingUser->profile_photo_url,
+                        'date' => $source->created_at->toDateString(),
+                    ];
+                }),
             ],
             'projects' => $visibleProjects,
             'userCodebooks' => $user->getCodebooksAsCreator($project->id),
