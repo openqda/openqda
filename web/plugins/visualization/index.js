@@ -1,7 +1,6 @@
 import List from './src/list';
 import Portrait from './src/portrait';
 import WordCloud from './src/cloud';
-import BarChart from './src/bar';
 import GroupedBarChart from './src/groupedBar';
 
 /**
@@ -9,7 +8,7 @@ import GroupedBarChart from './src/groupedBar';
  * to the given plugin api.
  */
 export default function register(api) {
-  [List, Portrait, WordCloud, BarChart, GroupedBarChart].forEach((plugin) =>
+  [List, Portrait, WordCloud, GroupedBarChart].forEach((plugin) =>
     api.register(plugin)
   );
 }

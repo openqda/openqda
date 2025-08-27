@@ -9,7 +9,7 @@ export default {
   /**
    * Human-readable title
    */
-  title: 'Code Selection Count by Source',
+  title: 'Code Selection Count',
   /**
    * For filtering
    */
@@ -19,4 +19,9 @@ export default {
    * load Vue component
    */
   load: () => import('./GroupedBarChart.vue'),
+
+  /**
+   * let host render options button
+   */
+  hasOptions: true,
 };
