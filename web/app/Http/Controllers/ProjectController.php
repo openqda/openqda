@@ -56,7 +56,7 @@ class ProjectController extends Controller
                 'isOwner' => $project->creating_user_id == $user->id,
                 'isCollaborative' => ($project->team_id !== null),
                 'isTrashed' => $project->trashed(),
-                'sourcesCount' => $project->sources()->count(),
+                'sourcesCount' => $project->sources_count,
             ];
         })->filter(function ($project) {
             return ! $project['isTrashed'];
