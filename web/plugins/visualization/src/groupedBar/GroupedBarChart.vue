@@ -33,6 +33,10 @@ const options = ref({
   build: 'source', // or 'all'
   sort: 'name', // or 'count'
   sortDir: 'ascending',
+  // override width and height from resize observer
+  maxHeight: 0,
+  maxWidth: 0,
+  showEmptySources: 'no',
 });
 
 // Resize Observer to make the plotly chart responsive on window resize
@@ -64,8 +68,15 @@ const rebuildList = (plotlyOptions) => {
 };
 
 const buildBySource = (plotlyOptions) => {
-  const { opacity, borderWidth, maxLengthOfLabel, maxLines, sort, sortDir } =
-    plotlyOptions;
+  const {
+    opacity,
+    borderWidth,
+    maxLengthOfLabel,
+    maxLines,
+    sort,
+    sortDir,
+    showEmptySources,
+  } = plotlyOptions;
   const codesList = {};
 
   // Step 1: Build the codesList with counts per source
@@ -88,6 +99,7 @@ const buildBySource = (plotlyOptions) => {
       }
     });
   });
+
   // Step 2: Prepare the data object for Plotly
   const data = [];
   const sourceIds = getCheckedSourceIds(); // get all checked source IDs.
@@ -124,16 +136,18 @@ const buildBySource = (plotlyOptions) => {
           Number(maxLengthOfLabel),
           Number(maxLines)
         );
-        trace.y.push(multilineLabel);
 
-        trace.x.push(counts[sourceId] || 0); // Use 0 if no count for this source
-        trace.marker.color.push(color); // Use the same color for all sources;
-        trace.text.push(getLabelOf(sourceId)); // Bar label: document name only
-        trace.hovertext.push(
-          `Code: ${name.substring(0, 50)}, Document: ${getLabelOf(sourceId).substring(0, 30)}, Count: ${
-            counts[sourceId] || 0
-          }`
-        ); // Hover info: full details
+        const currentCount = counts[sourceId] || 0;
+
+        if (currentCount || showEmptySources === 'yes') {
+          trace.y.push(multilineLabel);
+          trace.x.push(currentCount); // Use 0 if no count for this source
+          trace.marker.color.push(color); // Use the same color for all sources;
+          trace.text.push(getLabelOf(sourceId)); // Bar label: document name only
+          trace.hovertext.push(
+            `Code: ${name.substring(0, 50)}, Document: ${getLabelOf(sourceId).substring(0, 30)}, Count: ${currentCount}`
+          ); // Hover info: full details
+        }
       });
 
     data.push(trace);
@@ -144,33 +158,6 @@ const buildBySource = (plotlyOptions) => {
 
   // step 4: Render the chart
   Plotly.newPlot(plotlyId.value, data, layout);
-};
-
-const getLayout = (plotlyOptions) => {
-  const { margin, barmode } = plotlyOptions;
-  return {
-    barmode,
-    responsive: true,
-    xaxis: {
-      title: 'Count',
-      automargin: true,
-      tickpadding: 20, // space between ticks and labels
-    },
-    yaxis: {
-      title: 'Codes',
-      automargin: true, // Ensures enough space for long labels
-      tickpadding: 20, // space between ticks and labels
-    },
-    showlegend: false, // Hide legend since we have labels on the bars
-
-    margin: {
-      l: margin, // Increase left margin to make room for labels
-      r: margin, // Right margin
-      t: margin, // Top margin
-      b: margin, // Bottom margin
-    },
-    autosize: true,
-  };
 };
 
 const buildAll = (plotlyOptions) => {
@@ -232,9 +219,41 @@ const buildAll = (plotlyOptions) => {
   Plotly.newPlot(plotlyId.value, data, layout, config);
 };
 
+const getLayout = (plotlyOptions) => {
+  const { margin, barmode, width, height, maxHeight, maxWidth } = plotlyOptions;
+  const w = maxWidth && maxWidth > 0 ? Math.min(width, maxWidth) : width;
+  const h = maxHeight && maxHeight > 0 ? Math.min(height, maxHeight) : height;
+  return {
+    barmode,
+    responsive: true,
+    xaxis: {
+      title: 'Count',
+      automargin: true,
+      tickpadding: 20, // space between ticks and labels
+    },
+    yaxis: {
+      title: 'Codes',
+      automargin: true, // Ensures enough space for long labels
+      tickpadding: 20, // space between ticks and labels
+    },
+    showlegend: false, // Hide legend since we have labels on the bars
+
+    margin: {
+      l: margin, // Increase left margin to make room for labels
+      r: margin, // Right margin
+      t: margin, // Top margin
+      b: margin, // Bottom margin
+    },
+    autosize: true,
+    height: h,
+    width: w,
+  };
+};
+
 /* ----------------------------------------------------------
  * Watch for changes in props and options to rebuild the list
  * but use debounce to avoid excessive calls.
+ * ----------------------------------------------------------
  */
 
 const _rebuildList = API.debounce(rebuildList, 100);
@@ -257,7 +276,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div>
+  <div class="h-full w-full">
     <component
       :is="props.menu"
       title="Code Selection Count Options"
@@ -274,7 +293,7 @@ onMounted(() => {
             <option value="source">By Source</option>
           </select>
         </li>
-        <li>
+        <li v-if="options.build === 'source'">
           <label class="text-left text-xs font-medium uppercase w-full">
             Bar Style
           </label>
@@ -283,6 +302,15 @@ onMounted(() => {
             <option value="stack">Stacked</option>
             <option value="overlay">Overlay</option>
             <option value="relative">Relative</option>
+          </select>
+        </li>
+        <li v-if="options.build === 'source'">
+          <label class="text-left text-xs font-medium uppercase w-full">
+            Include Sources with no codes
+          </label>
+          <select v-model="options.showEmptySources" class="w-full">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
           </select>
         </li>
         <li>
@@ -374,6 +402,39 @@ onMounted(() => {
             v-model="options.maxLines"
             min="1"
             max="5"
+            step="1"
+            class="w-full"
+          />
+        </li>
+        <li class="font-semibold">Explicit Sizes</li>
+        <li>
+          <label
+            class="text-left text-xs font-medium uppercase w-full flex justify-between"
+          >
+            <span>Maximum Width</span>
+            <span>{{ options.maxWidth }}</span>
+          </label>
+          <input
+            type="number"
+            v-model="options.maxWidth"
+            min="0"
+            max="4096"
+            step="1"
+            class="w-full"
+          />
+        </li>
+        <li>
+          <label
+            class="text-left text-xs font-medium uppercase w-full flex justify-between"
+          >
+            <span>Maximum Height</span>
+            <span>{{ options.maxHeight }}</span>
+          </label>
+          <input
+            type="number"
+            v-model="options.maxHeight"
+            min="0"
+            max="4096"
             step="1"
             class="w-full"
           />

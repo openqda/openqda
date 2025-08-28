@@ -155,7 +155,7 @@
           />
           <Button v-if="hasOptions" @click="setShowMenu(true)">Options</Button>
         </div>
-        <div v-if="contentView === 'visualize'">
+        <div v-if="contentView === 'visualize'" class="h-full w-full">
           <VisualizeCoding />
         </div>
       </BaseContainer>

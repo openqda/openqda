@@ -56,7 +56,10 @@
                         <button
                           type="button"
                           class="relative border-0 rounded-md bg-primary text-primary-foreground text-primary-foreground/60"
-                          @click="open = false"
+                          @click="
+                            open = false;
+                            emit('close');
+                          "
                         >
                           <span class="absolute -inset-2.5" />
                           <span class="sr-only">Close panel</span>
@@ -96,19 +99,38 @@ import {
 import { XMarkIcon } from '@heroicons/vue/24/outline';
 
 const emit = defineEmits(['close']);
-const props = defineProps([
-  'title',
-  'description',
-  'show',
-  'position',
-  'transparency',
-]);
-const open = ref(false);
+const props = defineProps({
+  title: {
+    type: String,
+    required: false,
+  },
+  description: {
+    type: String,
+    required: false,
+  },
+  show: {
+    type: Boolean,
+    required: false,
+  },
+  position: {
+    type: String,
+    required: false,
+    default: 'right',
+  },
+  transparency: {
+    type: Boolean,
+    required: false,
+  },
+});
 
+const open = ref(false);
 watch(
   () => props.show,
-  (next) => {
-    open.value = next;
-  }
+  (value) => {
+    if (typeof value === 'boolean' && value !== open.value) {
+      open.value = value;
+    }
+  },
+  { immediate: true }
 );
 </script>
