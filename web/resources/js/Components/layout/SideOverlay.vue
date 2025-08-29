@@ -55,7 +55,7 @@
                       <div class="ml-3 flex h-7 items-center">
                         <button
                           type="button"
-                          class="relative border-0 rounded-md bg-primary text-primary-foreground text-primary-foreground/60"
+                          class="relative border-0 rounded-md bg-primary text-primary-foreground/60"
                           @click="
                             open = false;
                             emit('close');
