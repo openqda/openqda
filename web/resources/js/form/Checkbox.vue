@@ -16,7 +16,10 @@ const props = defineProps({
 <template>
   <div class="input-group group contents" :class="cn(props.class)">
     <InputLabel class="flex items-center" :title="props.title">
-      <input type="checkbox" v-bind="$attrs" :checked="props.defaultValue" />
+      <input type="checkbox" v-bind="$attrs" :checked="props.defaultValue" :class="cn(
+        'outline outline-0 px-0.5',
+        'focus:ring-foreground/80',
+      )" />
       <span
         v-if="props.label"
         :class="cn('ms-1 text-nowrap', props.labelClass)"
