@@ -86,7 +86,6 @@
             Include Words
           </label>
           <textarea
-            type="string"
             v-model="includes"
             rows="2"
             class="w-full resize-y p-1"
@@ -98,7 +97,6 @@
             Exclude Words
           </label>
           <textarea
-            type="string"
             v-model="excludes"
             rows="2"
             class="w-full resize-y p-1"
@@ -124,7 +122,6 @@
             <span>{{ words.size }}</span>
           </label>
           <textarea
-            type="string"
             v-model="wordsList"
             rows="4"
             class="w-full resize-y p-1"

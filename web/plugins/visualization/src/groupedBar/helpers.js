@@ -40,19 +40,19 @@ export const insertLineBreaks = (label, maxLength, maxLines) => {
 export const getSorter = (type, direction, isMulti) => {
   const descending = direction === 'descending';
   if (type === 'name') {
-    return descending ? sortByNameAscending : sortByNameDescending;
+    return descending ? sortByNameDescending : sortByNameAscending;
   }
   if (type === 'count') {
     if (isMulti) return sortByCountMulti(descending);
-    return descending ? sortByCountAscending : sortByCountDescending;
+    return descending ? sortByCountDescending : sortByCountAscending;
   }
   throw new Error(`Unknown sort type: ${type}`);
 };
 
-const sortByNameAscending = (a, b) => a.name.localeCompare(b.name);
-const sortByNameDescending = (a, b) => b.name.localeCompare(a.name);
-const sortByCountAscending = (a, b) => a.counts - b.counts;
-const sortByCountDescending = (a, b) => b.counts - a.counts;
+const sortByNameDescending = (a, b) => a.name.localeCompare(b.name);
+const sortByNameAscending = (a, b) => b.name.localeCompare(a.name);
+const sortByCountDescending = (a, b) => a.counts - b.counts;
+const sortByCountAscending = (a, b) => b.counts - a.counts;
 const toSum = (sum, val) => sum + val;
 const sortByCountMulti = (descending) => {
   return (a, b) => {
