@@ -71,10 +71,12 @@ class AuditsController extends Controller
             $allAudits = $this->auditService->getProjectAudits($project);
             $filteredAudits = $this->auditService->filterAudits($allAudits, $request->getFilters());
             $paginator = $this->auditService->paginateAudit($filteredAudits, $request);
+            $auditCounts = $this->auditService->getAuditCountsByModel($allAudits);
 
             return response()->json([
                 'success' => true,
                 'audits' => $paginator,
+                'audit_counts' => $auditCounts,
             ]);
 
         } catch (\Exception $e) {

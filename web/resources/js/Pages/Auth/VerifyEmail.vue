@@ -50,7 +50,7 @@ const submit = () => {
           Resend Verification Email
         </Button>
 
-        <div class="space-x-2">
+        <div class="flex flex-row gap-2">
           <Link :href="route('profile.show')"> Edit Profile</Link>
 
           <Link :href="route('logout')" method="post" as="button">

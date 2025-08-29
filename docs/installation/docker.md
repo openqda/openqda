@@ -13,7 +13,7 @@ Currently, this guide is tested using the following environments:
 
 First of all, make sure you have Docker installed and operable on your system.
 
-> Warning: **Do not install Docker Desktop** but the original Docker CLI.
+> Warning: **Do not install Docker Desktop** but the original Docker CLI (unless you are on macOS, then you can install Docker Desktop which will also install the CLI).
 
 A comprehensive installation guide can be found on the
 [official Docker installation guide](https://docs.docker.com/engine/install/) or alternatively on the
@@ -72,6 +72,9 @@ Before your very first run, you need to build the
 containers. This may take some time, but is usually only
 required once in a while unless you change PHP version, Laravel version etc.
 
+_If you get an error regarding "invalid hostPort: your reverb port"_ do this: 
+edit the .env file and set REVERB_HOST=0.0.0.0 and REVERB_PORT=8080. Also you may comment out in the docker-compose.yml file all of the plugin.transform.atrain - services configurations. Depending on your platform it may be a good idea to change in docker-compose.yml the entry unter ports "127.0.0.1:{REVERB_PORT:-8080}:8080" to '${REVERB_PORT:-8080}:8080')
+
 ```shell
 ./vendor/bin/sail build --no-cache
 ```
@@ -82,7 +85,7 @@ The commands to run the backend are the same as with Docker Compose but
 using the `sail` binaries:
 
 ```shell
-./vendor/bin/sail up # starts all backend services
+./vendor/bin/sail up
 ```
 
 If you wish to stop the applications, you need to enter `ctrl + c` (Windows, Linux) or `cmd + c` (MacOS),
@@ -133,7 +136,7 @@ Collaborative features are enabled through a WebSocket connected, which in turn 
 (Laravel Reverb), which you can start in a new terminal via:
 
 ```shell
-docker exec -it web-laravel.test-1 /var/www/html/web/start_debug_services.sh
+docker exec -it web-laravel.test-1 /var/www/html/start_debug_services.sh
 ```
 
 This services needs to start everytime you start your backend apps, because it automatically stops,

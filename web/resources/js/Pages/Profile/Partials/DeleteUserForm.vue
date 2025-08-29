@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useForm, usePage } from '@inertiajs/vue3';
 import ActionSection from '../../../Components/ActionSection.vue';
 import DangerButton from '../../../Components/DangerButton.vue';
@@ -7,9 +7,25 @@ import DialogModal from '../../../Components/DialogModal.vue';
 import InputError from '../../../form/InputError.vue';
 import SecondaryButton from '../../..//Components/SecondaryButton.vue';
 import InputField from '../../../form/InputField.vue';
+import { request } from '../../../utils/http/BackendRequest.js';
 
 const confirmingUserDeletion = ref(false);
 const passwordInput = ref(null);
+const ownTeams = ref([]);
+const loading = ref(true);
+const user = usePage().props.auth.user;
+
+onMounted(async () => {
+  const { response, error } = await request({
+    url: `/user/${user.id}/owned-teams`,
+    type: 'get',
+  });
+
+  if (!error) {
+    ownTeams.value = response.data.ownTeams;
+  }
+  loading.value = false;
+});
 
 const form = useForm({
   password: '',
@@ -50,7 +66,7 @@ const closeModal = () => {
         data or information that you wish to retain.
         <div
           class="text-red-900 font-bold bg-red-300 p-2 border-l-red-600 border-l-8"
-          v-if="usePage().props.ownTeams.length > 0"
+          v-if="ownTeams.length > 0"
         >
           If you are the owner of any teams, you can either make someone else
           the owner or delete the team.
@@ -58,16 +74,12 @@ const closeModal = () => {
       </div>
 
       <!-- List of projects -->
-      <div v-if="usePage().props.ownTeams.length > 0" class="mt-5">
+      <div v-if="ownTeams.length > 0" class="mt-5">
         <div class="font-bold text-gray-700 mb-2">
           Projects with your teams:
         </div>
         <ul>
-          <li
-            v-for="team in usePage().props.ownTeams"
-            :key="team.id"
-            class="mb-2"
-          >
+          <li v-for="team in ownTeams" :key="team.id" class="mb-2">
             <a
               target="_blank"
               v-if="team.projects.length > 0"
@@ -87,7 +99,7 @@ const closeModal = () => {
       <div class="mt-5">
         <DangerButton
           @click="confirmUserDeletion"
-          :disabled="usePage().props.ownTeams.length > 0"
+          :disabled="ownTeams.length > 0 || loading"
         >
           Delete Account
         </DangerButton>

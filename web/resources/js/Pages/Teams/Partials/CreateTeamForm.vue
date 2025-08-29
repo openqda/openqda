@@ -1,22 +1,25 @@
 a
 <script setup>
 import { useForm } from '@inertiajs/vue3';
+import { useTeam } from '../../../domain/teams/useTeam.js';
 import FormSection from '../../../Components/FormSection.vue';
 import InputError from '../../../form/InputError.vue';
 import InputLabel from '../../../form/InputLabel.vue';
 import InputField from '../../../form/InputField.vue';
 import Button from '../../../Components/interactive/Button.vue';
 
+const { loadTeamConfig } = useTeam();
 const props = defineProps(['projectId']);
 const form = useForm({
   name: '',
   projectId: props.projectId,
 });
-const createTeam = () => {
-  form.post(route('teams.store'), {
+const createTeam = async () => {
+  await form.post(route('teams.store'), {
     errorBag: 'createTeam',
     preserveScroll: true,
   });
+  await loadTeamConfig({ projectId: props.projectId });
 };
 </script>
 
@@ -27,7 +30,7 @@ const createTeam = () => {
     </template>
 
     <template #form>
-      <div class="space-y-6">
+      <div class="flex flex-col gap-6">
         <div>
           <InputLabel for="name" value="Team Name" />
           <InputField

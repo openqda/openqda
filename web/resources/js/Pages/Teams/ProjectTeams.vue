@@ -3,37 +3,56 @@ import CreateTeamForm from './Partials/CreateTeamForm.vue';
 import DeleteTeamForm from './Partials/DeleteTeamForm.vue';
 import TeamMemberManager from './Partials/TeamMemberManager.vue';
 import UpdateTeamNameForm from './Partials/UpdateTeamNameForm.vue';
+import { useTeam } from '../../domain/teams/useTeam';
+import { onMounted } from 'vue';
+import ActivityIndicator from '../../Components/ActivityIndicator.vue';
 
+const { teamConfig, loadTeamConfig } = useTeam();
 const props = defineProps({
-  hasTeam: Boolean,
-  team: Object,
-  permissions: Object,
-  availableRoles: Array,
-  teamOwner: Boolean,
-  project: Object,
+  project: {
+    type: Object,
+    required: true,
+  },
+});
+
+onMounted(async () => {
+  const projectId = props.project.id;
+  if (!teamConfig.value?.projectId !== projectId) {
+    await loadTeamConfig({ projectId });
+  }
 });
 </script>
 
 <template>
-  <CreateTeamForm :projectId="project.id" v-if="!hasTeam" />
+  <CreateTeamForm
+    :projectId="project.id"
+    v-if="teamConfig.loaded && !teamConfig.hasTeam"
+  />
   <UpdateTeamNameForm
-    v-if="hasTeam"
-    :team="team"
-    :permissions="props.permissions"
+    v-if="teamConfig.loaded && teamConfig.hasTeam"
+    :team="teamConfig.team"
+    :permissions="teamConfig.permissions"
   />
   <TeamMemberManager
-    v-if="hasTeam"
-    :team="team"
-    :available-roles="availableRoles"
-    :user-permissions="props.permissions"
-    :team-owner="teamOwner"
+    v-if="teamConfig.loaded && teamConfig.hasTeam"
+    :team="teamConfig.team"
+    :available-roles="teamConfig.availableRoles"
+    :user-permissions="teamConfig.permissions"
+    :team-owner="teamConfig.teamOwner"
     :project="project"
   />
   <DeleteTeamForm
-    v-if="permissions?.canDeleteTeam && !team.personal_team"
+    v-if="
+      teamConfig.loaded &&
+      teamConfig.permissions?.canDeleteTeam &&
+      !teamConfig.team.personal_team
+    "
     class="mt-10 sm:mt-0"
-    :team="team"
+    :team="teamConfig.team"
   />
+  <ActivityIndicator v-if="!teamConfig.loaded"
+    >Loading Project Team Settings</ActivityIndicator
+  >
 </template>
 
 <style scoped></style>

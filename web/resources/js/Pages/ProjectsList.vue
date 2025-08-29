@@ -15,7 +15,6 @@ import { useProjects } from '../domain/project/useProjects.js';
 import HelpResources from '../Components/HelpResources.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
 
-defineProps(['audits']);
 sessionStorage.clear();
 
 const projectSelected = async () => {};
@@ -49,7 +48,7 @@ const createProjectSchema = ref(null);
               Select a project from the list or create a new one. You can search
               for project titles, descriptions and ids.
             </div>
-            <HelpResources class="space-y-4" />
+            <HelpResources class="flex flex-col gap-4" />
           </div>
         </div>
       </BaseContainer>

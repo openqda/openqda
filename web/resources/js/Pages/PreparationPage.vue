@@ -22,7 +22,7 @@
               In order to code any sources you either create a new empty file or
               import existing ones.
             </div>
-            <HelpResources class="space-y-4" />
+            <HelpResources class="flex flex-col gap-4" />
           </div>
         </div>
         <div v-show="editorSourceRef.selected === true" class="mt-3">
@@ -49,7 +49,7 @@
               </div>
             </template>
             <template #actions>
-              <div class="flex items-center space-x-2 me-2">
+              <div class="flex items-center gap-2 me-2">
                 <Button
                   v-if="
                     editorSourceRef.CanUnlock && !editorSourceRef.hasSelections

@@ -122,7 +122,7 @@ const cancel = () => {
     <template #footer>
       <div class="flex justify-between items-center w-full">
         <Button variant="outline" @click="cancel">Cancel</Button>
-        <span class="flex-grow text-right mx-1">
+        <span class="grow text-right mx-1">
           <ActionMessage
             v-if="!complete && !error"
             :on="submitting"

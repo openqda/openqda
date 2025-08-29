@@ -48,3 +48,30 @@ Project.create = {
     return { response, error };
   },
 };
+
+Project.update = {
+  method: async ({ projectId, ...payload }) => {
+    // Validate the project details. For example, check if the name is empty.
+    if (!projectId) {
+      throw new Error('A projectId is required.');
+    }
+
+    const { response, error } = await request({
+      url: `/projects/update/${projectId}`,
+      type: 'post',
+      body: payload,
+    });
+
+    if (error) {
+      const message = `An error occurred while updating the project: ${response.data.message}`;
+      throw new Error(message);
+    }
+
+    if (!response.data.success) {
+      const message = `Failed to update project: ${response.data.message}`;
+      throw new Error(message);
+    }
+
+    return { response, error };
+  },
+};

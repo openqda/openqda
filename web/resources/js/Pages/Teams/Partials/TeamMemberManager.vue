@@ -19,6 +19,7 @@ import { asyncTimeout } from '../../../utils/asyncTimeout.js';
 import Headline3 from '../../../Components/layout/Headline3.vue';
 import { flashMessage } from '../../../Components/notification/flashMessage.js';
 import ActivityIndicator from '../../../Components/ActivityIndicator.vue';
+import { useTeam } from '../../../domain/teams/useTeam.js';
 
 const props = defineProps({
   team: Object,
@@ -47,23 +48,26 @@ const managingRoleFor = ref(null);
 const confirmingLeavingTeam = ref(false);
 const confirmingMakeOwner = ref(false);
 const teamMemberBeingRemoved = ref(null);
+const { loadTeamConfig } = useTeam();
 
 const addTeamMember = () => {
   addTeamMemberForm.post(route('team-members.store', props.team), {
     errorBag: 'addTeamMember',
     preserveScroll: true,
-    onSuccess: () => {
+    onSuccess: async () => {
       addTeamMemberForm.reset();
       addTeamMemberForm.role = props.availableRoles[0].key;
+      await loadTeamConfig({ projectId: props.project.id });
     },
     onError: (err) => flashMessage(err.message, { type: 'error ' }),
   });
 };
 
-const cancelTeamInvitation = (invitation) => {
-  router.delete(route('team-invitations.destroy', invitation), {
+const cancelTeamInvitation = async (invitation) => {
+  await router.delete(route('team-invitations.destroy', invitation), {
     preserveScroll: true,
   });
+  await loadTeamConfig({ projectId: props.project.id });
 };
 
 const manageRole = (teamMember) => {
@@ -77,7 +81,10 @@ const updateRole = () => {
     route('team-members.update', [props.team, managingRoleFor.value]),
     {
       preserveScroll: true,
-      onSuccess: () => (currentlyManagingRole.value = false),
+      onSuccess: async () => {
+        currentlyManagingRole.value = false;
+        await loadTeamConfig({ projectId: props.project.id });
+      },
     }
   );
 };
@@ -86,10 +93,11 @@ const confirmLeavingTeam = () => {
   confirmingLeavingTeam.value = true;
 };
 
-const leaveTeam = () => {
-  leaveTeamForm.delete(
+const leaveTeam = async () => {
+  await leaveTeamForm.delete(
     route('team-members.destroy', [props.team, usePage().props.auth.user])
   );
+  await loadTeamConfig({ projectId: props.project.id });
 };
 
 /**
@@ -104,8 +112,9 @@ const makeOwner = () => {
   router.post(route('team-members.make-owner'), payload, {
     preserveScroll: true,
     reload: true,
-    onSuccess: () => {
+    onSuccess: async () => {
       confirmingMakeOwner.value = false;
+      await loadTeamConfig({ projectId: props.project.id });
     },
   });
 };
@@ -121,7 +130,10 @@ const removeTeamMember = async () => {
       errorBag: 'removeTeamMember',
       preserveScroll: true,
       preserveState: true,
-      onSuccess: () => (teamMemberBeingRemoved.value = null),
+      onSuccess: async () => {
+        teamMemberBeingRemoved.value = null;
+        await loadTeamConfig({ projectId: props.project.id });
+      },
     }
   );
 
@@ -141,7 +153,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="flex flex-col gap-6">
     <div>
       <!-- Team Owner Information -->
       <InputLabel class="mb-3">
@@ -182,7 +194,7 @@ onMounted(() => {
               >
             </InputLabel>
           </div>
-          <div class="space-y-6">
+          <div class="flex flex-col gap-6">
             <div
               v-for="user in team.users"
               :key="user.id"
@@ -202,7 +214,7 @@ onMounted(() => {
                 </div>
               </div>
 
-              <div class="flex items-center space-x-2">
+              <div class="flex items-center gap-2">
                 <!-- Manage Team Member Role -->
 
                 <Button
@@ -275,7 +287,7 @@ onMounted(() => {
 
         <!-- Pending Team Member Invitation List -->
         <template #content>
-          <div class="space-y-6">
+          <div class="flex flex-col gap-6">
             <div
               v-for="invitation in team.team_invitations"
               :key="invitation.id"
@@ -289,7 +301,7 @@ onMounted(() => {
                 <!-- Cancel Team Invitation -->
                 <button
                   v-if="userPermissions.canRemoveTeamMembers"
-                  class="cursor-pointer ml-6 text-sm text-red-700 focus:outline-none"
+                  class="cursor-pointer ml-6 text-sm text-red-700 focus:outline-hidden"
                   @click="cancelTeamInvitation(invitation)"
                 >
                   Cancel
@@ -317,7 +329,7 @@ onMounted(() => {
               v-for="(role, i) in availableRoles"
               :key="role.key"
               type="button"
-              class="relative px-4 py-3 inline-flex w-full rounded-lg focus:z-10 focus:outline-none focus:border-cerulean-700 focus:ring-2 focus:ring-cerulean-700"
+              class="relative px-4 py-3 inline-flex w-full rounded-lg focus:z-10 focus:outline-hidden focus:border-cerulean-700 focus:ring-2 focus:ring-cerulean-700"
               :class="{
                 'border-t border-gray-200 focus:border-none rounded-t-none':
                   i > 0,
@@ -396,7 +408,7 @@ onMounted(() => {
 
         <template #form>
           <!-- Member Email -->
-          <div class="col-span-6 sm:col-span-4 space-y-3">
+          <div class="col-span-6 sm:col-span-4 flex flex-col gap-3">
             <InputLabel for="email" value="Email" />
             <InputField
               id="email"
@@ -414,7 +426,7 @@ onMounted(() => {
           <!-- Role -->
           <div
             v-if="availableRoles.length > 0"
-            class="col-span-6 lg:col-span-4 space-y-3 mt-5 hidden"
+            class="col-span-6 lg:col-span-4 flex flex-col gap-3 mt-5 hidden"
           >
             <InputLabel for="roles" value="Role" />
             <InputError :message="addTeamMemberForm.errors.role" class="mt-2" />
@@ -426,7 +438,7 @@ onMounted(() => {
                 v-for="(role, i) in availableRoles"
                 :key="role.key"
                 type="button"
-                class="relative px-4 py-3 inline-flex w-full rounded-lg focus:z-10 focus:outline-none focus:border-cerulean-700 focus:ring-2 focus:ring-cerulean-700"
+                class="relative px-4 py-3 inline-flex w-full rounded-lg focus:z-10 focus:outline-hidden focus:border-cerulean-700 focus:ring-2 focus:ring-cerulean-700"
                 :class="{
                   'border-t border-gray-200 focus:border-none rounded-t-none':
                     i > 0,

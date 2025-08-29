@@ -91,24 +91,29 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
     /**
      * Get all projects where the user is part of the team or the creator.
      */
-    public function allRelatedProjects(): Collection|array|\LaravelIdea\Helper\App\Models\_IH_Project_C
+    public function allRelatedProjects($withAudits = false): Collection|array|\LaravelIdea\Helper\App\Models\_IH_Project_C
     {
         // Get the ids of all the teams the user belongs to
         $teamIds = $this->teams->pluck('id');
 
         // Use whereHas to filter projects where the user is part of the team
         // or where the user is the creator
-        return Project::whereHas('team', function (Builder $query) use ($teamIds) {
+        $query = Project::whereHas('team', function (Builder $query) use ($teamIds) {
             $query->whereIn('id', $teamIds);
         })
             ->orWhere('creating_user_id', $this->id)
-            ->with([
+            ->withCount('sources');
+
+        if ($withAudits) {
+            $query->with([
                 'audits',
                 'sources.audits',
                 'sources.selections.audits',
                 'codebooks.codes.audits',
-            ])
-            ->get();
+            ]);
+        }
+
+        return $query->get();
     }
 
     public function getAllAudits($filters = [])
@@ -116,7 +121,7 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
         $auditService = app(AuditService::class); // manually resolving the service from the container
 
         // Eager load audits for all related models
-        $projects = $this->allRelatedProjects();
+        $projects = $this->allRelatedProjects(true);
 
         $allAudits = collect();
 
@@ -182,10 +187,9 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
      */
     public function getCodebooksAsCreator($excludeProjectId = null)
     {
-        $query = Codebook::with('codes')
+        $query = Codebook::withCount('codes')
             ->where('creating_user_id', '=', $this->id)
             ->whereHas('project', function ($query) use ($excludeProjectId) {
-                // Exclude codebooks from the specified project if an ID is provided
                 if (! is_null($excludeProjectId)) {
                     $query->where('id', '!=', $excludeProjectId);
                 }
@@ -197,7 +201,7 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
                 'name' => $codebook->name,
                 'description' => $codebook->description,
                 'properties' => $codebook->properties,
-                'codes' => $codebook->codes,
+                'codes_count' => $codebook->codes_count, // Use count instead of full codes
                 'project_id' => $codebook->project_id,
                 // Include other codebook attributes as needed
                 'creatingUserEmail' => $codebook->creatingUser->email ?? '', // Include the creating user's email

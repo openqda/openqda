@@ -2,7 +2,7 @@
   <div :class="cn(props.class)">
     <div class="flex h-full">
       <div
-        class="flex w-16 flex-shrink-0 items-center justify-center rounded-tl-md rounded-bl-md text-sm font-normal overflow-visible text-white border-t border-b border-l border-border"
+        class="flex w-16 shrink-0 items-center justify-center rounded-tl-md rounded-bl-md text-sm font-normal overflow-visible text-white border-t border-b border-l border-border"
         :style="getBackgroundStyle(codebook)"
       >
         <button
@@ -13,7 +13,7 @@
         </button>
       </div>
       <div
-        class="relative flex-grow flex items-start justify-between rounded-tr-md rounded-br-md border-b border-r border-t border-gray-200 bg-surface text-foreground"
+        class="relative grow flex items-start justify-between rounded-tr-md rounded-br-md border-b border-r border-t border-gray-200 bg-surface text-foreground"
       >
         <div class="flex-1 px-4 py-2 text-sm">
           <a
@@ -27,17 +27,21 @@
             {{ codebook.description }}
           </p>
           <p class="text-foreground/60 text-xs" v-if="props.showEmail">
-            {{ codebook.creatingUserEmail }}
+            {{
+              codebook.creatingUserEmail || codebook.creatingUser?.email || ''
+            }}
           </p>
           <p class="text-foreground/60">
             {{
-              codebook.codes && codebook.codes.length
-                ? codebook.codes.length
-                : 0
+              codebook.codes_count !== undefined
+                ? codebook.codes_count
+                : codebook.codes && codebook.codes.length
+                  ? codebook.codes.length
+                  : 0
             }}
             Codes
           </p>
-          <div class="flex items-center space-x-2 font-mono align-center">
+          <div class="flex items-center gap-2 font-mono align-center">
             <div class="flex items-center">
               <div
                 class="w-2 h-2 rounded-full mr-1 shadow-xl box-decoration-slice"
@@ -54,11 +58,11 @@
           </div>
         </div>
 
-        <div class="flex-shrink-0 pr-2 self-start mt-2">
+        <div class="shrink-0 pr-2 self-start mt-2">
           <Dropdown>
             <template #trigger>
               <button
-                class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent text-foreground hover:text-secondary focus:outline-none"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent text-foreground hover:text-secondary focus:outline-hidden"
               >
                 <span class="sr-only">Open options</span>
                 <EllipsisVerticalIcon class="h-5 w-5" aria-hidden="true" />
@@ -180,10 +184,22 @@ const reorderCodes = (codesArray) => {
 };
 
 const getBackgroundStyle = function (target) {
-  // Check if there are any codes
-  if (!target.codes || target.codes.length === 0) {
+  // Check if there are any codes or if codes_count is 0
+  const codesCount =
+    target.codes_count !== undefined
+      ? target.codes_count
+      : target.codes
+        ? target.codes.length
+        : 0;
+
+  if (codesCount === 0 || !target.codes || target.codes.length === 0) {
     // Return a default style for the empty rectangle
     return `background-color: #E5E7EB;`; // This is a light gray color, adjust as needed
+  }
+
+  // If codes array is not available (e.g., from API), return default
+  if (!target.codes || !Array.isArray(target.codes)) {
+    return `background-color: #E5E7EB;`;
   }
 
   // If there's only one code color, return a single color style

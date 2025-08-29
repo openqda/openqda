@@ -6,7 +6,9 @@ import InputError from '../../../form/InputError.vue';
 import InputLabel from '../../../form/InputLabel.vue';
 import InputField from '../../../form/InputField.vue';
 import Button from '../../../Components/interactive/Button.vue';
+import { useTeam } from '../../../domain/teams/useTeam.js';
 
+const { loadTeamConfig } = useTeam();
 const props = defineProps({
   team: Object,
   permissions: Object,
@@ -16,11 +18,12 @@ const form = useForm({
   name: props.team.name,
 });
 
-const updateTeamName = () => {
-  form.put(route('teams.update', props.team), {
+const updateTeamName = async () => {
+  await form.put(route('teams.update', props.team), {
     errorBag: 'updateTeamName',
     preserveScroll: true,
   });
+  await loadTeamConfig({ projectId: props.team.project_id });
 };
 </script>
 

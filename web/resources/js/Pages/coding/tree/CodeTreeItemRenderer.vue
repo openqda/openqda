@@ -151,7 +151,7 @@ const { range } = useRange();
         variant="default"
         size="sm"
         :disabled="sorting"
-        class="bg-transparent !text-foreground hover:text-background w-4 !p-0 rounded"
+        class="bg-transparent text-foreground! hover:text-background w-4 p-0! rounded"
         @click="toggle()"
       >
         <ChevronRightIcon
@@ -169,7 +169,7 @@ const { range } = useRange();
       <div
         :class="
           cn(
-            'w-full tracking-wide rounded-md px-2 py-1 text-sm text-foreground dark:text-background group hover:shadow',
+            'w-full tracking-wide rounded-md px-2 py-1 text-sm text-foreground dark:text-background group hover:shadow-sm',
             sorting && 'cursor-grab'
           )
         "
@@ -184,22 +184,22 @@ const { range } = useRange();
               'w-full h-full text-left flex',
               code.active
                 ? 'hover:font-semibold'
-                : 'cursor-not-allowed text-opacity-20',
+                : 'cursor-not-allowed text-foreground/20',
               'contrast-text'
             )
           "
         >
-          <span class="line-clamp-1 flex-grow">{{ code.name }}</span>
+          <span class="line-clamp-1 grow">{{ code.name }}</span>
           <span class="text-xs ms-auto font-normal hidden group-hover:inline"
             >Assign to {{ range.start }}:{{ range.end }}</span
           >
         </button>
-        <ContrastText v-else class="line-clamp-1 flex-grow items-center"
+        <ContrastText v-else class="line-clamp-1 grow items-center"
           >{{ code.name }}
         </ContrastText>
       </div>
 
-      <div class="flex justify-between items-center space-x-2">
+      <div class="flex justify-between items-center gap-2">
         <!-- show texts -->
         <Button
           :title="showTexts ? 'Hide selections list' : 'Show selections list'"
@@ -207,7 +207,7 @@ const { range } = useRange();
           size="sm"
           :class="
             cn(
-              '!px-1 !py-1 !my-0 w-8 text-xs hover:text-secondary',
+              'px-1! py-1! my-0! w-8 text-xs hover:text-secondary',
               showTexts && 'text-secondary'
             )
           "
@@ -288,7 +288,10 @@ const { range } = useRange();
         :style="`border-color: ${changeOpacity(code.color ?? 'rgba(0,0,0,1)', 1)};`"
         class="bg-surface border text-sm ms-4 me-16 my-1 rounded"
       >
-        <SelectionList :texts="sortedTexts" />
+        <SelectionList
+          :texts="sortedTexts"
+          :color="code.color ?? 'rgba(0,0,0,1)'"
+        />
       </div>
     </Collapse>
   </div>

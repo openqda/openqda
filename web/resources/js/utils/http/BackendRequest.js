@@ -61,6 +61,16 @@ class BackendRequest {
       this.response = error.response ?? null;
       this.error = error;
     }
+
+    if (
+      !this.error &&
+      this.response &&
+      this.response.success === false &&
+      this.response.message
+    ) {
+      this.error = new Error(this.response.message);
+    }
+
     return this;
   }
 }

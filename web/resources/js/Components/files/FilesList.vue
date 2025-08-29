@@ -125,7 +125,7 @@
             class="inline-flex justify-center w-full p-1 clickable"
           >
             <ExclamationTriangleIcon
-              class="w-5 h-5 !text-destructive rounded-md font-semibold"
+              class="w-5 h-5 text-destructive! rounded-md font-semibold"
             />
           </div>
           -->
@@ -159,7 +159,7 @@
             class="inline-flex justify-center w-full p-1 clickable"
           >
             <ExclamationTriangleIcon
-              class="w-5 h-5 !text-destructive rounded-md font-semibold"
+              class="w-5 h-5 text-destructive! rounded-md font-semibold"
             />
           </div>
           <!-- TODO make this open-close impl -->

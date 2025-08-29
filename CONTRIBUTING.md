@@ -35,7 +35,7 @@ This guide targets everyone who wants to contribute to
 - translation (i18n), language, grammar and typos
 
 Other contributions can be done here:
-- [user documentation](https://github.com/openqda/user-docs))
+- [user documentation](https://github.com/openqda/user-docs)
 - [report bugs and issues](https://github.com/openqda/openqda/issues)
 - [discuss new features, ideas or questions](https://github.com/orgs/openqda/discussions)
 
@@ -60,14 +60,14 @@ Then you need to clone the repository
 
 ### Create a new branch
 
-Make sure, your have [installed OpenQDA](./docs/INSTALLATION.md) and 
+Make sure, that you have [installed OpenQDA](https://openqda.github.io/openqda/installation/preparations.html) and 
 that it runs locally.
 
 You should always start your contribution on a new branch, coming from
 the latest state of the `main` branch:
 
 ```shell
-$ get checkout main
+$ git checkout main
 $ git pull --ff-only
 ```
 

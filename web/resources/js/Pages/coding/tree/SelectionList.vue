@@ -4,20 +4,27 @@ import { attemptAsync } from '../../../Components/notification/attemptAsync';
 import { useSelections } from '../selections/useSelections';
 import { useCodingEditor } from '../useCodingEditor';
 import ProfileImage from '../../../Components/user/ProfileImage.vue';
+import { rgbToHex } from '../../../utils/color/toHex';
 
 const props = defineProps({
   texts: Array,
+  color: String,
 });
+
+const hexCol = props.color.startsWith('#')
+  ? props.color
+  : rgbToHex(props.color);
 const Selections = useSelections();
 const { focusSelection } = useCodingEditor();
 </script>
 
 <template>
-  <ul class="divide-y divide-border">
+  <ul class="divide-y">
     <li
       v-for="selection in props.texts"
       class="p-3 hover:bg-background/20"
       :key="selection.id"
+      :style="{ borderColor: hexCol }"
     >
       <div
         class="w-full flex items-center justify-between tracking-wider text-xs font-semibold"

@@ -4,6 +4,7 @@ import Button from '../../Components/interactive/Button.vue';
 import {
   PlusIcon,
   ChevronDownIcon,
+  DocumentDuplicateIcon,
   UsersIcon,
   KeyIcon,
 } from '@heroicons/vue/24/outline';
@@ -16,6 +17,7 @@ import { cn } from '../../utils/css/cn.js';
 import Headline3 from '../../Components/layout/Headline3.vue';
 import { onMounted, ref } from 'vue';
 import { isInViewport } from '../../utils/dom/isInViewport.js';
+import ActivityIndicator from '../../Components/ActivityIndicator.vue';
 
 defineEmits(['create-project']);
 
@@ -30,6 +32,12 @@ const {
 } = useProjects();
 
 const scrollRefs = ref();
+const loadingProjectId = ref(null);
+
+const handleProjectClick = (projectId) => {
+  loadingProjectId.value = projectId;
+};
+
 const focusCurrent = () => {
   if (currentProject?.name && scrollRefs.value) {
     const li = scrollRefs.value.find((item) => {
@@ -121,13 +129,14 @@ onMounted(() => {
       "
     >
       <Link
-        class="flex items-center space-x-4"
+        class="flex items-center gap-4"
         :href="Routes.project.path(entry.id)"
         :title="
           currentProject?.id === entry.id
             ? 'Current selected project'
             : `Open and edit ${entry.name}`
         "
+        @click="handleProjectClick(entry.id)"
       >
         <div class="flex-1">
           <Headline3 class="line-clamp-1">{{ entry.name }}</Headline3>
@@ -135,12 +144,22 @@ onMounted(() => {
             {{ entry.description }}
           </p>
         </div>
-        <span class="self-center" title="Collaborative">
-          <UsersIcon v-if="entry.isCollaborative" class="w-4 h-4" />
-        </span>
-        <span class="self-center" title="I own this project">
-          <KeyIcon v-if="entry.isOwner" class="w-4 h-4" />
-        </span>
+        <ActivityIndicator
+          v-if="loadingProjectId === entry.id"
+          class="text-primary"
+        />
+        <template v-else>
+          <span class="self-center" title="Collaborative">
+            <UsersIcon v-if="entry.isCollaborative" class="w-4 h-4" />
+          </span>
+          <span class="self-center" title="I own this project">
+            <KeyIcon v-if="entry.isOwner" class="w-4 h-4" />
+          </span>
+          <span class="self-center flex" title="Sources in this project">
+            <DocumentDuplicateIcon class="w-4 h-4" />
+            <small>{{ entry.sourcesCount ?? 0 }}</small>
+          </span>
+        </template>
         <div class="text-center w-1/6">
           <div class="text-xs text-foreground/50">date</div>
           <div class="text-sm">
