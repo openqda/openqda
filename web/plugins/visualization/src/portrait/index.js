@@ -20,4 +20,9 @@ export default {
    * load Vue component
    */
   load: () => import('./CodePortrait.vue'),
+
+  /**
+   * let host render options button
+   */
+  hasOptions: true,
 };

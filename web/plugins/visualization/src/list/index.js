@@ -19,4 +19,9 @@ export default {
    * load Vue component
    */
   load: () => import('./ListView.vue'),
+
+  /**
+   * let host render options button
+   */
+  hasOptions: true,
 };

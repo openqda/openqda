@@ -12,12 +12,17 @@ const props = defineProps([
   'checkedSources',
   'checkedCodes',
   'hasSelections',
+  'menu',
+  'showMenu',
 ]);
 
 const API = inject('api');
 const segments = ref(new Map());
 const currentSources = ref([]);
 const gridSize = ref(1);
+const scale = ref(1);
+const gap = ref(1);
+const radius = ref(0);
 
 const getSegmentsForFile = (file) => {
   const codes = props.codes.filter(
@@ -91,54 +96,132 @@ const rgba2hex = (color) => {
 };
 </script>
 <template>
-  <div class="block w-full">
-    <div class="block text-right">
-      <label for="portrait-grid-size" class="mr-2">Columns</label>
-      <input
-        id="portrait-grid-size"
-        class="rounded focus:ring-1 focus:ring-inset focus:ring-cerulean-700"
-        type="number"
-        v-model="gridSize"
-        min="1"
-        max="6"
-      />
-    </div>
-    <div :class="API.cn(`grid gap-3 my-5`, getColumns(gridSize))">
-      <div
-        v-for="source in currentSources"
-        class="border border-silver-300 p-2 col-span-1"
-        :key="source.id"
-      >
-        <h3 class="font-semibold tracking-wide flex">
-          <span class="truncate flex-grow">
-            {{ source.name }}
-          </span>
-          <XMarkIcon
-            class="float-right h-5 w-5 text-silver-300 hover:text-porsche-400 cursor-pointer"
-            @click="$emit('remove', source.id)"
+  <div>
+    <component
+      :is="props.menu"
+      title="Code Portrait options"
+      :show="props.showMenu"
+      @close="API.setShowMenu(false)"
+    >
+      <ul class="p-4 flex flex-col gap-4">
+        <li>
+          <label class="text-left text-xs font-medium uppercase w-full">
+            Columns
+          </label>
+          <input
+            id="portrait-grid-size"
+            class="w-full rounded focus:ring-1 focus:ring-inset focus:ring-primary"
+            type="number"
+            v-model="gridSize"
+            min="1"
+            max="6"
           />
-        </h3>
-        <div class="flex flex-wrap">
-          <span
-            v-for="(entry, index) in segments.get(source.id)"
-            :key="`${source.id}-${index}`"
-            :title="`${entry.segment.start}-${entry.segment.end};\n\n${entry.segment.text.substring(0, 250)}...`"
-            class="m-1"
+        </li>
+        <li>
+          <label
+            class="text-left text-xs font-medium uppercase w-full flex justify-between"
           >
-            <EllipsisHorizontalCircleIcon
-              :style="{
-                color: entry.color,
-                backgroundColor: entry.color,
-              }"
-              class="w-4 h-4"
-            />
-          </span>
-        </div>
+            <span>Scale</span>
+            <span>{{ scale }}</span>
+          </label>
+          <input
+            type="range"
+            v-model="scale"
+            min="0.5"
+            max="10"
+            step="0.5"
+            class="w-full"
+          />
+        </li>
+        <li>
+          <label
+            class="text-left text-xs font-medium uppercase w-full flex justify-between"
+          >
+            <span>Gap</span>
+            <span>{{ gap }}</span>
+          </label>
+          <input
+            type="range"
+            v-model="gap"
+            min="0"
+            max="5"
+            step="1"
+            class="w-full"
+          />
+        </li>
+        <li>
+          <label
+            class="text-left text-xs font-medium uppercase w-full flex justify-between"
+          >
+            <span>Radius</span>
+            <span>{{ radius }}</span>
+          </label>
+          <input
+            type="range"
+            v-model="radius"
+            min="0"
+            max="5"
+            step="1"
+            class="w-full"
+          />
+        </li>
+      </ul>
+    </component>
+    <div class="block w-full">
+      <div :class="API.cn(`grid gap-3 my-5`, getColumns(gridSize))">
         <div
-          v-if="!segments.has(source.id)"
-          class="ml-2 mt-2 p-2 bg-silver-100"
+          v-for="source in currentSources"
+          class="border border-silver-300 p-2 col-span-1"
+          :key="source.id"
         >
-          No codes
+          <h3 class="font-semibold tracking-wide flex">
+            <span class="truncate flex-grow">
+              {{ source.name }}
+            </span>
+            <XMarkIcon
+              class="float-right h-5 w-5 text-silver-300 hover:text-porsche-400 cursor-pointer"
+              @click="$emit('remove', source.id)"
+            />
+          </h3>
+          <div class="flex flex-wrap">
+            <span
+              v-for="(entry, index) in segments.get(source.id)"
+              :key="`${source.id}-${index}`"
+              :title="`${entry.segment.start}-${entry.segment.end};\n\n${entry.segment.text.substring(0, 250)}...`"
+              :class="
+                API.cn(
+                  gap == 1 && 'm-1',
+                  gap == 2 && 'm-2',
+                  gap == 3 && 'm-3',
+                  gap == 4 && 'm-4',
+                  gap == 5 && 'm-5'
+                )
+              "
+            >
+              <EllipsisHorizontalCircleIcon
+                :class="
+                  API.cn(
+                    radius == 1 && 'rounded-sm',
+                    radius == 2 && 'rounded-md',
+                    radius == 3 && 'rounded-xl',
+                    radius == 4 && 'rounded-2xl',
+                    radius == 5 && 'rounded-full'
+                  )
+                "
+                :style="{
+                  color: entry.color,
+                  backgroundColor: entry.color,
+                  height: `${scale}rem`,
+                }"
+              />
+            </span>
+          </div>
+          <div
+            v-if="!segments.has(source.id)"
+            class="ml-2 mt-2 p-2 bg-silver-100"
+          >
+            No codes
+          </div>
         </div>
       </div>
     </div>
