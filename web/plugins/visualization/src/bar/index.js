@@ -18,7 +18,7 @@ export default {
   /**
    * load Vue component
    */
-  load: () => import('./GroupedBarChart.vue'),
+  load: () => import('./BarChart.vue'),
 
   /**
    * let host render options button
