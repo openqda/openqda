@@ -99,7 +99,7 @@ const rgba2hex = (color) => {
   <div>
     <component
       :is="props.menu"
-      title="Word Cloud options"
+      title="Code Portrait options"
       :show="props.showMenu"
       @close="API.setShowMenu(false)"
     >
