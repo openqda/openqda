@@ -140,7 +140,7 @@
                     item.current
                       ? 'w-full justify-center rounded-none text-center bg-surface text-secondary rounded-l-md'
                       : 'text-foreground/50 hover:bg-surface hover:text-foreground/50',
-                    item.disabled && !item.current && 'cursor-not-allowed'
+                    item.disabled && !item.current && 'cursor-not-allowed text-foreground/30 hover:text-foreground/30'
                   )
                 "
                 :aria-disabled="item.disabled"
@@ -166,14 +166,14 @@
                 </div>
               </div>
             </li>
-              <li :class="Help.isActive ? 'w-full text-center' : ''">
+              <li :class="helpIsActive ? 'w-full text-center' : ''">
                   <button
                       title="Help, contact, feedback"
-                      @click="Help.open"
+                      @click="openHelp"
                       :class="
                   cn(
                     'group flex gap-x-3 rounded-md p-3 text-sm font-semibold leading-6',
-                    Help.isActive
+                    helpIsActive
                       ? 'w-full justify-center rounded-none text-center bg-surface text-secondary rounded-l-md'
                       : 'text-foreground/50 hover:bg-surface hover:text-foreground/50',
                   )
@@ -269,10 +269,8 @@ import ProfileImage from '../Components/user/ProfileImage.vue';
 import { useConversion } from '../live/useConversion.js';
 import { flashMessage } from '../Components/notification/flashMessage.js';
 import { useDebug } from '../utils/useDebug.js';
-import Button from '../Components/interactive/Button.vue'
 import { useHelpDialog } from '../dialogs/help/useHelpDialog.js'
 import HelpDialog from '../dialogs/help/HelpDialog.vue'
-import ConfirmDialog from '../dialogs/ConfirmDialog.vue'
 
 const websocket = useWebSocketConnection();
 const navigation = ref([]);
@@ -288,7 +286,7 @@ const {
 } = useTeam();
 websocket.initWebSocket();
 const debug = useDebug({ scope: 'nav' });
-const Help = useHelpDialog();
+const { isActive: helpIsActive, open: openHelp } = useHelpDialog();
 
 const props = defineProps({
   title: String,
