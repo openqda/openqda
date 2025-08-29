@@ -124,7 +124,6 @@
             <span>{{ words.size }}</span>
           </label>
           <textarea
-            type="string"
             v-model="wordsList"
             rows="4"
             class="w-full resize-y p-1"
