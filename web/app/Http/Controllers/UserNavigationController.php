@@ -53,7 +53,7 @@ class UserNavigationController extends Controller
             function () use ($data) {
                 $ticketId = $data['userId'].time();
                 $target = config('mail.feedback.address');
-                Mail::to($target)->send(new UserFeedback($data, $ticketId, false));
+                Mail::to($target)->send(new UserFeedback($data, $ticketId));
             }
         );
 
