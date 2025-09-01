@@ -18,9 +18,10 @@ class UserFeedback extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct($data)
+    public function __construct($data, $ticketId = '')
     {
         $this->data = $data;
+        $this->ticketId = $ticketId;
     }
 
     /**
@@ -28,9 +29,11 @@ class UserFeedback extends Mailable
      */
     public function envelope(): Envelope
     {
+        $subject = '\[OpenQDA System\]: User Feedback #'.$this->ticketId;
+
         return new Envelope(
             from: new Address('no-reply@openqda.org', 'OpenQDA System'),
-            subject: '\[OpenQDA System\]: User Feedback',
+            subject: $subject,
         );
     }
 
@@ -39,11 +42,14 @@ class UserFeedback extends Mailable
      */
     public function content(): Content
     {
+        $view = 'emails.user-feedback';
+
         return new Content(
             // text: $this->text,
-            view: 'emails.user-feedback',
+            view: $view,
             with: [
                 'data' => $this->data,
+                'ticketId' => $this->ticketId,
             ],
         );
     }

@@ -2,17 +2,23 @@
 import Button from '../../Components/interactive/Button.vue';
 import DialogBase from '../DialogBase.vue';
 import { useHelpDialog } from './useHelpDialog';
-import { ChevronRightIcon } from "@heroicons/vue/24/solid";
-import {ref} from "vue";
-import TextInput from "../../form/TextInput.vue";
-import TextArea from "../../form/TextArea.vue";
-import Checkbox from "../../form/Checkbox.vue";
-import InputLabel from "../../form/InputLabel.vue";
-import ActivityIndicator from "../../Components/ActivityIndicator.vue";
+import ActivityIndicator from '../../Components/ActivityIndicator.vue';
 import { useSubmissionStatus } from '../useSubmissionStatus';
+import { useProjects } from '../../domain/project/useProjects';
+import AutoForm from '../../form/AutoForm.vue';
 
-const {isActive, close: closeHelp, submit} = useHelpDialog();
-const { setIdle, setDisabled, setError, setSubmitting, error, status, disabled, message, setSuccess } = useSubmissionStatus();
+const { isActive, close: closeHelp, submit } = useHelpDialog();
+const { projectId } = useProjects();
+const {
+  setIdle,
+  setError,
+  setSubmitting,
+  error,
+  status,
+  disabled,
+  message,
+  setSuccess,
+} = useSubmissionStatus();
 const emit = defineEmits(['closed']);
 defineProps({
   static: {
@@ -21,65 +27,73 @@ defineProps({
   },
 });
 
-const form = ref({
-  title: '',
-  summary: '',
-  screenshot: null,
-  attachLog: false,
-  sendCopy: false,
-  canContact: false,
-});
-const type = ref();
-const fileError = ref();
+const feedbackSchema = {
+  type: {
+    type: String,
+    label: 'Category',
+    formType: 'select',
+    required: true,
+    defaultValue: 'help',
+    options: [
+      { label: 'Help needed', value: 'help' },
+      { label: 'Report a Problem', value: 'bug' },
+      { label: 'Feedback', value: 'feedback' },
+    ],
+  },
+  summary: {
+    type: String,
+    label: 'Summary',
+    formType: 'textarea',
+    required: true,
+    placeholder: 'Please provide a brief summary of your request',
+  },
+  // TODO: uncomment when we have logging in place
+  // attachLog: {
+  //     type: Boolean,
+  //     label: 'Attach Browser Log',
+  //     required: false
+  // },
+  sendConfirm: {
+    type: Boolean,
+    label: 'Send a confirmation to my Email Address',
+    required: false,
+  },
+};
+
 const close = () => {
-  type.value = null;
-  fileError.value = null;
-  form.value = {
-      title: '',
-      summary: '',
-      screenshot: null,
-      attachLog: false,
-      sendCopy: false,
-      canContact: false,
-  };
+  setIdle();
   closeHelp();
   emit('closed');
 };
-const onFileChange = (e) => {
-    const files = e.target.files || e.dataTransfer.files;
-    if (!files.length) {
-        fileError.value = 'No file selected';
-        return;
-    }
-    const file = files[0];
-    if (file.size >  1e6 * 2) {
-        fileError.value = 'File size exceeds 2MB';
-        return;
-    }
-    form.value.screenshot = files[0];
-}
 
-const submitForm = async (e) => {
-    e.preventDefault();
-    setSubmitting();
-    const res = await submit({
-        type: type.value,
-        path: window.location.pathname,
-        query: Object.fromEntries(new URLSearchParams(window.location.search).entries()),
-        ...form.value
-    });
-    if (res.response?.success) {
-        setSuccess('Your request has been submitted successfully.');
-        setTimeout(() => {
-            close();
-            setIdle();
-        }, 1500);
-    } else {
-        setError(
-            res.error ?? new Error('An error occurred while submitting your request. Please try again later.')
-        );
-    }
-}
+const submitForm = async (formData) => {
+  setSubmitting();
+  const { summary, type, attachLog, sendConfirm } = formData;
+  const res = await submit({
+    projectId: projectId,
+    path: window.location.pathname,
+    query: window.location.search,
+    type,
+    summary,
+    attachLog: attachLog === 'on' || attachLog === true,
+    sendConfirm: sendConfirm === 'on' || sendConfirm === true,
+  });
+
+  if (res.response?.data?.sent) {
+    setSuccess('Your request has been submitted successfully.');
+    setTimeout(() => {
+      close();
+      setIdle();
+    }, 1500);
+  } else {
+    setError(
+      new Error(
+        res.response?.data?.message ??
+          'An error occurred while submitting your request. Please try again later.'
+      )
+    );
+  }
+};
 </script>
 
 <template>
@@ -90,43 +104,35 @@ const submitForm = async (e) => {
     @close="close"
   >
     <template #body>
-        <div v-if="!type" class="flex items-center my-3">
-            <img :src="$page.props.logo" alt="Qdi logo" width="64" height="64" />
-            <p class="text-sm">What can I do for you?</p>
-        </div>
-        <form v-if="!!type" id="feedbackForm" class="w-full" @submit.prevent="submitForm" :inert="disabled ? true : null">
-            <TextInput required v-model="form.title" label="Title" maxlength="50" class="w-full mb-3" />
-            <TextArea required v-model="form.summary" label="Summary" maxlength="3000" class="w-full mb-3" :rows="10" />
-            <InputLabel value="Attach a screenshot" class="mb-1" />
-            <input @change="onFileChange" type="file" accept="image/*" class="w-full mb-3" />
-            <span class="text-destructive">{{fileError}}</span>
-            <Checkbox v-model="form.attachLog" label="Attach the Browser's log output" class="mb-3" />
-            <Checkbox v-model="form.sendCopy" label="Send me a copy" class="mb-3" />
-            <Checkbox v-model="form.canContact" label="You can contact me back" class="mb-3" />
-        </form>
-        <ul v-else class="text-sm space-y-3">
-            <li class="flex">
-                <button @click="type = 'help'" class="flex-grow hover:font-semibold">I need help</button>
-                <ChevronRightIcon class="w-4 h-4 text-secondary" />
-            </li>
-            <li class="flex">
-                <button @click="type = 'bug'" class="flex-grow hover:font-semibold">I want to report a problem</button>
-                <ChevronRightIcon class="w-4 h-4 text-secondary" />
-            </li>
-            <li class="flex">
-                <button @click="type = 'feedback'" class="flex-grow hover:font-semibold">I want to give feedback</button>
-                <ChevronRightIcon class="w-4 h-4 text-secondary" />
-            </li>
-        </ul>
-        <div v-if="error" class="block w-full mt-4 text-destructive">{{error.message}}</div>
+      <div class="flex items-center my-3">
+        <img :src="$page.props.logo" alt="Qdi logo" width="64" height="64" />
+        <p class="text-sm">Let me know what's on your mind!</p>
+      </div>
+      <AutoForm
+        id="feedbackForm"
+        :autofocus="true"
+        :schema="feedbackSchema"
+        @submit="submitForm"
+        class="w-full"
+        :show-cancel="false"
+        :show-submit="false"
+      />
+      <div v-if="error" class="block w-full mt-4 text-destructive">
+        {{ error.message }}
+      </div>
+      <div v-if="message" class="block w-full mt-4">{{ message }}</div>
     </template>
     <template #footer>
       <div class="flex justify-between items-center w-full">
         <Button variant="outline" @click="close">Cancel</Button>
-          <span class="flex">
-            <ActivityIndicator v-if="status === 'submitting'" class="mr-1">submitting</ActivityIndicator>
-            <Button v-if="type" type="submit" :disabled="disabled" form="feedbackForm">Submit</Button>
-          </span>
+        <span class="flex">
+          <ActivityIndicator v-if="status === 'submitting'" class="mr-1"
+            >submitting</ActivityIndicator
+          >
+          <Button type="submit" :disabled="disabled" form="feedbackForm"
+            >Submit</Button
+          >
+        </span>
       </div>
     </template>
   </DialogBase>

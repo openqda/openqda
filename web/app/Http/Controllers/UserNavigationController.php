@@ -7,6 +7,7 @@ use App\Http\Requests\SendFeedbackRequest;
 use App\Mail\UserFeedback;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -39,9 +40,10 @@ class UserNavigationController extends Controller
      */
     public function feedback(SendFeedbackRequest $request)
     {
-
+        Log::info('Feedback attempt');
         $data = $request->feedbackData();
         $userId = $data['userId'];
+        Log::info('Feedback received from user '.$userId, $data);
 
         // In order to avoid spam and mail flooding
         // we rate-limit message sending
@@ -49,8 +51,9 @@ class UserNavigationController extends Controller
             'send-feedback:'.$userId,
             $perMinute = config('mail.feedback.perMinute'),
             function () use ($data) {
+                $ticketId = $data['userId'].time();
                 $target = config('mail.feedback.address');
-                Mail::to($target)->send(new UserFeedback($data));
+                Mail::to($target)->send(new UserFeedback($data, $ticketId, false));
             }
         );
 
