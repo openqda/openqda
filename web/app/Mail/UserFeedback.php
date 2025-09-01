@@ -15,6 +15,8 @@ class UserFeedback extends Mailable
 
     protected $data = [];
 
+    protected $ticketId = '';
+
     /**
      * Create a new message instance.
      */
