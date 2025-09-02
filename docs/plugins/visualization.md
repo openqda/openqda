@@ -104,7 +104,12 @@ const plugin = {
    * Dynamically load Vue component.
    * Must use dynamic imports!
    */
-  load: () => import('./MyVisualization.vue')
+  load: () => import('./MyVisualization.vue'),
+
+  /**
+   * let host render options button
+   */
+  hasOptions: true,
 };
 
 
@@ -124,6 +129,25 @@ until your result is satisfiable:
 
 ```vue
 <template>
+  <div>
+    <component
+        :is="props.menu"
+        title="My Plugin Options"
+        :show="props.showMenu"
+        @close="API.setShowMenu(false)"
+    >
+      <ul>
+        <li>
+          <label class="text-left text-xs font-medium uppercase w-full">
+            Show Empty Sources
+          </label>
+          <select v-model="showEmpty" class="w-full">
+            <option value="all">By Codes</option>
+            <option value="source">By Source</option>
+          </select>
+        </li>
+      </ul>
+    </component>  
     <div
         v-for="(source, index) in $props.sources"
         class="my-10 border-l border-l-border"
@@ -181,6 +205,7 @@ until your result is satisfiable:
             </div>
         </div>
     </div>
+  </div>
 </template>
 
 <script setup>
@@ -188,7 +213,6 @@ until your result is satisfiable:
 // as well as any hero icon
 // and any module you have installed within your plugin
 import { onMounted, ref, watch, inject } from 'vue';
-import { XMarkIcon } from '@heroicons/vue/24/solid';
 
 // this will tell OpenQDA that you removed
 // a source, which is the same as if you unchecked it
@@ -198,11 +222,13 @@ defineEmits(['remove']);
 // the current data, directly passed as props
 // in case you need fine-grained access
 const props = defineProps([
-    'sources',
-    'codes',
-    'checkedSources',
-    'checkedCodes',
-    'hasSelections',
+  'sources',
+  'codes',
+  'checkedSources',
+  'checkedCodes',
+  'hasSelections',
+  'menu',
+  'showMenu',
 ]);
 
 // unless you need fine-grained access,
@@ -213,37 +239,48 @@ const API = inject('api');
 // defined in OpenQDA, however, common components
 // are injected from the parent template.
 const { Headline3 } = inject('components');
-
 const codesList = ref(new Map());
+const options = ref({
+  showEmpty: false,
+});
 
-const rebuildList = () => {
+// compute intensive operations should be
+// debounced, so they do not block the UI
+const rebuildList = API.debounce(() => {
   props.sources.forEach((source) => {
     const c = API.getCodesForSource(source);
 
     if (c.length) {
-        codesList.value.set(source.id, c);
+      codesList.value.set(source.id, c);
     } else {
       codesList.value.delete(source.id);
     }
   });
-};
+}, 100);
 
-// watchers should use API.debounce, in order
-// to keep the plugin performant, as there
-// might lots of data and frequent changes,
-// causing heavy computations
-watch(props, API.debounce(rebuildList, 100), { immediate: true, deep: true });
+// watching the props deeply enables
+// to rebuild the list whenever something changes
+// from the "outside", such as un/selected Sources or Codes
+watch(props, rebuildList, { immediate: true, deep: true });
 
 // do not build the list for the first time,
 // before the component hasn't mounted! 
-onMounted(() => {
-    rebuildList();
-});
+onMounted(() => rebuildList());
 </script>
 ```
 
 You can view the existing plugins in `web/plugins/visualization` in order
 to get an idea of how they work.
+
+#### Conventions / Best Practices
+
+Here are some tips to speed up your plugin development:
+
+- Get familiar with [Vue 3](https://vuejs.org) and its reactivity model
+- Use the `API` before implementing your own logic. It provides
+  many useful functions to access the data.
+- Make sure your template has a single root element (e.g. a `<div>`) to avoid Vue warnings and potential quirks
+- Use the injected common components (e.g. `Headline3`) for a consistent look and feel
 
 ### API
 
@@ -269,7 +306,7 @@ From here, the plugin is automatically integrated in the Analysis page.
 
 ## Extending the default plugins
 
-> Important! If you intend to extend the default plugins for openqda.org
+> Important! If you intend to extend the default plugins for [openqda.org](https://openqda.org)
 > you will first need to reach consensus with the core team.
 > This is, because a default plugin will affect all users of OpenQDA and
 > we there take a closer look at the use-case and necessity, before

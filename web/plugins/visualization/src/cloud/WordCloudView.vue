@@ -1,77 +1,150 @@
 <template>
-  <div class="w-full block">
-    <div class="p-3 mb-5">
-      <table class="table-auto word-cloud-settings w-full">
-        <thead>
-          <tr>
-            <th scope="col" class="text-left text-xs font-medium uppercase">
-              Height
-            </th>
-            <th scope="col" class="text-left text-xs font-medium uppercase">
-              Min word length
-            </th>
-            <th scope="col" class="text-left text-xs font-medium uppercase">
-              Scale
-            </th>
-            <th scope="col" class="text-left text-xs font-medium uppercase">
-              + Size
-            </th>
-            <th scope="col" class="text-left text-xs font-medium uppercase">
-              <Cog6ToothIcon
-                v-if="generating"
-                class="animate-spin h-6 w-6 text-cerulean-700"
-              />
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>
-              <input type="number" v-model="minHeight" min="100" max="2000" />
-            </td>
-            <td>
-              <input type="number" v-model="minWords" min="1" />
-            </td>
-            <td>
-              <input
-                type="range"
-                v-model="scaleFactor"
-                min="1"
-                max="50"
-                step="1"
-              />
-              <span>{{ scaleFactor }}</span>
-            </td>
-            <td>
-              <input
-                type="range"
-                v-model="scaleAdd"
-                min="0"
-                max="50"
-                step="1"
-              />
-              <span>{{ scaleAdd }}</span>
-            </td>
-            <td>
-              <Button @click="rebuild" :disabled="generating">Refresh</Button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div
-      ref="resizeRef"
-      class="cloud-root"
-      :style="{ height: windowHeight + 'px' }"
+  <div>
+    <component
+      :is="props.menu"
+      title="Word Cloud options"
+      :show="props.showMenu"
+      @close="API.setShowMenu(false)"
     >
-      <svg ref="svgRef" id="cloud-svg">
-        <g ref="gRef"></g>
-      </svg>
-    </div>
-
-    <div class="text-center m-4">
-      <span class="p-2 border-t">{{ words.size }} unique words</span>
+      <ul class="p-4 flex flex-col gap-4">
+        <li>
+          <label class="text-left text-xs font-medium uppercase w-full">
+            Height
+          </label>
+          <input
+            type="number"
+            v-model="minHeight"
+            min="100"
+            max="2000"
+            class="w-full"
+          />
+        </li>
+        <li>
+          <label class="text-left text-xs font-medium uppercase w-full">
+            Min word length
+          </label>
+          <input type="number" v-model="minWords" min="1" class="w-full" />
+        </li>
+        <li>
+          <label class="text-left text-xs font-medium uppercase w-full">
+            <span>Scale</span>
+            <span class="float-end">{{ scaleFactor }}</span>
+          </label>
+          <input
+            type="range"
+            v-model="scaleFactor"
+            min="1"
+            max="50"
+            step="1"
+            class="w-full"
+          />
+        </li>
+        <li>
+          <label class="text-left text-xs font-medium uppercase w-full">
+            <span>Size</span>
+            <span class="float-end">{{ scaleAdd }}</span>
+          </label>
+          <input
+            type="range"
+            v-model="scaleAdd"
+            min="0"
+            max="50"
+            step="1"
+            class="w-full"
+          />
+        </li>
+        <li>
+          <label class="text-left text-xs font-medium uppercase w-full">
+            <span>Saturation</span>
+            <span class="float-end">{{ saturation }}</span>
+          </label>
+          <input
+            type="range"
+            v-model="saturation"
+            min="0"
+            max="100"
+            step="1"
+            class="w-full"
+          />
+        </li>
+        <li>
+          <label class="text-left text-xs font-medium uppercase w-full">
+            <span>Lighting</span>
+            <span class="float-end">{{ lighting }}</span>
+          </label>
+          <input
+            type="range"
+            v-model="lighting"
+            min="0"
+            max="100"
+            step="1"
+            class="w-full"
+          />
+        </li>
+        <li>
+          <label class="text-left text-xs font-medium uppercase w-full">
+            Include Words
+          </label>
+          <textarea
+            v-model="includes"
+            rows="2"
+            class="w-full resize-y p-1"
+            placeholder="...one word per line"
+          ></textarea>
+        </li>
+        <li>
+          <label class="text-left text-xs font-medium uppercase w-full">
+            Exclude Words
+          </label>
+          <textarea
+            v-model="excludes"
+            rows="2"
+            class="w-full resize-y p-1"
+            placeholder="...one word per line"
+          ></textarea>
+        </li>
+        <li>
+          <Button @click="rebuild" :disabled="generating">
+            <Cog6ToothIcon
+              v-if="generating"
+              class="animate-spin h-6 w-6 text-cerulean-700"
+            />
+            <span v-else>Force Refresh</span>
+          </Button>
+        </li>
+      </ul>
+      <ul class="p-4 flex flex-col gap-4">
+        <li>
+          <label
+            class="text-left text-xs font-medium uppercase w-full flex justify-between"
+          >
+            <span>All words</span>
+            <span>{{ words.size }}</span>
+          </label>
+          <textarea
+            v-model="wordsList"
+            rows="4"
+            class="w-full resize-y p-1"
+            placeholder="...one word per line"
+            readonly
+          ></textarea>
+        </li>
+      </ul>
+    </component>
+    <div class="w-full block">
+      <Cog6ToothIcon
+        v-if="generating"
+        class="animate-spin h-6 w-6 text-cerulean-700"
+      />
+      <div
+        ref="resizeRef"
+        class="cloud-root border border-border"
+        :style="{ height: windowHeight + 'px' }"
+      >
+        <svg ref="svgRef" id="cloud-svg">
+          <g ref="gRef"></g>
+        </svg>
+      </div>
     </div>
   </div>
 </template>
@@ -100,22 +173,28 @@ const props = defineProps([
   'checkedCodes',
   'hasSelections',
   'api',
+  'menu',
+  'showMenu',
 ]);
 
 const svgRef = ref(null);
 const gRef = ref(null);
 const { resizeRef, resizeState } = API.useResizeObserver();
 const words = ref(new Map());
+const wordsList = ref('');
 
 // options
 const minWords = ref(4);
-const underThresholdTransparency = ref(1.0);
 const scaleFactor = ref(12);
 const scaleAdd = ref(3);
 const seed = ref(Math.random());
 const generating = ref(false);
 const minHeight = ref(500);
 const windowHeight = ref(500);
+const includes = ref('');
+const excludes = ref('');
+const saturation = ref(75);
+const lighting = ref(50);
 
 function rebuild() {
   seed.value = Math.random();
@@ -133,7 +212,7 @@ onMounted(() => {
   const g = d3.select(gRef.value);
   const layout = cloud();
 
-  function draw(words, layout) {
+  function draw(words, layout, colors) {
     svg.attr('width', layout.size()[0]).attr('height', layout.size()[1]);
     g.selectAll('*').remove();
     g.attr(
@@ -147,8 +226,8 @@ onMounted(() => {
       .style('font-size', function (d) {
         return d.size + 'px';
       })
-      .style('fill', function (d) {
-        return randomColor(d.text);
+      .style('fill', function () {
+        return randomColor(colors.saturation, colors.lighting);
       })
       .style('font-family', 'Impact')
       .attr('text-anchor', 'middle')
@@ -163,7 +242,7 @@ onMounted(() => {
   }
 
   const _setupDebounced = API.debounce(
-    ({ width, height, wordsList, scale }) => {
+    ({ width, height, wordsList, scale, colors }) => {
       layout
         .size([width, height])
         .words(
@@ -182,7 +261,7 @@ onMounted(() => {
         .fontSize(function (d) {
           return d.size;
         })
-        .on('end', (words) => draw(words, layout));
+        .on('end', (words) => draw(words, layout, colors));
 
       layout.start();
     },
@@ -201,17 +280,34 @@ onMounted(() => {
 
   watchEffect(() => {
     const { width, height } = resizeState.dimensions;
-    const wordsList = [...words.value.entries()];
+    const colors = {
+      saturation: Number(saturation.value),
+      lighting: Number(lighting.value),
+    };
+    const excluded = wordsToSet(excludes.value);
+    const included = wordsToSet(includes.value);
+    const wordsList = [...words.value.entries()].filter((w) => {
+      const word = w[0].toLowerCase();
+      if (excluded.has(word)) {
+        return false;
+      }
+      if (included.has(word)) {
+        return true;
+      }
+      return w[0].length >= minWords.value;
+    });
     const scale = {
       factor: Number(scaleFactor.value),
       addition: Number(scaleAdd.value),
     };
-    setup({ width, height, wordsList, scale, seed: seed.value });
+    setup({ width, height, wordsList, scale, seed: seed.value, colors });
   });
 
   watchEffect(() => {
     const { sources, codes, checkedSources, checkedCodes } = props;
     words.value.clear();
+
+    const list = [];
 
     for (const source of sources) {
       if (checkedSources.get(source.id)) {
@@ -226,12 +322,10 @@ onMounted(() => {
                   .replace(/[^\w\s]+/g, '')
                   .split(/\s+/g)
                   .forEach((word) => {
-                    if (word.length < minWords.value) {
-                      return;
-                    }
                     const map = words.value;
                     if (!map.has(word)) {
                       map.set(word, 0);
+                      list.push(word);
                     }
                     map.set(word, map.get(word) + 1);
                   });
@@ -241,13 +335,23 @@ onMounted(() => {
         }
       }
     }
+
+    list.sort((a, b) => a.localeCompare(b));
+    wordsList.value = list.join('\n');
   });
 });
 
-const randomColor = (word) => {
-  return word.length > minWords.value
-    ? `hsla(${Math.random() * 360}, 75%, 50%, 1)`
-    : `hsla(${Math.random() * 360}, 75%, 85%, ${underThresholdTransparency.value})`;
+const wordsToSet = (list) => {
+  return new Set(
+    (list ?? '')
+      .split('\n')
+      .map((w) => w.trim().toLowerCase())
+      .filter((w) => w.length > 0)
+  );
+};
+
+const randomColor = (s, l) => {
+  return `hsla(${Math.random() * 360}, ${s}%, ${l}%, 1)`;
 };
 </script>
 

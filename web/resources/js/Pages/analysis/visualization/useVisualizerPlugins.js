@@ -6,12 +6,15 @@ const state = reactive({
   visualizerComponent: null,
   visualizerName: null,
   loaded: {},
+  hasOptions: false,
+  showMenu: false,
 });
 
 const type = 'visualization';
 
 export const useVisualizerPlugins = () => {
-  const { visualizerComponent, visualizerName } = toRefs(state);
+  const { visualizerComponent, visualizerName, showMenu, hasOptions } =
+    toRefs(state);
   const selectVisualizerPlugin = ({ value, unlessExists = false }) => {
     if (visualizerComponent.value && unlessExists) {
       return;
@@ -22,6 +25,7 @@ export const useVisualizerPlugins = () => {
     state.visualizerComponent =
       loader === null ? loader : markRaw(defineAsyncComponent(loader));
     state.visualizerName = value;
+    state.hasOptions = plugin.hasOptions ?? false;
   };
 
   const availablePlugins = ref(
@@ -31,10 +35,17 @@ export const useVisualizerPlugins = () => {
     }))
   );
 
+  const setShowMenu = (value) => {
+    state.showMenu = value;
+  };
+
   return {
     availablePlugins,
     selectVisualizerPlugin,
     visualizerComponent,
     visualizerName,
+    showMenu,
+    hasOptions,
+    setShowMenu,
   };
 };

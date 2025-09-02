@@ -1,10 +1,10 @@
 export default {
-  key: 'bar',
+  key: 'groupedBar',
 
   /**
    * Component name
    */
-  name: 'CodeCount',
+  name: 'CodeCountBySource',
 
   /**
    * Human-readable title
@@ -19,4 +19,9 @@ export default {
    * load Vue component
    */
   load: () => import('./BarChart.vue'),
+
+  /**
+   * let host render options button
+   */
+  hasOptions: true,
 };

@@ -128,6 +128,8 @@
         </div>
       </BaseContainer>
     </template>
+
+    <!-- main analysis content page -->
     <template #main>
       <BaseContainer>
         <div class="flex justify-between items-center">
@@ -139,7 +141,10 @@
               class="text-foreground"
               :options="availablePlugins"
               :value="visualizerName ?? 'list'"
-              @change="selectVisualizerPlugin($event.target)"
+              @change="
+                selectVisualizerPlugin($event.target);
+                setShowMenu(false);
+              "
             />
           </div>
           <ResponsiveTabList
@@ -148,8 +153,9 @@
             :initial="contentView"
             @change="(value) => (contentView = value)"
           />
+          <Button v-if="hasOptions" @click="setShowMenu(true)">Options</Button>
         </div>
-        <div v-if="contentView === 'visualize'">
+        <div v-if="contentView === 'visualize'" class="h-full w-full">
           <VisualizeCoding />
         </div>
       </BaseContainer>
@@ -170,6 +176,7 @@ import { BarsArrowDownIcon } from '@heroicons/vue/24/solid/index.js';
 import { useAnalysis } from './analysis/useAnalysis.js';
 import VisualizeCoding from './analysis/visualization/VisualizeCoding.vue';
 import { useVisualizerPlugins } from './analysis/visualization/useVisualizerPlugins.js';
+
 import SelectField from '../form/SelectField.vue';
 import ContrastText from '../Components/text/ContrastText.vue';
 import { useUsers } from '../domain/teams/useUsers.js';
@@ -216,8 +223,13 @@ const {
   selection,
 } = useAnalysis();
 
-const { availablePlugins, visualizerName, selectVisualizerPlugin } =
-  useVisualizerPlugins();
+const {
+  availablePlugins,
+  visualizerName,
+  hasOptions,
+  setShowMenu,
+  selectVisualizerPlugin,
+} = useVisualizerPlugins();
 
 //------------------------------------------------------------------------
 // EXPORTS
