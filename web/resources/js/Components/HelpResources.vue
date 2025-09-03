@@ -17,12 +17,21 @@
       <Link href="mailto:openqda@uni-bremen.de" :external="true"
         >openqda@uni-bremen.de</Link
       >
+      or use the contact form in the
+      <button
+        class="text-foreground/80 hover:text-secondary hover:underline text-nowrap inline-flex items-center underline-offset-3 cursor-pointer"
+        @click="openHelp"
+      >
+        feedback dialog</button
+      >.
     </li>
   </ul>
 </template>
 
 <script setup>
 import Link from './Link.vue';
+import { useHelpDialog } from '../dialogs/help/useHelpDialog.js';
+const { open: openHelp } = useHelpDialog();
 </script>
 
 <style scoped></style>

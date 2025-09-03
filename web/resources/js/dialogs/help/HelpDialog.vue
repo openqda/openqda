@@ -6,6 +6,7 @@ import ActivityIndicator from '../../Components/ActivityIndicator.vue';
 import { useSubmissionStatus } from '../useSubmissionStatus';
 import { useProjects } from '../../domain/project/useProjects';
 import AutoForm from '../../form/AutoForm.vue';
+import Link from '../../Components/Link.vue';
 
 const { isActive, close: closeHelp, submit } = useHelpDialog();
 const { projectId } = useProjects();
@@ -106,7 +107,13 @@ const submitForm = async (formData) => {
     <template #body>
       <div class="flex items-center my-3">
         <img :src="$page.props.logo" alt="Qdi logo" width="64" height="64" />
-        <p class="text-sm">Let me know what's on your mind!</p>
+        <p class="text-sm">
+          We explain how to use the app in the
+          <Link href="https://openqda.github.io/user-docs/" :external="true"
+            >OpenQDA documentation</Link
+          >. If you have any further questions or comments, please use the
+          following form.
+        </p>
       </div>
       <AutoForm
         id="feedbackForm"
