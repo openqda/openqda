@@ -131,6 +131,8 @@ export const useProjects = () => {
     initSearch,
     sortOptions,
     createSchema,
+    exportSchema: Project.export.schema,
+    exportProject: Project.export.method,
     createProject: Project.create.method,
     updateProject: Project.update.method,
     open,
