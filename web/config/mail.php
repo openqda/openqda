@@ -104,6 +104,7 @@ return [
     ],
 
     'feedback' => [
+        'subject' => env('APP_NAME', 'System'),
         'address' => env('MAIL_FEEDBACK_ADDRESS', 'hello@example.com'),
         'perMinute' => env('MAIL_FEEDBACK_PER_MINUTE', 1),
     ],

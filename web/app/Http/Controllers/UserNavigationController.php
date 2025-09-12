@@ -40,7 +40,6 @@ class UserNavigationController extends Controller
      */
     public function feedback(SendFeedbackRequest $request)
     {
-        Log::info('Feedback attempt');
         $data = $request->feedbackData();
         $userId = $data['userId'];
         Log::info('Feedback received from user '.$userId, $data);

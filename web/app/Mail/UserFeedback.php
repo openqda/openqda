@@ -31,7 +31,7 @@ class UserFeedback extends Mailable
      */
     public function envelope(): Envelope
     {
-        $subject = '\[OpenQDA System\]: User Feedback #'.$this->ticketId;
+        $subject = '['.config('mail.feedback.subject').']: User Feedback #'.$this->ticketId;
 
         return new Envelope(
             from: new Address('no-reply@openqda.org', 'OpenQDA System'),
