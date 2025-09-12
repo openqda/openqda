@@ -5,4 +5,3 @@
 {{ __('query: :query', ['query' => $data['query']]) }}
 {{ __('contact: :contact', ['contact' => $data['contact']]) }}
 {{ __('text: :summary', ['summary' => $data['summary']]) }}
-{{ __('send confirmation: :sendConfirm', ['sendConfirm' => $data['sendConfirm']]) }}

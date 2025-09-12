@@ -30,7 +30,6 @@ class SendFeedbackRequest extends FormRequest
             'path' => 'nullable|string',
             'query' => 'nullable|string',
             'attachLog' => 'nullable|boolean',
-            'sendConfirm' => 'nullable|boolean',
         ];
     }
 

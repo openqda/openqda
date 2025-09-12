@@ -8,7 +8,7 @@
     </li>
     <li>
       🗣️ You can give technical
-      <Link href="https://github.com/openqda/feedback" :external="true"
+      <Link href="https://github.com/orgs/openqda/discussions" :external="true"
         >feedback directly to our developers</Link
       >
     </li>

@@ -53,12 +53,7 @@ const feedbackSchema = {
   //     type: Boolean,
   //     label: 'Attach Browser Log',
   //     required: false
-  // },
-  sendConfirm: {
-    type: Boolean,
-    label: 'Send a confirmation to my Email Address',
-    required: false,
-  },
+  // }
 };
 
 const close = () => {
@@ -69,7 +64,7 @@ const close = () => {
 
 const submitForm = async (formData) => {
   setSubmitting();
-  const { summary, type, attachLog, sendConfirm } = formData;
+  const { summary, type, attachLog } = formData;
   const res = await submit({
     projectId,
     path: window.location.pathname,
@@ -77,7 +72,6 @@ const submitForm = async (formData) => {
     type,
     summary,
     attachLog: attachLog === 'on' || attachLog === true,
-    sendConfirm: sendConfirm === 'on' || sendConfirm === true,
   });
 
   if (res.response?.data?.sent) {
