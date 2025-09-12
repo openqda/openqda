@@ -527,7 +527,7 @@ const debounceSearch = debounce(performSearch, 300);
               └
             </div>
             <div
-              class="'rounded-md w-full p-3 text-sm font-medium"
+              class="rounded-md w-full p-3 text-sm font-medium"
               :style="`background-color: ${code.color};`"
             >
               <ContrastText class="block w-full">{{ code.name }}</ContrastText>
