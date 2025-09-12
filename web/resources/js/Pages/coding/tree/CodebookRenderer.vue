@@ -4,6 +4,7 @@ import {
   ArrowsUpDownIcon,
   EyeIcon,
   EyeSlashIcon,
+  InformationCircleIcon,
 } from '@heroicons/vue/24/solid';
 import Headline3 from '../../../Components/layout/Headline3.vue';
 import { computed, reactive } from 'vue';
@@ -40,7 +41,7 @@ const { sorting, setSorting } = useCodeTree();
 //------------------------------------------------------------------------
 // TOGGLE
 //------------------------------------------------------------------------
-const { toggleCodebook } = useCodes();
+const { toggleCodebook, showDetails, toggleDetails } = useCodes();
 const toggling = reactive({});
 const handleTogglingCodebook = async (codebook) => {
   toggling[codebook.id] = true;
@@ -59,6 +60,20 @@ const handleTogglingCodebook = async (codebook) => {
         <span>{{ codesCount ?? 0 }} codes</span>
         <span v-if="sorting === codebook.id">, sorting mode</span>
       </span>
+      <button
+        :class="
+          cn(
+            'p-0 m-0',
+            showDetails[codebook.id] ? 'text-secondary' : 'text-foreground/80'
+          )
+        "
+        @click="toggleDetails(codebook.id)"
+        :title="
+          showDetails[codebook.id] ? 'Hide description' : 'Show description'
+        "
+      >
+        <InformationCircleIcon class="w-4 h-4" />
+      </button>
       <button
         class="p-0 m-0 text-foreground/80"
         @click="handleTogglingCodebook(codebook)"

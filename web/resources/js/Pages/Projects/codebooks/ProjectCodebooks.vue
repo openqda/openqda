@@ -76,6 +76,9 @@ const totalCount = ref(0);
 const publicCodebooks = ref([]);
 const searchResults = ref([]);
 
+// ui state
+const showCodeInfo = ref(false);
+
 // Computed
 const displayedCodebooks = computed(() => {
   return searchQuery.value ? searchResults.value : publicCodebooks.value;
@@ -503,17 +506,37 @@ const debounceSearch = debounce(performSearch, 300);
           {{ previewCodebook.name }} has
           {{ previewCodebook.codes?.length ?? 0 }} codes
         </p>
+        <Button
+          variant="outline-secondary"
+          size="sm"
+          @click="showCodeInfo = !showCodeInfo"
+        >
+          <span v-if="showCodeInfo">Hide Details</span>
+          <span v-else>Show Details</span>
+        </Button>
         <ul v-if="previewCodebook.codes && previewCodebook.codes.length > 0">
           <li
             v-for="code in previewCodebook.codes"
             :key="code.id"
-            class="flex items-center my-2"
+            class="flex items-start my-2"
           >
             <div
-              class="rounded-md w-full p-3 text-sm font-medium"
-              :style="'background-color: ' + code.color"
+              v-if="showCodeInfo && code.depth"
+              :style="'margin-left: ' + code.depth + 'rem;'"
             >
-              <ContrastText>{{ code.name }}</ContrastText>
+              └
+            </div>
+            <div
+              class="'rounded-md w-full p-3 text-sm font-medium"
+              :style="`background-color: ${code.color};`"
+            >
+              <ContrastText class="block w-full">{{ code.name }}</ContrastText>
+              <ContrastText
+                v-if="code.description && showCodeInfo"
+                class="block w-full text-xs"
+              >
+                <span class="grow">{{ code.description }}</span>
+              </ContrastText>
             </div>
           </li>
         </ul>

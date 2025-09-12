@@ -19,6 +19,7 @@
         :group-id="groupId"
         :open="collapsed[el.id]"
         :sorting="groupId === sorting"
+        :show-details="props.showDetails"
         class="w-full"
       />
       <Collapse
@@ -30,6 +31,7 @@
           v-model="el.children"
           :group-id="groupId"
           :parent-id="el.id"
+          :show-details="props.showDetails"
         />
       </Collapse>
     </li>
@@ -56,6 +58,7 @@ const props = defineProps({
   groupId: [Number, String],
   parentId: String,
   class: String,
+  showDetails: Boolean,
 });
 
 const emits = defineEmits(['update:modelValue']);
