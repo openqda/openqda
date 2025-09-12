@@ -9,16 +9,11 @@ import DeleteDialog from '../../dialogs/DeleteDialog.vue';
 import { router } from '@inertiajs/vue3';
 import { useProjects } from '../../domain/project/useProjects';
 import { cn } from '../../utils/css/cn';
-import CreateDialog from '../../dialogs/CreateDialog.vue';
-import AutoForm from '../../form/AutoForm.vue';
-import ActivityIndicator from '../../Components/ActivityIndicator.vue';
 
 const project = inject('project');
 const renameTarget = ref(null);
 const deleteTarget = ref(null);
-const exportError = ref(null);
-const exporting = ref(false);
-const { updateProject, exportSchema, exportProject } = useProjects();
+const { updateProject } = useProjects();
 
 const submitRename = async ({ name }) => {
   const { type } = renameTarget.value;
@@ -33,28 +28,6 @@ const submitRename = async ({ name }) => {
   }
 
   return response;
-};
-
-const runExport = async (formData) => {
-  exportError.value = null;
-  exporting.value = true;
-  formData.projectId = project.id;
-  const { response, error } = await exportProject(formData);
-  if (!error && response?.data) {
-    // Create a link to download the file
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    const timestamp = Date.now();
-    const title = project.name.replace(/\s+/g, '-');
-    link.href = url;
-    link.setAttribute('download', `OpenQDA-${title}-${timestamp}.qdpx`); //or any other extension
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  } else {
-    exportError.value = error ?? new Error('Export failed for unknown reasons');
-  }
-  exporting.value = false;
 };
 
 const deleteProject = async () => {
@@ -157,35 +130,6 @@ const deleteProject = async () => {
         </li>
       </ul>
     </div>
-    <!-- Export PROJECT -->
-    <div class="py-6">
-      <InputLabel>Export Project</InputLabel>
-
-      <div class="mt-3 flex justify-between items-end">
-        <AutoForm
-          id="exportForm"
-          :disabled="exporting"
-          :schema="exportSchema"
-          :show-cancel="false"
-          :show-submit="false"
-          @submit="runExport"
-        ></AutoForm>
-        <span class="flex gap-1 items-center">
-          <ActivityIndicator v-if="exporting" :label="false" />
-          <Button
-            :disabled="exporting"
-            variant="outline-secondary"
-            form="exportForm"
-            type="submit"
-          >
-            Export
-          </Button>
-        </span>
-      </div>
-      <div v-if="exportError" class="text-destructive mt-2">
-        {{ exportError.message }}
-      </div>
-    </div>
 
     <!-- DELETE PROJECT -->
     <div class="py-6">
@@ -202,11 +146,6 @@ const deleteProject = async () => {
       </div>
     </div>
   </div>
-  <CreateDialog
-    :title="'Export Project'"
-    :submit="exportProject"
-    :schema="exportSchema"
-  />
   <RenameDialog
     :title="`Edit project ${renameTarget?.type}`"
     :target="renameTarget"
