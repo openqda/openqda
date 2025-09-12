@@ -78,7 +78,7 @@ class QdeFileBuilder
 
     public function build()
     {
-        $this->xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8" ?><Project></Project>');
+        $this->xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><Project></Project>');
         $this->buildProject($this->xml, $this->project, $this->users);
 
         $users = $this->xml->addChild('Users');
@@ -86,13 +86,18 @@ class QdeFileBuilder
             $this->buildUser($users, $user);
         }
 
+        foreach ($this->codebooks as $codebook) {
+            $this->buildCodebook($this->xml, $codebook);
+        }
+
         $sources = $this->xml->addChild('Sources');
         foreach ($this->sources as $source) {
             $this->buildSource($sources, $source);
         }
 
-        foreach ($this->codebooks as $codebook) {
-            $this->buildCodebook($this->xml, $codebook);
+        // non-refi
+        if ($this->project->description) {
+            $this->xml->addChild('Description', $this->project->description);
         }
 
         return $this;
@@ -110,51 +115,71 @@ class QdeFileBuilder
     protected function buildProject($root, $project, $users)
     {
         $crateUser = $this->users[$project->creating_user_id];
+        // required
         $root->addAttribute('name', $project->name);
-        $root->addAttribute('description', $project->description);
-        $root->addAttribute('origin', 'OpenQDA-x.y.z-commit-hash');
-        $root->addAttribute('creatingUserId', $crateUser->guid);
-        $root->addAttribute('creationDateTime', $project->created_at->toIso8601String());
-        $root->addAttribute('modifiedDateTime', $project->updated_at->toIso8601String());
+        $root->addAttribute('xmlns', "urn:QDA-XML:project:1.0");
+        $root->addAttribute('xmlns:xmlns:xsi', "http://www.w3.org/2001/XMLSchema-instance");
+        $root->addAttribute('xmlns:xsi:schemaLocation', "urn:QDA-XML:project:1.0 https://openqda.github.io/refi-tools/docs/schemas/project/v1.0/Project.xsd");
 
+        // optional
+        $root->addAttribute('origin', 'OpenQDA-'.config('app.version'));
+        $root->addAttribute('creatingUserGUID', $crateUser->guid);
+        $root->addAttribute('creationDateTime', $project->created_at->toIso8601String());
+        // $root->addAttribute('modifyingUserGUID', $crateUser->guid);
+        $root->addAttribute('modifiedDateTime', $project->updated_at->toIso8601String());
+        // for now we do not reference a basePath
+        // $root->addAttribute('basePath', 'internal://');
         return $this;
     }
 
     protected function buildUser($users, $user)
     {
         $userElement = $users->addChild('User');
-        $userElement->addAttribute('id', $user['id']);
+        // required
         $userElement->addAttribute('guid', $user['guid']);
+
+        // optional
         $userElement->addAttribute('name', $user['name']);
-        $userElement->addAttribute('email', $user['email']);
+        $userElement->addAttribute('id', $user['id']);
+
+        // non-refi
+        // $userElement->addAttribute('email', $user['email']);
 
         return $this;
     }
 
     protected function buildCodebook($root, $codebook)
     {
-        $codebookElement = $root->addChild('Codebook');
-        $codebookElement->addAttribute('name', $codebook->name);
-        $codebookElement->addAttribute('description', $codebook->description);
-        $crateUser = $this->users[$codebook->creating_user_id];
-        $codebookElement->addAttribute('creatingUserId', $crateUser->guid);
-        $codebookElement->addAttribute('creationDateTime', $codebook->created_at->toIso8601String());
-        $codebookElement->addAttribute('modifiedDateTime', $codebook->updated_at->toIso8601String());
-        foreach ($codebook->codes as $code) {
-            $this->buildCode($codebookElement, $code);
-        }
+        $codebookElement = $root->addChild('CodeBook');
+        $codesElement = $codebookElement->addChild('Codes');
 
+        // non-refi
+        // $codebookElement->addAttribute('name', $codebook->name);
+        // $codebookElement->addAttribute('description', $codebook->description);
+        // $crateUser = $this->users[$codebook->creating_user_id];
+        // $codebookElement->addAttribute('creatingUser', $crateUser->guid);
+        // $codebookElement->addAttribute('creationDateTime', $codebook->created_at->toIso8601String());
+        // $codebookElement->addAttribute('modifiedDateTime', $codebook->updated_at->toIso8601String());
+        foreach ($codebook->codes as $code) {
+            $this->buildCode($codesElement, $code);
+        }
         return $this;
     }
 
     protected function buildCode($root, $code)
     {
         $codeElement = $root->addChild('Code');
+
+        // required
         $codeElement->addAttribute('guid', $code->id);
         $codeElement->addAttribute('name', $code->name);
-        $codeElement->addAttribute('description', $code->description);
         $codeElement->addAttribute('isCodable', 'true');
+
+        // optional
         $codeElement->addAttribute('color', $code->color);
+        if ($code->description) {
+            $codeElement->addChild('Description', $code->description);
+        }
 
         if ($code->children->count() > 0) {
             foreach ($code->children as $child) {
@@ -179,7 +204,7 @@ class QdeFileBuilder
         $sourceElement->addAttribute('creationDateTime', $source->created_at->toIso8601String());
         $sourceElement->addAttribute('modifiedDateTime', $source->updated_at->toIso8601String());
         $crateUser = $this->users[$source->creating_user_id];
-        $sourceElement->addAttribute('creatingUserId', $crateUser->guid);
+        $sourceElement->addAttribute('creatingUser', $crateUser->guid);
         foreach ($source->selections as $selection) {
             $this->addSelection($sourceElement, $selection);
         }
