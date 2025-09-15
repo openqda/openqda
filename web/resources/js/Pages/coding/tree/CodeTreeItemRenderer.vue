@@ -40,6 +40,7 @@ const props = defineProps({
   code: Object,
   class: String,
   sorting: Boolean,
+  showDetails: Boolean,
 });
 
 //------------------------------------------------------------------------
@@ -197,6 +198,11 @@ const { range } = useRange();
         <ContrastText v-else class="line-clamp-1 grow items-center"
           >{{ code.name }}
         </ContrastText>
+        <ContrastText
+          v-if="props.showDetails && code.description"
+          class="text-xs block"
+          >{{ code.description }}</ContrastText
+        >
       </div>
 
       <div class="flex justify-between items-center gap-2">
