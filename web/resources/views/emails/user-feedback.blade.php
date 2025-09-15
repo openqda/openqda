@@ -1,6 +1,7 @@
+{{ __('type: :type', ['type' => $data['type']]) }}
 {{ __('user: :userId', ['userId' => $data['userId']]) }}
-{{ __('contact: :contact', ['contact' => $data['contact']]) }}
-{{ __('summary: :title', ['title' => $data['title']]) }}
-{{ __('problem: :problem', ['problem' => $data['problem']]) }}
 {{ __('project: :projectId', ['projectId' => $data['projectId']]) }}
-{{ __('location: :location', ['location' => $data['location']]) }}
+{{ __('path: :path', ['path' => $data['path']]) }}
+{{ __('query: :query', ['query' => $data['query']]) }}
+{{ __('contact: :contact', ['contact' => $data['contact']]) }}
+{{ __('text: :summary', ['summary' => $data['summary']]) }}

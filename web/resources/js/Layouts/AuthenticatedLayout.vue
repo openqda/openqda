@@ -140,7 +140,9 @@
                     item.current
                       ? 'w-full justify-center rounded-none text-center bg-surface text-secondary rounded-l-md'
                       : 'text-foreground/50 hover:bg-surface hover:text-foreground/50',
-                    item.disabled && !item.current && 'cursor-not-allowed'
+                    item.disabled &&
+                      !item.current &&
+                      'cursor-not-allowed text-foreground/30 hover:text-foreground/30'
                   )
                 "
                 :aria-disabled="item.disabled"
@@ -165,6 +167,25 @@
                   />
                 </div>
               </div>
+            </li>
+            <li :class="helpIsActive ? 'w-full text-center' : ''">
+              <button
+                title="Help, contact, feedback"
+                @click="openHelp"
+                :class="
+                  cn(
+                    'group flex gap-x-3 rounded-md p-3 text-sm font-semibold leading-6',
+                    helpIsActive
+                      ? 'w-full justify-center rounded-none text-center bg-surface text-secondary rounded-l-md'
+                      : 'text-foreground/50 hover:bg-surface hover:text-foreground/50'
+                  )
+                "
+              >
+                <QuestionMarkCircleIcon
+                  class="h-6 w-6 shrink-0"
+                  aria-hidden="true"
+                />
+              </button>
             </li>
           </ul>
           <div
@@ -204,7 +225,7 @@
       </div>
 
       <FlashMessage :flash="$page.props.flash" />
-
+      <HelpDialog />
       <div class="flex lg:pl-20">
         <aside
           v-show="$props.menu !== false"
@@ -240,7 +261,12 @@ import {
   TransitionChild,
   TransitionRoot,
 } from '@headlessui/vue';
-import { Bars3Icon, XMarkIcon, SignalIcon } from '@heroicons/vue/24/outline';
+import {
+  Bars3Icon,
+  XMarkIcon,
+  SignalIcon,
+  QuestionMarkCircleIcon,
+} from '@heroicons/vue/24/outline';
 import LayoutContainer from './LayoutContainer.vue';
 import { NavRoutes } from '../routes/NavRoutes.js';
 import { Project } from '../state/Project.js';
@@ -251,6 +277,8 @@ import ProfileImage from '../Components/user/ProfileImage.vue';
 import { useConversion } from '../live/useConversion.js';
 import { flashMessage } from '../Components/notification/flashMessage.js';
 import { useDebug } from '../utils/useDebug.js';
+import { useHelpDialog } from '../dialogs/help/useHelpDialog.js';
+import HelpDialog from '../dialogs/help/HelpDialog.vue';
 
 const websocket = useWebSocketConnection();
 const navigation = ref([]);
@@ -266,6 +294,7 @@ const {
 } = useTeam();
 websocket.initWebSocket();
 const debug = useDebug({ scope: 'nav' });
+const { isActive: helpIsActive, open: openHelp } = useHelpDialog();
 
 const props = defineProps({
   title: String,
