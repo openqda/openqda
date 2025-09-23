@@ -13,7 +13,7 @@ window.Pusher = Pusher;
 const forceTLS = (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https';
 if (!isDev && !forceTLS) {
   throw new Error(
-    'Unencrypted Websocket transport is not supported in production mode'
+    'Unencrypted WebSocket transport is not supported in production mode'
   );
 }
 
