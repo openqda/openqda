@@ -240,12 +240,6 @@ A successful connection log for local dev and unencrypted transport looks simila
 10: "complete init"
 ```
 
-A success connection log for production with encrypted traffic may look like this:
-
-```
-
-```
-
 #### Disable Services
 
 You may comment out in the `docker-compose.yml` file some services, such as the
