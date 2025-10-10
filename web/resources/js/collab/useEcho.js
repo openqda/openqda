@@ -6,11 +6,18 @@
 
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';
+import { isDev } from '../utils/isDev.js';
 
 window.Pusher = Pusher;
 
 const forceTLS = (import.meta.env.VITE_REVERB_SCHEME ?? 'https') === 'https';
-const enabledTransports = ['ws', 'wss'];
+if (!isDev && !forceTLS) {
+  throw new Error(
+    'Unencrypted WebSocket transport is not supported in production mode'
+  );
+}
+
+const enabledTransports = isDev ? [forceTLS ? 'wss' : 'ws'] : ['ws', 'wss'];
 
 /**
  * Helper to initialize and retrieve the Websocket
@@ -26,7 +33,7 @@ export const useEcho = () => {
     wsPort: import.meta.env.VITE_REVERB_PORT ?? 80,
     wssPort: import.meta.env.VITE_REVERB_PORT ?? 443,
     forceTLS,
-    encrypted: true,
+    encrypted: isDev ? forceTLS : true,
     enabledTransports,
   };
   return {
