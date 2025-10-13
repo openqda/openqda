@@ -193,6 +193,15 @@
                             <span class="font-semibold text-porsche-400">{{
                               audit.model
                             }}</span>
+                            <span
+                              v-if="
+                                audit.model === 'Code' &&
+                                audit.new_values.name &&
+                                key !== 'name'
+                              "
+                              class="font-semibold text-porsche-400"
+                              >"{{ audit.new_values.name }}"</span
+                            >
                             with
                             <span class="font-semibold">{{ key }}</span>
                             set to
@@ -239,7 +248,18 @@
                             "
                           ></span>
                           <span v-else
-                            >Modified {{ audit.model }} {{ key }} to
+                            >Modified {{ audit.model }}
+                            <span
+                              v-if="
+                                audit.model === 'Code' &&
+                                (audit.new_values.name || audit.old_values.name)
+                              "
+                              class="font-semibold text-porsche-400"
+                              >"{{
+                                audit.new_values.name || audit.old_values.name
+                              }}"</span
+                            >
+                            {{ key }} to
                             <span
                               v-if="audit.model === 'Code' && key === 'color'"
                               class="px-1 rounded font-semibold font-mono"

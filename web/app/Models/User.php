@@ -128,7 +128,7 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
         foreach ($projects as $project) {
             // Transform project audits
             $projectAuditsData = collect($project->audits);
-            $projectAudits = $auditService->transformAudits($projectAuditsData, 'Project', ['id', 'project_id', 'creating_user_id']);
+            $projectAudits = $auditService->transformAudits($projectAuditsData, 'Project', ['id', 'project_id', 'creating_user_id', 'modifying_user_id']);
             $allAudits = $allAudits->concat($projectAudits);
             // For each source within a project
             foreach ($project->sources as $source) {

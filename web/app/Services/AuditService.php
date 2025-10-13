@@ -113,7 +113,7 @@ class AuditService
             $this->transformAudits(
                 $project->audits,
                 'Project',
-                ['id', 'project_id', 'creating_user_id']
+                ['id', 'project_id', 'creating_user_id', 'modifying_user_id']
             )
         );
 
