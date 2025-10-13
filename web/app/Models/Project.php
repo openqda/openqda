@@ -28,15 +28,6 @@ class Project extends Model implements Auditable
     ];
 
     /**
-     * Attributes that should be excluded from auditing.
-     *
-     * @var array
-     */
-    protected $auditExclude = [
-        'modifying_user_id',
-    ];
-
-    /**
      * Used to prevent the delete event of project from being dispatched
      *
      * @var bool
