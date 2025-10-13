@@ -60,13 +60,16 @@ class AuditService
     public function transformAudits(Collection $auditData, string $model, array $exceptFields): Collection
     {
         return $auditData->map(function ($audit) use ($model, $exceptFields) {
+            $createdAt = Carbon::parse($audit->created_at);
+
             return [
                 'id' => $audit->id,
                 'event' => $audit->event,
                 'model' => $model,
                 'user_id' => optional($audit->user)->email,
                 'user_profile_picture' => optional($audit->user)->profile_photo_url,
-                'created_at' => Carbon::parse($audit->created_at)->format(config('audit.date_format')),
+                'created_at' => $createdAt->format(config('audit.date_format')),
+                'created_at_timestamp' => $createdAt->timestamp,
                 'old_values' => collect($audit->old_values)->except($exceptFields)->toArray(),
                 'new_values' => collect($audit->new_values)->except($exceptFields)->toArray(),
             ];
@@ -144,7 +147,7 @@ class AuditService
             }
         }
 
-        return $allAudits->filter()->sortByDesc('created_at');
+        return $allAudits->filter()->sortByDesc('created_at_timestamp');
     }
 
     /**
@@ -165,7 +168,7 @@ class AuditService
      */
     private function auditMatchesDateRange(array $audit, array $filters): bool
     {
-        $auditDate = Carbon::parse($audit['created_at']); // Check the date format here
+        $auditDate = Carbon::createFromTimestamp($audit['created_at_timestamp']);
 
         if (! empty($filters['dates']['before']) && $auditDate->isAfter($filters['dates']['before'])) {
             return false;

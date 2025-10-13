@@ -1,5 +1,5 @@
 # Current Tests
-Last updated: 2025-06-23 09:57:00
+Last updated: 2025-10-13 11:17:42
 ## Api Token Permissions
     - api token permissions can be updated
 
@@ -25,6 +25,7 @@ Last updated: 2025-06-23 09:57:00
     - cannot access private codebook without permission
     - get non existent codebook returns 404
     - get codebook without codes
+    - get private codebook without properties as creator
 
 ## Code Controller
     - destroy code successfully
@@ -33,6 +34,8 @@ Last updated: 2025-06-23 09:57:00
     - update code color
     - update code title
     - update code description
+    - create code with all attributes
+    - create code without description
     - create code with valid parent
     - prevent self referential code creation
     - prevent self referential code on create

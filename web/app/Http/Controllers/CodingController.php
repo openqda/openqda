@@ -28,6 +28,7 @@ class CodingController extends Controller
         // Now you can create the code
         $code = new Code;
         $code->name = $request->input('title');
+        $code->description = $request->input('description');
         $code->color = $request->input('color');
         $code->codebook_id = $request->input('codebook');
         if ($request->input('parent_id')) {
