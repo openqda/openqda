@@ -147,7 +147,7 @@ class AuditService
             }
         }
 
-        return $allAudits->filter()->sortByDesc('created_at_timestamp');
+        return $allAudits->filter()->sortByDesc('created_at_timestamp')->values();
     }
 
     /**

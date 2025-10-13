@@ -170,7 +170,7 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
 
         $allAudits = $auditService->filterAudits($allAudits, $filters);
 
-        return $allAudits->sortByDesc('created_at_timestamp');
+        return $allAudits->sortByDesc('created_at_timestamp')->values();
     }
 
     public function codebooks(): \Illuminate\Database\Eloquent\Relations\HasMany
