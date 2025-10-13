@@ -259,7 +259,12 @@
                           {{ value }}
                         </template>
                         <template v-else-if="audit.event === 'source.locked'">
-                          <span>Locked {{ audit.model }} <span class="font-semibold">{{ value.replace(' has been locked', '') }}</span></span>
+                          <span
+                            >Locked {{ audit.model }}
+                            <span class="font-semibold">{{
+                              value.replace(' has been locked', '')
+                            }}</span></span
+                          >
                         </template>
                         <template v-else>
                           {{ audit.event }} on {{ audit.model }} for key
