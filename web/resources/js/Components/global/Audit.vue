@@ -183,12 +183,10 @@
                         <template v-if="audit.event === 'created'">
                           <span
                             v-if="
-                              audit.model === 'Codebook' &&
+                              !(audit.model === 'Codebook' &&
                               key === 'description' &&
-                              value === null
+                              value === null)
                             "
-                          ></span>
-                          <span v-else
                             >Created
                             <span class="font-semibold text-porsche-400">{{
                               audit.model
@@ -242,12 +240,10 @@
                           <span v-if="key === 'team_id'">Created team</span>
                           <span
                             v-else-if="
-                              audit.model === 'Codebook' &&
+                              !(audit.model === 'Codebook' &&
                               key === 'description' &&
-                              value === null
+                              value === null)
                             "
-                          ></span>
-                          <span v-else
                             >Modified {{ audit.model }}
                             <span
                               v-if="
