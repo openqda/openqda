@@ -199,7 +199,7 @@
                           </span>
                           <span
                             class="px-1 rounded font-semibold font-mono"
-                            v-if="audit.model === 'Code'"
+                            v-if="audit.model === 'Code' && key === 'color'"
                             :style="'background-color:' + value"
                             >{{ value }}</span
                           >
@@ -241,11 +241,12 @@
                           <span v-else
                             >Modified {{ audit.model }} {{ key }} to
                             <span
-                              v-if="audit.model === 'Code'"
+                              v-if="audit.model === 'Code' && key === 'color'"
+                              class="px-1 rounded font-semibold font-mono"
                               :style="'background-color:' + value"
                               >{{ value }}</span
                             >
-                            <span v-if="audit.model === 'Codebook'">
+                            <span v-else-if="audit.model === 'Codebook'">
                               <span v-if="isJSON(value)">
                                 public: {{ JSON.parse(value).sharedWithPublic }}
                               </span>
@@ -256,6 +257,14 @@
                         </template>
                         <template v-else-if="audit.event === 'content updated'">
                           {{ value }}
+                        </template>
+                        <template v-else-if="audit.event === 'source.locked'">
+                          <span
+                            >Locked {{ audit.model }}
+                            <span class="font-semibold">{{
+                              value.replace(' has been locked', '')
+                            }}</span></span
+                          >
                         </template>
                         <template v-else>
                           {{ audit.event }} on {{ audit.model }} for key
