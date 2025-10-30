@@ -1,7 +1,17 @@
-<script setup lang="ts"></script>
+<!-- <script setup lang="ts"></script> -->
+
+<script setup>
+/* Expose the prop as a local var the template can use directly */
+const { useViewZoom } = defineProps({
+  useViewZoom: { type: Boolean, default: true }
+});
+
+/* Single source of truth for emits */
+const emit = defineEmits(['update:zoom']);
+</script>
 
 <template>
-  <div id="toolbar">
+  <div id="toolbar" class="editor-toolbar inline-flex items-center gap-1">
     <span class="ql-formats">
       <select class="ql-font" title="Font family">
         <option value="arial" selected>Arial</option>
@@ -11,12 +21,20 @@
         <option value="helvetica">Helvetica</option>
         <option value="lucida">Lucida</option>
       </select>
-      <select class="ql-size" title="Font size">
+      <!-- <select class="ql-size" title="Font size">
+        <option value="extra-small">xs</option>
+        <option value="small">sm</option>
+        <option value="medium" selected>md</option>
+        <option value="large">lg</option>
+      </select> -->
+
+      <select v-if="!useViewZoom" class="ql-size" title="Font size">
         <option value="extra-small">xs</option>
         <option value="small">sm</option>
         <option value="medium" selected>md</option>
         <option value="large">lg</option>
       </select>
+
       <select class="ql-header" title="Font style">
         <option value="1">Heading</option>
         <option value="2">Subheading</option>
@@ -104,7 +122,19 @@
       </button>
     </span>
     -->
+
+    <!-- Viewer-only size (does NOT change document content) -->
+    <div v-if="useViewZoom" class="inline-flex items-center gap-1 ms-2">
+      <span class="text-xs opacity-70">View:</span>
+      <button type="button" class="px-2 py-1 text-xs" @click="emit('update:zoom','xs')">xs</button>
+      <button type="button" class="px-2 py-1 text-xs" @click="emit('update:zoom','sm')">sm</button>
+      <button type="button" class="px-2 py-1 text-xs" @click="emit('update:zoom','md')">md</button>
+      <button type="button" class="px-2 py-1 text-xs" @click="emit('update:zoom','lg')">lg</button>
+    </div>
+
   </div>
+
+  
 </template>
 
 <style scoped></style>

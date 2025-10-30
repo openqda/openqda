@@ -31,6 +31,9 @@
             :source="editorSourceRef.content"
             :locked="editorSourceRef.locked"
             :CanUnlock="editorSourceRef.CanUnlock"
+            :viewerZoom="viewerZoom"    
+            :useViewZoom="true"          
+            @update:zoom="setZoom"
             @autosave="saveQuillContent"
           >
             <template #status>
@@ -109,7 +112,8 @@
 </template>
 
 <script setup>
-import { defineProps, onMounted, provide, ref, watch } from 'vue';
+import { defineProps, onMounted, provide, ref, watch, computed  } from 'vue';
+import { usePage } from '@inertiajs/vue3'
 import PreparationsEditor from '../editor/PreparationsEditor.vue';
 import FilesManager from '../Components/files/FilesManager.vue';
 import Button from '../Components/interactive/Button.vue';
@@ -192,6 +196,46 @@ const unlockSource = async () => {
   }
 };
 
+// ─────────────────────────────────────────────────────────────
+// VIEW ZOOM (per user + per file) — no hardcoded user/file
+// Place this ABOVE loadFileIntoEditor()
+// ─────────────────────────────────────────────────────────────
+const page = usePage();
+// console.warn('Inertia page.props.auth?.user =', page.props.auth?.user);
+const currentUserId = computed(() => page.props.auth?.user?.id ?? null);
+console.warn('Current user id =', currentUserId.value);
+
+const zoomKey = computed(() =>
+  currentUserId.value ? `zoom:${currentUserId.value}` : null
+);
+
+console.warn('Current user zoomkey =', zoomKey.value);
+
+let initialZoom = null;
+if (currentUserId.value) {
+  initialZoom = localStorage.getItem(`zoom:${currentUserId.value}`);
+}
+const viewerZoom = ref(initialZoom || null);
+console.warn('Current user viewerZoom =', viewerZoom.value);
+
+function setZoom(z) {
+  console.warn('setZoom called with', z); // temporary
+  viewerZoom.value = z;
+  if (zoomKey.value) {
+    localStorage.setItem(zoomKey.value, z);
+    console.warn('saved to', zoomKey.value, '->', z); // temporary
+  }
+}
+const lastAppliedUser = ref(null);
+
+watch(currentUserId, (u) => {
+  if (!u || u === lastAppliedUser.value) return;
+  const saved = localStorage.getItem(`zoom:${u}`);
+  if (typeof saved === 'string') viewerZoom.value = saved;
+  lastAppliedUser.value = u;
+},
+ { immediate: true });
+
 /*---------------------------------------------------------------------------*/
 // EDITING
 /*---------------------------------------------------------------------------*/
@@ -208,6 +252,8 @@ function loadFileIntoEditor(source) {
   editorSourceRef.value.hasSelections = source.hasSelections;
   editorSourceRef.value.showLineNumbers = source.showLineNumbers ?? false;
   editorSourceRef.value.charsXLine = source.charsXLine;
+
+  
 
   const url = new URL(location.href);
   if (url.searchParams.get('file') !== source.id) {

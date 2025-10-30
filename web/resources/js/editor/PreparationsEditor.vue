@@ -7,12 +7,16 @@
       id="toolbar"
       class="rounded-none mb-3 xl:mb-0 lg:rounded-full border-2 bg-surface z-150 shadow-lg border-foreground/20 py-2 px-4 inline-flex text-foreground/60! text-center"
     >
-      <EditorToolbar />
+      <!-- <EditorToolbar :useViewZoom="useViewZoom"
+        @update:zoom="(z) => emit('update:zoom', z)" /> -->
+
+        <EditorToolbar :useViewZoom="useViewZoom" @update:zoom="onToolbarZoom"/>
+
     </div>
     <slot name="actions"></slot>
   </div>
   <!-- editor content -->
-  <div :class="cn('flex', loadingDocument && 'hidden')">
+  <div id="editorPane" :style="zoomStyle" :class="cn('flex', loadingDocument && 'hidden')">
     <div id="lineNumber"></div>
     <div id="editor" class="grow"></div>
   </div>
@@ -38,7 +42,7 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch, computed  } from 'vue';
 import Quill from 'quill';
 import QuillCursors from 'quill-cursors';
 import EditorToolbar from './EditorToolbar.vue';
@@ -58,9 +62,12 @@ const props = defineProps({
   source: String,
   locked: Boolean,
   CanUnlock: Boolean,
+  viewerZoom: { type: String },   
+  useViewZoom: { type: Boolean, default: true }, 
 });
 
 const loadingDocument = ref(false);
+const emit = defineEmits(['status', 'autosave', 'settings', 'update:zoom']);
 
 let quillInstance;
 const Delta = Quill.import('delta');
@@ -73,7 +80,29 @@ Quill.register('modules/selectionHash', SelectionHash, true);
 Quill.register('modules/cursors', QuillCursors);
 Quill.register('modules/highlight', SelectionHighlightBG);
 
-const emit = defineEmits(['status', 'autosave', 'settings']);
+const zoomStyle = computed(() => {
+  const map = { xs: 0.85, sm: 1, md: 1.15, lg: 1.3 };
+  const z = map[props.viewerZoom] ?? 1;
+  return {
+    zoom: z,                               
+    transform: `scale(${z})`,             
+    transformOrigin: 'top left',
+    width: z === 1 ? '100%' : `calc(100% / ${z})`,
+  };
+});
+
+// map view sizes to quill's content sizes
+const SIZE_MAP = { xs: 'extra-small', sm: 'small', md: 'medium', lg: 'large' };
+
+function onToolbarZoom(size) {
+  const range = quillInstance?.getSelection?.();
+  if (range && range.length > 0) {
+    quillInstance.format('size', SIZE_MAP[size]); // selection formatting (shared)
+  } else {
+    emit('update:zoom', size); // viewer-only, goes to parent setZoom
+  }
+}
+
 onMounted(() => {
   quillInstance = new Quill('#editor', {
     theme: 'snow',
