@@ -58,30 +58,32 @@
                 <div
                   class="flex grow flex-col gap-y-5 overflow-y-auto bg-surface/95 px-6 pb-2 ring-1 ring-white/10 shadow-xs"
                 >
-                  <div class="flex h-16 shrink-0 items-center">
+                  <div class="flex h-16 shrink-0 items-center -m-1.5 -mb-4 border-b border-foreground/10">
                     <Link
                       :href="Routes.projects.path()"
                       preserve-state
                       :title="Routes.projects.label"
+                      class="flex items-center gap-2"
                     >
                       <img
                         class="h-8 w-auto"
                         :src="$page.props.logo"
                         :alt="Routes.projects.label"
                       />
+                        <span class="font-normal text-primary">OpenQDA</span>
                     </Link>
                   </div>
                   <nav class="flex flex-1 flex-col">
-                    <ul role="list" class="-mx-2 flex-1 flex flex-col gap-4">
+                    <ul role="list" class="-mx-2 flex-1 flex flex-col gap-4 border-b border-foreground/10">
                       <li v-for="item in navigation" :key="item.name">
                         <a
                           :href="item.href"
                           :title="item.label"
                           :class="[
                             item.current
-                              ? 'text-secondary-l dark:text-secondary-d'
-                              : 'text-passive-l hover:bg-gray-800 hover:text-white',
-                            'group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6',
+                              ? 'text-primary-foreground font-bold leading-6 bg-primary'
+                              : 'text-foreground font-normal leading-6',
+                            'group flex gap-x-3 rounded-md p-2 text-sm ',
                           ]"
                           :aria-disabled="item.disabled"
                         >
@@ -90,7 +92,7 @@
                             class="h-6 w-6 shrink-0"
                             aria-hidden="true"
                           />
-                          {{ item.label }}
+                            <span>{{ item.label }}</span>
                         </a>
                       </li>
                     </ul>
