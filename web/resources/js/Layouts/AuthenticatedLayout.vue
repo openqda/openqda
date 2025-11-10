@@ -237,7 +237,7 @@
         <main
           :class="
             cn(
-              'h-screen overflow-y-auto bg-surface text-surface-foreground grow'
+              'h-screen overflow-y-auto bg-surface text-surface-foreground grow p-2 md:p-0'
             )
           "
         >
