@@ -31,8 +31,8 @@
             :source="editorSourceRef.content"
             :locked="editorSourceRef.locked"
             :CanUnlock="editorSourceRef.CanUnlock"
-            :viewerZoom="viewerZoom"    
-            :useViewZoom="true"          
+            :viewerZoom="viewerZoom"
+            :useViewZoom="true"
             @update:zoom="setZoom"
             @autosave="saveQuillContent"
           >
@@ -207,17 +207,17 @@ const viewerZoom = ref(DEFAULT_ZOOM);
 
 function setZoom(action) {
   let newZoom = viewerZoom.value;
-  
+
   // Only handle increase/decrease/reset - not size names
   if (action === 'increase') {
     // Find next higher zoom level
-    const currentIndex = ZOOM_LEVELS.findIndex(z => z >= viewerZoom.value);
+    const currentIndex = ZOOM_LEVELS.findIndex((z) => z >= viewerZoom.value);
     if (currentIndex < ZOOM_LEVELS.length - 1) {
       newZoom = ZOOM_LEVELS[currentIndex + 1];
     }
   } else if (action === 'decrease') {
     // Find next lower zoom level
-    const currentIndex = ZOOM_LEVELS.findIndex(z => z >= viewerZoom.value);
+    const currentIndex = ZOOM_LEVELS.findIndex((z) => z >= viewerZoom.value);
     if (currentIndex > 0) {
       newZoom = ZOOM_LEVELS[currentIndex - 1];
     } else if (currentIndex === 0) {
@@ -230,7 +230,7 @@ function setZoom(action) {
     // Direct zoom value
     newZoom = action;
   }
-  
+
   // Update zoom without saving to localStorage (resets on refresh)
   viewerZoom.value = newZoom;
 }
@@ -251,8 +251,6 @@ function loadFileIntoEditor(source) {
   editorSourceRef.value.hasSelections = source.hasSelections;
   editorSourceRef.value.showLineNumbers = source.showLineNumbers ?? false;
   editorSourceRef.value.charsXLine = source.charsXLine;
-
-  
 
   const url = new URL(location.href);
   if (url.searchParams.get('file') !== source.id) {

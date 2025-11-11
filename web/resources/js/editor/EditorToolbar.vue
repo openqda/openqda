@@ -3,7 +3,7 @@
 <script setup>
 /* Expose the prop as a local var the template can use directly */
 const { useViewZoom } = defineProps({
-  useViewZoom: { type: Boolean, default: true }
+  useViewZoom: { type: Boolean, default: true },
 });
 
 /* Single source of truth for emits */
@@ -126,9 +126,12 @@ const emit = defineEmits(['update:zoom']);
     -->
 
     <!-- Viewer-only zoom buttons (does NOT change document content) -->
-    <span v-if="useViewZoom" class="ql-formats inline-flex items-center zoom-buttons">
-      <button 
-        type="button" 
+    <span
+      v-if="useViewZoom"
+      class="ql-formats inline-flex items-center zoom-buttons"
+    >
+      <button
+        type="button"
         class="ql-zoom-out"
         title="Zoom Out"
         @click="emit('update:zoom', 'decrease')"
@@ -138,8 +141,8 @@ const emit = defineEmits(['update:zoom']);
           <circle class="ql-stroke" cx="9" cy="9" r="6"></circle>
         </svg>
       </button>
-      <button 
-        type="button" 
+      <button
+        type="button"
         class="ql-zoom-in"
         title="Zoom In"
         @click="emit('update:zoom', 'increase')"
@@ -163,11 +166,7 @@ const emit = defineEmits(['update:zoom']);
         </svg>
       </button> -->
     </span>
-
   </div>
-
-  
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

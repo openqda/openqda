@@ -10,13 +10,16 @@
       <!-- <EditorToolbar :useViewZoom="useViewZoom"
         @update:zoom="(z) => emit('update:zoom', z)" /> -->
 
-        <EditorToolbar :useViewZoom="useViewZoom" @update:zoom="onToolbarZoom"/>
-
+      <EditorToolbar :useViewZoom="useViewZoom" @update:zoom="onToolbarZoom" />
     </div>
     <slot name="actions"></slot>
   </div>
   <!-- editor content -->
-  <div id="editorPane" :style="zoomStyle" :class="cn('flex', loadingDocument && 'hidden')">
+  <div
+    id="editorPane"
+    :style="zoomStyle"
+    :class="cn('flex', loadingDocument && 'hidden')"
+  >
     <div id="lineNumber"></div>
     <div id="editor" class="grow"></div>
   </div>
@@ -42,7 +45,7 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref, watch, computed  } from 'vue';
+import { onMounted, onUnmounted, ref, watch, computed } from 'vue';
 import Quill from 'quill';
 import QuillCursors from 'quill-cursors';
 import EditorToolbar from './EditorToolbar.vue';
@@ -63,7 +66,7 @@ const props = defineProps({
   locked: Boolean,
   CanUnlock: Boolean,
   viewerZoom: { type: Number, default: 1.0 },
-  useViewZoom: { type: Boolean, default: true }, 
+  useViewZoom: { type: Boolean, default: true },
 });
 
 const loadingDocument = ref(false);
@@ -83,14 +86,14 @@ Quill.register('modules/highlight', SelectionHighlightBG);
 const zoomStyle = computed(() => {
   const z = props.viewerZoom || 1.0;
   return {
-    zoom: z,                               
-    transform: `scale(${z})`,             
+    zoom: z,
+    transform: `scale(${z})`,
     transformOrigin: 'top left',
     width: z === 1 ? '100%' : `calc(100% / ${z})`,
   };
 });
 
-// Remove the old size mapping 
+// Remove the old size mapping
 function onToolbarZoom(action) {
   // Just pass the action to parent
   emit('update:zoom', action);
