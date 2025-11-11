@@ -21,14 +21,16 @@ const emit = defineEmits(['update:zoom']);
         <option value="helvetica">Helvetica</option>
         <option value="lucida">Lucida</option>
       </select>
-      <!-- <select class="ql-size" title="Font size">
+      <!-- Font size dropdown - uses Quill formatting, not zoom -->
+      <select v-if="!useViewZoom" class="ql-size" title="Font size">
         <option value="extra-small">xs</option>
         <option value="small">sm</option>
         <option value="medium" selected>md</option>
         <option value="large">lg</option>
-      </select> -->
+      </select>
 
-      <select v-if="!useViewZoom" class="ql-size" title="Font size">
+      <!-- View size dropdown when useViewZoom is true - also uses Quill formatting -->
+      <select v-if="useViewZoom" class="ql-size" title="Font size">
         <option value="extra-small">xs</option>
         <option value="small">sm</option>
         <option value="medium" selected>md</option>
@@ -123,18 +125,49 @@ const emit = defineEmits(['update:zoom']);
     </span>
     -->
 
-    <!-- Viewer-only size (does NOT change document content) -->
-    <div v-if="useViewZoom" class="inline-flex items-center gap-1 ms-2">
-      <span class="text-xs opacity-70">View:</span>
-      <button type="button" class="px-2 py-1 text-xs" @click="emit('update:zoom','xs')">xs</button>
-      <button type="button" class="px-2 py-1 text-xs" @click="emit('update:zoom','sm')">sm</button>
-      <button type="button" class="px-2 py-1 text-xs" @click="emit('update:zoom','md')">md</button>
-      <button type="button" class="px-2 py-1 text-xs" @click="emit('update:zoom','lg')">lg</button>
-    </div>
+    <!-- Viewer-only zoom buttons (does NOT change document content) -->
+    <span v-if="useViewZoom" class="ql-formats inline-flex items-center zoom-buttons">
+      <button 
+        type="button" 
+        class="ql-zoom-out"
+        title="Zoom Out"
+        @click="emit('update:zoom', 'decrease')"
+      >
+        <svg viewBox="0 0 18 18">
+          <line class="ql-stroke" x1="6" x2="12" y1="9" y2="9"></line>
+          <circle class="ql-stroke" cx="9" cy="9" r="6"></circle>
+        </svg>
+      </button>
+      <button 
+        type="button" 
+        class="ql-zoom-in"
+        title="Zoom In"
+        @click="emit('update:zoom', 'increase')"
+      >
+        <svg viewBox="0 0 18 18">
+          <line class="ql-stroke" x1="6" x2="12" y1="9" y2="9"></line>
+          <line class="ql-stroke" x1="9" x2="9" y1="6" y2="12"></line>
+          <circle class="ql-stroke" cx="9" cy="9" r="6"></circle>
+        </svg>
+      </button>
+      <!-- <button 
+        type="button" 
+        class="ql-zoom-reset"
+        title="Reset Zoom to Default (100%)"
+        @click="emit('update:zoom', 'reset')"
+      >
+        <svg viewBox="0 0 18 18">
+          <circle class="ql-stroke" cx="9" cy="9" r="6"></circle>
+          <line class="ql-stroke" x1="9" x2="9" y1="6" y2="9"></line>
+          <line class="ql-stroke" x1="9" x2="12" y1="9" y2="9"></line>
+        </svg>
+      </button> -->
+    </span>
 
   </div>
 
   
 </template>
 
-<style scoped></style>
+<style scoped>
+</style>

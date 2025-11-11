@@ -62,7 +62,7 @@ const props = defineProps({
   source: String,
   locked: Boolean,
   CanUnlock: Boolean,
-  viewerZoom: { type: String },   
+  viewerZoom: { type: Number, default: 1.0 },
   useViewZoom: { type: Boolean, default: true }, 
 });
 
@@ -81,8 +81,7 @@ Quill.register('modules/cursors', QuillCursors);
 Quill.register('modules/highlight', SelectionHighlightBG);
 
 const zoomStyle = computed(() => {
-  const map = { xs: 0.85, sm: 1, md: 1.15, lg: 1.3 };
-  const z = map[props.viewerZoom] ?? 1;
+  const z = props.viewerZoom || 1.0;
   return {
     zoom: z,                               
     transform: `scale(${z})`,             
@@ -91,16 +90,10 @@ const zoomStyle = computed(() => {
   };
 });
 
-// map view sizes to quill's content sizes
-const SIZE_MAP = { xs: 'extra-small', sm: 'small', md: 'medium', lg: 'large' };
-
-function onToolbarZoom(size) {
-  const range = quillInstance?.getSelection?.();
-  if (range && range.length > 0) {
-    quillInstance.format('size', SIZE_MAP[size]); // selection formatting (shared)
-  } else {
-    emit('update:zoom', size); // viewer-only, goes to parent setZoom
-  }
+// Remove the old size mapping 
+function onToolbarZoom(action) {
+  // Just pass the action to parent
+  emit('update:zoom', action);
 }
 
 onMounted(() => {

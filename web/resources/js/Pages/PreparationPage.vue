@@ -112,8 +112,7 @@
 </template>
 
 <script setup>
-import { defineProps, onMounted, provide, ref, watch, computed  } from 'vue';
-import { usePage } from '@inertiajs/vue3'
+import { defineProps, onMounted, provide, ref, watch } from 'vue';
 import PreparationsEditor from '../editor/PreparationsEditor.vue';
 import FilesManager from '../Components/files/FilesManager.vue';
 import Button from '../Components/interactive/Button.vue';
@@ -197,44 +196,44 @@ const unlockSource = async () => {
 };
 
 // ─────────────────────────────────────────────────────────────
-// VIEW ZOOM (per user + per file) — no hardcoded user/file
-// Place this ABOVE loadFileIntoEditor()
+// VIEW ZOOM (per user) - numeric zoom levels
+// Resets to default on page refresh
 // ─────────────────────────────────────────────────────────────
-const page = usePage();
-// console.warn('Inertia page.props.auth?.user =', page.props.auth?.user);
-const currentUserId = computed(() => page.props.auth?.user?.id ?? null);
-console.warn('Current user id =', currentUserId.value);
+const ZOOM_LEVELS = [0.7, 0.85, 1.0, 1.15, 1.3, 1.5]; // Available zoom levels
+const DEFAULT_ZOOM = 1.0;
 
-const zoomKey = computed(() =>
-  currentUserId.value ? `zoom:${currentUserId.value}` : null
-);
+// Always start with default zoom on page load
+const viewerZoom = ref(DEFAULT_ZOOM);
 
-console.warn('Current user zoomkey =', zoomKey.value);
-
-let initialZoom = null;
-if (currentUserId.value) {
-  initialZoom = localStorage.getItem(`zoom:${currentUserId.value}`);
-}
-const viewerZoom = ref(initialZoom || null);
-console.warn('Current user viewerZoom =', viewerZoom.value);
-
-function setZoom(z) {
-  console.warn('setZoom called with', z); // temporary
-  viewerZoom.value = z;
-  if (zoomKey.value) {
-    localStorage.setItem(zoomKey.value, z);
-    console.warn('saved to', zoomKey.value, '->', z); // temporary
+function setZoom(action) {
+  let newZoom = viewerZoom.value;
+  
+  // Only handle increase/decrease/reset - not size names
+  if (action === 'increase') {
+    // Find next higher zoom level
+    const currentIndex = ZOOM_LEVELS.findIndex(z => z >= viewerZoom.value);
+    if (currentIndex < ZOOM_LEVELS.length - 1) {
+      newZoom = ZOOM_LEVELS[currentIndex + 1];
+    }
+  } else if (action === 'decrease') {
+    // Find next lower zoom level
+    const currentIndex = ZOOM_LEVELS.findIndex(z => z >= viewerZoom.value);
+    if (currentIndex > 0) {
+      newZoom = ZOOM_LEVELS[currentIndex - 1];
+    } else if (currentIndex === 0) {
+      // Already at lowest, stay there
+      return;
+    }
+  } else if (action === 'reset') {
+    newZoom = DEFAULT_ZOOM;
+  } else if (typeof action === 'number') {
+    // Direct zoom value
+    newZoom = action;
   }
+  
+  // Update zoom without saving to localStorage (resets on refresh)
+  viewerZoom.value = newZoom;
 }
-const lastAppliedUser = ref(null);
-
-watch(currentUserId, (u) => {
-  if (!u || u === lastAppliedUser.value) return;
-  const saved = localStorage.getItem(`zoom:${u}`);
-  if (typeof saved === 'string') viewerZoom.value = saved;
-  lastAppliedUser.value = u;
-},
- { immediate: true });
 
 /*---------------------------------------------------------------------------*/
 // EDITING
