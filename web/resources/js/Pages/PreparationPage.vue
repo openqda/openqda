@@ -207,7 +207,6 @@ const viewerZoom = ref(DEFAULT_ZOOM);
 
 function setZoom(action) {
   let newZoom = viewerZoom.value;
-
   // Only handle increase/decrease/reset - not size names
   if (action === 'increase') {
     // Find next higher zoom level

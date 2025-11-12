@@ -7,8 +7,6 @@
       id="toolbar"
       class="rounded-none mb-3 xl:mb-0 lg:rounded-full border-2 bg-surface z-150 shadow-lg border-foreground/20 py-2 px-4 inline-flex text-foreground/60! text-center"
     >
-      <!-- <EditorToolbar :useViewZoom="useViewZoom"
-        @update:zoom="(z) => emit('update:zoom', z)" /> -->
 
       <EditorToolbar :useViewZoom="useViewZoom" @update:zoom="onToolbarZoom" />
     </div>
@@ -86,14 +84,14 @@ Quill.register('modules/highlight', SelectionHighlightBG);
 const zoomStyle = computed(() => {
   const z = props.viewerZoom || 1.0;
   return {
-    zoom: z,
+    // zoom: z,
     transform: `scale(${z})`,
     transformOrigin: 'top left',
     width: z === 1 ? '100%' : `calc(100% / ${z})`,
   };
 });
 
-// Remove the old size mapping
+// Forward zoom events to parent component
 function onToolbarZoom(action) {
   // Just pass the action to parent
   emit('update:zoom', action);

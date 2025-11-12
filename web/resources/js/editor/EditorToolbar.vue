@@ -1,5 +1,3 @@
-<!-- <script setup lang="ts"></script> -->
-
 <script setup>
 /* Expose the prop as a local var the template can use directly */
 const { useViewZoom } = defineProps({
@@ -21,14 +19,6 @@ const emit = defineEmits(['update:zoom']);
         <option value="helvetica">Helvetica</option>
         <option value="lucida">Lucida</option>
       </select>
-      <!-- Font size dropdown - uses Quill formatting, not zoom -->
-      <select v-if="!useViewZoom" class="ql-size" title="Font size">
-        <option value="extra-small">xs</option>
-        <option value="small">sm</option>
-        <option value="medium" selected>md</option>
-        <option value="large">lg</option>
-      </select>
-
       <!-- View size dropdown when useViewZoom is true - also uses Quill formatting -->
       <select v-if="useViewZoom" class="ql-size" title="Font size">
         <option value="extra-small">xs</option>
@@ -153,18 +143,6 @@ const emit = defineEmits(['update:zoom']);
           <circle class="ql-stroke" cx="9" cy="9" r="6"></circle>
         </svg>
       </button>
-      <!-- <button 
-        type="button" 
-        class="ql-zoom-reset"
-        title="Reset Zoom to Default (100%)"
-        @click="emit('update:zoom', 'reset')"
-      >
-        <svg viewBox="0 0 18 18">
-          <circle class="ql-stroke" cx="9" cy="9" r="6"></circle>
-          <line class="ql-stroke" x1="9" x2="9" y1="6" y2="9"></line>
-          <line class="ql-stroke" x1="9" x2="12" y1="9" y2="9"></line>
-        </svg>
-      </button> -->
     </span>
   </div>
 </template>
