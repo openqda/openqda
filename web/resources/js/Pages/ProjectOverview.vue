@@ -52,7 +52,7 @@ import ProjectSummary from './Projects/ProjectSummary.vue';
 import ProjectCodebooks from './Projects/codebooks/ProjectCodebooks.vue';
 import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
-import CreateDialog from '../dialogs/CreateDialog.vue';
+import CreateDialog from '../dialogs/FormDialog.vue';
 import { useProjects } from '../domain/project/useProjects.js';
 
 const props = defineProps([

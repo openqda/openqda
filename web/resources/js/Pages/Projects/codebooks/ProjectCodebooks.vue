@@ -11,7 +11,7 @@ import {
   ChevronRightIcon,
 } from '@heroicons/vue/24/solid';
 import { Collapse } from 'vue-collapsed';
-import CreateDialog from '../../../dialogs/CreateDialog.vue';
+import CreateDialog from '../../../dialogs/FormDialog.vue';
 import ConfirmDialog from '../../../dialogs/ConfirmDialog.vue';
 import DeleteDialog from '../../../dialogs/DeleteDialog.vue';
 import ContrastText from '../../../Components/text/ContrastText.vue';

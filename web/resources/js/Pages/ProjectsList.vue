@@ -10,7 +10,7 @@ import { ref } from 'vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import ProjectsListMenu from './Projects/ProjectsListMenu.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
-import CreateDialog from '../dialogs/CreateDialog.vue';
+import CreateDialog from '../dialogs/FormDialog.vue';
 import { useProjects } from '../domain/project/useProjects.js';
 import HelpResources from '../Components/HelpResources.vue';
 import Headline2 from '../Components/layout/Headline2.vue';

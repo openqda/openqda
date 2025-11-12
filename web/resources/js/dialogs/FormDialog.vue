@@ -3,14 +3,33 @@ import Button from '../Components/interactive/Button.vue';
 import DialogBase from './DialogBase.vue';
 import ActionMessage from '../Components/ActionMessage.vue';
 import AutoForm from '../form/AutoForm.vue';
-import { ref, watch } from 'vue';
+import {ref, watch} from 'vue';
 import { asyncTimeout } from '../utils/asyncTimeout';
 
+
+/*----------------------------------------------------------------------------/
+ | FormDialog
+ |----------------------------------------------------------------------------/
+ | A generic dialog that shows a form based on a given schema.
+ | It allows to connect a submit function that is called when the form is submitted.
+ | You can trigger it either by using the trigger slot
+ | or by using the useFormDialog composable.
+ | You should use the trigger slot when there is only a single trigger for the dialog.
+ | In turn, if you have multiple triggers, you should use the composable.
+ | A typical use case for that is to have a list of items that can all open the same dialog.
+ |
+ | It emits 'created' event when the form is successfully submitted
+ | and 'cancelled' event when the dialog is closed without submission.
+ *----------------------------------------------------------------------------*/
+
 const props = defineProps({
+  id: { type: String },
+  static: { type: Boolean, required: false },
   schema: { type: Object },
   submit: { type: Function },
   title: { type: String, required: false },
   buttonTitle: String,
+  show: Boolean
 });
 
 const emit = defineEmits(['created', 'cancelled']);
@@ -18,16 +37,17 @@ const error = ref(null);
 const complete = ref(false);
 const submitting = ref(false);
 const open = ref(false);
-const currentSchema = ref(null);
-watch(
-  () => props.schema,
-  (newSchema) => newSchema && start(newSchema)
-);
 
-const start = (newSchema) => {
-  currentSchema.value = newSchema;
+watch(() => props.show, (newVal) => {
+    if (newVal !== open.value) setTimeout(()=> open.value = newVal, 100);
+});
+
+const start = (callback) => {
+  callback();
   open.value = true;
 };
+
+
 const submit = async (document) => {
   error.value = false; // Clear any previous error
   complete.value = false;
@@ -73,16 +93,24 @@ const cancel = () => {
   complete.value = false;
   emit('cancelled');
 };
+
+const keyDownHandler = e => {
+    if (e.key === 'Escape') {
+        cancel();
+    }
+}
 </script>
 
 <template>
-  <DialogBase :title="props.title ?? 'Rename'" :show="open">
+    <div>
+        <slot name="trigger" @click="start"></slot>
+  <DialogBase :title="props.title ?? 'Rename'" :show="open" :static="props.static" :show-close-button="true" @close="open = false" @keydown="keyDownHandler">
     <template #body>
       <AutoForm
-        v-if="currentSchema"
+        v-if="props.schema"
         id="create-custom-form"
         :autofocus="true"
-        :schema="currentSchema"
+        :schema="props.schema"
         @submit="submit"
         class="w-full"
         :show-cancel="false"
@@ -116,6 +144,7 @@ const cancel = () => {
       </div>
     </template>
   </DialogBase>
+    </div>
 </template>
 
 <style scoped></style>
