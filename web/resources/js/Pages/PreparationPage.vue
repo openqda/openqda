@@ -31,7 +31,7 @@
             :source="editorSourceRef.content"
             :locked="editorSourceRef.locked"
             :CanUnlock="editorSourceRef.CanUnlock"
-            :viewerZoom="viewerZoom"
+            :viewerZoom="zoom"
             :useViewZoom="true"
             @update:zoom="setZoom"
             @autosave="saveQuillContent"
@@ -132,6 +132,7 @@ import ConfirmDialog from '../dialogs/ConfirmDialog.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
+import { useZoom } from '../editor/useZoom.js'
 
 const editorSourceRef = ref({
   content: 'select to display',
@@ -194,45 +195,10 @@ const unlockSource = async () => {
     flashMessage(msg, { type: 'error' });
   }
 };
-
-// ─────────────────────────────────────────────────────────────
-// VIEW ZOOM (per user) - numeric zoom levels
-// Resets to default on page refresh
-// ─────────────────────────────────────────────────────────────
-const ZOOM_LEVELS = [0.7, 0.85, 1.0, 1.15, 1.3, 1.5]; // Available zoom levels
-const DEFAULT_ZOOM = 1.0;
-
-// Always start with default zoom on page load
-const viewerZoom = ref(DEFAULT_ZOOM);
-
-function setZoom(action) {
-  let newZoom = viewerZoom.value;
-  // Only handle increase/decrease/reset - not size names
-  if (action === 'increase') {
-    // Find next higher zoom level
-    const currentIndex = ZOOM_LEVELS.findIndex((z) => z >= viewerZoom.value);
-    if (currentIndex < ZOOM_LEVELS.length - 1) {
-      newZoom = ZOOM_LEVELS[currentIndex + 1];
-    }
-  } else if (action === 'decrease') {
-    // Find next lower zoom level
-    const currentIndex = ZOOM_LEVELS.findIndex((z) => z >= viewerZoom.value);
-    if (currentIndex > 0) {
-      newZoom = ZOOM_LEVELS[currentIndex - 1];
-    } else if (currentIndex === 0) {
-      // Already at lowest, stay there
-      return;
-    }
-  } else if (action === 'reset') {
-    newZoom = DEFAULT_ZOOM;
-  } else if (typeof action === 'number') {
-    // Direct zoom value
-    newZoom = action;
-  }
-
-  // Update zoom without saving to localStorage (resets on refresh)
-  viewerZoom.value = newZoom;
-}
+/*---------------------------------------------------------------------------*/
+// ZOOM
+/*---------------------------------------------------------------------------*/
+const { zoom, setZoom } = useZoom();
 
 /*---------------------------------------------------------------------------*/
 // EDITING
