@@ -54,4 +54,3 @@ describe('useZoom', () => {
     expect(zoom.value).toBe(1.3);
   });
 });
-

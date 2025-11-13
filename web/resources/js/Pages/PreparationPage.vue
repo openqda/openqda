@@ -132,7 +132,7 @@ import ConfirmDialog from '../dialogs/ConfirmDialog.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
-import { useZoom } from '../editor/useZoom.js'
+import { useZoom } from '../editor/useZoom.js';
 
 const editorSourceRef = ref({
   content: 'select to display',
