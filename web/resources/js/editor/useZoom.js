@@ -13,10 +13,9 @@ const state = reactive({
 
 export const useZoom = () => {
     const { zoom } = toRefs(state);
-
     function setZoom(action) {
         let newZoom = zoom.value;
-        // Only handle increase/decrease/reset - not size names
+        // Only handle increase/decrease - not size names
         if (action === 'increase') {
             // Find next higher zoom level
             const currentIndex = ZOOM_LEVELS.findIndex((z) => z >= zoom.value);
@@ -32,13 +31,10 @@ export const useZoom = () => {
                 // Already at lowest, stay there
                 return;
             }
-        } else if (action === 'reset') {
-            newZoom = DEFAULT_ZOOM;
         } else if (typeof action === 'number') {
             // Direct zoom value
             newZoom = action;
         }
-
         // Update zoom without saving to localStorage (resets on refresh)
         state.zoom = newZoom;
     }
