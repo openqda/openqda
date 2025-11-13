@@ -3,7 +3,6 @@ import { useZoom } from '../useZoom.js';
 
 describe('useZoom', () => {
   let zoom, setZoom;
-
   beforeEach(() => {
     const result = useZoom();
     zoom = result.zoom;

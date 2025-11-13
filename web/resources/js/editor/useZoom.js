@@ -10,7 +10,6 @@ const DEFAULT_ZOOM = 1.0;
 const state = reactive({
     zoom: DEFAULT_ZOOM // Always start with default zoom on page load
 })
-
 export const useZoom = () => {
     const { zoom } = toRefs(state);
     function setZoom(action) {
