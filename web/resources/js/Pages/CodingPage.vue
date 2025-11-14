@@ -64,6 +64,9 @@
         >
           No other sources locked for coding
         </p>
+          <div class="mt-auto">
+              <Footer />
+          </div>
       </BaseContainer>
     </template>
     <template #main>
@@ -101,6 +104,7 @@ import { attemptAsync } from '../Components/notification/attemptAsync.js';
 import { useCleanup } from './coding/cleanup/useCleanup.js';
 import Cleanup from './coding/cleanup/Cleanup.vue';
 import { flashMessage } from '../Components/notification/flashMessage.js';
+import Footer from '../Layouts/Footer.vue'
 
 const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
 //------------------------------------------------------------------------

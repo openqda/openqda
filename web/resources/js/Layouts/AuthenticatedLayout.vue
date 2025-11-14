@@ -96,6 +96,9 @@
                     </ul>
                   </nav>
                   <slot name="menu"></slot>
+                    <div class="mt-auto">
+                        <Footer />
+                    </div>
                 </div>
               </DialogPanel>
             </TransitionChild>
@@ -234,13 +237,7 @@
           <slot name="menu" />
         </aside>
 
-        <main
-          :class="
-            cn(
-              'h-screen overflow-y-auto bg-surface text-surface-foreground grow'
-            )
-          "
-        >
+        <main class="h-screen overflow-y-auto bg-surface text-surface-foreground grow">
           <Transition>
             <slot name="main" />
           </Transition>
@@ -279,6 +276,7 @@ import { flashMessage } from '../Components/notification/flashMessage.js';
 import { useDebug } from '../utils/useDebug.js';
 import { useHelpDialog } from '../dialogs/help/useHelpDialog.js';
 import HelpDialog from '../dialogs/help/HelpDialog.vue';
+import Footer from './Footer.vue'
 
 const websocket = useWebSocketConnection();
 const navigation = ref([]);

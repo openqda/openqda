@@ -126,6 +126,9 @@
             </tbody>
           </table>
         </div>
+          <div class="mt-auto">
+              <Footer />
+          </div>
       </BaseContainer>
     </template>
 
@@ -180,6 +183,7 @@ import { useVisualizerPlugins } from './analysis/visualization/useVisualizerPlug
 import SelectField from '../form/SelectField.vue';
 import ContrastText from '../Components/text/ContrastText.vue';
 import { useUsers } from '../domain/teams/useUsers.js';
+import Footer from '../Layouts/Footer.vue'
 
 //------------------------------------------------------------------------
 // DATA / PROPS
