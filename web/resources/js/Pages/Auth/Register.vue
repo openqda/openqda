@@ -9,6 +9,7 @@ import Altcha from '../../Components/Altcha.vue';
 import 'altcha';
 import Button from '../../Components/interactive/Button.vue';
 import Headline1 from '../../Components/layout/Headline1.vue';
+import Checkbox from '../../form/Checkbox.vue'
 
 const form = useForm({
   name: '',
@@ -16,6 +17,9 @@ const form = useForm({
   password: '',
   password_confirmation: '',
   altcha: '',
+  terms: false,
+  privacy: false,
+  research: false,
 });
 const submit = () => {
   const reset = () => form.reset('password', 'password_confirmation');
@@ -111,9 +115,33 @@ const submit = () => {
         <InputError class="mt-2" :message="form.errors.password_confirmation" />
       </div>
 
+        <div>
+            <Checkbox v-model="form.terms" required>
+                <template #label>
+                    <span class="ms-2 text-primary-foreground">I agree to the <Link href="/terms" class="underline" target="_blank">Terms of Service</Link> (required)</span>
+                </template>
+            </Checkbox>
+        </div>
+
+        <div>
+            <Checkbox v-model="form.privacy" required>
+                <template #label>
+                    <span class="ms-2 text-primary-foreground">I agree to the <Link href="/privacy" class="underline" target="_blank">Privacy Policy</Link> (required)</span>
+                </template>
+            </Checkbox>
+        </div>
+
+        <div>
+            <Checkbox v-model="form.research">
+                <template #label>
+                    <span class="ms-2 text-primary-foreground">I want to participate in research to improve OpenQDA and the overall state of qualitative data analysis (optional)</span>
+                </template>
+            </Checkbox>
+        </div>
+
       <div>
         <InputLabel
-          for="password_confirmation"
+          for="altcha_widget"
           value="Checking, if you are a human"
           class="text-secondary-foreground dark:text-foreground"
         />

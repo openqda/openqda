@@ -52,7 +52,7 @@
     "@thin-storage/core": "^1.0.2",
     "@vitejs/plugin-basic-ssl": "^1.2.0",
     "@vueuse/core": "^12.0.0",
-    "altcha": "^1.0.7",
+    "altcha": "^2.2.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "file-saver": "^2.0.5",

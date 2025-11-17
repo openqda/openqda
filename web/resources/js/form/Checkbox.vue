@@ -31,8 +31,8 @@ const props = defineProps({
       <span
         v-if="props.label"
         :class="cn('ms-2 text-nowrap', props.labelClass)"
-        >{{ props.label }}</span
-      >
+        >{{ props.label }}</span>
+        <slot name="label"></slot>
     </InputLabel>
     <InputError
       v-if="props.validation?.isValid === false"

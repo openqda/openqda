@@ -70,6 +70,34 @@ Route::get('/imprint', function () {
     ]);
 })->name('imprint');
 
+Route::get('/privacy', function () {
+    return Inertia::render('RenderHtml', [
+        'background' => asset(config('app.background')),
+        'html' => Str::of(file_get_contents(resource_path('markdown/privacy.md')))->markdown(),
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'bgtl' => config('app.bgtl'),
+        'bgtr' => config('app.bgtr'),
+        'bgbr' => config('app.bgbr'),
+        'bgbl' => config('app.bgbl'),
+
+    ]);
+})->name('privacy');
+
+Route::get('/terms', function () {
+    return Inertia::render('RenderHtml', [
+        'background' => asset(config('app.background')),
+        'html' => Str::of(file_get_contents(resource_path('markdown/terms.md')))->markdown(),
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'bgtl' => config('app.bgtl'),
+        'bgtr' => config('app.bgtr'),
+        'bgbr' => config('app.bgbr'),
+        'bgbl' => config('app.bgbl'),
+
+    ]);
+})->name('terms');
+
 Route::get('/license', function () {
     return Inertia::render('RenderHtml', [
         'background' => asset(config('app.background')),
