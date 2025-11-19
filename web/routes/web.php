@@ -45,15 +45,15 @@ Route::get('/', function () {
 $staticMarkdownRoute = function ($path, $markdownFile, $routeName) {
     Route::get($path, function () use ($markdownFile) {
         return Inertia::render('RenderHtml', [
-                'background' => asset(config('app.background')),
-                'html' => Str::of(file_get_contents(resource_path("markdown/{$markdownFile}")))->markdown(),
-                'canLogin' => Route::has('login'),
-                'canRegister' => Route::has('register'),
-                'bgtl' => config('app.bgtl'),
-                'bgtr' => config('app.bgtr'),
-                'bgbr' => config('app.bgbr'),
-                'bgbl' => config('app.bgbl'),
-            ]);
+            'background' => asset(config('app.background')),
+            'html' => Str::of(file_get_contents(resource_path("markdown/{$markdownFile}")))->markdown(),
+            'canLogin' => Route::has('login'),
+            'canRegister' => Route::has('register'),
+            'bgtl' => config('app.bgtl'),
+            'bgtr' => config('app.bgtr'),
+            'bgbr' => config('app.bgbr'),
+            'bgbl' => config('app.bgbl'),
+        ]);
     })->name($routeName);
 };
 
