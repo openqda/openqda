@@ -43,6 +43,7 @@ class RegistrationTest extends TestCase
             'password_confirmation' => 'password',
             'terms' => true,
             'privacy' => true,
+            'research' => false,
             'altcha' => $challenge['signature'],  // Use the valid altcha challenge
         ]);
 
