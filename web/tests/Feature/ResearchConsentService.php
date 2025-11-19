@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Services;
+namespace Tests\Feature;
 
 use App\Mail\ResearchConfirmation;
 use App\Models\User;

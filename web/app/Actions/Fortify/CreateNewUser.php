@@ -29,7 +29,6 @@ class CreateNewUser implements CreatesNewUsers
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'terms' => ['accepted'],
             'privacy' => ['accepted'],
-            //             'research' => ['required', 'boolean'],
             'password' => $this->passwordRules(),
         ];
 

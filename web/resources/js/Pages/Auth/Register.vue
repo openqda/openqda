@@ -26,6 +26,7 @@ const form = useForm({
 
 const submissionError = ref(null);
 const submit = () => {
+  if (form.processing) return;
   const reset = () => form.reset('password', 'password_confirmation');
   form.post(route('register'), {
     onFinish: reset,

@@ -45,8 +45,8 @@ class UserController extends Controller
         $consent = app(ResearchConsentService::class);
         try {
             $consent->confirmResearch($user, $token);
-        } catch (Exception $e) {
-            return response()->json(['message' => $e.message], 400);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 400);
         }
 
         return response()->json(['message' => 'Research participation confirmed.', 'success' => true], 200);
@@ -61,8 +61,8 @@ class UserController extends Controller
         $consent = app(ResearchConsentService::class);
         try {
             $consent->withdrawResearch($user);
-        } catch (Exception $e) {
-            return response()->json(['message' => $e.message], 400);
+        } catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 400);
         }
 
         return response()->json(['message' => 'Research participation withdrawn.', 'success' => true], 200);
