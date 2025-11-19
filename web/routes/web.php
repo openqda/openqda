@@ -42,75 +42,27 @@ Route::get('/', function () {
     ]);
 })->name('welcome');
 
-Route::get('/faq', function () {
-    return Inertia::render('RenderHtml', [
-        'background' => asset(config('app.background')),
-        'html' => Str::of(file_get_contents(resource_path('markdown/faq.md')))->markdown(),
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'bgtl' => config('app.bgtl'),
-        'bgtr' => config('app.bgtr'),
-        'bgbr' => config('app.bgbr'),
-        'bgbl' => config('app.bgbl'),
+$staticMarkdownRoute = function ($path, $markdownFile, $routeName) {
+    Route::get($path, function () use ($markdownFile) {
+        return Inertia::render('RenderHtml', [
+                'background' => asset(config('app.background')),
+                'html' => Str::of(file_get_contents(resource_path("markdown/{$markdownFile}")))->markdown(),
+                'canLogin' => Route::has('login'),
+                'canRegister' => Route::has('register'),
+                'bgtl' => config('app.bgtl'),
+                'bgtr' => config('app.bgtr'),
+                'bgbr' => config('app.bgbr'),
+                'bgbl' => config('app.bgbl'),
+            ]);
+    })->name($routeName);
+};
 
-    ]);
-})->name('faq');
-
-Route::get('/imprint', function () {
-    return Inertia::render('RenderHtml', [
-        'background' => asset(config('app.background')),
-        'html' => Str::of(file_get_contents(resource_path('markdown/imprint.md')))->markdown(),
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'bgtl' => config('app.bgtl'),
-        'bgtr' => config('app.bgtr'),
-        'bgbr' => config('app.bgbr'),
-        'bgbl' => config('app.bgbl'),
-
-    ]);
-})->name('imprint');
-
-Route::get('/privacy', function () {
-    return Inertia::render('RenderHtml', [
-        'background' => asset(config('app.background')),
-        'html' => Str::of(file_get_contents(resource_path('markdown/privacy.md')))->markdown(),
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'bgtl' => config('app.bgtl'),
-        'bgtr' => config('app.bgtr'),
-        'bgbr' => config('app.bgbr'),
-        'bgbl' => config('app.bgbl'),
-
-    ]);
-})->name('privacy');
-
-Route::get('/terms', function () {
-    return Inertia::render('RenderHtml', [
-        'background' => asset(config('app.background')),
-        'html' => Str::of(file_get_contents(resource_path('markdown/terms.md')))->markdown(),
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'bgtl' => config('app.bgtl'),
-        'bgtr' => config('app.bgtr'),
-        'bgbr' => config('app.bgbr'),
-        'bgbl' => config('app.bgbl'),
-
-    ]);
-})->name('terms');
-
-Route::get('/license', function () {
-    return Inertia::render('RenderHtml', [
-        'background' => asset(config('app.background')),
-        'html' => Str::of(file_get_contents(resource_path('markdown/license.md')))->markdown(),
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'bgtl' => config('app.bgtl'),
-        'bgtr' => config('app.bgtr'),
-        'bgbr' => config('app.bgbr'),
-        'bgbl' => config('app.bgbl'),
-
-    ]);
-})->name('license');
+// Register static markdown pages
+$staticMarkdownRoute('/imprint', 'imprint.md', 'imprint');
+$staticMarkdownRoute('/faq', 'faq.md', 'faq');
+$staticMarkdownRoute('/privacy', 'privacy.md', 'privacy');
+$staticMarkdownRoute('/terms', 'terms.md', 'terms');
+$staticMarkdownRoute('/license', 'license.md', 'license');
 
 Route::middleware([
     'auth:sanctum',
