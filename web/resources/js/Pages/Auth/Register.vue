@@ -118,7 +118,7 @@ const submit = () => {
         <div>
             <Checkbox v-model="form.terms" required>
                 <template #label>
-                    <span class="ms-2 text-primary-foreground">I agree to the <Link href="/terms" class="underline" target="_blank">Terms of Service</Link> (required)</span>
+                    <span class="ms-2 text-primary-foreground">I agree to the <a href="/terms" class="underline text-primary-foreground hover:text-primary-foreground/60" target="_blank">Terms of Service</a> (required)</span>
                 </template>
             </Checkbox>
         </div>
@@ -126,7 +126,7 @@ const submit = () => {
         <div>
             <Checkbox v-model="form.privacy" required>
                 <template #label>
-                    <span class="ms-2 text-primary-foreground">I agree to the <Link href="/privacy" class="underline" target="_blank">Privacy Policy</Link> (required)</span>
+                    <span class="ms-2 text-primary-foreground">I agree to the <a href="/privacy" class="underline text-primary-foreground hover:text-primary-foreground/60" target="_blank">Privacy Policy</a> (required)</span>
                 </template>
             </Checkbox>
         </div>

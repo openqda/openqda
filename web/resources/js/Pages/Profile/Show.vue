@@ -9,6 +9,7 @@ import ThemeSwitch from '../../theme/ThemeSwitch.vue';
 import Button from '../../Components/interactive/Button.vue';
 import { router } from '@inertiajs/vue3';
 import BaseContainer from '../../Layouts/BaseContainer.vue';
+import LegalForm from './Partials/LegalForm.vue'
 // import '../../Pages/Profile/Partials/TwoFactorAuthenticationForm.vue';
 
 defineProps({
@@ -46,6 +47,8 @@ function onLogout() {
           v-if="$page.props.jetstream.canUpdatePassword"
           class="mt-10 sm:mt-0"
         />
+
+        <LegalForm :user="$page.props.auth.user" />
 
         <LogoutOtherBrowserSessionsForm
           :sessions="sessions"
