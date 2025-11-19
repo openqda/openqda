@@ -30,7 +30,7 @@ class ResearchConfirmation extends Mailable
      */
     public function envelope(): Envelope
     {
-        $subject = '['.config('mail.feedback.subject').']: Confirm your Participation in our Research'
+        $subject = '['.config('mail.feedback.subject').']: Confirm your Participation in our Research';
 
         return new Envelope(
             from: new Address('no-reply@openqda.org', 'OpenQDA System'),
@@ -43,12 +43,12 @@ class ResearchConfirmation extends Mailable
      */
     public function content(): Content
     {
-        $view = 'emails.user-research-confirmation';
+        $view = 'emails.user-research';
 
         return new Content(
             view: $view,
             with: [
-                'data' => $this->data
+                'data' => $this->data,
             ],
         );
     }

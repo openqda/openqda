@@ -4,7 +4,7 @@ namespace App\Actions\Fortify;
 
 use App\Models\Team;
 use App\Models\User;
-use App\Mail\ResearchConfirmation;
+use App\Services\ResearchConsentService;
 use GrantHolle\Altcha\Rules\ValidAltcha;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -47,31 +47,17 @@ class CreateNewUser implements CreatesNewUsers
                 'password' => Hash::make($input['password']),
             ]), function (User $user) {
                 $this->createTeam($user);
-                $this->sendResearchConfirmation($user, $input['research']);
+
+                if ($input['research']) {
+                    try {
+                        $consent = app(ResearchConsentService::class);
+                        $consent->sendResearchConfirmation($user);
+                    } catch (e) {
+                        // fail silently to not block user creation
+                    }
+                }
             });
         });
-    }
-
-    /**
-     * If user applied to research, we need to send an Email to confirm it.
-     */
-    protected function sendResearchConfirmation ($user, $accepted) {
-        if ($accepted != true) {
-            return;
-        }
-
-        // Generate a unique token using SHA256
-        $token = hash('sha256', uniqid($user->id . microtime(), true));
-
-        // Save the token to the user model
-        $user->update(['research_token' => $token]);
-
-        // send mail with token to user
-        $base64Token = base64_encode($token);
-        Mail::to($user->email)->send(new UserFeedback([
-          'name' => $user->name,
-          'link' => 'http://localhost/research/confirm?user='.$user->id.'&token='.$base64Token,
-        ]));
     }
 
     /**

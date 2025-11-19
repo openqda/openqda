@@ -35,7 +35,7 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
      * @var array<int, string>
      */
     protected $fillable = [
-        'name', 'email', 'password',  'research_token', 'research_consent',
+        'name', 'email', 'password',  'research_token', 'research_consent', 'research_requested',
     ];
 
     /**
@@ -47,7 +47,6 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
         'password',
         'remember_token',
         'research_token',
-        'research_consent',
         'two_factor_recovery_codes',
         'two_factor_secret',
     ];
@@ -59,6 +58,8 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'research_consent' => 'datetime',
+        'research_requested' => 'datetime',
     ];
 
     /**

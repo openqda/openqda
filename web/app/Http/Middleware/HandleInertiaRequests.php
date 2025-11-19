@@ -64,7 +64,7 @@ class HandleInertiaRequests extends Middleware
             'usersInPages' => [],
             // Lazily...
             'auth.user' => fn () => $request->user()
-                ? $request->user()->only('id', 'name', 'email', 'profile_photo_url')
+                ? $request->user()->only('id', 'name', 'email', 'profile_photo_url', 'research_requested', 'research_consent')
                 : null,
 
         ], [
