@@ -121,7 +121,7 @@ onMounted(async () => {
       class="flex justify-between items-center gap-2 my-4 bg-transparent text-sm"
     >
       <p v-if="props.user.research_consent" class="text-foreground/50">
-        Thank your for participating in our research! The consent was given by
+        Thank you for participating in our research! The consent was given by
         double-opt-in on
         {{ new Date(props.user.research_consent).toLocaleDateString() }}.
       </p>

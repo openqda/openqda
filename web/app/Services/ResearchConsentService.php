@@ -11,7 +11,7 @@ class ResearchConsentService
     /**
      * If user applied to research, we need to send an Email to confirm it.
      */
-    public function sendResearchConfirmation($user)
+    public function sendResearchConfirmation(User $user)
     {
         // Generate a unique token using SHA256
         $token = hash('sha256', uniqid($user->id.microtime(), true));

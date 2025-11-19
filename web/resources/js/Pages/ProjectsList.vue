@@ -46,7 +46,7 @@ const createProjectSchema = ref(null);
       <BaseContainer>
         <div class="flex items-center justify-center h-full text-foreground/50">
           <div>
-            <Headline2>Your projects </Headline2>
+            <Headline2>Your projects</Headline2>
             <div class="mt-4 mb-8 block">
               Select a project from the list or create a new one. You can search
               for project titles, descriptions and ids.

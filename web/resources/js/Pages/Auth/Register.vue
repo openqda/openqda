@@ -129,8 +129,9 @@ const submit = () => {
       </div>
 
       <div class="input-group group contents">
-        <InputLabel class="flex items-center">
+        <InputLabel class="flex items-center" for="terms">
           <input
+            id="terms"
             type="checkbox"
             v-model="form.terms"
             class="outline outline-0 px-0.5 focus:ring-foreground/80 checked:bg-primary"
@@ -152,8 +153,9 @@ const submit = () => {
       </div>
 
       <div class="input-group group contents">
-        <InputLabel class="flex items-center">
+        <InputLabel class="flex items-center" for="privacy">
           <input
+            id="privacy"
             type="checkbox"
             v-model="form.privacy"
             class="outline outline-0 px-0.5 focus:ring-foreground/80 checked:bg-primary"
@@ -175,8 +177,9 @@ const submit = () => {
       </div>
 
       <div class="input-group group contents">
-        <InputLabel class="flex items-center">
+        <InputLabel class="flex items-center" for="research">
           <input
+            id="research"
             type="checkbox"
             v-model="form.research"
             class="outline outline-0 px-0.5 focus:ring-foreground/80 checked:bg-primary"
@@ -204,7 +207,13 @@ const submit = () => {
       </div>
 
       <div v-if="submissionError">
-        <InputError class="mt-2" :message="submissionError.message" />
+        <InputError
+          class="mt-2"
+          :message="
+            submissionError?.message ||
+            Object.values(submissionError).flat().join(', ')
+          "
+        />
       </div>
 
       <div class="flex items-center justify-between text-sm">

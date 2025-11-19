@@ -35,7 +35,7 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
      * @var array<int, string>
      */
     protected $fillable = [
-        'name', 'email', 'password',  'research_token', 'research_consent', 'research_requested',
+        'name', 'email', 'password', 'research_token', 'research_consent', 'research_requested',
     ];
 
     /**

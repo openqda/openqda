@@ -50,11 +50,11 @@ class CreateNewUser implements CreatesNewUsers
                 $this->createTeam($user);
 
                 Log::info('User wants to participate in research? → '.$input['research']);
-                if ($input['research']) {
+                if ($input['research'] ?? false) {
                     try {
                         $consent = app(ResearchConsentService::class);
                         $consent->sendResearchConfirmation($user);
-                    } catch (e) {
+                    } catch (\Exception $e) {
                         // fail silently to not block user creation
                         Log::error('Failed to send research consent confirmation email to user ID '.$user->id.': '.$e->getMessage());
                     }

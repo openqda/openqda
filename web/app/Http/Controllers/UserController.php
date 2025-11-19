@@ -39,6 +39,9 @@ class UserController extends Controller
      */
     public function confirmResearch(Request $request)
     {
+        $request->validate([
+            'token' => 'required|string|max:256',
+        ]);
         $user = Auth::user();
         $token = urldecode($request->input('token'));
 

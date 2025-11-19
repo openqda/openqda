@@ -5,4 +5,4 @@
 
 {{ __(':url', ['url' =>  $data['link']]) }}
 
-{{ __('If you did not expect to receive an invitation to this team, you may discard this email.') }}
+{{ __('If you did not request to participate in research, you may discard this email.') }}

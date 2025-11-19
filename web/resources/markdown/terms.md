@@ -11,11 +11,11 @@ users accept these terms of use.
 
 ## 2. Scope and Terms of Use
 
-**2.1** These terms of use govern the provision of lea.online by the University of Bremen (hereinafter referred to as
-the "Operator") via OpenQDA (hereinafter referred to as "OpenQDA") and its use by learners (hereinafter referred to as "
-User" or "Users"). The OpenQDA is intended to enable users to independently improve their reading and writing skills in
-an institutional or private context. The use of the OpenQDA app is exclusively subject to these terms of use unless
-users are explicitly informed of any supplementary conditions.
+**2.1** These terms of use govern the provision of OpenQDA by the University of Bremen (hereinafter referred to as the "
+Operator") via OpenQDA (hereinafter referred to as "OpenQDA") and its use by users. The OpenQDA app is intended to
+enable users to collaboratively conduct qualitative research and data analysis in academic, institutional, or private
+contexts. The use of the OpenQDA app is exclusively subject to these terms of use unless users are explicitly informed
+of any supplementary conditions.
 
 **2.2** These terms of use can be viewed and printed or saved on a permanent data carrier by the user before downloading
 the app from the app store. The currently valid terms of use can also be accessed and printed within the app.

@@ -15,7 +15,6 @@ return new class extends Migration
             $table->string('research_token', 256)->nullable()->unique()->after('remember_token');
             $table->timestamp('research_requested')->nullable()->after('research_token');
             $table->timestamp('research_consent')->nullable()->after('research_requested');
-
         });
     }
 
