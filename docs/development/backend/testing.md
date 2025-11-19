@@ -42,7 +42,7 @@ To execute the tests, use the following command within the `web` folder:
 If you are using Docker then you need to open a separate terminal (window while Docker compose is up) and run:
 
 ```shell
-./vendor/bin/sail pest
+./vendor/bin/sail artisan test
 ```
 
 Some tests will be skipped because certain features are not yet implemented. However, all relevant features of the application will be tested.

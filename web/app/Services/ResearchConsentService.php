@@ -20,7 +20,7 @@ class ResearchConsentService
         $user->update(['research_token' => $token, 'research_requested' => now()]);
 
         // send mail with token to user
-        $link =  url()->query('/user/profile', ['action' => 'cfr', 'token' => $token]);
+        $link = url()->query('/user/profile', ['action' => 'cfr', 'token' => $token]);
         $mail = new ResearchConfirmation(['name' => $user->name, 'link' => $link]);
         Mail::to($user->email)->send($mail);
     }
@@ -30,7 +30,7 @@ class ResearchConsentService
      */
     public function confirmResearch(User $user, string $token): void
     {
-        if (!$token || $user->research_token !== $token) {
+        if (! $token || $user->research_token !== $token) {
             throw new \Exception('Invalid token:'.$token);
         }
 
