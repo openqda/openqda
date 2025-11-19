@@ -198,6 +198,9 @@ Route::middleware([
      */
     Route::post('/user/navigation', [UserNavigationController::class, 'update']);
     Route::post('/user/feedback', [UserNavigationController::class, 'feedback']);
+    Route::post('/user/research/request', [UserController::class, 'requestResearch'])->name('user.research.request');
+    Route::post('/user/research/confirm', [UserController::class, 'confirmResearch'])->name('user.research.confirm');
+    Route::post('/user/research/withdraw', [UserController::class, 'withdrawResearch'])->name('user.research.withdraw');
     Route::get('/user/{user}/owned-teams', [UserController::class, 'getOwnedTeams'])->name('user.owned-teams');
 
     /**
