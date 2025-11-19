@@ -6,6 +6,7 @@ use App\Http\Controllers\AuditsController;
 use App\Http\Controllers\CodebookCodesController;
 use App\Http\Controllers\CodebookController;
 use App\Http\Controllers\CodingController;
+use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SelectionController;
 use App\Http\Controllers\SettingsController;
@@ -103,6 +104,7 @@ Route::middleware([
     Route::get('/projects/{project}/team', [ProjectController::class, 'getTeamData'])->name('project.team-data');
     Route::post('/projects/update/{project}', [ProjectController::class, 'updateProjectAttributes'])->name('project.update');
     Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('project.destroy');
+    Route::post('/projects/{project}/export', [ExportController::class, 'run'])->name('projects.export');
 
     // For homepage/user audits
     Route::get('/audits', [AuditsController::class, 'index']);

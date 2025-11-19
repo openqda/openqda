@@ -32,6 +32,10 @@ const props = defineProps({
     type: String,
     required: false,
   },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
 });
 const emit = defineEmits(['cancel', 'submit']);
 const fields = ref(null);
@@ -76,18 +80,20 @@ const validateForm = (e) => {
     :class="cn('bg-transparent', $props.class)"
     @submit="validateForm"
   >
-    <component
-      v-for="({ component, data }, index) in fields"
-      :key="index"
-      :is="component"
-      :type="data.type"
-      :label="data.label"
-      :name="data.name"
-      :value="data.defaultValue"
-      :options="data.options"
-      :validation="validationErrors[data.name]"
-      class="mb-4"
-    ></component>
+    <fieldset :disabled="$props.disabled ? 'disabled' : undefined">
+      <component
+        v-for="({ component, data }, index) in fields"
+        :key="index"
+        :is="component"
+        :type="data.type"
+        :label="data.label"
+        :name="data.name"
+        :value="data.defaultValue"
+        :options="data.options"
+        :validation="validationErrors[data.name]"
+        class="mb-4"
+      ></component>
+    </fieldset>
     <div v-if="showSubmit !== false || showCancel !== false" class="w-100">
       <Button variant="outline" @click="$emit('cancel')">Cancel</Button>
       <Button type="submit" class="float-right">Submit</Button>

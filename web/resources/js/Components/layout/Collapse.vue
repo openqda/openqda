@@ -1,43 +1,35 @@
 <template>
-  <Transition name="collapse">
-    <slot></slot>
-  </Transition>
+    <Disclosure as="div" v-slot="{ open }" :default-open="props.defaultOpen">
+        <!-- Use the `open` state to conditionally change the direction of an icon. -->
+        <DisclosureButton class="py-2">
+            <slot name="trigger" :open="open" />
+        </DisclosureButton>
+        <transition
+            enter-active-class="transition duration-100 ease-out"
+            enter-from-class="transform scale-95 opacity-0"
+            enter-to-class="transform scale-100 opacity-100"
+            leave-active-class="transition duration-75 ease-out"
+            leave-from-class="transform scale-100 opacity-100"
+            leave-to-class="transform scale-95 opacity-0"
+        >
+        <DisclosurePanel><slot name="content" /></DisclosurePanel>
+        </transition>
+    </Disclosure>
 </template>
 
 <script setup>
-// created with https://vuejs.org/guide/built-ins/transition.html#reusable-transitions
-defineProps(['open']);
+import {
+    Disclosure,
+    DisclosureButton,
+    DisclosurePanel,
+} from '@headlessui/vue'
+
+const props = defineProps({
+    defaultOpen: {
+        type: Boolean
+    }
+});
 </script>
 
 <style>
-/*
-  Enter and leave animations can use different
-  durations and timing functions.
-*/
-.collapse-enter-active {
-  transition:
-    opacity 0.1s,
-    font-size 0.2s,
-    margin 0.2s,
-    padding 0.2s,
-    max-height 0.2s ease-out;
-}
-
-.collapse-leave-active {
-  transition:
-    opacity 0.1s,
-    font-size 0.2s,
-    margin 0.2s,
-    padding 0.2s,
-    max-height 0.2s ease-out;
-}
-
-.collapse-enter-from,
-.collapse-leave-to {
-  font-size: 0;
-  max-height: 0;
-  margin: 0;
-  opacity: 0;
-  padding: 0;
-}
 </style>

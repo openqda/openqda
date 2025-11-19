@@ -75,3 +75,67 @@ Project.update = {
     return { response, error };
   },
 };
+
+Project.import = {
+  schema: {
+    file: {
+      type: File,
+      formType: 'file',
+      placeholder: '',
+      optional: false,
+      accept: '.qdpx',
+    },
+  },
+  method: async () => {},
+};
+
+Project.export = {
+  schema: {
+    users: {
+      type: Boolean,
+      label: 'Users',
+      defaultValue: true,
+      optional: true,
+    },
+    sources: {
+      type: Boolean,
+      label: 'Sources',
+      optional: true,
+    },
+    codebooks: {
+      type: Boolean,
+      label: 'Codebooks',
+      optional: true,
+    },
+    codes: {
+      type: Boolean,
+      label: 'Codes',
+      optional: true,
+    },
+    selections: {
+      type: Boolean,
+      label: 'Selections',
+      optional: true,
+    },
+    sets: {
+      type: Boolean,
+      label: 'Sets',
+      optional: true,
+    },
+    cases: {
+      type: Boolean,
+      label: 'Cases',
+      optional: true,
+    },
+  },
+  method: async (options) => {
+    const { projectId, ...body } = options;
+    const { response, error } = await request({
+      url: `/projects/${projectId}/export`,
+      type: 'post',
+      body,
+      responseType: 'blob',
+    });
+    return { response, error };
+  },
+};
