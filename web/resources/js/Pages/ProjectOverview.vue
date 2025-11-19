@@ -13,9 +13,9 @@
           @cancelled="createProjectSchema = null"
           @created="({ response }) => open(response.data.project.id)"
         />
-          <div class="mt-auto">
-              <Footer />
-          </div>
+        <div class="mt-auto">
+          <Footer />
+        </div>
       </BaseContainer>
     </template>
     <template #main>
@@ -57,7 +57,7 @@ import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
 import CreateDialog from '../dialogs/CreateDialog.vue';
 import { useProjects } from '../domain/project/useProjects.js';
-import Footer from '../Layouts/Footer.vue'
+import Footer from '../Layouts/Footer.vue';
 
 const props = defineProps([
   'project',

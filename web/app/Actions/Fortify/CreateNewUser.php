@@ -8,6 +8,7 @@ use App\Services\ResearchConsentService;
 use GrantHolle\Altcha\Rules\ValidAltcha;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
@@ -22,12 +23,13 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input): User
     {
+        Log::info('Creating new user with email: '.$input['email']);
         $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'terms' => ['accepted'],
             'privacy' => ['accepted'],
-            'research' => ['optional', 'boolean'],
+            //             'research' => ['required', 'boolean'],
             'password' => $this->passwordRules(),
         ];
 
@@ -45,15 +47,17 @@ class CreateNewUser implements CreatesNewUsers
                 'name' => $input['name'],
                 'email' => $input['email'],
                 'password' => Hash::make($input['password']),
-            ]), function (User $user) {
+            ]), function (User $user) use ($input) {
                 $this->createTeam($user);
 
+                Log::info('User wants to participate in research? → '.$input['research']);
                 if ($input['research']) {
                     try {
                         $consent = app(ResearchConsentService::class);
                         $consent->sendResearchConfirmation($user);
                     } catch (e) {
                         // fail silently to not block user creation
+                        Log::error('Failed to send research consent confirmation email to user ID '.$user->id.': '.$e->getMessage());
                     }
                 }
             });

@@ -37,9 +37,9 @@ const createProjectSchema = ref(null);
           @cancelled="createProjectSchema = null"
           @created="({ response }) => open(response.data.project.id)"
         />
-          <div class="mt-auto">
-              <Footer />
-          </div>
+        <div class="mt-auto">
+          <Footer />
+        </div>
       </BaseContainer>
     </template>
     <template #main>

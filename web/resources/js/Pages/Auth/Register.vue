@@ -1,5 +1,6 @@
 <script setup>
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { RocketLaunchIcon } from '@heroicons/vue/24/outline/index.js';
 import AuthenticationCard from '../../Components/AuthenticationCard.vue';
 import AuthenticationCardLogo from '../../Components/AuthenticationCardLogo.vue';
 import InputError from '../../form/InputError.vue';
@@ -9,7 +10,8 @@ import Altcha from '../../Components/Altcha.vue';
 import 'altcha';
 import Button from '../../Components/interactive/Button.vue';
 import Headline1 from '../../Components/layout/Headline1.vue';
-import Checkbox from '../../form/Checkbox.vue'
+import ActivityIndicator from '../../Components/ActivityIndicator.vue';
+import { ref } from 'vue';
 
 const form = useForm({
   name: '',
@@ -21,10 +23,16 @@ const form = useForm({
   privacy: false,
   research: false,
 });
+
+const submissionError = ref(null);
 const submit = () => {
   const reset = () => form.reset('password', 'password_confirmation');
   form.post(route('register'), {
     onFinish: reset,
+    onError: (e) => {
+      console.error(e);
+      submissionError.value = e;
+    },
   });
 };
 </script>
@@ -41,7 +49,11 @@ const submit = () => {
       Register an Account
     </Headline1>
 
-    <form @submit.prevent="submit" class="flex flex-col gap-10">
+    <form
+      @submit.prevent="submit"
+      class="flex flex-col gap-10"
+      :disabled="form.processing"
+    >
       <div>
         <InputLabel
           for="name"
@@ -115,29 +127,70 @@ const submit = () => {
         <InputError class="mt-2" :message="form.errors.password_confirmation" />
       </div>
 
-        <div>
-            <Checkbox v-model="form.terms" required>
-                <template #label>
-                    <span class="ms-2 text-primary-foreground">I agree to the <a href="/terms" class="underline text-primary-foreground hover:text-primary-foreground/60" target="_blank">Terms of Service</a> (required)</span>
-                </template>
-            </Checkbox>
-        </div>
+      <div class="input-group group contents">
+        <InputLabel class="flex items-center">
+          <input
+            type="checkbox"
+            v-model="form.terms"
+            class="outline outline-0 px-0.5 focus:ring-foreground/80 checked:bg-primary"
+          />
+          <span class="ms-2 text-nowrap">
+            <span class="ms-2 text-primary-foreground"
+              >I agree to the
+              <a
+                href="/terms"
+                class="underline text-primary-foreground hover:text-primary-foreground/60"
+                target="_blank"
+                >Terms of Service</a
+              >
+              (required)</span
+            >
+          </span>
+        </InputLabel>
+        <InputError v-if="form.errors.terms" :message="form.errors.terms" />
+      </div>
 
-        <div>
-            <Checkbox v-model="form.privacy" required>
-                <template #label>
-                    <span class="ms-2 text-primary-foreground">I agree to the <a href="/privacy" class="underline text-primary-foreground hover:text-primary-foreground/60" target="_blank">Privacy Policy</a> (required)</span>
-                </template>
-            </Checkbox>
-        </div>
+      <div class="input-group group contents">
+        <InputLabel class="flex items-center">
+          <input
+            type="checkbox"
+            v-model="form.privacy"
+            class="outline outline-0 px-0.5 focus:ring-foreground/80 checked:bg-primary"
+          />
+          <span class="ms-2 text-nowrap">
+            <span class="ms-2 text-primary-foreground"
+              >I agree to the
+              <a
+                href="/privacy"
+                class="underline text-primary-foreground hover:text-primary-foreground/60"
+                target="_blank"
+                >Privacy Policy</a
+              >
+              (required)</span
+            >
+          </span>
+        </InputLabel>
+        <InputError v-if="form.errors.privacy" :message="form.errors.privacy" />
+      </div>
 
-        <div>
-            <Checkbox v-model="form.research">
-                <template #label>
-                    <span class="ms-2 text-primary-foreground">I want to participate in research to improve OpenQDA and the overall state of qualitative data analysis (optional)</span>
-                </template>
-            </Checkbox>
-        </div>
+      <div class="input-group group contents">
+        <InputLabel class="flex items-center">
+          <input
+            type="checkbox"
+            v-model="form.research"
+            class="outline outline-0 px-0.5 focus:ring-foreground/80 checked:bg-primary"
+          />
+          <span class="ms-4 text-primary-foreground">
+            I want to participate in research to improve OpenQDA and the overall
+            state of qualitative data analysis (optional, you can also activate
+            this in the app)
+          </span>
+        </InputLabel>
+        <InputError
+          v-if="form.errors.research"
+          :message="form.errors.research"
+        />
+      </div>
 
       <div>
         <InputLabel
@@ -145,8 +198,12 @@ const submit = () => {
           value="Checking, if you are a human"
           class="text-secondary-foreground dark:text-foreground"
         />
-        <Altcha v-model="form.altcha" />
+        <Altcha v-model="form.altcha" v-once />
         <InputError class="mt-2" :message="form.errors.altcha" />
+      </div>
+
+      <div v-if="submissionError">
+        <InputError class="mt-2" :message="submissionError.message" />
       </div>
 
       <div class="flex items-center justify-between text-sm">
@@ -166,6 +223,8 @@ const submit = () => {
           :class="{ 'opacity-25': form.processing }"
           :disabled="form.processing"
         >
+          <ActivityIndicator v-if="form.processing" />
+          <RocketLaunchIcon v-else class="w-5 h-5 me-2 inline-block" />
           Register
         </Button>
       </div>

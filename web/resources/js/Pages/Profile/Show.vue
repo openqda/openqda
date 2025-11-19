@@ -9,7 +9,7 @@ import ThemeSwitch from '../../theme/ThemeSwitch.vue';
 import Button from '../../Components/interactive/Button.vue';
 import { router } from '@inertiajs/vue3';
 import BaseContainer from '../../Layouts/BaseContainer.vue';
-import LegalForm from './Partials/LegalForm.vue'
+import LegalForm from './Partials/LegalForm.vue';
 // import '../../Pages/Profile/Partials/TwoFactorAuthenticationForm.vue';
 
 defineProps({
