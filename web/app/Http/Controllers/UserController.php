@@ -23,6 +23,38 @@ class UserController extends Controller
     }
 
     /**
+     * Record user consent for legal documents (privacy, terms).
+     */
+    public function consentLegal(Request $request)
+    {
+        $user = Auth::user();
+        $request->validate([
+            'terms' => ['sometimes', 'boolean'],
+            'privacy' => ['sometimes', 'boolean'],
+            'research' => ['sometimes', 'boolean'],
+        ]);
+
+        if (! $request->hasAny(['terms', 'privacy'])) {
+            return response()->json(['message' => 'No consent provided'], 400);
+        }
+
+        if ($request->has('terms') && $request->input('terms') === true) {
+            $user->update(['terms_consent' => now()]);
+            $user->createAudit(User::AUDIT_TERMS_CONSENTED, ['terms_consent' => true]);
+        }
+        if ($request->has('privacy') && $request->input('privacy') === true) {
+            $user->update(['privacy_consent' => now()]);
+            $user->createAudit(User::AUDIT_PRIVACY_CONSENTED, ['privacy_consent' => true]);
+        }
+        if ($request->has('research') && $request->input('research') === true) {
+            $research = app(ResearchConsentService::class);
+            $research->sendResearchConfirmation($user);
+        }
+
+        return response()->json(['message' => 'Consent updated', 'success' => true], 200);
+    }
+
+    /**
      * Send research participation token via Email to user.
      */
     public function requestResearch(Request $request)
@@ -51,6 +83,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 400);
         }
+        $user->createAudit(User::AUDIT_RESEARCH_CONSENTED, ['research_consent' => true]);
 
         return response()->json(['message' => 'Research participation confirmed.', 'success' => true], 200);
     }
@@ -67,6 +100,8 @@ class UserController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 400);
         }
+
+        $user->createAudit(User::AUDIT_RESEARCH_WITHDRAWN, ['research_consent' => false]);
 
         return response()->json(['message' => 'Research participation withdrawn.', 'success' => true], 200);
     }

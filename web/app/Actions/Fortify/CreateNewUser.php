@@ -29,6 +29,8 @@ class CreateNewUser implements CreatesNewUsers
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'terms' => ['accepted'],
             'privacy' => ['accepted'],
+            // 'research' is optional and can be true or false
+            'research' => ['sometimes', 'boolean'],
             'password' => $this->passwordRules(),
         ];
 
@@ -40,16 +42,20 @@ class CreateNewUser implements CreatesNewUsers
         }
 
         Validator::make($input, $rules)->validate();
+        $timestamp = now();
 
-        return DB::transaction(function () use ($input) {
+        return DB::transaction(function () use ($input, $timestamp) {
             return tap(User::create([
                 'name' => $input['name'],
                 'email' => $input['email'],
                 'password' => Hash::make($input['password']),
-            ]), function (User $user) use ($input) {
+                'terms_consent' => $timestamp,
+                'privacy_consent' => $timestamp,
+            ]), function (User $user) use ($input, $timestamp) {
                 $this->createTeam($user);
+                $user->createAudit(User::AUDIT_TERMS_CONSENTED, ['terms_consent' => $timestamp]);
+                $user->createAudit(User::AUDIT_PRIVACY_CONSENTED, ['privacy_consent' => $timestamp]);
 
-                Log::info('User wants to participate in research? → '.$input['research']);
                 if ($input['research'] ?? false) {
                     try {
                         $consent = app(ResearchConsentService::class);

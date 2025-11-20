@@ -84,6 +84,10 @@ onMounted(async () => {
     <div class="flex justify-between items-center my-4 bg-transparent text-sm">
       <p class="text-foreground/50">
         You can read or download the most recent version of our privacy policy.
+        <span v-if="user.privacy_consent"
+          >You have given your consent on
+          {{ new Date(user.privacy_consent).toLocaleDateString() }}.</span
+        >
       </p>
       <span class="flex gap-4 items-center">
         <a
@@ -101,7 +105,11 @@ onMounted(async () => {
     </div>
     <div class="flex justify-between items-center my-4 bg-transparent text-sm">
       <p class="text-foreground/50">
-        You can read or download the most recent version of our terms
+        You can read or download the most recent version of our terms.
+        <span v-if="user.terms_consent"
+          >You have given your consent on
+          {{ new Date(user.terms_consent).toLocaleDateString() }}.</span
+        >
       </p>
       <span class="flex gap-4 items-center">
         <a

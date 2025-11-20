@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ModelType;
 use App\Services\AuditService;
+use App\Traits\AuditableServiceTrait;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,7 +21,15 @@ use OwenIt\Auditing\Contracts\Auditable;
 
 class User extends Authenticatable implements Auditable, FilamentUser, MustVerifyEmail
 {
-    use AuditableTrait, HasApiTokens, HasFactory, HasProfilePhoto, HasTeams, Notifiable, TwoFactorAuthenticatable;
+    use AuditableServiceTrait, AuditableTrait, HasApiTokens, HasFactory, HasProfilePhoto, HasTeams, Notifiable, TwoFactorAuthenticatable;
+
+    public const AUDIT_PRIVACY_CONSENTED = 'user.privacy_consent';
+
+    public const AUDIT_TERMS_CONSENTED = 'user.privacy_consent';
+
+    public const AUDIT_RESEARCH_CONSENTED = 'user.research_consent_confirmed';
+
+    public const AUDIT_RESEARCH_WITHDRAWN = 'user.research_consent_withdrawn';
 
     public function canAccessPanel(Panel|\Filament\Panel $panel): bool
     {
@@ -36,6 +45,7 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
      */
     protected $fillable = [
         'name', 'email', 'password', 'research_token', 'research_consent', 'research_requested',
+        'terms_consent', 'privacy_consent',
     ];
 
     /**
@@ -60,6 +70,8 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
         'email_verified_at' => 'datetime',
         'research_consent' => 'datetime',
         'research_requested' => 'datetime',
+        'terms_consent' => 'datetime',
+        'privacy_consent' => 'datetime',
     ];
 
     /**

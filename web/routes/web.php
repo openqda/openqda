@@ -150,6 +150,7 @@ Route::middleware([
      */
     Route::post('/user/navigation', [UserNavigationController::class, 'update']);
     Route::post('/user/feedback', [UserNavigationController::class, 'feedback']);
+    Route::post('/user/consent', [UserController::class, 'consentLegal'])->name('consent');
     Route::post('/user/research/request', [UserController::class, 'requestResearch'])->name('user.research.request');
     Route::post('/user/research/confirm', [UserController::class, 'confirmResearch'])->name('user.research.confirm');
     Route::post('/user/research/withdraw', [UserController::class, 'withdrawResearch'])->name('user.research.withdraw');

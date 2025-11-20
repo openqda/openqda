@@ -2,6 +2,7 @@
 
 ## § 1 Controller
 
+
 **(1)** The OpenQDA service is provided by the University of Bremen, Rector Prof. Dr. Jutta Günther, Bibliothekstraße 1-3,
 D-28359 Bremen, Email: [web@uni-bremen.de](mailto:web@uni-bremen.de), Phone: +49 421 218 1, as the controller pursuant
 to Art. 4 No. 7 EU General Data Protection Regulation (GDPR).  
