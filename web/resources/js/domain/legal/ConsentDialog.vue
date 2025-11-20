@@ -52,11 +52,11 @@ const submit = async () => {
     <template #body>
       <p v-if="termsConsentRequired" class="">
         We have updated our terms of use on
-        {{ privacyUpdated.toLocaleDateString() }}.
+        {{ termsUpdated.toLocaleDateString() }}.
       </p>
       <p v-if="privacyConsentRequired" class="">
         We have updated our privacy policy on
-        {{ termsUpdated.toLocaleDateString() }}.
+        {{ privacyUpdated.toLocaleDateString() }}.
       </p>
       <p class="">
         Please note, OpenQDA remains GDPR compliant, free and open source.
