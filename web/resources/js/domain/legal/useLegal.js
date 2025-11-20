@@ -18,18 +18,7 @@ export const useLegal = () => {
   const consentRequired = privacyConsentRequired || termsConsentRequired;
   const researchRequired =
     !auth.user?.research_requested && !auth.user?.research_consent;
-  console.debug({
-    privacy,
-    terms,
-    privacyUpdated,
-    termsUpdated,
-    userTermsConsent,
-    userPrivacyConsent,
-    privacyConsentRequired,
-    termsConsentRequired,
-    consentRequired,
-    researchRequired,
-  });
+
   return {
     consentRequired,
     privacyConsentRequired,
