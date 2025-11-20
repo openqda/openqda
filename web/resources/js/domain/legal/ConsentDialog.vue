@@ -30,7 +30,7 @@ const submit = async () => {
   try {
     await request({
       type: 'post',
-      url: route('consent'),
+      url: route('user.consent'),
       body: data,
     });
     flashMessage('Consent successfully updated', { type: 'success' });
