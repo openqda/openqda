@@ -30,8 +30,8 @@ class ResearchConsentService
      */
     public function confirmResearch(User $user, string $token): void
     {
-        if (! $token || $user->research_token !== $token) {
-            throw new \Exception('Invalid token:'.$token);
+        if (! $token || ! hash_equals($user->research_token ?? '', $token)) {
+            throw new \Exception('Invalid token');
         }
 
         $user->update(['research_consent' => now(), 'research_token' => null, 'research_requested' => null]);

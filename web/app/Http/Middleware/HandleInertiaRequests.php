@@ -54,8 +54,8 @@ class HandleInertiaRequests extends Middleware
 
         $privacyFile = resource_path('markdown/privacy.md');
         $termsFile = resource_path('markdown/terms.md');
-        $privacy = file_exists($privacyFile) ? date('Y-m-d h:i:sa', filemtime($privacyFile)) : null;
-        $terms = file_exists($termsFile) ? date('Y-m-d h:i:sa', filemtime($termsFile)) : null;
+        $privacy = file_exists($privacyFile) ? date('c', filemtime($privacyFile)) : null;
+        $terms = file_exists($termsFile) ? date('c', filemtime($termsFile)) : null;
 
         return array_merge(parent::share($request), [
             // Synchronously...

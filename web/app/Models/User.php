@@ -25,7 +25,7 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
 
     public const AUDIT_PRIVACY_CONSENTED = 'user.privacy_consent';
 
-    public const AUDIT_TERMS_CONSENTED = 'user.privacy_consent';
+    public const AUDIT_TERMS_CONSENTED = 'user.terms_consent';
 
     public const AUDIT_RESEARCH_CONSENTED = 'user.research_consent_confirmed';
 

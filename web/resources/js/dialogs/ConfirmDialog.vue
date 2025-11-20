@@ -12,13 +12,13 @@ const props = defineProps({
   showConfirm: Boolean,
   showCancel: {
     type: Boolean,
-    defaultValue: true,
+    default: true,
   },
   cancelButtonLabel: String,
   confirmButtonLabel: String,
   static: {
     type: Boolean,
-    defaultValue: true,
+    default: true,
   },
 });
 

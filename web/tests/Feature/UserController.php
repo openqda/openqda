@@ -69,7 +69,7 @@ class UserControllerTest extends TestCase
 
     public function test_consent_legal_with_terms_and_privacy()
     {
-        $response = $this->postJson('/user/consent-legal', [
+        $response = $this->postJson('/user/consent', [
             'terms' => true,
             'privacy' => true,
         ]);
@@ -87,7 +87,7 @@ class UserControllerTest extends TestCase
             $mock->shouldReceive('sendResearchConfirmation')->once()->with($this->user);
         });
 
-        $response = $this->postJson('/user/consent-legal', [
+        $response = $this->postJson('/user/consent', [
             'research' => true,
         ]);
 
@@ -97,7 +97,7 @@ class UserControllerTest extends TestCase
 
     public function test_consent_legal_without_any_consent()
     {
-        $response = $this->postJson('/user/consent-legal', []);
+        $response = $this->postJson('/user/consent', []);
 
         $response->assertStatus(400);
         $response->assertJson(['message' => 'No consent provided']);
@@ -105,7 +105,7 @@ class UserControllerTest extends TestCase
 
     public function test_consent_legal_with_partial_consents()
     {
-        $response = $this->postJson('/user/consent-legal', [
+        $response = $this->postJson('/user/consent', [
             'terms' => true,
         ]);
 

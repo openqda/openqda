@@ -90,6 +90,7 @@ const submit = async () => {
           <input
             id="terms"
             type="checkbox"
+            required
             v-model="form.terms"
             class="outline outline-0 px-0.5 focus:ring-foreground/80 checked:bg-primary"
           />
@@ -114,6 +115,7 @@ const submit = async () => {
           <input
             id="privacy"
             type="checkbox"
+            required
             v-model="form.privacy"
             class="outline outline-0 px-0.5 focus:ring-foreground/80 checked:bg-primary"
           />
@@ -138,6 +140,7 @@ const submit = async () => {
           <input
             id="research"
             type="checkbox"
+            aria-required="false"
             v-model="form.research"
             class="outline outline-0 px-0.5 focus:ring-foreground/80 checked:bg-primary"
           />

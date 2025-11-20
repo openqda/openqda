@@ -18,7 +18,6 @@ defineProps({
   description: { type: String, formType: 'textarea', required: false },
   show: { type: Boolean, required: false },
   static: { type: Boolean, required: false },
-  class: { type: Boolean, required: false },
 });
 const emit = defineEmits(['close']);
 const close = () => {

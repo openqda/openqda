@@ -115,7 +115,7 @@ Shield, [https://www.privacyshield.gov/Eu-US-Framework](https://www.privacyshiel
 **(2)** The videos embedded by us, hosted on vimeo.com, are all provided with a "dnt" (do not track) attribute to minimize
 the transmission of personal data to Vimeo.
 
-## § 8 Newsletter
+## § 7 Newsletter
 
 **(1)** With your consent, you can subscribe to our newsletter, through which we provide you with current updates about
 OpenQDA.  
@@ -135,18 +135,18 @@ the purpose of sending the newsletter (legal basis: Art. 6 Paragraph 1 Sentence 
 declare the revocation by clicking on the link provided in every newsletter email or by
 emailing [openqda@uni-bremen.de](mailto:openqda@uni-bremen.de).
 
-## § 9 Calendar
+## § 8 Calendar
 
 The content of the calendar offered in OpenQDA can be accessed and downloaded as an .ics file to import calendar entries
 into your calendar, send entries to other users, or publish and share entries (legal basis: Art. 6 Paragraph 1 Sentence
 1 lit. a GDPR).
 
-## § 10 SSL Encryption
+## § 9 SSL Encryption
 
 The connection to OpenQDA is secured with SSL encryption. When SSL encryption is activated, it is almost impossible for
 third parties to read the data you transmit to us.
 
-## § 11 Your Rights
+## § 10 Your Rights
 
 **(1)** You have the following rights regarding your personal data:
 
@@ -158,7 +158,7 @@ third parties to read the data you transmit to us.
 **(2)** You also have the right to lodge a complaint with a data protection supervisory authority regarding the processing
 of your personal data by us (Art. 77 GDPR).
 
-## § 12 Objection or Withdrawal of Consent to Data Processing
+## § 11 Objection or Withdrawal of Consent to Data Processing
 
 **(1)** If you have given your consent to the processing of your data, you can withdraw it at any time (Art. 7 Paragraph 3
 GDPR). Such a withdrawal affects the admissibility of the processing of your personal data after you have expressed it
@@ -172,7 +172,7 @@ right to object, which will be implemented by us without specifying a particular
 **(3)** If you wish to exercise your right of withdrawal or objection, an email
 to [openqda@uni-bremen.de](mailto:openqda@uni-bremen.de) is sufficient.
 
-## § 13 Changes to This Privacy Policy
+## § 12 Changes to This Privacy Policy
 
 Due to the further development of OpenQDA or changes in legal or regulatory requirements, it may become necessary to
 amend this privacy policy. The current privacy policy is always available within OpenQDA.
