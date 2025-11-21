@@ -8,6 +8,9 @@
           @fileSelected="loadFileIntoEditor($event)"
           @documentDeleted="onDocumentDeleted"
         />
+        <div class="mt-auto">
+          <Footer />
+        </div>
       </BaseContainer>
     </template>
     <template #main>
@@ -132,6 +135,7 @@ import ConfirmDialog from '../dialogs/ConfirmDialog.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
+import Footer from '../Layouts/Footer.vue';
 import { useZoom } from '../editor/useZoom.js';
 
 const editorSourceRef = ref({
