@@ -30,7 +30,7 @@ const changeSelect = (e) => {
         class="block w-full rounded-md border-border focus:border-secondary focus:ring-secondary"
         @change="changeSelect"
       >
-        <option selected disabled>(Select one)</option>
+        <option selected disabled value="">(Select one)</option>
         <option
           v-for="(option, index) in props.options"
           :data-index="index"

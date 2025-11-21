@@ -111,7 +111,7 @@ const keyDownHandler = (e) => {
       :show="open"
       :static="props.static"
       :show-close-button="true"
-      @close="open = false"
+      @close="cancel"
       @keydown="keyDownHandler"
     >
       <template #body>
