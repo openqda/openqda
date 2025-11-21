@@ -74,6 +74,7 @@
     </template>
     <template #main>
       <CodingEditor
+        class="overflow-y-auto overflow-x-hidden w-full h-full"
         :project="{ id: props.projectId }"
         :source="$props.source"
         :codes="$props.allCodes"

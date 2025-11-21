@@ -88,9 +88,6 @@
                     </ul>
                   </nav>
                   <slot name="menu"></slot>
-                  <div class="mt-auto">
-                    <Footer />
-                  </div>
                 </div>
               </DialogPanel>
             </TransitionChild>
@@ -271,7 +268,6 @@ import { flashMessage } from '../Components/notification/flashMessage.js';
 import { useDebug } from '../utils/useDebug.js';
 import { useHelpDialog } from '../dialogs/help/useHelpDialog.js';
 import HelpDialog from '../dialogs/help/HelpDialog.vue';
-import Footer from './Footer.vue';
 import { useLegal } from '../domain/legal/useLegal.js';
 import ConsentDialog from '../domain/legal/ConsentDialog.vue';
 

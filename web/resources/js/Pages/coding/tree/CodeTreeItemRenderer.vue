@@ -250,7 +250,7 @@ const { range } = useRange();
         <!-- code menu -->
         <Dropdown>
           <template #trigger>
-            <button class="p-0 m-0">
+            <button class="p-2 md:p-1 lg:p-0 m-0">
               <EllipsisVerticalIcon class="w-4 h-4" />
             </button>
           </template>
