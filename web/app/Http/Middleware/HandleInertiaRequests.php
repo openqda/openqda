@@ -52,6 +52,11 @@ class HandleInertiaRequests extends Middleware
             $team = $project?->team;
         }
 
+        $privacyFile = resource_path('markdown/privacy.md');
+        $termsFile = resource_path('markdown/terms.md');
+        $privacy = file_exists($privacyFile) ? date('c', filemtime($privacyFile)) : null;
+        $terms = file_exists($termsFile) ? date('c', filemtime($termsFile)) : null;
+
         return array_merge(parent::share($request), [
             // Synchronously...
             'logo' => asset(config('app.logo')),
@@ -59,12 +64,14 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'message' => session('message'),
             ],
+            'privacy' => $privacy,
+            'terms' => $terms,
             'projectId' => session('projectId'),
             'sharedTeam' => $team?->only('id', 'name'),
             'usersInPages' => [],
             // Lazily...
             'auth.user' => fn () => $request->user()
-                ? $request->user()->only('id', 'name', 'email', 'profile_photo_url')
+                ? $request->user()->only('id', 'name', 'email', 'profile_photo_url', 'research_requested', 'research_consent', 'privacy_consent', 'terms_consent')
                 : null,
 
         ], [

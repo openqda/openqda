@@ -41,6 +41,7 @@ const currentYear = ref(new Date().getFullYear());
 const navigation = {
   main: [
     { name: 'Imprint', href: '/imprint' },
+    { name: 'Privacy', href: '/privacy' },
     { name: 'FAQ', href: '/faq' },
     { name: 'License', href: '/license' },
     {

@@ -14,7 +14,7 @@ trait AuditableServiceTrait
             'user_type' => 'App\Models\User',
             'user_id' => auth()->id(),
             'event' => $event,
-            'auditable_id' => $this->id,
+            'auditable_id' => $this->id ?? -1,
             'auditable_type' => get_class($this),
             'new_values' => $newValues,
         ]);

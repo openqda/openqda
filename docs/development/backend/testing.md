@@ -33,18 +33,41 @@ cp .env.example .env.testing
 
 ### Running Tests
 
-To execute the tests, use the following command:
+To execute the tests, use the following command within the `web` folder:
 
 ```shell
 ./vendor/bin/pest
 ```
 
+If you are using Docker then you need to open a separate terminal (window while Docker compose is up) and run:
+
+```shell
+./vendor/bin/sail artisan test
+```
+
 Some tests will be skipped because certain features are not yet implemented. However, all relevant features of the application will be tested.
+
+### Running the Linter / Formatter
+
+To ensure code quality and consistency, you can run the linter and formatter, named `pint` using the following command:
+
+```shell
+./vendor/bin/pint
+```
+
+If you are using Docker then you to run in separate terminal (window while Docker compose is up) the following command:
+
+```shell
+./vendor/bin/sail pint
+```
+
+It will automatically fix any formatting issues in your codebase.
+
 
 ### Important Notes
 
 - **Destructive Nature of Tests**: These tests will delete all data from the database. Ensure that you are not running tests on a production database.
-- **Fixing Issues**: Before requesting a pull request, run the tests and fix any issues that arise.
+- **Fixing Issues**: Before opening a pull request, run the tests and linter and fix any issues that arise.
 
 ### Troubleshooting
 
