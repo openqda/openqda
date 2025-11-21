@@ -278,6 +278,7 @@ async function fetchAndRenderDocument(document) {
   <div class="flex items-center justify-start">
     <CreateDialog
       :schema="createSchema"
+      class="w-full md:w-auto"
       title="Create new file"
       :submit="onCreateSubmit"
       @created="onCreated"
@@ -286,7 +287,7 @@ async function fetchAndRenderDocument(document) {
       <template #trigger="createTriggerProps">
         <Button
           variant="outline-secondary"
-          class="rounded-xl"
+          class="rounded-xl w-full md:w-auto"
           @click="createTriggerProps.onClick(createNewFile)"
         >
           <PlusIcon class="h-4 w-4 mr-2"></PlusIcon>
@@ -296,7 +297,7 @@ async function fetchAndRenderDocument(document) {
     </CreateDialog>
     <Button
       variant="outline-secondary"
-      class="rounded-xl ml-3"
+      class="rounded-xl ml-1 md:ml-3 w-full md:w-auto"
       @click="importSchema = { foo: {} }"
     >
       <PlusIcon class="h-4 w-4 mr-2"></PlusIcon>
