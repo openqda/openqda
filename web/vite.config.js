@@ -20,6 +20,9 @@ export default defineConfig({
                     base: null,
                     includeAbsolute: false,
                 },
+                compilerOptions: {
+                    isCustomElement: (tag) => ['altcha-widget'].includes(tag),
+                }
             },
         }),
     ],

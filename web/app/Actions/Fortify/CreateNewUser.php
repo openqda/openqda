@@ -4,9 +4,11 @@ namespace App\Actions\Fortify;
 
 use App\Models\Team;
 use App\Models\User;
+use App\Services\ResearchConsentService;
 use GrantHolle\Altcha\Rules\ValidAltcha;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
 
@@ -24,6 +26,10 @@ class CreateNewUser implements CreatesNewUsers
         $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'terms' => ['accepted'],
+            'privacy' => ['accepted'],
+            // 'research' is optional and can be true or false
+            'research' => ['sometimes', 'boolean'],
             'password' => $this->passwordRules(),
         ];
 
@@ -35,14 +41,29 @@ class CreateNewUser implements CreatesNewUsers
         }
 
         Validator::make($input, $rules)->validate();
+        $timestamp = now();
 
-        return DB::transaction(function () use ($input) {
+        return DB::transaction(function () use ($input, $timestamp) {
             return tap(User::create([
                 'name' => $input['name'],
                 'email' => $input['email'],
                 'password' => Hash::make($input['password']),
-            ]), function (User $user) {
+                'terms_consent' => $timestamp,
+                'privacy_consent' => $timestamp,
+            ]), function (User $user) use ($input, $timestamp) {
                 $this->createTeam($user);
+                $user->createAudit(User::AUDIT_TERMS_CONSENTED, ['terms_consent' => $timestamp]);
+                $user->createAudit(User::AUDIT_PRIVACY_CONSENTED, ['privacy_consent' => $timestamp]);
+
+                if ($input['research'] ?? false) {
+                    try {
+                        $consent = app(ResearchConsentService::class);
+                        $consent->sendResearchConfirmation($user);
+                    } catch (\Exception $e) {
+                        // fail silently to not block user creation
+                        Log::error('Failed to send research consent confirmation email to user ID '.$user->id.': '.$e->getMessage());
+                    }
+                }
             });
         });
     }

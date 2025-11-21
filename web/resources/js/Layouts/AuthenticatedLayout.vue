@@ -86,6 +86,9 @@
                     </ul>
                   </nav>
                   <slot name="menu"></slot>
+                  <div class="mt-auto">
+                    <Footer />
+                  </div>
                 </div>
               </DialogPanel>
             </TransitionChild>
@@ -216,6 +219,7 @@
 
       <FlashMessage :flash="$page.props.flash" />
       <HelpDialog />
+      <ConsentDialog v-if="consentRequired" />
       <div class="flex lg:pl-20">
         <aside
           v-show="$props.menu !== false"
@@ -224,13 +228,7 @@
           <slot name="menu" />
         </aside>
 
-        <main
-          :class="
-            cn(
-              'h-screen overflow-y-auto bg-surface text-surface-foreground grow p-2 md:p-0'
-            )
-          "
-        >
+        <main class="h-screen overflow-y-auto bg-surface text-surface-foreground grow p-2 md:p-0">
           <Transition>
             <slot name="main" />
           </Transition>
@@ -269,7 +267,11 @@ import { flashMessage } from '../Components/notification/flashMessage.js';
 import { useDebug } from '../utils/useDebug.js';
 import { useHelpDialog } from '../dialogs/help/useHelpDialog.js';
 import HelpDialog from '../dialogs/help/HelpDialog.vue';
+import Footer from './Footer.vue';
+import { useLegal } from '../domain/legal/useLegal.js';
+import ConsentDialog from '../domain/legal/ConsentDialog.vue';
 
+const { consentRequired } = useLegal();
 const websocket = useWebSocketConnection();
 const navigation = ref([]);
 const sidebarOpen = ref(false);

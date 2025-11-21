@@ -33,6 +33,7 @@ const props = defineProps({
         :class="cn('ms-2 text-nowrap', props.labelClass)"
         >{{ props.label }}</span
       >
+      <slot name="label"></slot>
     </InputLabel>
     <InputError
       v-if="props.validation?.isValid === false"

@@ -59,9 +59,7 @@ const close = () => {
             leave-from="opacity-100 translate-y-0 scale-100"
             leave-to="opacity-0 translate-y-0 scale-95"
           >
-            <DialogPanel
-              class="relative transform overflow-hidden rounded-lg bg-surface text-left shadow-xl transition-all my-8 w-full max-w-lg"
-            >
+            <DialogPanel class="relative transform overflow-hidden rounded-lg bg-surface text-left shadow-xl transition-all my-8 w-full max-w-xl">
               <div class="bg-surface px-4 pb-4 pt-5">
                 <div class="flex items-start grow">
                   <slot name="icon"></slot>
