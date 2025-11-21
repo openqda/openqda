@@ -10,11 +10,15 @@ const props = defineProps({
   title: String,
   text: String,
   showConfirm: Boolean,
+  showCancel: {
+    type: Boolean,
+    default: true,
+  },
   cancelButtonLabel: String,
   confirmButtonLabel: String,
   static: {
     type: Boolean,
-    defaultValue: true,
+    default: true,
   },
 });
 
@@ -50,7 +54,7 @@ const cancel = () => {
     </template>
     <template #footer>
       <div class="flex justify-between items-center w-full">
-        <Button variant="outline" @click="cancel"
+        <Button v-if="props.showCancel" variant="outline" @click="cancel"
           >{{ props.cancelButtonLabel ?? 'Cancel' }}
         </Button>
         <Button v-if="props.showConfirm" @click="confirm"
