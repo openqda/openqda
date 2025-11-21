@@ -72,7 +72,7 @@ const submit = async (document) => {
 
   if (!created) {
     if (!error.value) {
-      error.value = 'Create failed due to unknown reasons';
+      error.value = 'Submission failed due to unknown reasons';
     }
     return;
   } else {

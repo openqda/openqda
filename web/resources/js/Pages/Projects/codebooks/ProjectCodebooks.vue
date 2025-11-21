@@ -11,7 +11,7 @@ import {
   ChevronRightIcon,
 } from '@heroicons/vue/24/solid';
 import { Collapse } from 'vue-collapsed';
-import CreateDialog from '../../../dialogs/FormDialog.vue';
+import FormDialog from '../../../dialogs/FormDialog.vue';
 import ConfirmDialog from '../../../dialogs/ConfirmDialog.vue';
 import DeleteDialog from '../../../dialogs/DeleteDialog.vue';
 import ContrastText from '../../../Components/text/ContrastText.vue';
@@ -87,6 +87,20 @@ const displayedCodebooks = computed(() => {
 const reload = () => {
   window.location.reload();
 };
+
+const submitUpdate = async (data) => {
+  const result = await updateCodebook(data);
+  updateCodebookSchema.value = null;
+  return result;
+};
+const cancelUpdate = () => {
+  closeUpdate();
+  updateCodebookSchema.value = null;
+};
+const cancelImport = () => {
+  codebookToImport.value = null;
+};
+
 const deleteCodebookFromArray = (codebook) => {
   const index = codebooks.value.findIndex((cb) => cb.id === codebook.id);
   if (index !== -1) {
@@ -211,23 +225,82 @@ const debounceSearch = debounce(performSearch, 300);
         />
         <Headline2>Codebooks of current Project</Headline2>
       </button>
-      <span class="flex gap-1">
-        <Button
-          variant="outline-secondary"
-          @click="openCreateForm()"
+      <span class="block md:flex md:gap-1">
+        <FormDialog
+          title="Create a new Codebook"
+          :schema="createCodebookSchema"
           class="w-100 md:w-auto"
+          :submit="(data) => handleWithReload(createCodebook, data)"
+          @cancelled="closeCreateForm"
         >
-          <PlusIcon class="w-4 h-4" />
-          <span>Create</span>
-        </Button>
-        <Button
-          variant="outline-secondary"
+          <template #trigger="createCodebookTrigger">
+            <Button
+              variant="outline-secondary"
+              class="w-100 md:w-auto"
+              @click="createCodebookTrigger.onClick(openCreateForm)"
+            >
+              <PlusIcon class="w-4 h-4" />
+              <span>Create</span>
+            </Button>
+          </template>
+          <template #info>
+            <div class="w-full block italic text-foreground/60 text-sm">
+              When you set a codebook "public", anyone can import it on their
+              project. On private, only members of your teams can import it into
+              their projects.
+            </div>
+          </template>
+        </FormDialog>
+
+        <FormDialog
+          title="Import Codebook"
+          :schema="importSchema"
+          :submit="importCodebook"
           class="w-100 md:w-auto"
-          @click="importSchema = importCodebookSchema"
+          @created="reload"
+          button-title="Upload now"
+          @cancelled="importSchema = null"
         >
-          <ArrowUpTrayIcon class="w-4 h-4" />
-          <span>Import</span>
-        </Button>
+          <template #trigger="importDialogTrigger">
+            <Button
+              variant="outline-secondary"
+              class="w-100 md:w-auto"
+              @click="
+                importDialogTrigger.onClick(
+                  () => (importSchema = importCodebookSchema())
+                )
+              "
+            >
+              <ArrowUpTrayIcon class="w-4 h-4" />
+              <span>Import</span>
+            </Button>
+          </template>
+          <template #info>
+            <div class="w-full block italic text-foreground/60 text-sm my-4">
+              <p>
+                This import is intended for codebook exports that support the
+                <a
+                  href="https://www.qdasoftware.org/refi-qda-codebook"
+                  title="REFI website"
+                  target="_blank"
+                  rel="noopener noreferrer nofollow"
+                  class="font-semibold hover:underline"
+                  >REFI QDA Exchange Sandard</a
+                >.
+              </p>
+              <p>
+                We aim to support all vendors that implement REFI. If you have
+                any problem, please
+                <a
+                  href="mailto:openqda@uni-bremen.de"
+                  class="font-semibold hover:underline"
+                  >contact us</a
+                >. You can also import codebooks from other projects, but they
+                might not be fully functional.
+              </p>
+            </div>
+          </template>
+        </FormDialog>
       </span>
     </div>
     <Collapse :when="showPrivate" v-if="codebooks.length > 0">
@@ -433,68 +506,25 @@ const debounceSearch = debounce(performSearch, 300);
       </div>
     </Collapse>
   </div>
-
-  <CreateDialog
-    :title="
-      codebookToImport
-        ? `Import \'${codebookToImport.name}\' into this project`
-        : 'Create a new Codebook'
-    "
-    :schema="createCodebookSchema"
-    :submit="(data) => handleWithReload(createCodebook, data)"
-    @cancelled="closeCreateForm"
-  >
-    <template #info>
-      <div class="w-full block italic text-foreground/60 text-sm">
-        When you set a codebook "public", anyone can import it on their project.
-        On private, only members of your teams can import it into their
-        projects.
-      </div>
-    </template>
-  </CreateDialog>
-  <CreateDialog
+  <FormDialog
     :title="`Update ${codebookToUpdate?.name}`"
     button-title="Update"
     :schema="updateCodebookSchema"
-    :submit="updateCodebook"
-    @cancelled="closeUpdate()"
+    :submit="submitUpdate"
+    :show="!!updateCodebookSchema"
+    @cancelled="cancelUpdate()"
     @created="reload"
-  >
-  </CreateDialog>
-  <CreateDialog
-    title="Import Codebook"
-    :schema="importSchema"
-    :submit="importCodebook"
+  />
+  <FormDialog
+    :title="`Import ${codebookToImport?.name}`"
+    button-title="Update"
+    :schema="createCodebookSchema"
+    :submit="createCodebook"
+    :show="!!codebookToImport"
+    @cancelled="cancelImport()"
     @created="reload"
-    button-title="Upload now"
-    @cancelled="importSchema = null"
-  >
-    <template #info>
-      <div class="w-full block italic text-foreground/60 text-sm my-4">
-        <p>
-          This import is intended for codebook exports that support the
-          <a
-            href="https://www.qdasoftware.org/refi-qda-codebook"
-            title="REFI website"
-            target="_blank"
-            rel="noopener noreferrer nofollow"
-            class="font-semibold hover:underline"
-            >REFI QDA Exchange Sandard</a
-          >.
-        </p>
-        <p>
-          We aim to support MaxQDA, NViVo, atlas.ti, f4analyse. If you have any
-          problem, please
-          <a
-            href="mailto:openqda@uni-bremen.de"
-            class="font-semibold hover:underline"
-            >contact us</a
-          >. You can also import codebooks from other projects, but they might
-          not be fully functional.
-        </p>
-      </div>
-    </template>
-  </CreateDialog>
+  />
+
   <DeleteDialog
     :target="target"
     :message="message"
