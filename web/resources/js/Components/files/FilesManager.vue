@@ -276,23 +276,23 @@ async function fetchAndRenderDocument(document) {
 </script>
 <template>
   <div class="flex items-center justify-start">
-      <CreateDialog
-          :schema="createSchema"
-          title="Create new file"
-          :submit="onCreateSubmit"
-          @created="onCreated"
-          @cancelled="createSchema = null"
-      >
-          <template #trigger="createTriggerProps">
-    <Button
-      variant="outline-secondary"
-      class="rounded-xl"
-      @click="createTriggerProps.onClick(createNewFile)"
+    <CreateDialog
+      :schema="createSchema"
+      title="Create new file"
+      :submit="onCreateSubmit"
+      @created="onCreated"
+      @cancelled="createSchema = null"
     >
-      <PlusIcon class="h-4 w-4 mr-2"></PlusIcon>
-      <span>Create</span>
-    </Button>
-          </template>
+      <template #trigger="createTriggerProps">
+        <Button
+          variant="outline-secondary"
+          class="rounded-xl"
+          @click="createTriggerProps.onClick(createNewFile)"
+        >
+          <PlusIcon class="h-4 w-4 mr-2"></PlusIcon>
+          <span>Create</span>
+        </Button>
+      </template>
     </CreateDialog>
     <Button
       variant="outline-secondary"

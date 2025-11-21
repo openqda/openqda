@@ -6,7 +6,7 @@ import {
   TransitionRoot,
   TransitionChild,
 } from '@headlessui/vue';
-import { XMarkIcon } from "@heroicons/vue/24/solid";
+import { XMarkIcon } from '@heroicons/vue/24/solid';
 
 /*-----------------------------------------------------------------------------
  | This is styled version of the headlessui dialog component using our theme
@@ -59,22 +59,28 @@ const close = () => {
             leave-from="opacity-100 translate-y-0 scale-100"
             leave-to="opacity-0 translate-y-0 scale-95"
           >
-            <DialogPanel class="relative transform overflow-hidden rounded-lg bg-surface text-left shadow-xl transition-all my-8 w-full max-w-xl">
+            <DialogPanel
+              class="relative transform overflow-hidden rounded-lg bg-surface text-left shadow-xl transition-all my-8 w-full max-w-xl"
+            >
               <div class="bg-surface px-4 pb-4 pt-5">
                 <div class="flex items-start grow">
                   <slot name="icon"></slot>
-                  <div
-                    class="ml-4 mt-0 text-left grow"
-                  >
+                  <div class="ml-4 mt-0 text-left grow">
                     <DialogTitle
                       as="h3"
                       class="text-base font-semibold leading-6 text-foreground flex justify-between items-center"
                     >
                       <span class="grow">{{ title }}<slot name="title" /></span>
                       <span v-if="showCloseButton">
-                          <button @click="close" title="Close/cancel dialog" type="button">
-                              <XMarkIcon class="w-4 h-4 text-foreground/60 hover:text-foreground font-bold" />
-                          </button>
+                        <button
+                          @click="close"
+                          title="Close/cancel dialog"
+                          type="button"
+                        >
+                          <XMarkIcon
+                            class="w-4 h-4 text-foreground/60 hover:text-foreground font-bold"
+                          />
+                        </button>
                       </span>
                       <span v-else><slot name="close" /></span>
                     </DialogTitle>
@@ -84,9 +90,7 @@ const close = () => {
                   </div>
                 </div>
               </div>
-              <div
-                class="bg-background py-3 flex flex-row-reverse px-6"
-              >
+              <div class="bg-background py-3 flex flex-row-reverse px-6">
                 <slot name="footer"></slot>
               </div>
             </DialogPanel>

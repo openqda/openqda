@@ -13,13 +13,13 @@
           >
             <template #trigger="createCodeTriggerProps">
               <Button
-                  variant="outline-secondary"
-                  class="w-full md:w-auto"
-                  @click="createCodeTriggerProps.onClick(openCreateCodeDialog)"
+                variant="outline-secondary"
+                class="w-full md:w-auto"
+                @click="createCodeTriggerProps.onClick(openCreateCodeDialog)"
               >
                 <PlusIcon class="w-4 h-4 me-1" />
                 <span v-if="codesView === 'codes' && range?.length">
-                    Create In-Vivo
+                  Create In-Vivo
                 </span>
                 <span v-else>Create</span>
               </Button>
@@ -172,8 +172,11 @@ const codesTabs = [
 const codesView = ref(codesTabs[0].value);
 const createNewCodeSchema = ref();
 const openCreateCodeDialog = () => {
-    createNewCodeSchema.value = createCodeSchema({ title: text?.value, codebooks: codebooks.value });
-}
+  createNewCodeSchema.value = createCodeSchema({
+    title: text?.value,
+    codebooks: codebooks.value,
+  });
+};
 const createCodeHandler = async (formData) => {
   const code = await createCode(formData);
   const txt = createNewCodeSchema.value.title.defaultValue;

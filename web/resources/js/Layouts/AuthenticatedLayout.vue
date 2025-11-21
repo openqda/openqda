@@ -31,9 +31,11 @@
             >
               <DialogPanel class="relative flex w-full flex-1">
                 <div
-                  class="flex grow flex-col gap-y-5 overflow-y-auto bg-surface/95  pb-2 ring-1 ring-white/10 shadow-xs"
+                  class="flex grow flex-col gap-y-5 overflow-y-auto bg-surface/95 pb-2 ring-1 ring-white/10 shadow-xs"
                 >
-                  <div class="flex h-16 shrink-0 items-center -m-1.5 -mb-4 border-b border-foreground/10 px-4">
+                  <div
+                    class="flex h-16 shrink-0 items-center -m-1.5 -mb-4 border-b border-foreground/10 px-4"
+                  >
                     <Link
                       :href="Routes.projects.path()"
                       preserve-state
@@ -45,24 +47,24 @@
                         :src="$page.props.logo"
                         :alt="Routes.projects.label"
                       />
-                        <span class="font-normal text-primary">OpenQDA</span>
+                      <span class="font-normal text-primary">OpenQDA</span>
                     </Link>
 
-                      <span class="ml-auto flex items-center">
-                      <button
-                          type="button"
-                          @click="sidebarOpen = false"
-                      >
-                          <span class="sr-only">Close sidebar</span>
-                          <XMarkIcon
-                              class="h-6 w-6 text-label-d"
-                              aria-hidden="true"
-                          />
+                    <span class="ml-auto flex items-center">
+                      <button type="button" @click="sidebarOpen = false">
+                        <span class="sr-only">Close sidebar</span>
+                        <XMarkIcon
+                          class="h-6 w-6 text-label-d"
+                          aria-hidden="true"
+                        />
                       </button>
-                      </span>
+                    </span>
                   </div>
                   <nav class="flex flex-1 flex-col px-4">
-                    <ul role="list" class="-mx-2 flex-1 flex flex-col gap-4 border-b border-foreground/10">
+                    <ul
+                      role="list"
+                      class="-mx-2 flex-1 flex flex-col gap-4 border-b border-foreground/10"
+                    >
                       <li v-for="item in navigation" :key="item.name">
                         <a
                           :href="item.href"
@@ -80,7 +82,7 @@
                             class="h-6 w-6 shrink-0"
                             aria-hidden="true"
                           />
-                            <span>{{ item.label }}</span>
+                          <span>{{ item.label }}</span>
                         </a>
                       </li>
                     </ul>
@@ -228,7 +230,9 @@
           <slot name="menu" />
         </aside>
 
-        <main class="h-screen overflow-y-auto bg-surface text-surface-foreground grow p-2 md:p-0">
+        <main
+          class="h-screen overflow-y-auto bg-surface text-surface-foreground grow p-2 md:p-0"
+        >
           <Transition>
             <slot name="main" />
           </Transition>

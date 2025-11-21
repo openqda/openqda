@@ -19,9 +19,9 @@ export const useCreateDialog = () => {
     state.onCreated = onCreated;
   };
   const close = () => {
-      state.schema = null;
-      state.id = null;
-      state.onCreated = null;
-  }
+    state.schema = null;
+    state.id = null;
+    state.onCreated = null;
+  };
   return { id, schema, open, close, onCreated };
 };

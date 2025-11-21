@@ -3,9 +3,8 @@ import Button from '../Components/interactive/Button.vue';
 import DialogBase from './DialogBase.vue';
 import ActionMessage from '../Components/ActionMessage.vue';
 import AutoForm from '../form/AutoForm.vue';
-import {ref, watch} from 'vue';
+import { ref, watch } from 'vue';
 import { asyncTimeout } from '../utils/asyncTimeout';
-
 
 /*----------------------------------------------------------------------------/
  | FormDialog
@@ -29,7 +28,7 @@ const props = defineProps({
   submit: { type: Function },
   title: { type: String, required: false },
   buttonTitle: String,
-  show: Boolean
+  show: Boolean,
 });
 
 const emit = defineEmits(['created', 'cancelled']);
@@ -38,15 +37,18 @@ const complete = ref(false);
 const submitting = ref(false);
 const open = ref(false);
 
-watch(() => props.show, (newVal) => {
-    if (newVal !== open.value) setTimeout(()=> open.value = newVal, 100);
-});
+watch(
+  () => props.show,
+  (newVal) => {
+    if (newVal !== open.value) setTimeout(() => (open.value = newVal), 100);
+  },
+  { immediate: true }
+);
 
 const start = (callback) => {
   callback();
   open.value = true;
 };
-
 
 const submit = async (document) => {
   error.value = false; // Clear any previous error
@@ -94,57 +96,64 @@ const cancel = () => {
   emit('cancelled');
 };
 
-const keyDownHandler = e => {
-    if (e.key === 'Escape') {
-        cancel();
-    }
-}
+const keyDownHandler = (e) => {
+  if (e.key === 'Escape') {
+    cancel();
+  }
+};
 </script>
 
 <template>
-    <div>
-        <slot name="trigger" @click="start"></slot>
-  <DialogBase :title="props.title ?? 'Rename'" :show="open" :static="props.static" :show-close-button="true" @close="open = false" @keydown="keyDownHandler">
-    <template #body>
-      <AutoForm
-        v-if="props.schema"
-        id="create-custom-form"
-        :autofocus="true"
-        :schema="props.schema"
-        @submit="submit"
-        class="w-full"
-        :show-cancel="false"
-        :show-submit="false"
-      />
-      <slot name="info"></slot>
-    </template>
-    <template #footer>
-      <div class="flex justify-between items-center w-full">
-        <Button variant="outline" @click="cancel">Cancel</Button>
-        <span class="grow text-right mx-1">
-          <ActionMessage
-            v-if="!complete && !error"
-            :on="submitting"
-            class="text-secondary"
-            >Saving</ActionMessage
+  <div>
+    <slot name="trigger" @click="start"></slot>
+    <DialogBase
+      :title="props.title ?? 'Rename'"
+      :show="open"
+      :static="props.static"
+      :show-close-button="true"
+      @close="open = false"
+      @keydown="keyDownHandler"
+    >
+      <template #body>
+        <AutoForm
+          v-if="props.schema"
+          id="create-custom-form"
+          :autofocus="true"
+          :schema="props.schema"
+          @submit="submit"
+          class="w-full"
+          :show-cancel="false"
+          :show-submit="false"
+        />
+        <slot name="info"></slot>
+      </template>
+      <template #footer>
+        <div class="flex justify-between items-center w-full">
+          <Button variant="outline" @click="cancel">Cancel</Button>
+          <span class="grow text-right mx-1">
+            <ActionMessage
+              v-if="!complete && !error"
+              :on="submitting"
+              class="text-secondary"
+              >Saving</ActionMessage
+            >
+            <ActionMessage :on="complete" class="text-secondary"
+              >Saved</ActionMessage
+            >
+            <ActionMessage :on="!!error" class="text-destructive">{{
+              error
+            }}</ActionMessage>
+          </span>
+          <Button
+            type="submit"
+            form="create-custom-form"
+            :disabled="submitting"
+            >{{ props.buttonTitle ?? 'Create' }}</Button
           >
-          <ActionMessage :on="complete" class="text-secondary"
-            >Saved</ActionMessage
-          >
-          <ActionMessage :on="!!error" class="text-destructive">{{
-            error
-          }}</ActionMessage>
-        </span>
-        <Button
-          type="submit"
-          form="create-custom-form"
-          :disabled="submitting"
-          >{{ props.buttonTitle ?? 'Create' }}</Button
-        >
-      </div>
-    </template>
-  </DialogBase>
-    </div>
+        </div>
+      </template>
+    </DialogBase>
+  </div>
 </template>
 
 <style scoped></style>
