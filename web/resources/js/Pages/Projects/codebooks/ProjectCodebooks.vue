@@ -196,8 +196,11 @@ const debounceSearch = debounce(performSearch, 300);
 
 <template>
   <div>
-    <div class="flex items-center justify-between">
-      <button @click="showPrivate = !showPrivate" class="flex items-center">
+    <div class="block md:flex items-center justify-between">
+      <button
+        @click="showPrivate = !showPrivate"
+        class="flex items-center my-6 md:my-0"
+      >
         <ChevronRightIcon
           :class="
             cn(
@@ -209,13 +212,18 @@ const debounceSearch = debounce(performSearch, 300);
         <Headline2>Codebooks of current Project</Headline2>
       </button>
       <span class="flex gap-1">
-        <Button variant="outline-secondary" @click="openCreateForm()">
+        <Button
+          variant="outline-secondary"
+          @click="openCreateForm()"
+          class="w-100 md:w-auto"
+        >
           <PlusIcon class="w-4 h-4" />
           <span>Create</span>
         </Button>
         <Button
           variant="outline-secondary"
-          @click="importSchema = importCodebookSchema()"
+          class="w-100 md:w-auto"
+          @click="importSchema = importCodebookSchema"
         >
           <ArrowUpTrayIcon class="w-4 h-4" />
           <span>Import</span>
@@ -247,7 +255,10 @@ const debounceSearch = debounce(performSearch, 300);
   </div>
 
   <div>
-    <button @click="showOthers = !showOthers" class="flex items-center">
+    <button
+      @click="showOthers = !showOthers"
+      class="flex items-center my-6 md:my-0"
+    >
       <ChevronRightIcon
         :class="
           cn(
@@ -256,7 +267,9 @@ const debounceSearch = debounce(performSearch, 300);
           )
         "
       />
-      <Headline2>My created Codebooks in other Projects</Headline2>
+      <Headline2 class="text-left md:text-center"
+        >My created Codebooks in other Projects</Headline2
+      >
     </button>
     <Collapse :when="showOthers" v-if="userCodebooks.length > 0">
       <ul
@@ -289,7 +302,10 @@ const debounceSearch = debounce(performSearch, 300);
 
   <!-- Public Codebooks Section with Lazy Loading -->
   <div class="pb-24">
-    <button @click="loadPublicCodebooks()" class="flex items-center">
+    <button
+      @click="loadPublicCodebooks()"
+      class="flex items-center my-6 md:my-0"
+    >
       <ChevronRightIcon
         :class="
           cn(
