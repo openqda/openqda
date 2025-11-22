@@ -53,11 +53,11 @@ const close = () => {
           <TransitionChild
             as="template"
             enter="ease-out duration-300"
-            enter-from="opacity-0 translate-y-4 translate-y-0 scale-95"
+            enter-from="opacity-0 translate-y-4 scale-95"
             enter-to="opacity-100 translate-y-0 scale-100"
             leave="ease-in duration-200"
             leave-from="opacity-100 translate-y-0 scale-100"
-            leave-to="opacity-0 translate-y-0 scale-95"
+            leave-to="opacity-0 scale-95"
           >
             <DialogPanel
               class="relative transform overflow-hidden rounded-lg bg-surface text-left shadow-xl transition-all my-8 w-full max-w-xl"

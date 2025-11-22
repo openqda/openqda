@@ -206,7 +206,7 @@
         >
           <Button
             variant="outline"
-            @click="toggleMenu(document.id, index)"
+            @click="toggleMenu(document.id)"
             :class="cn(openMenuId === document.id && 'border-primary')"
             size="sm"
           >
