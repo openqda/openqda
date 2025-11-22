@@ -198,7 +198,7 @@ onMounted(() => {
             <div
               v-for="user in team.users"
               :key="user.id"
-              class="flex items-center justify-between"
+              class="block md:flex items-center justify-between"
             >
               <div class="flex items-center">
                 <img
@@ -214,7 +214,7 @@ onMounted(() => {
                 </div>
               </div>
 
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 my-4 md:my-0">
                 <!-- Manage Team Member Role -->
 
                 <Button

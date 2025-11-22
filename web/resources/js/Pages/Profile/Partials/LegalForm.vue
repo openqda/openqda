@@ -81,7 +81,9 @@ onMounted(async () => {
       <ShieldCheckIcon class="w-5 h-5 me-1" />
       <span>Privacy Policy</span>
     </div>
-    <div class="flex justify-between items-center my-4 bg-transparent text-sm">
+    <div
+      class="block md:flex justify-between items-center my-4 bg-transparent text-sm"
+    >
       <p class="text-foreground/50">
         You can read or download the most recent version of our privacy policy.
         <span v-if="user.privacy_consent"
@@ -89,7 +91,7 @@ onMounted(async () => {
           {{ new Date(user.privacy_consent).toLocaleDateString() }}.</span
         >
       </p>
-      <span class="flex gap-4 items-center">
+      <span class="flex gap-4 items-center my-6 md:my-0">
         <a
           href="/privacy"
           target="_blank"
@@ -103,7 +105,9 @@ onMounted(async () => {
       <ScaleIcon class="w-5 h-5 me-1" />
       <span>Terms of Use</span>
     </div>
-    <div class="flex justify-between items-center my-4 bg-transparent text-sm">
+    <div
+      class="block md:flex justify-between items-center my-4 bg-transparent text-sm"
+    >
       <p class="text-foreground/50">
         You can read or download the most recent version of our terms.
         <span v-if="user.terms_consent"
@@ -111,7 +115,7 @@ onMounted(async () => {
           {{ new Date(user.terms_consent).toLocaleDateString() }}.</span
         >
       </p>
-      <span class="flex gap-4 items-center">
+      <span class="flex gap-4 items-center my-6 md:my-0">
         <a
           href="/terms"
           target="_blank"
@@ -126,7 +130,7 @@ onMounted(async () => {
       <span>Research Participation</span>
     </div>
     <div
-      class="flex justify-between items-center gap-2 my-4 bg-transparent text-sm"
+      class="block md:flex justify-between items-center gap-2 my-4 bg-transparent text-sm"
     >
       <p v-if="props.user.research_consent" class="text-foreground/50">
         Thank you for participating in our research! The consent was given by
@@ -151,7 +155,7 @@ onMounted(async () => {
           >privacy policy</a
         >.
       </p>
-      <span class="flex gap-2 items-center">
+      <span class="flex gap-2 items-center my-6 md:my-0">
         <span
           v-if="props.user.research_consent"
           class="rounded text-sm border border-primary text-primary px-1"

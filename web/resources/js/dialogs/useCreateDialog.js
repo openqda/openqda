@@ -7,6 +7,10 @@ const state = reactive({
   onCreated: null,
 });
 
+/**
+ * @deprecated
+ * @return {{schema, id, close: close, onCreated, open: open}}
+ */
 export const useCreateDialog = () => {
   const { schema, id, onCreated } = toRefs(state);
   const open = ({ id, schema, onCreated = noop }) => {
@@ -14,6 +18,10 @@ export const useCreateDialog = () => {
     state.id = id;
     state.onCreated = onCreated;
   };
-
-  return { id, schema, open, onCreated };
+  const close = () => {
+    state.schema = null;
+    state.id = null;
+    state.onCreated = null;
+  };
+  return { id, schema, open, close, onCreated };
 };

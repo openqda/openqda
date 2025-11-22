@@ -56,7 +56,9 @@ const { focusSelection } = useCodingEditor();
           <TrashIcon class="w-4 h-4 hover:text-destructive" />
         </button>
       </div>
-      <p class="cursor-text">{{ selection.text }}</p>
+      <p class="cursor-text overflow-x-scroll py-4 md:py-2 lg:py-0">
+        {{ selection.text }}
+      </p>
     </li>
   </ul>
 </template>

@@ -12,6 +12,11 @@ function changeTab(index, option) {
   emit('selected', { index, ...props.options[index] });
   option.click?.();
 }
+const changeSelect = (e) => {
+  const index = e.target.selectedOptions[0].dataset.index;
+  const option = props.options[index];
+  changeTab(Number(index), option);
+};
 </script>
 
 <template>
@@ -23,9 +28,12 @@ function changeTab(index, option) {
         id="tabs"
         name="tabs"
         class="block w-full rounded-md border-border focus:border-secondary focus:ring-secondary"
+        @change="changeSelect"
       >
+        <option selected disabled value="">(Select one)</option>
         <option
           v-for="(option, index) in props.options"
+          :data-index="index"
           :key="option.next"
           :selected="selectedTab === index"
         >

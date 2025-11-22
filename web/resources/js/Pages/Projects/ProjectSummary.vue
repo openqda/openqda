@@ -100,7 +100,7 @@ const deleteProject = async () => {
     <div class="py-6">
       <InputLabel>Project Sources</InputLabel>
 
-      <ul class="flex flex-col gap-2 mt-4">
+      <ul class="flex flex-col gap-2 mt-4 overflow-x-scroll">
         <li
           v-for="source in project.sources ?? []"
           :key="source.id"

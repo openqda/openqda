@@ -14,7 +14,10 @@
       </BaseContainer>
     </template>
     <template #main>
-      <div ref="rightSide" class="overflow-auto w-full h-full">
+      <div
+        ref="rightSide"
+        class="overflow-y-auto overflow-x-hidden w-full h-full"
+      >
         <div
           class="flex items-center justify-center h-full text-foreground/50"
           v-show="!editorSourceRef.selected"
@@ -28,7 +31,7 @@
             <HelpResources class="flex flex-col gap-4" />
           </div>
         </div>
-        <div v-show="editorSourceRef.selected === true" class="mt-3">
+        <div v-show="editorSourceRef.selected === true" class="mt-0 md:mt-3">
           <PreparationsEditor
             ref="editorComponent"
             :source="editorSourceRef.content"
@@ -83,7 +86,7 @@
                       fn: lockAndCode,
                     })
                   "
-                  class="px-1 py-2 mx-3 rounded-xl"
+                  class="px-1 py-2 mx-3 rounded-xl w-full md:w-auto"
                   >Lock for coding
                 </Button>
                 <Button
@@ -102,6 +105,7 @@
                   :text="confirm.text"
                   :show="!!confirm.text"
                   :show-confirm="true"
+                  :static="true"
                   @confirmed="onConfirm"
                   @cancelled="toConfirm(null)"
                 />

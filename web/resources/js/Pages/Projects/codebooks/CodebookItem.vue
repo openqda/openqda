@@ -69,7 +69,11 @@
               </button>
             </template>
             <template #content>
-              <DropdownLink as="button" @click="openEditForm(codebook)">
+              <DropdownLink
+                v-if="!props.public"
+                as="button"
+                @click="openEditForm(codebook)"
+              >
                 Edit
               </DropdownLink>
               <DropdownLink as="button" @click="openPreview({ codebook })">

@@ -1,12 +1,12 @@
 <template>
   <div class="contents">
     <!-- editor header with zoom controls -->
-    <div class="px-3 py-6 flex items-center justify-between">
+    <div class="px-3 py-6 block md:flex items-center justify-between">
       <Headline1 class="m-0">{{ props.source?.name }}</Headline1>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center">
         <button
           type="button"
-          class="p-2 rounded hover:bg-foreground/10 transition-colors"
+          class="p-1 md:p-2 rounded hover:bg-foreground/10 transition-colors"
           title="Zoom Out"
           @click="setZoom('decrease')"
         >
@@ -20,7 +20,7 @@
         </button>
         <button
           type="button"
-          class="p-2 rounded hover:bg-foreground/10 transition-colors"
+          class="p-1 md:p-2 rounded hover:bg-foreground/10 transition-colors"
           title="Zoom In"
           @click="setZoom('increase')"
         >
@@ -47,7 +47,10 @@
         @drop.prevent
       ></div>
     </div>
-    <div class="fixed bottom-4 right-4 grow flex items-end" style="z-index: 50">
+    <div
+      class="fixed bg-surface md:bg-transparent hover:border hover:border-primary w-full md:w-auto bottom-0 md:bottom-4 py-2 md:py-0 right-0 md:right-4 grow flex items-end"
+      style="z-index: 50"
+    >
       <span class="text-foreground/60 w-4 h-4 animate-spin" v-show="updating">
         <ArrowPathIcon class="w-4 h-4" />
       </span>

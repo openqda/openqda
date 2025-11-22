@@ -78,7 +78,8 @@
           :class="
             cn(
               'py-4 w-auto rounded-xl',
-              hover === index ? 'break-all' : 'truncate'
+              hover === index ? 'break-all' : 'truncate',
+              openMenuId === document.id ? 'font-semibold' : 'font-normal'
             )
           "
           :colspan="hover === index ? (props.colspan ?? 5) : undefined"
@@ -114,21 +115,21 @@
 
         <td class="py-2" v-if="fieldsVisible.type && hover !== index">
           <!--
-          <div
-            v-if="
-              !document.isQueued &&
-              !document.isUploading &&
-              !document.converted &&
-              !document.failed
-            "
-            title="There was an error during upload or conversion. Please retry or delete this file."
-            class="inline-flex justify-center w-full p-1 clickable"
-          >
-            <ExclamationTriangleIcon
-              class="w-5 h-5 text-destructive! rounded-md font-semibold"
-            />
-          </div>
-          -->
+                <div
+                  v-if="
+                    !document.isQueued &&
+                    !document.isUploading &&
+                    !document.converted &&
+                    !document.failed
+                  "
+                  title="There was an error during upload or conversion. Please retry or delete this file."
+                  class="inline-flex justify-center w-full p-1 clickable"
+                >
+                  <ExclamationTriangleIcon
+                    class="w-5 h-5 text-destructive! rounded-md font-semibold"
+                  />
+                </div>
+                -->
           <div
             v-if="document.isQueued"
             title="Queued for uploading"
@@ -188,27 +189,31 @@
           class="py-2 text-center tracking-wider"
           v-if="fieldsVisible.user && hover !== index"
         >
-          <ProfileImage
-            v-if="document.userPicture"
-            class="w-3 h-3"
-            :name="document.user"
-            :email="document.userEmail"
-            :src="document.userPicture"
-          />
+          <div>
+            <ProfileImage
+              v-if="document.userPicture"
+              class="w-4 h-4"
+              :name="document.user"
+              :email="document.userEmail"
+              :src="document.userPicture"
+            />
+          </div>
         </td>
         <td
           v-if="hover !== index"
           v-show="$props.actions?.length"
           class="py-2 text-center tracking-wider justify-center align-middle items-center relative"
         >
-          <button
+          <Button
+            variant="outline"
             @click="toggleMenu(document.id)"
-            class="focus:border-secondary focus:border focus:rounded-full cursor-pointer menu-toggle"
+            :class="cn(openMenuId === document.id && 'border-primary')"
+            size="sm"
           >
             <EllipsisVerticalIcon
               class="w-4 h-4 menu-toggle z-0"
             ></EllipsisVerticalIcon>
-          </button>
+          </Button>
 
           <div
             v-show="isMenuOpen(document.id)"
@@ -273,6 +278,7 @@ import { computed, ref } from 'vue';
 import { vClickOutside } from '../../utils/vue/clickOutsideDirective.js';
 import { cn } from '../../utils/css/cn.js';
 import ProfileImage from '../user/ProfileImage.vue';
+import Button from '../interactive/Button.vue';
 
 const emit = defineEmits(['select', 'delete']);
 const props = defineProps([
@@ -310,7 +316,7 @@ const headerFields = ref([
     label: 'By',
     key: 'user',
     title: 'Sort by uploader',
-    class: 'w-3',
+    class: 'w-6',
   },
 ]);
 const fieldsVisible = ref({
@@ -319,6 +325,7 @@ const fieldsVisible = ref({
   type: true,
   date: true,
   user: true,
+  actions: true,
   ...(props.fields ?? {}),
 });
 const hover = ref(-1);
