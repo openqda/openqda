@@ -2,7 +2,7 @@
   <div class="flow-root w-full ml-auto mr-auto">
     <div class="pb-1.5 mt-2 rounded-md">
       <!-- Search Input with loading indicator -->
-      <div class="flex items-center gap-x-1.5 mb-2 relative">
+      <div class="flex items-center gap-x-1.5 mb-2 relative my-6 md:my-0">
         <input
           v-model="filters.query"
           ref="searchInput"
@@ -43,7 +43,7 @@
       </div>
 
       <!-- Date Filters -->
-      <div class="flex justify-start gap-4 mb-4">
+      <div class="block md:flex justify-start gap-4 mb-4 my-6 md:my-4">
         <div>
           <label class="block text-sm font-medium text-gray-700">Before</label>
           <input
@@ -86,11 +86,11 @@
       </div>
 
       <!-- Model Type Filters -->
-      <div class="filters flex gap-4 w-full justify-start mb-4">
+      <div class="filters block md:flex gap-4 w-full justify-start my-4">
         <label
           v-for="type in modelTypes"
           :key="type"
-          class="flex items-center"
+          class="flex items-center my-4 md:my-0"
           :class="{ 'opacity-50': isLoading }"
         >
           <Checkbox

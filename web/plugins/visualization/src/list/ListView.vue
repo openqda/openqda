@@ -66,7 +66,9 @@
                     >
                   </span>
                 </div>
-                <div class="p-2 flex-grow">{{ selection.text }}</div>
+                <div class="p-2 flex-grow overflow-x-scroll">
+                  {{ selection.text }}
+                </div>
               </div>
             </div>
           </div>
