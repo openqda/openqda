@@ -29,59 +29,51 @@
               leave-from="translate-x-0"
               leave-to="-translate-x-full"
             >
-              <DialogPanel class="relative mr-16 flex w-full flex-1">
-                <TransitionChild
-                  as="template"
-                  enter="ease-in-out duration-300"
-                  enter-from="opacity-0"
-                  enter-to="opacity-100"
-                  leave="ease-in-out duration-300"
-                  leave-from="opacity-100"
-                  leave-to="opacity-0"
+              <DialogPanel class="relative flex w-full flex-1">
+                <div
+                  class="flex grow flex-col gap-y-5 overflow-y-auto bg-surface/95 pb-2 ring-1 ring-white/10 shadow-xs"
                 >
                   <div
-                    class="absolute left-full top-0 flex w-12 justify-center pt-5"
+                    class="flex h-16 shrink-0 items-center -m-1.5 -mb-4 border-b border-foreground/10 px-4"
                   >
-                    <button
-                      type="button"
-                      class="-m-2.5 p-2.5"
-                      @click="sidebarOpen = false"
-                    >
-                      <span class="sr-only">Close sidebar</span>
-                      <XMarkIcon
-                        class="h-6 w-6 text-label-d"
-                        aria-hidden="true"
-                      />
-                    </button>
-                  </div>
-                </TransitionChild>
-                <div
-                  class="flex grow flex-col gap-y-5 overflow-y-auto bg-surface/95 px-6 pb-2 ring-1 ring-white/10 shadow-xs"
-                >
-                  <div class="flex h-16 shrink-0 items-center">
                     <Link
                       :href="Routes.projects.path()"
                       preserve-state
                       :title="Routes.projects.label"
+                      class="flex items-center gap-2"
                     >
                       <img
                         class="h-8 w-auto"
                         :src="$page.props.logo"
                         :alt="Routes.projects.label"
                       />
+                      <span class="font-normal text-primary">OpenQDA</span>
                     </Link>
+
+                    <span class="ml-auto flex items-center">
+                      <button type="button" @click="sidebarOpen = false">
+                        <span class="sr-only">Close sidebar</span>
+                        <XMarkIcon
+                          class="h-6 w-6 text-label-d"
+                          aria-hidden="true"
+                        />
+                      </button>
+                    </span>
                   </div>
-                  <nav class="flex flex-1 flex-col">
-                    <ul role="list" class="-mx-2 flex-1 flex flex-col gap-4">
+                  <nav class="flex flex-1 flex-col px-4">
+                    <ul
+                      role="list"
+                      class="-mx-2 flex-1 flex flex-col gap-4 border-b border-foreground/10"
+                    >
                       <li v-for="item in navigation" :key="item.name">
                         <a
                           :href="item.href"
                           :title="item.label"
                           :class="[
                             item.current
-                              ? 'text-secondary-l dark:text-secondary-d'
-                              : 'text-passive-l hover:bg-gray-800 hover:text-white',
-                            'group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6',
+                              ? 'text-primary-foreground font-bold leading-6 bg-primary'
+                              : 'text-foreground font-normal leading-6',
+                            'group flex gap-x-3 rounded-md p-2 text-sm ',
                           ]"
                           :aria-disabled="item.disabled"
                         >
@@ -90,15 +82,12 @@
                             class="h-6 w-6 shrink-0"
                             aria-hidden="true"
                           />
-                          {{ item.label }}
+                          <span>{{ item.label }}</span>
                         </a>
                       </li>
                     </ul>
                   </nav>
                   <slot name="menu"></slot>
-                  <div class="mt-auto">
-                    <Footer />
-                  </div>
                 </div>
               </DialogPanel>
             </TransitionChild>
@@ -239,7 +228,7 @@
         </aside>
 
         <main
-          class="h-screen overflow-y-auto bg-surface text-surface-foreground grow"
+          class="h-screen overflow-y-auto bg-surface text-surface-foreground grow p-2 md:p-0"
         >
           <Transition>
             <slot name="main" />
@@ -279,7 +268,6 @@ import { flashMessage } from '../Components/notification/flashMessage.js';
 import { useDebug } from '../utils/useDebug.js';
 import { useHelpDialog } from '../dialogs/help/useHelpDialog.js';
 import HelpDialog from '../dialogs/help/HelpDialog.vue';
-import Footer from './Footer.vue';
 import { useLegal } from '../domain/legal/useLegal.js';
 import ConsentDialog from '../domain/legal/ConsentDialog.vue';
 

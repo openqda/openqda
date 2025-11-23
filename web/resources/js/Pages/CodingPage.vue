@@ -5,29 +5,32 @@
         <ActivityIndicator v-if="!codingInitialized">
           Loading codes and selections...
         </ActivityIndicator>
-        <div v-else class="flex items-center justify-between">
-          <Button
-            variant="outline-secondary"
-            @click="openCreateDialogHandler(codesView)"
-          >
-            <PlusIcon class="w-4 h-4 me-1" />
-            <span v-if="codesView === 'codes' && range?.length"
-              >Create In-Vivo</span
-            >
-            <span v-else>Create</span>
-          </Button>
+        <div v-else class="inline md:flex items-center justify-between mb-4">
           <CreateDialog
-            :schema="createSchema"
+            :schema="createNewCodeSchema"
             :title="`Create a new ${codesView === 'codes' ? 'Code' : 'Codebook'}`"
             :submit="createCodeHandler"
-            @cancelled="createSchema = null"
-            @created="onCodeCreated"
-          />
+          >
+            <template #trigger="createCodeTriggerProps">
+              <Button
+                variant="outline-secondary"
+                class="w-full md:w-auto"
+                @click="createCodeTriggerProps.onClick(openCreateCodeDialog)"
+              >
+                <PlusIcon class="w-4 h-4 me-1" />
+                <span v-if="codesView === 'codes' && range?.length">
+                  Create In-Vivo
+                </span>
+                <span v-else>Create</span>
+              </Button>
+            </template>
+          </CreateDialog>
           <CreateDialog
             :title="`Edit ${editTarget?.name}`"
             :schema="editSchema"
             buttonTitle="Update code"
             :submit="updateCode"
+            :show="!!editSchema"
           />
           <DeleteDialog
             :title="`Permanently delete ${deleteTarget?.name}`"
@@ -71,6 +74,7 @@
     </template>
     <template #main>
       <CodingEditor
+        class="overflow-y-auto overflow-x-hidden w-full h-full"
         :project="{ id: props.projectId }"
         :source="$props.source"
         :codes="$props.allCodes"
@@ -92,14 +96,13 @@ import { useCodes } from '../domain/codes/useCodes.js';
 import { useRange } from './coding/useRange.js';
 import { useRenameDialog } from '../dialogs/useRenameDialog.js';
 import { useDeleteDialog } from '../dialogs/useDeleteDialog.js';
-import CreateDialog from '../dialogs/CreateDialog.vue';
+import CreateDialog from '../dialogs/FormDialog.vue';
 import DeleteDialog from '../dialogs/DeleteDialog.vue';
 import { useSelections } from './coding/selections/useSelections.js';
 import FilesList from '../Components/files/FilesList.vue';
 import { router } from '@inertiajs/vue3';
 import { asyncTimeout } from '../utils/asyncTimeout.js';
 import ActivityIndicator from '../Components/ActivityIndicator.vue';
-import { useCreateDialog } from '../dialogs/useCreateDialog.js';
 import { attemptAsync } from '../Components/notification/attemptAsync.js';
 import { useCleanup } from './coding/cleanup/useCleanup.js';
 import Cleanup from './coding/cleanup/Cleanup.vue';
@@ -135,11 +138,6 @@ const switchFile = (file) => {
 //------------------------------------------------------------------------
 // GENERIC EDIT DIALOG
 //------------------------------------------------------------------------
-const {
-  schema: createSchema,
-  open: openCreateDialog,
-  onCreated: onCodeCreated,
-} = useCreateDialog();
 const { schema: editSchema, target: editTarget } = useRenameDialog();
 const {
   target: deleteTarget,
@@ -171,20 +169,18 @@ const codesTabs = [
   { value: 'sources', label: 'Sources' },
   { value: 'cleanup', label: 'Cleanup' },
 ];
+
 const codesView = ref(codesTabs[0].value);
-const openCreateDialogHandler = (view) => {
-  if (view === 'codes') {
-    openCreateDialog({
-      schema: createCodeSchema({
-        title: text?.value,
-        codebooks: codebooks.value,
-      }),
-    });
-  }
+const createNewCodeSchema = ref();
+const openCreateCodeDialog = () => {
+  createNewCodeSchema.value = createCodeSchema({
+    title: text?.value,
+    codebooks: codebooks.value,
+  });
 };
 const createCodeHandler = async (formData) => {
   const code = await createCode(formData);
-  const txt = createSchema.value.title.defaultValue;
+  const txt = createNewCodeSchema.value.title.defaultValue;
   const { index, length } = prevRange.value ?? {};
 
   // immediately apply in-vivo codes as selections
