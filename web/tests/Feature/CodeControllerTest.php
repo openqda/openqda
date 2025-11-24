@@ -121,6 +121,65 @@ class CodeControllerTest extends TestCase
         $this->assertDatabaseHas('codes', ['id' => $code->id, 'description' => 'New description']);
     }
 
+    public function test_create_code_with_all_attributes()
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create(['creating_user_id' => $user->id]);
+        $codebook = Codebook::factory()->create(['project_id' => $project->id, 'creating_user_id' => $user->id]);
+
+        // Create code with all attributes including description
+        $response = $this->actingAs($user)->post(route('coding.store', [$project->id]), [
+            'title' => 'Test Code',
+            'description' => 'This is a test code description',
+            'color' => '#ff5733',
+            'codebook' => $codebook->id,
+        ], ['Accept' => 'application/json']);
+
+        $response->assertStatus(201);
+        $response->assertJsonStructure(['message', 'id']);
+
+        // Get the created code's ID from the response
+        $codeId = $response->json('id');
+
+        // Verify all attributes are saved correctly in database
+        $this->assertDatabaseHas('codes', [
+            'id' => $codeId,
+            'name' => 'Test Code',
+            'description' => 'This is a test code description',
+            'color' => '#ff5733',
+            'codebook_id' => $codebook->id,
+            'parent_id' => null,
+        ]);
+    }
+
+    public function test_create_code_without_description()
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create(['creating_user_id' => $user->id]);
+        $codebook = Codebook::factory()->create(['project_id' => $project->id, 'creating_user_id' => $user->id]);
+
+        // Create code without description (should be allowed)
+        $response = $this->actingAs($user)->post(route('coding.store', [$project->id]), [
+            'title' => 'Code Without Description',
+            'color' => '#000000',
+            'codebook' => $codebook->id,
+        ], ['Accept' => 'application/json']);
+
+        $response->assertStatus(201);
+        $response->assertJsonStructure(['message', 'id']);
+
+        $codeId = $response->json('id');
+
+        // Verify the code is created with null description
+        $this->assertDatabaseHas('codes', [
+            'id' => $codeId,
+            'name' => 'Code Without Description',
+            'description' => null,
+            'color' => '#000000',
+            'codebook_id' => $codebook->id,
+        ]);
+    }
+
     public function test_create_code_with_valid_parent()
     {
         $user = User::factory()->create();

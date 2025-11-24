@@ -1,21 +1,27 @@
 import { usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, reactive, toRefs } from 'vue';
 import { Codebooks } from '../codebooks/Codebooks.js';
 import { Codes } from './Codes.js';
 import { Selections } from '../../Pages/coding/selections/Selections.js';
 import { CodeList } from './CodeList.js';
 import { createCodeSchema } from './createCodeSchema.js';
 
+const state = reactive({
+  details: {}, // code ids
+});
+
 export const useCodes = () => {
+  const { details } = toRefs(state);
   const page = usePage();
   const { allCodes, codebooks, projectId, source } = page.props;
-  const sourceId = source.id;
+  const sourceId = source?.id;
   const key = `${projectId}-${sourceId}`;
   const codeStore = Codes.by(key);
   const codebookStore = Codebooks.by(projectId);
   const selectionStore = Selections.by(key);
 
   const initCoding = async () => {
+    const initialSelections = source?.selections ?? [];
     const results = { added: [], clean: [] };
     const toResults = (res) => {
       results.added.push(...res.added);
@@ -24,7 +30,7 @@ export const useCodes = () => {
     toResults(codebookStore.init(codebooks));
     toResults(codeStore.init(allCodes));
     toResults(
-      selectionStore.init(source.selections, (id) => {
+      selectionStore.init(initialSelections, (id) => {
         try {
           return codeStore.entry(id);
         } catch (e) {
@@ -209,6 +215,10 @@ export const useCodes = () => {
     });
   };
 
+  const toggleDetails = (codebookId) => {
+    state.details[codebookId] = !state.details[codebookId];
+  };
+
   const activateCodes = ({ codes, active, withIntersections }) => {
     const updatedSelections = new Map();
     const addSelection = (selection) => {
@@ -301,5 +311,7 @@ export const useCodes = () => {
     sorter: {
       byIndex: useCodes,
     },
+    showDetails: details,
+    toggleDetails,
   };
 };

@@ -10,29 +10,41 @@ import {
 } from '@heroicons/vue/24/outline';
 import { Link } from '@inertiajs/vue3';
 import { useProjects } from '../../domain/project/useProjects.js';
+import { cn } from '../../utils/css/cn.js';
+import { onMounted, ref } from 'vue';
+import { isInViewport } from '../../utils/dom/isInViewport.js';
+import { asyncTimeout } from '../../utils/asyncTimeout.js';
 import Dropdown from '../../Components/Dropdown.vue';
 import DropdownLink from '../../Components/DropdownLink.vue';
 import InputField from '../../form/InputField.vue';
-import { cn } from '../../utils/css/cn.js';
 import Headline3 from '../../Components/layout/Headline3.vue';
-import { onMounted, ref } from 'vue';
-import { isInViewport } from '../../utils/dom/isInViewport.js';
 import ActivityIndicator from '../../Components/ActivityIndicator.vue';
+import FormDialog from '../../dialogs/FormDialog.vue';
 
-defineEmits(['create-project']);
+defineEmits(['selected']);
 
 const {
   projects,
   currentProject,
+  createProject,
+  createSchema,
   sortOptions,
+  searchTerm,
   sortBy,
   updateSorter,
-  searchTerm,
+  open,
   initSearch,
 } = useProjects();
 
 const scrollRefs = ref();
 const loadingProjectId = ref(null);
+const createProjectSchema = ref(null);
+const show = () => {
+  createProjectSchema.value = createSchema;
+};
+const hide = () => {
+  createProjectSchema.value = null;
+};
 
 const handleProjectClick = (projectId) => {
   loadingProjectId.value = projectId;
@@ -56,10 +68,9 @@ const focusCurrent = () => {
   }
 };
 
-initSearch();
-
 onMounted(() => {
   try {
+    initSearch();
     focusCurrent();
   } catch (e) {
     console.error(e);
@@ -69,14 +80,31 @@ onMounted(() => {
 
 <template>
   <div class="flex justify-between items-baseline">
-    <Button
-      variant="outline-secondary"
-      title="Create new project"
-      :icon="PlusIcon"
-      :onclick="() => $emit('create-project')"
+    <FormDialog
+      title="Create a new project"
+      :schema="createProjectSchema"
+      :submit="createProject"
+      :static="true"
+      @cancelled="hide"
+      @created="
+        async ({ response }) => {
+          hide();
+          await asyncTimeout(300);
+          open(response.data.project.id);
+        }
+      "
     >
-      New Project
-    </Button>
+      <template #trigger="createTriggerProps">
+        <Button
+          variant="outline-secondary"
+          title="Create new project"
+          :icon="PlusIcon"
+          @click="createTriggerProps.onClick(show)"
+        >
+          New Project
+        </Button>
+      </template>
+    </FormDialog>
 
     <Dropdown v-if="projects?.length">
       <template #trigger>
@@ -109,7 +137,12 @@ onMounted(() => {
     </Dropdown>
   </div>
 
-  <InputField type="search" placeholder="Search..." v-model="searchTerm" />
+  <InputField
+    type="search"
+    placeholder="Search..."
+    v-model="searchTerm"
+    class="my-4 lg:my-0"
+  />
   <div v-if="!projects?.length" class="text-sm text-foreground/50">
     <p v-if="searchTerm?.length">No projects matched for your search.</p>
     <p v-else>You have not created any project. Best, you create one now.</p>

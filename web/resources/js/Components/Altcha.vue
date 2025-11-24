@@ -1,9 +1,11 @@
 <template>
   <altcha-widget
-    class="text-secondary-foreground border-border"
+    v-once
+    id="altcha_widget"
+    class="text-secondary-foreground border-0"
     challengeurl="/altcha-challenge"
     @statechange="stateChanged"
-    auto="onload"
+    auto="off"
   ></altcha-widget>
 </template>
 

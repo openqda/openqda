@@ -1,7 +1,18 @@
-<script setup lang="ts"></script>
+<script setup>
+/* Expose the prop as a local var the template can use directly */
+const { useViewZoom } = defineProps({
+  useViewZoom: { type: Boolean, default: true },
+});
+
+/* Single source of truth for emits */
+const emit = defineEmits(['update:zoom']);
+</script>
 
 <template>
-  <div id="toolbar">
+  <div
+    id="toolbar"
+    class="editor-toolbar block lg:inline-flex items-center gap-1"
+  >
     <span class="ql-formats">
       <select class="ql-font" title="Font family">
         <option value="arial" selected>Arial</option>
@@ -11,12 +22,14 @@
         <option value="helvetica">Helvetica</option>
         <option value="lucida">Lucida</option>
       </select>
-      <select class="ql-size" title="Font size">
+      <!-- View size dropdown when useViewZoom is true - also uses Quill formatting -->
+      <select v-if="useViewZoom" class="ql-size" title="Font size">
         <option value="extra-small">xs</option>
         <option value="small">sm</option>
         <option value="medium" selected>md</option>
         <option value="large">lg</option>
       </select>
+
       <select class="ql-header" title="Font style">
         <option value="1">Heading</option>
         <option value="2">Subheading</option>
@@ -104,6 +117,36 @@
       </button>
     </span>
     -->
+
+    <!-- Viewer-only zoom buttons (does NOT change document content) -->
+    <span
+      v-if="useViewZoom"
+      class="ql-formats inline-flex items-center zoom-buttons"
+    >
+      <button
+        type="button"
+        class="ql-zoom-out"
+        title="Zoom Out"
+        @click="emit('update:zoom', 'decrease')"
+      >
+        <svg viewBox="0 0 18 18">
+          <line class="ql-stroke" x1="6" x2="12" y1="9" y2="9"></line>
+          <circle class="ql-stroke" cx="9" cy="9" r="6"></circle>
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="ql-zoom-in"
+        title="Zoom In"
+        @click="emit('update:zoom', 'increase')"
+      >
+        <svg viewBox="0 0 18 18">
+          <line class="ql-stroke" x1="6" x2="12" y1="9" y2="9"></line>
+          <line class="ql-stroke" x1="9" x2="9" y1="6" y2="12"></line>
+          <circle class="ql-stroke" cx="9" cy="9" r="6"></circle>
+        </svg>
+      </button>
+    </span>
   </div>
 </template>
 

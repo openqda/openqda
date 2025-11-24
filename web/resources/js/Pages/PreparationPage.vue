@@ -8,10 +8,16 @@
           @fileSelected="loadFileIntoEditor($event)"
           @documentDeleted="onDocumentDeleted"
         />
+        <div class="mt-auto">
+          <Footer />
+        </div>
       </BaseContainer>
     </template>
     <template #main>
-      <div ref="rightSide" class="overflow-auto w-full h-full">
+      <div
+        ref="rightSide"
+        class="overflow-y-auto overflow-x-hidden w-full h-full"
+      >
         <div
           class="flex items-center justify-center h-full text-foreground/50"
           v-show="!editorSourceRef.selected"
@@ -25,12 +31,15 @@
             <HelpResources class="flex flex-col gap-4" />
           </div>
         </div>
-        <div v-show="editorSourceRef.selected === true" class="mt-3">
+        <div v-show="editorSourceRef.selected === true" class="mt-0 md:mt-3">
           <PreparationsEditor
             ref="editorComponent"
             :source="editorSourceRef.content"
             :locked="editorSourceRef.locked"
             :CanUnlock="editorSourceRef.CanUnlock"
+            :viewerZoom="zoom"
+            :useViewZoom="true"
+            @update:zoom="setZoom"
             @autosave="saveQuillContent"
           >
             <template #status>
@@ -77,7 +86,7 @@
                       fn: lockAndCode,
                     })
                   "
-                  class="px-1 py-2 mx-3 rounded-xl"
+                  class="px-1 py-2 mx-3 rounded-xl w-full md:w-auto"
                   >Lock for coding
                 </Button>
                 <Button
@@ -96,6 +105,7 @@
                   :text="confirm.text"
                   :show="!!confirm.text"
                   :show-confirm="true"
+                  :static="true"
                   @confirmed="onConfirm"
                   @cancelled="toConfirm(null)"
                 />
@@ -129,6 +139,8 @@ import ConfirmDialog from '../dialogs/ConfirmDialog.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
+import Footer from '../Layouts/Footer.vue';
+import { useZoom } from '../editor/useZoom.js';
 
 const editorSourceRef = ref({
   content: 'select to display',
@@ -191,6 +203,10 @@ const unlockSource = async () => {
     flashMessage(msg, { type: 'error' });
   }
 };
+/*---------------------------------------------------------------------------*/
+// ZOOM
+/*---------------------------------------------------------------------------*/
+const { zoom, setZoom } = useZoom();
 
 /*---------------------------------------------------------------------------*/
 // EDITING

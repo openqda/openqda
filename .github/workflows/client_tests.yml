@@ -18,6 +18,37 @@ on:
   pull_request:
 
 jobs:
+  # with this we only check for production dependencies
+  # in order to ensure new features or fixes do not introduce
+  # known vulnerabilities.
+  # However: dev dependencies are not audited here and have to be
+  # checked locally by developers.
+  audit:
+    name: Client Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node22-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node22-
+
+      - name: install node modules
+        run: |
+          cd web
+          npm ci
+      - name: run audit
+        run: |
+          cd web
+          npm audit --omit=dev
   lint:
     name: Client Lint
     runs-on: ubuntu-latest

@@ -2,17 +2,10 @@
   <AuthenticatedLayout :title="name" :menu="true">
     <template #menu>
       <BaseContainer>
-        <ProjectsListMenu
-          :projects="projects"
-          @create-project="createProjectSchema = createSchema"
-        />
-        <CreateDialog
-          title="Create a new project"
-          :schema="createProjectSchema"
-          :submit="createProject"
-          @cancelled="createProjectSchema = null"
-          @created="({ response }) => open(response.data.project.id)"
-        />
+        <ProjectsListMenu :projects="projects" />
+        <div class="mt-auto">
+          <Footer />
+        </div>
       </BaseContainer>
     </template>
     <template #main>
@@ -53,9 +46,8 @@ import ProjectSummary from './Projects/ProjectSummary.vue';
 import ProjectCodebooks from './Projects/codebooks/ProjectCodebooks.vue';
 import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
-import CreateDialog from '../dialogs/CreateDialog.vue';
-import { useProjects } from '../domain/project/useProjects.js';
 import ProjectExport from './Projects/ProjectExport.vue'
+import Footer from '../Layouts/Footer.vue';
 
 const props = defineProps([
   'project',
@@ -70,8 +62,6 @@ const name = ref(props.project.name);
 const url = window.location.pathname;
 const segments = url.split('/');
 let projectId = segments[2]; // Assuming project id is the third segment in URL path
-const { createProject, createSchema, open } = useProjects();
-const createProjectSchema = ref(null);
 
 provide('project', props.project);
 provide('userCodebooks', props.userCodebooks);

@@ -24,11 +24,12 @@ class SendFeedbackRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string',
-            'problem' => 'required|string',
-            'contact' => 'required|boolean',
-            'projectId' => 'required|string',
-            'location' => 'required|url',
+            'summary' => 'string',
+            'projectId' => 'nullable|string',
+            'type' => 'required|string',
+            'path' => 'nullable|string',
+            'query' => 'nullable|string',
+            'attachLog' => 'nullable|boolean',
         ];
     }
 
@@ -43,7 +44,7 @@ class SendFeedbackRequest extends FormRequest
 
         return array_merge($this->validated(), [
             'userId' => $user->id,
-            'contact' => $this->input('contact') ? $user->email : null,
+            'contact' => $user->email,
         ]);
     }
 }

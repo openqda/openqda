@@ -40,6 +40,7 @@ const props = defineProps({
   code: Object,
   class: String,
   sorting: Boolean,
+  showDetails: Boolean,
 });
 
 //------------------------------------------------------------------------
@@ -197,6 +198,11 @@ const { range } = useRange();
         <ContrastText v-else class="line-clamp-1 grow items-center"
           >{{ code.name }}
         </ContrastText>
+        <ContrastText
+          v-if="props.showDetails && code.description"
+          class="text-xs block"
+          >{{ code.description }}</ContrastText
+        >
       </div>
 
       <div class="flex justify-between items-center gap-2">
@@ -244,7 +250,7 @@ const { range } = useRange();
         <!-- code menu -->
         <Dropdown>
           <template #trigger>
-            <button class="p-0 m-0">
+            <button class="p-2 md:p-1 lg:p-0 m-0">
               <EllipsisVerticalIcon class="w-4 h-4" />
             </button>
           </template>

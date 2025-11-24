@@ -18,12 +18,12 @@ const state = reactive({
  * Manage projects across pages.
  */
 export const useProjects = () => {
-  const { projects, project } = usePage().props;
+  const { projects, project, projectId } = usePage().props;
   const sortedProjects = ref([]);
   const sortBy = toRef(state.sortBy);
   const createSchema = Project.create.schema;
-  const open = (projectId) => {
-    router.visit(Routes.project.path(projectId), {
+  const open = (_projectId) => {
+    router.visit(Routes.project.path(_projectId), {
       preserveScroll: true,
     });
   };
@@ -126,6 +126,7 @@ export const useProjects = () => {
 
   return {
     currentProject: project,
+    projectId,
     projects: sortedProjects,
     searchTerm,
     initSearch,

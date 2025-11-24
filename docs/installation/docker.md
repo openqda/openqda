@@ -72,9 +72,6 @@ Before your very first run, you need to build the
 containers. This may take some time, but is usually only
 required once in a while unless you change PHP version, Laravel version etc.
 
-_If you get an error regarding "invalid hostPort: your reverb port"_ do this: 
-edit the .env file and set REVERB_HOST=0.0.0.0 and REVERB_PORT=8080. Also you may comment out in the docker-compose.yml file all of the plugin.transform.atrain - services configurations. Depending on your platform it may be a good idea to change in docker-compose.yml the entry unter ports "127.0.0.1:{REVERB_PORT:-8080}:8080" to '${REVERB_PORT:-8080}:8080')
-
 ```shell
 ./vendor/bin/sail build --no-cache
 ```
@@ -101,6 +98,17 @@ it provides:
 - [Laravel Sail documentation](https://laravel.com/docs/11.x/sail)
 - [Docker compose documentation](https://docs.docker.com/reference/cli/docker/compose/)
 
+### Generate Application Keys
+
+The command `artisan key:generate` is used in Laravel to generate a secure 
+application key, which is essential for encrypting data and ensuring
+security within your Laravel project. This key is automatically set in the 
+.env file, which is crucial for the application's functionality.
+You can generate the key with the artisan command:
+
+```shell
+./vendor/bin/sail artisan key:generate
+```
 
 ### Populate Database
 
@@ -182,3 +190,57 @@ E-Mails sent to the dev-users (password-reset etc.).
 - Uploaded profile images are located at `/web/storage/app/public/profile-photos`.
 
 - Project files are "uploaded" to the storage under `/web/storage/app/projects/<project-id>`.
+
+### Troubleshooting
+
+
+#### Connection issues with Websocket Server
+
+> General note: If you changed the Websocket configuration then you always have to restart both
+> the Websocket server and the OpenQDA application server.
+
+If you get errors like *"invalid hostPort: your reverb port"* or *cannot connect to wss://...*
+then open the `.env` file and change the following Reverb settings:
+
+```dotenv
+REVERB_SCHEME=http
+REVERB_SERVER_HOST=0.0.0.0
+REVERB_SERVER_PORT=8080
+```
+
+Alternatively you may want to issue your own ssl certificate for local development.
+
+Depending on your platform it might be necessary to change in `docker-compose.yml` the entry under ports `"127.0.0.1:{REVERB_PORT:-8080}:8080"`
+to `'${REVERB_PORT:-8080}:8080'`
+
+If you still have issues connecting to the Websocket server then you can make use 
+of the global debug function in the client.
+Open the **browser** console and enter the following command:
+
+```js
+debugSocket()
+```
+
+It will print a log of the attempted connection steps and additional
+connection info.
+
+A successful connection log for local dev and unencrypted transport looks similar to this one:
+
+```
+0: "initWebSocket"
+1: "get echo"
+2: 'echo options are {"broadcaster":"reverb","key":"xxxxx","wsHost":"localhost","wsPort":"8080","wssPort":"8080","forceTLS":false,"encrypted":false,"enabledTransports":["ws"]}'
+3: "echo state: connecting"
+4: "add connecting listener"
+5: "add connected listener"
+6: "add unavailable listener"
+7: "add failed listener"
+8: "add disconnected listener"
+9: "add error listener"
+10: "complete init"
+```
+
+#### Disable Services
+
+You may comment out in the `docker-compose.yml` file some services, such as the
+`plugin.transform.atrain` if you intend to not build it.

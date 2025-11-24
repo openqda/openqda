@@ -20,6 +20,14 @@ class RouteServiceProvider extends ServiceProvider
     public const HOME = '/dashboard';
 
     /**
+     * The path to the route to consent to an updated terms or privacy policy.
+     * Typically, users are redirected here when the terms or privacy policy have been updated.
+     *
+     * @var string
+     */
+    public const CONSENT = '/consent';
+
+    /**
      * Define your route model bindings, pattern filters, and other route configuration.
      */
     public function boot(): void

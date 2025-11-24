@@ -11,7 +11,7 @@ const props = defineProps({
   codebook: Object,
 });
 
-const { observe } = useCodes();
+const { observe, showDetails } = useCodes();
 
 //------------------------------------------------------------------------
 // CODEBOOKS
@@ -83,6 +83,7 @@ observe('store/codes', {
       class="py-4"
       :group-id="props.codebook.id"
       :parent-id="null"
+      :show-details="showDetails[props.codebook.id]"
     />
   </div>
 </template>

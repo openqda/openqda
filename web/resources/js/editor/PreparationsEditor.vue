@@ -1,22 +1,29 @@
 <template>
   <!-- editor toolbar -->
   <div
-    class="block xl:flex lg:justify-center sticky top-0 py-2 z-40 bg-surface mx-0 md:mx-2"
+    class="block xl:flex lg:justify-center sticky top-0 py-0 md:py-2 z-40 bg-surface mx-0 md:mx-2"
   >
     <div
       id="toolbar"
-      class="rounded-none mb-3 xl:mb-0 lg:rounded-full border-2 bg-surface z-150 shadow-lg border-foreground/20 py-2 px-4 inline-flex text-foreground/60! text-center"
+      class="rounded-none mb-3 xl:mb-0 lg:rounded-full border-2 bg-surface z-150 shadow-lg border-foreground/20 py-0 md:py-2 px-4 inline-flex text-foreground/60! text-center"
     >
-      <EditorToolbar />
+      <EditorToolbar :useViewZoom="useViewZoom" @update:zoom="onToolbarZoom" />
     </div>
     <slot name="actions"></slot>
   </div>
   <!-- editor content -->
-  <div :class="cn('flex', loadingDocument && 'hidden')">
+  <div
+    id="editorPane"
+    :style="zoomStyle"
+    :class="cn('flex', loadingDocument && 'hidden')"
+  >
     <div id="lineNumber"></div>
     <div id="editor" class="grow"></div>
   </div>
-  <div class="fixed bottom-4 right-4 grow flex items-end" style="z-index: 50">
+  <div
+    class="fixed bg-surface md:bg-transparent hover:border hover:border-primary w-full md:w-auto bottom-0 md:bottom-4 py-2 md:py-0 right-0 md:right-4 grow flex items-end"
+    style="z-index: 50"
+  >
     <slot name="status"></slot>
     <span
       v-if="contentHash?.hash"
@@ -38,7 +45,7 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch, computed } from 'vue';
 import Quill from 'quill';
 import QuillCursors from 'quill-cursors';
 import EditorToolbar from './EditorToolbar.vue';
@@ -58,9 +65,12 @@ const props = defineProps({
   source: String,
   locked: Boolean,
   CanUnlock: Boolean,
+  viewerZoom: { type: Number, default: 1.0 },
+  useViewZoom: { type: Boolean, default: true },
 });
 
 const loadingDocument = ref(false);
+const emit = defineEmits(['status', 'autosave', 'settings', 'update:zoom']);
 
 let quillInstance;
 const Delta = Quill.import('delta');
@@ -73,7 +83,22 @@ Quill.register('modules/selectionHash', SelectionHash, true);
 Quill.register('modules/cursors', QuillCursors);
 Quill.register('modules/highlight', SelectionHighlightBG);
 
-const emit = defineEmits(['status', 'autosave', 'settings']);
+const zoomStyle = computed(() => {
+  const z = props.viewerZoom || 1.0;
+  return {
+    // zoom: z,
+    transform: `scale(${z})`,
+    transformOrigin: 'top left',
+    width: z === 1 ? '100%' : `calc(100% / ${z})`,
+  };
+});
+
+// Forward zoom events to parent component
+function onToolbarZoom(action) {
+  // Just pass the action to parent
+  emit('update:zoom', action);
+}
+
 onMounted(() => {
   quillInstance = new Quill('#editor', {
     theme: 'snow',

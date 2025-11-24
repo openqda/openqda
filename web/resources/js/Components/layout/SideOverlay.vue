@@ -36,7 +36,9 @@
                   : 'translate-x-full'
               "
             >
-              <DialogPanel class="pointer-events-auto w-screen max-w-md">
+              <DialogPanel
+                class="pointer-events-auto w-screen max-w-[14rem] md:max-w-md"
+              >
                 <div
                   class="flex h-full flex-col overflow-y-scroll"
                   :class="

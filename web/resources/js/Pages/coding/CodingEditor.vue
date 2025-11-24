@@ -1,9 +1,42 @@
 <template>
   <div class="contents">
-    <!-- editor toolbar -->
-    <Headline1 class="px-3 py-6">{{ props.source?.name }}</Headline1>
+    <!-- editor header with zoom controls -->
+    <div class="px-3 py-6 block md:flex items-center justify-between">
+      <Headline1 class="m-0">{{ props.source?.name }}</Headline1>
+      <div class="flex items-center">
+        <button
+          type="button"
+          class="p-1 md:p-2 rounded hover:bg-foreground/10 transition-colors"
+          title="Zoom Out"
+          @click="setZoom('decrease')"
+        >
+          <svg
+            viewBox="0 0 18 18"
+            class="w-5 h-5 stroke-current fill-none stroke-2"
+          >
+            <line x1="6" x2="12" y1="9" y2="9"></line>
+            <circle cx="9" cy="9" r="6"></circle>
+          </svg>
+        </button>
+        <button
+          type="button"
+          class="p-1 md:p-2 rounded hover:bg-foreground/10 transition-colors"
+          title="Zoom In"
+          @click="setZoom('increase')"
+        >
+          <svg
+            viewBox="0 0 18 18"
+            class="w-5 h-5 stroke-current fill-none stroke-2"
+          >
+            <line x1="6" x2="12" y1="9" y2="9"></line>
+            <line x1="9" x2="9" y1="6" y2="12"></line>
+            <circle cx="9" cy="9" r="6"></circle>
+          </svg>
+        </button>
+      </div>
+    </div>
     <!-- editor content -->
-    <div :class="cn('flex', loadingDocument && 'hidden')">
+    <div :style="zoomStyle" :class="cn('flex', loadingDocument && 'hidden')">
       <div id="lineNumber"></div>
       <div
         id="editor"
@@ -14,7 +47,10 @@
         @drop.prevent
       ></div>
     </div>
-    <div class="fixed bottom-4 right-4 grow flex items-end" style="z-index: 50">
+    <div
+      class="fixed bg-surface md:bg-transparent hover:border hover:border-primary w-full md:w-auto bottom-0 md:bottom-4 py-2 md:py-0 right-0 md:right-4 grow flex items-end"
+      style="z-index: 50"
+    >
       <span class="text-foreground/60 w-4 h-4 animate-spin" v-show="updating">
         <ArrowPathIcon class="w-4 h-4" />
       </span>
@@ -38,7 +74,7 @@
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref, watch } from 'vue';
+import { onMounted, onUnmounted, ref, watch, computed } from 'vue';
 import Quill from 'quill';
 import QuillCursors from 'quill-cursors';
 import { formats } from '../../editor/EditorConfig.js';
@@ -59,6 +95,7 @@ import { asyncTimeout } from '../../utils/asyncTimeout.js';
 import ActivityIndicator from '../../Components/ActivityIndicator.vue';
 import { cn } from '../../utils/css/cn.js';
 import { createHash } from '../../utils/createHash.js';
+import { useZoom } from '../../editor/useZoom.js';
 
 const editorContent = ref('');
 const contextMenu = useContextMenu();
@@ -66,6 +103,16 @@ const { selected, createSelection, markToDelete } = useSelections();
 const { observe, selections, selectionsByIndex } = useCodes();
 const { prevRange, setRange } = useRange();
 const { setInstance, dispose } = useCodingEditor();
+const { zoom, setZoom } = useZoom();
+
+const zoomStyle = computed(() => {
+  const z = zoom.value || 1.0;
+  return {
+    transform: `scale(${z})`,
+    transformOrigin: 'top left',
+    width: z === 1 ? '100%' : `calc(100% / ${z})`,
+  };
+});
 Quill.register('modules/lineNumber', LineNumber, true);
 Quill.register('modules/selectionHash', SelectionHash, true);
 Quill.register('modules/cursors', QuillCursors);
