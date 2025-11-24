@@ -63,6 +63,8 @@ LARAVEL_WEBSOCKETS_SSL_LOCAL_PK=
 LARAVEL_WEBSOCKETS_SSL_CAFILE=
 ```
 
+**Important:** The WebSocket server requires the **fullchain certificate** (server + intermediate certificates), not just the server certificate. If you encounter SSL issues where your web server works but WebSockets fail, see the [SSL Certificate Troubleshooting Guide](../troubleshooting/ssl-certificates.md).
+
 
 ## Mail logging
 
