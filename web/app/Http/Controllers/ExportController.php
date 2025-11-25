@@ -87,6 +87,9 @@ class ExportController extends Controller
             Storage::deleteDirectory($basePath);
         }
         Storage::makeDirectory($basePath);
+        Storage::makeDirectory($basePath.'/sources');
+
+        return $basePath;
     }
 
     protected function storeQDEFile(string $filename, Project $project, $content)

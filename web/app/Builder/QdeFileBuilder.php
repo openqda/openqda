@@ -117,9 +117,9 @@ class QdeFileBuilder
         $crateUser = $this->users[$project->creating_user_id];
         // required
         $root->addAttribute('name', $project->name);
-        $root->addAttribute('xmlns', "urn:QDA-XML:project:1.0");
-        $root->addAttribute('xmlns:xmlns:xsi', "http://www.w3.org/2001/XMLSchema-instance");
-        $root->addAttribute('xmlns:xsi:schemaLocation', "urn:QDA-XML:project:1.0 https://openqda.github.io/refi-tools/docs/schemas/project/v1.0/Project.xsd");
+        $root->addAttribute('xmlns', 'urn:QDA-XML:project:1.0');
+        $root->addAttribute('xmlns:xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance');
+        $root->addAttribute('xmlns:xsi:schemaLocation', 'urn:QDA-XML:project:1.0 https://openqda.github.io/refi-tools/docs/schemas/project/v1.0/Project.xsd');
 
         // optional
         $root->addAttribute('origin', 'OpenQDA-'.config('app.version'));
@@ -127,6 +127,7 @@ class QdeFileBuilder
         $root->addAttribute('creationDateTime', $project->created_at->toIso8601String());
         // $root->addAttribute('modifyingUserGUID', $crateUser->guid);
         $root->addAttribute('modifiedDateTime', $project->updated_at->toIso8601String());
+
         // for now we do not reference a basePath
         // $root->addAttribute('basePath', 'internal://');
         return $this;
@@ -163,6 +164,7 @@ class QdeFileBuilder
         foreach ($codebook->codes as $code) {
             $this->buildCode($codesElement, $code);
         }
+
         return $this;
     }
 

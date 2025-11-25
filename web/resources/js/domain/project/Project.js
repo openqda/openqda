@@ -128,8 +128,8 @@ Project.export = {
       optional: true,
     },
   },
-  method: async (options) => {
-    const { projectId, ...body } = options;
+  method: async ({ projectId, type }) => {
+    const body = { type };
     const { response, error } = await request({
       url: `/projects/${projectId}/export`,
       type: 'post',
