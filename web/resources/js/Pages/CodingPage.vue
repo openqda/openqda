@@ -65,7 +65,11 @@
           v-if="codesView === 'sources' && !sourceDocuments?.length"
           class="p-3 text-foreground/60"
         >
-          No other sources locked for coding
+          No other sources locked for coding. Go to
+          <Link :href="route('source.index', projectId)"
+            >the preparations page</Link
+          >
+          to edit and lock sources for coding.
         </p>
         <div class="mt-auto">
           <Footer />
@@ -74,11 +78,29 @@
     </template>
     <template #main>
       <CodingEditor
-        class="overflow-y-auto overflow-x-hidden w-full h-full"
+        v-if="$props.source"
         :project="{ id: props.projectId }"
         :source="$props.source"
         :codes="$props.allCodes"
+        class="overflow-y-auto overflow-x-hidden w-full h-full"
       />
+      <div
+        class="flex-col lg:flex items-center justify-center h-full text-foreground/50 p-2 md:p-4 lg:p-8"
+        v-else
+      >
+        <div>
+          <Headline2>Coding</Headline2>
+          <div class="my-4 block">
+            If you see this message, no source has been selected for coding. You
+            can go to
+            <Link :href="route('source.index', projectId)"
+              >the preparations page</Link
+            >
+            to edit and lock sources for coding.
+          </div>
+          <HelpResources class="flex flex-col gap-4" />
+        </div>
+      </div>
     </template>
   </AuthenticatedLayout>
 </template>
@@ -108,6 +130,9 @@ import { useCleanup } from './coding/cleanup/useCleanup.js';
 import Cleanup from './coding/cleanup/Cleanup.vue';
 import { flashMessage } from '../Components/notification/flashMessage.js';
 import Footer from '../Layouts/Footer.vue';
+import Link from '../Components/Link.vue';
+import Headline2 from '../Components/layout/Headline2.vue';
+import HelpResources from '../Components/HelpResources.vue';
 
 const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
 //------------------------------------------------------------------------
@@ -116,7 +141,7 @@ const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
 const sourceDocuments = ref(
   props.sources
     .filter((source) => {
-      if (source.id === props.source.id) return false;
+      if (source.id === props.source?.id) return false;
       if (source.isLocked) return true;
       return (source.variables ?? []).find(
         ({ name, boolean_value }) => name === 'isLocked' && boolean_value === 1
@@ -211,13 +236,14 @@ const pageTitle = ref('Coding');
 
 onMounted(async () => {
   const fileId = new URLSearchParams(window.location.search).get('source');
-  if (fileId !== props.source.id) {
+  if (fileId !== props.source?.id) {
     // relocate?
   }
 
-  onSourceSelected(props.source);
-  await asyncTimeout(100);
-
+  if (props.source) {
+    onSourceSelected(props.source);
+    await asyncTimeout(100);
+  }
   const result = await attemptAsync(() => initCoding());
   if (result?.clean?.length) {
     result.clean.forEach((entry) => CleanupCtx.add(entry));

@@ -66,7 +66,7 @@ const submitForm = async (formData) => {
   setSubmitting();
   const { summary, type, attachLog } = formData;
   const res = await submit({
-    projectId,
+    projectId: projectId ? String(projectId) : null,
     path: window.location.pathname,
     query: window.location.search,
     type,
