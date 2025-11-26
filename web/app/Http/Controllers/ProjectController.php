@@ -7,6 +7,7 @@ use App\Http\Requests\ShowProjectRequest;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Project;
+use App\Services\ExportService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
@@ -242,6 +243,40 @@ class ProjectController extends Controller
             $project->delete();
 
             return to_route('projects.index')->with('message', 'Project Delete Successfully');
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Export a project, based on users selection: OpenQDA vs REFI
+     * Export implementation is handled by ExportService.
+     */
+    public function export(Request $request, Project $project)
+    {
+        // 1. Check if user has permission to export the project
+        $user = Auth::user();
+        // if (! Gate::allows('export', $project)) {
+        //    throw new \Exception('User does not have permission to export this project.');
+        // }
+
+        // 2. Validate request
+        $request->validate([
+            'type' => 'required|string|in:openqda,refi',
+        ]);
+        $exportType = $request->input('type');
+
+        // 3. Call ExportService to handle the export logic
+        $exportService = app(ExportService::class);
+
+        try {
+            if ($exportType === 'openqda') {
+                return $exportService->exportOpenQDAProject($project, $user);
+            } elseif ($exportType === 'refi') {
+                return $exportService->exportREFIProject($project, $user);
+            } else {
+                return response()->json(['success' => false, 'message' => "Unexpected export type ${exportType}. Expected one of refi,openqda."], 400);
+            }
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'An error occurred: '.$e->getMessage()], 500);
         }

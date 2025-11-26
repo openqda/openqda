@@ -1,6 +1,13 @@
 <script setup lang="ts">
 import { ArrowPathIcon } from '@heroicons/vue/24/solid';
 import { cn } from '../utils/css/cn';
+
+const props = defineProps({
+  label: {
+    type: [Boolean, String],
+    required: false,
+  },
+});
 </script>
 
 <template>
@@ -9,6 +16,6 @@ import { cn } from '../utils/css/cn';
   >
     <ArrowPathIcon class="w-4 h-4 me-1 animate-spin" />
     <slot v-if="$slots.default" />
-    <span v-else>Loading...</span>
+    <span v-else-if="props.label !== false">Loading...</span>
   </div>
 </template>
