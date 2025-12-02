@@ -37,6 +37,30 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 class SourceController extends Controller
 {
     /**
+     * Validate that a file path is within the allowed storage directory.
+     *
+     * @param  string  $path  The path to validate
+     * @return string|null The validated real path, or null if invalid
+     */
+    private function validateStoragePath(string $path): ?string
+    {
+        $allowedDirectory = storage_path('app/projects');
+        $realPath = realpath($path);
+
+        // If realpath returns false, the file doesn't exist or the path is invalid
+        if ($realPath === false) {
+            return null;
+        }
+
+        // Ensure the resolved path is within the allowed storage directory
+        if (strpos($realPath, realpath($allowedDirectory)) !== 0) {
+            return null;
+        }
+
+        return $realPath;
+    }
+
+    /**
      * View of the preparation page with the Sources (Documents)
      */
     public function index(IndexSourceRequest $request, $projectId)
@@ -202,7 +226,17 @@ class SourceController extends Controller
     public function fetchDocument(FetchSourceRequest $request, $id)
     {
         $source = Source::with('variables')->findOrFail($id);
-        $content = file_get_contents($source->converted->path);
+
+        if (! $source->converted) {
+            return response()->json(['error' => 'Source file not found'], 404);
+        }
+
+        $validatedPath = $this->validateStoragePath($source->converted->path);
+        if ($validatedPath === null) {
+            return response()->json(['error' => 'Invalid file path'], 400);
+        }
+
+        $content = file_get_contents($validatedPath);
         $source->content = $content;
         $source->variables = $source->transformVariables();
 
@@ -228,12 +262,19 @@ class SourceController extends Controller
                 return response()->json(['success' => false, 'message' => 'Document not found']);
             }
 
-            $htmlOutputPath = $source->converted->path;
+            if (! $source->converted) {
+                return response()->json(['success' => false, 'message' => 'Source file not found']);
+            }
+
+            $validatedPath = $this->validateStoragePath($source->converted->path);
+            if ($validatedPath === null) {
+                return response()->json(['success' => false, 'message' => 'Invalid file path']);
+            }
 
             $source->modifying_user_id = auth()->id();
             $source->save();
 
-            file_put_contents($htmlOutputPath, $content);
+            file_put_contents($validatedPath, $content);
             $audit = new Audit([
                 'user_type' => 'App\Models\User',
                 'user_id' => auth()->id(),

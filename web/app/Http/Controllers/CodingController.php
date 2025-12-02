@@ -19,6 +19,30 @@ class CodingController extends Controller
     use BuildsNestedCode;
 
     /**
+     * Validate that a file path is within the allowed storage directory.
+     *
+     * @param  string  $path  The path to validate
+     * @return string|null The validated real path, or null if invalid
+     */
+    private function validateStoragePath(string $path): ?string
+    {
+        $allowedDirectory = storage_path('app/projects');
+        $realPath = realpath($path);
+
+        // If realpath returns false, the file doesn't exist or the path is invalid
+        if ($realPath === false) {
+            return null;
+        }
+
+        // Ensure the resolved path is within the allowed storage directory
+        if (strpos($realPath, realpath($allowedDirectory)) !== 0) {
+            return null;
+        }
+
+        return $realPath;
+    }
+
+    /**
      * Store a newly created code.
      *
      * @return JsonResponse
@@ -83,9 +107,12 @@ class CodingController extends Controller
         $allCodes = $rootCodes->map(fn ($code) => $this->buildNestedCode($code, $source ? $source->id : null));
 
         // Get content if source exists, otherwise return minimal data for the view
-        if ($source) {
-            $content = file_get_contents($source->converted->path);
-            $source->content = $content;
+        if ($source && $source->converted) {
+            $validatedPath = $this->validateStoragePath($source->converted->path);
+            if ($validatedPath !== null) {
+                $content = file_get_contents($validatedPath);
+                $source->content = $content;
+            }
             $source->variables = $source->transformVariables();
         }
 
