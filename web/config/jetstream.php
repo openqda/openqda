@@ -61,7 +61,7 @@ return [
         // Features::termsAndPrivacyPolicy(),
         // Features::api(),
         Features::profilePhotos(),
-        Features::teams(),
+        Features::teams(['invitations' => true]),
         Features::accountDeletion(),
     ],
 
