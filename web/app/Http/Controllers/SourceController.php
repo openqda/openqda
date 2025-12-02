@@ -17,6 +17,7 @@ use App\Models\Project;
 use App\Models\Source;
 use App\Models\SourceStatus;
 use App\Models\Variable;
+use App\Traits\ValidatesStoragePath;
 use DB;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -36,29 +37,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
  */
 class SourceController extends Controller
 {
-    /**
-     * Validate that a file path is within the allowed storage directory.
-     *
-     * @param  string  $path  The path to validate
-     * @return string|null The validated real path, or null if invalid
-     */
-    private function validateStoragePath(string $path): ?string
-    {
-        $allowedDirectory = storage_path('app/projects');
-        $realPath = realpath($path);
-
-        // If realpath returns false, the file doesn't exist or the path is invalid
-        if ($realPath === false) {
-            return null;
-        }
-
-        // Ensure the resolved path is within the allowed storage directory
-        if (strpos($realPath, realpath($allowedDirectory)) !== 0) {
-            return null;
-        }
-
-        return $realPath;
-    }
+    use ValidatesStoragePath;
 
     /**
      * View of the preparation page with the Sources (Documents)
