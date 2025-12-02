@@ -2,10 +2,12 @@
 
 namespace App\Actions\Jetstream;
 
+use App\Mail\TeamMemberAddedNotification;
 use App\Models\Team;
 use App\Models\User;
 use Closure;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Jetstream\Contracts\AddsTeamMembers;
 use Laravel\Jetstream\Events\AddingTeamMember;
@@ -45,6 +47,16 @@ class AddTeamMember implements AddsTeamMembers
         $audit->save();
 
         TeamMemberAdded::dispatch($team, $newTeamMember);
+
+        try {
+            // send Email to the new team member
+            $project = $team->projects()->first();
+            Mail::to($newTeamMember->email)->send(new TeamMemberAddedNotification($team, $newTeamMember, $user, $project));
+        } catch (\Exception $e) {
+            // Log the exception or handle it as needed
+            \Log::error('Failed to send team member added notification: '.$e->getMessage());
+        }
+
     }
 
     /**

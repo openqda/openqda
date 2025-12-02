@@ -3,6 +3,13 @@
 use Laravel\Jetstream\Features;
 use Laravel\Jetstream\Http\Middleware\AuthenticateSession;
 
+$teamOptions = [];
+if (env('TEAM_INVITATION_REQUIRED') === true) {
+    $teamOptions['invitations'] = true;
+} else {
+    $teamOptions['invitations'] = false;
+}
+
 return [
 
     /*
@@ -61,7 +68,7 @@ return [
         // Features::termsAndPrivacyPolicy(),
         // Features::api(),
         Features::profilePhotos(),
-        Features::teams(['invitations' => true]),
+        Features::teams($teamOptions),
         Features::accountDeletion(),
     ],
 
