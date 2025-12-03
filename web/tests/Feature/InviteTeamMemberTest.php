@@ -15,10 +15,23 @@ class InviteTeamMemberTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_team_configuration_allows_invitations(): void
+    {
+        config(['app.env' => 'testing']);
+        putenv('TEAM_INVITATION_REQUIRED=true');
+        Features::teams(['invitations' => true]);
+        $this->assertEqual(true, Features::sendsTeamInvitations());
+
+        putenv('TEAM_INVITATION_REQUIRED=false');
+        Features::teams(['invitations' => false]);
+        $this->assertEquals(false, Features::sendsTeamInvitations());
+    }
+
     public function test_team_members_can_be_invited_to_team(): void
     {
         config(['app.env' => 'testing']);
         putenv('TEAM_INVITATION_REQUIRED=true');
+        Features::teams(['invitations' => true]);
 
         Mail::fake();
 
@@ -41,6 +54,7 @@ class InviteTeamMemberTest extends TestCase
     {
         config(['app.env' => 'testing']);
         putenv('TEAM_INVITATION_REQUIRED=true');
+        Features::teams(['invitations' => true]);
 
         Mail::fake();
 
@@ -61,7 +75,7 @@ class InviteTeamMemberTest extends TestCase
         // Set the environment variable to disable invitations
         config(['app.env' => 'testing']);
         putenv('TEAM_INVITATION_REQUIRED=false');
-
+        Features::teams(['invitations' => false]);
         Mail::fake();
 
         // Authenticate the user and ensure they have a personal team
