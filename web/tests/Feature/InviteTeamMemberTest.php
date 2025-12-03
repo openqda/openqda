@@ -87,6 +87,9 @@ class InviteTeamMemberTest extends TestCase
             'role' => 'admin',
         ]);
 
+        // Assert that the team invitation is not sent
+        Mail::assertNotSent(TeamInvitation::class);
+
         // Assert that the notification email is sent
         Mail::assertSent(TeamMemberAddedNotification::class, function ($mail) use ($newMember) {
             return $mail->hasTo($newMember->email);
@@ -121,10 +124,7 @@ class InviteTeamMemberTest extends TestCase
         // Assert that no notification email is sent
         Mail::assertNotSent(TeamMemberAddedNotification::class);
 
-        // Assert that an invitation is created
-        $this->assertDatabaseHas('team_invitations', [
-            'email' => 'newmember@example.com',
-            'team_id' => $team->id,
-        ]);
+        // Assert that the team invitation is sent
+        Mail::assertSent(TeamInvitation::class);
     }
 }
