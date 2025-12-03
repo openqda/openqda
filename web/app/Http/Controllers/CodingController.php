@@ -70,7 +70,7 @@ class CodingController extends Controller
 
         // Get source (either from request or latest locked one)
         $source = $request->has('source') && $request->source
-            ? Source::findOrFail($request->source)
+            ? Source::where('project_id', $project->id)->where('id', $request->source)->firstOrFail()
             : Source::where('project_id', $project->id)
                 ->whereHas('variables', function ($query) {
                     $query->where('name', 'isLocked')
