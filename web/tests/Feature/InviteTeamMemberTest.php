@@ -15,13 +15,23 @@ class InviteTeamMemberTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_team_configuration_allows_invitations(): void
+    {
+        config(['app.env' => 'testing']);
+        putenv('TEAM_INVITATION_REQUIRED=true');
+
+        $this->assertEqual(true, Features::sendsTeamInvitations());
+
+        putenv('TEAM_INVITATION_REQUIRED=false');
+        $this->assertEqual(false, Features::sendsTeamInvitations());
+    }
+
     public function test_team_members_can_be_invited_to_team(): void
     {
-        if (! Features::sendsTeamInvitations()) {
-            $this->markTestSkipped('Team invitations not enabled.');
+        config(['app.env' => 'testing']);
+        putenv('TEAM_INVITATION_REQUIRED=true');
 
-            return;
-        }
+        $this->assertEqual(true, Features::sendsTeamInvitations());
 
         Mail::fake();
 
@@ -34,16 +44,16 @@ class InviteTeamMemberTest extends TestCase
 
         Mail::assertSent(TeamInvitation::class);
 
+        // Assert that no notification email is sent
+        Mail::assertNotSent(TeamMemberAddedNotification::class);
+
         $this->assertCount(1, $user->currentTeam->fresh()->teamInvitations);
     }
 
     public function test_team_member_invitations_can_be_cancelled(): void
     {
-        if (! Features::sendsTeamInvitations()) {
-            $this->markTestSkipped('Team invitations not enabled.');
-
-            return;
-        }
+        config(['app.env' => 'testing']);
+        putenv('TEAM_INVITATION_REQUIRED=true');
 
         Mail::fake();
 
@@ -94,37 +104,5 @@ class InviteTeamMemberTest extends TestCase
         Mail::assertSent(TeamMemberAddedNotification::class, function ($mail) use ($newMember) {
             return $mail->hasTo($newMember->email);
         });
-    }
-
-    public function test_team_member_invitation_is_created_when_invitation_is_required(): void
-    {
-        // Set the environment variable to enable invitations
-        config(['app.env' => 'testing']);
-        putenv('TEAM_INVITATION_REQUIRED=true');
-
-        Mail::fake();
-
-        // Authenticate the user and ensure they have a personal team
-        $this->actingAs($user = User::factory()->withPersonalTeam()->create());
-
-        $team = $user->currentTeam;
-
-        // Ensure the user has permission to add team members
-        $team->users()->updateExistingPivot($user->id, ['role' => 'owner']);
-
-        // Create a project and associate it with the team
-        $project = Project::factory()->create(['team_id' => $team->id]);
-
-        // Send the request
-        $response = $this->post('/teams/'.$team->id.'/members', [
-            'email' => 'newmember@example.com',
-            'role' => 'admin',
-        ]);
-
-        // Assert that no notification email is sent
-        Mail::assertNotSent(TeamMemberAddedNotification::class);
-
-        // Assert that the team invitation is sent
-        Mail::assertSent(TeamInvitation::class);
     }
 }
