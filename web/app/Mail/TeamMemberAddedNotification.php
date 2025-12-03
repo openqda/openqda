@@ -34,7 +34,7 @@ class TeamMemberAddedNotification extends Mailable
 
     public function envelope(): Envelope
     {
-        $subject = '['.config('app.name').']: you habe been added to the team "'.$this->team->name.'"';
+        $subject = '['.config('app.name').']: you have been added to the team "'.$this->team->name.'"';
 
         return new Envelope(
             from: new Address('no-reply@openqda.org', 'OpenQDA System'),

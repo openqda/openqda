@@ -6,7 +6,7 @@
 
 {{ __('Access Team') }}: {{ route('project.show', $project->id) }}
 
-{{ __('If you did not expect to receive an invitation to this team, you can leave it at any time in your project settings.') }}
+{{ __('If you did not expect to receive a notification about being added to this team, you can leave it at any time in your project settings.') }}
 
 {{ __('Best regards,') }}
 {{ config('app.name') }}

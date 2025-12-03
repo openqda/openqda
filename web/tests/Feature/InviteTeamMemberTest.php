@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Mail\TeamMemberAddedNotification;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
@@ -55,5 +56,62 @@ class InviteTeamMemberTest extends TestCase
         $response = $this->delete('/team-invitations/'.$invitation->id);
 
         $this->assertCount(0, $user->currentTeam->fresh()->teamInvitations);
+    }
+
+    public function test_team_member_added_notification_is_sent_when_invitation_is_not_required(): void
+    {
+        // Set the environment variable to disable invitations
+        config(['app.env' => 'testing']);
+        putenv('TEAM_INVITATION_REQUIRED=false');
+
+        Mail::fake();
+
+        $this->actingAs($user = User::factory()->withPersonalTeam()->create());
+
+        $team = $user->currentTeam;
+
+        $newMember = User::factory()->create([
+            'email' => 'newmember@example.com',
+        ]);
+
+        $response = $this->post('/teams/'.$team->id.'/members', [
+            'email' => $newMember->email,
+            'role' => 'admin',
+        ]);
+
+        $response->assertStatus(200);
+
+        Mail::assertSent(TeamMemberAddedNotification::class, function ($mail) use ($newMember) {
+            return $mail->hasTo($newMember->email);
+        });
+    }
+
+    public function test_team_member_invitation_is_created_when_invitation_is_required(): void
+    {
+        // Set the environment variable to enable invitations
+        config(['app.env' => 'testing']);
+        putenv('TEAM_INVITATION_REQUIRED=true');
+
+        Mail::fake();
+
+        $this->actingAs($user = User::factory()->withPersonalTeam()->create());
+
+        $team = $user->currentTeam;
+
+        $response = $this->post('/teams/'.$team->id.'/members', [
+            'email' => 'newmember@example.com',
+            'role' => 'admin',
+        ]);
+
+        $response->assertStatus(200);
+
+        // Assert that no notification email is sent
+        Mail::assertNotSent(TeamMemberAddedNotification::class);
+
+        // Assert that an invitation is created
+        $this->assertDatabaseHas('team_invitations', [
+            'email' => 'newmember@example.com',
+            'team_id' => $team->id,
+        ]);
     }
 }

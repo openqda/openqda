@@ -7,11 +7,13 @@ use App\Models\Team;
 use App\Models\User;
 use Closure;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Jetstream\Contracts\AddsTeamMembers;
 use Laravel\Jetstream\Events\AddingTeamMember;
 use Laravel\Jetstream\Events\TeamMemberAdded;
+use Laravel\Jetstream\Features;
 use Laravel\Jetstream\Jetstream;
 use Laravel\Jetstream\Rules\Role;
 use OwenIt\Auditing\Models\Audit;
@@ -48,15 +50,21 @@ class AddTeamMember implements AddsTeamMembers
 
         TeamMemberAdded::dispatch($team, $newTeamMember);
 
-        try {
-            // send Email to the new team member
-            $project = $team->projects()->first();
-            Mail::to($newTeamMember->email)->send(new TeamMemberAddedNotification($team, $newTeamMember, $user, $project));
-        } catch (\Exception $e) {
-            // Log the exception or handle it as needed
-            \Log::error('Failed to send team member added notification: '.$e->getMessage());
+        // if there is no invitation mode active, send notification email
+        // to the user who has been added to the team
+        if (! Features::sendsTeamInvitations()) {
+            try {
+                // send Email to the new team member;
+                // note that $project is not null, because
+                // teams cannot be created without a project,
+                // as defined in App\Actions\Jetstream\CreateTeam
+                $project = $team->projects()->first();
+                Mail::to($newTeamMember->email)->send(new TeamMemberAddedNotification($team, $newTeamMember, $user, $project));
+            } catch (\Exception $e) {
+                // Log the exception or handle it as needed
+                Log::error('Failed to send team member added notification: '.$e->getMessage());
+            }
         }
-
     }
 
     /**

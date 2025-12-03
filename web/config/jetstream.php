@@ -4,7 +4,7 @@ use Laravel\Jetstream\Features;
 use Laravel\Jetstream\Http\Middleware\AuthenticateSession;
 
 $teamOptions = [];
-if (env('TEAM_INVITATION_REQUIRED') === true) {
+if (filter_var(env('TEAM_INVITATION_REQUIRED', false), FILTER_VALIDATE_BOOLEAN)) {
     $teamOptions['invitations'] = true;
 } else {
     $teamOptions['invitations'] = false;
