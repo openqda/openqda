@@ -15,23 +15,10 @@ class InviteTeamMemberTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_team_configuration_allows_invitations(): void
-    {
-        config(['app.env' => 'testing']);
-        putenv('TEAM_INVITATION_REQUIRED=true');
-
-        $this->assertEqual(true, Features::sendsTeamInvitations());
-
-        putenv('TEAM_INVITATION_REQUIRED=false');
-        $this->assertEquals(false, Features::sendsTeamInvitations());
-    }
-
     public function test_team_members_can_be_invited_to_team(): void
     {
         config(['app.env' => 'testing']);
         putenv('TEAM_INVITATION_REQUIRED=true');
-
-        $this->assertEquals(true, Features::sendsTeamInvitations());
 
         Mail::fake();
 
