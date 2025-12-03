@@ -1,4 +1,6 @@
 name: Client Tests
+permissions:
+  contents: read
 
 # This workflow contains all tests for the openqda core-client
 # which includes for now:
@@ -24,7 +26,7 @@ jobs:
   # However: dev dependencies are not audited here and have to be
   # checked locally by developers.
   audit:
-    name: Client Lint
+    name: Client audit
     runs-on: ubuntu-latest
     steps:
       - name: checkout
