@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Mail\TeamMemberAddedNotification;
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
@@ -70,6 +71,10 @@ class InviteTeamMemberTest extends TestCase
 
         $team = $user->currentTeam;
 
+        // Create a project and associate it with the team
+        $project = Project::factory()->create();
+        $team->projects()->attach($project);
+
         $newMember = User::factory()->create([
             'email' => 'newmember@example.com',
         ]);
@@ -94,9 +99,13 @@ class InviteTeamMemberTest extends TestCase
 
         Mail::fake();
 
+        // Authenticate the user and ensure they have a personal team
         $this->actingAs($user = User::factory()->withPersonalTeam()->create());
 
         $team = $user->currentTeam;
+
+        // Ensure the user has permission to add team members
+        $team->users()->attach($user, ['role' => 'owner']);
 
         $response = $this->post('/teams/'.$team->id.'/members', [
             'email' => 'newmember@example.com',
