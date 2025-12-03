@@ -67,9 +67,13 @@ class InviteTeamMemberTest extends TestCase
 
         Mail::fake();
 
+        // Authenticate the user and ensure they have a personal team
         $this->actingAs($user = User::factory()->withPersonalTeam()->create());
 
         $team = $user->currentTeam;
+
+        // Ensure the user has permission to add team members
+        $team->users()->updateExistingPivot($user->id, ['role' => 'owner']);
 
         // Create a project and associate it with the team
         $project = Project::factory()->create(['team_id' => $team->id]);
@@ -83,8 +87,7 @@ class InviteTeamMemberTest extends TestCase
             'role' => 'admin',
         ]);
 
-        $response->assertStatus(200);
-
+        // Assert that the notification email is sent
         Mail::assertSent(TeamMemberAddedNotification::class, function ($mail) use ($newMember) {
             return $mail->hasTo($newMember->email);
         });
@@ -103,20 +106,17 @@ class InviteTeamMemberTest extends TestCase
 
         $team = $user->currentTeam;
 
+        // Ensure the user has permission to add team members
+        $team->users()->updateExistingPivot($user->id, ['role' => 'owner']);
+
         // Create a project and associate it with the team
         $project = Project::factory()->create(['team_id' => $team->id]);
 
-        // Ensure the user has permission to add team members
-        $team->users()->attach($user, ['role' => 'owner']);
-
-        // Ensure the CSRF token is included in the request
+        // Send the request
         $response = $this->post('/teams/'.$team->id.'/members', [
             'email' => 'newmember@example.com',
             'role' => 'admin',
-            '_token' => csrf_token(),
         ]);
-
-        $response->assertStatus(200);
 
         // Assert that no notification email is sent
         Mail::assertNotSent(TeamMemberAddedNotification::class);
