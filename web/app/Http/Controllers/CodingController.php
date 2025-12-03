@@ -50,27 +50,6 @@ class CodingController extends Controller
             })
             ->get();
 
-        // Get source (either from request or latest locked one)
-        $source = $request->has('source') && $request->source
-            ? Source::findOrFail($request->source)
-            : Source::where('project_id', $project->id)
-                ->whereHas('variables', function ($query) {
-                    $query->where('name', 'isLocked')
-                        ->where('boolean_value', true);
-                })
-                ->latest('created_at')
-                ->firstOrFail();
-
-        // Get content if source exists, otherwise redirect
-        if ($source) {
-            $content = file_get_contents($source->converted->path);
-            $source->content = $content;
-        } else {
-            return redirect()->route('source.index', ['project' => $projectId]);
-        }
-
-        $source->variables = $source->transformVariables();
-
         // Handle codebook creation/retrieval
         $codebook = $project->codebooks()->first() ?? $this->createDefaultCodebook($project, $request);
         $codebooks = $project->codebooks()->get();
@@ -81,15 +60,33 @@ class CodingController extends Controller
             ->whereNull('parent_id')
             ->get();
 
-        // Build nested codes structure
-        $allCodes = $rootCodes->map(fn ($code) => $this->buildNestedCode($code, $source->id));
-
         // collaboration
         if ($project->team) {
             $team = $project->team->load('users');
             $teamMembers = $team->users;
         } else {
             $teamMembers = [];
+        }
+
+        // Get source (either from request or latest locked one)
+        $source = $request->has('source') && $request->source
+            ? Source::where('project_id', $project->id)->where('id', $request->source)->firstOrFail()
+            : Source::where('project_id', $project->id)
+                ->whereHas('variables', function ($query) {
+                    $query->where('name', 'isLocked')
+                        ->where('boolean_value', true);
+                })
+                ->latest('created_at')
+                ->first();
+
+        // Build nested codes structure
+        $allCodes = $rootCodes->map(fn ($code) => $this->buildNestedCode($code, $source ? $source->id : null));
+
+        // Get content if source exists, otherwise return minimal data for the view
+        if ($source) {
+            $content = file_get_contents($source->converted->path);
+            $source->content = $content;
+            $source->variables = $source->transformVariables();
         }
 
         return Inertia::render('CodingPage', [

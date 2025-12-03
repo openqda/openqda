@@ -14,13 +14,14 @@ export const useCodes = () => {
   const { details } = toRefs(state);
   const page = usePage();
   const { allCodes, codebooks, projectId, source } = page.props;
-  const sourceId = source.id;
+  const sourceId = source?.id;
   const key = `${projectId}-${sourceId}`;
   const codeStore = Codes.by(key);
   const codebookStore = Codebooks.by(projectId);
   const selectionStore = Selections.by(key);
 
   const initCoding = async () => {
+    const initialSelections = source?.selections ?? [];
     const results = { added: [], clean: [] };
     const toResults = (res) => {
       results.added.push(...res.added);
@@ -29,7 +30,7 @@ export const useCodes = () => {
     toResults(codebookStore.init(codebooks));
     toResults(codeStore.init(allCodes));
     toResults(
-      selectionStore.init(source.selections, (id) => {
+      selectionStore.init(initialSelections, (id) => {
         try {
           return codeStore.entry(id);
         } catch (e) {

@@ -11,7 +11,7 @@ const state = reactive({
 
 export const useSelections = () => {
   const { projectId, source } = usePage().props;
-  const sourceId = source.id;
+  const sourceId = source?.id;
   const key = `${projectId}-${sourceId}`;
   const { selected, toDelete, current } = toRefs(state);
   const selectionStore = Selections.by(key);
