@@ -72,8 +72,7 @@ class InviteTeamMemberTest extends TestCase
         $team = $user->currentTeam;
 
         // Create a project and associate it with the team
-        $project = Project::factory()->create();
-        $team->projects()->attach($project);
+        $project = Project::factory()->create(['team_id' => $team->id]);
 
         $newMember = User::factory()->create([
             'email' => 'newmember@example.com',
@@ -104,12 +103,17 @@ class InviteTeamMemberTest extends TestCase
 
         $team = $user->currentTeam;
 
+        // Create a project and associate it with the team
+        $project = Project::factory()->create(['team_id' => $team->id]);
+
         // Ensure the user has permission to add team members
         $team->users()->attach($user, ['role' => 'owner']);
 
+        // Ensure the CSRF token is included in the request
         $response = $this->post('/teams/'.$team->id.'/members', [
             'email' => 'newmember@example.com',
             'role' => 'admin',
+            '_token' => csrf_token(),
         ]);
 
         $response->assertStatus(200);
