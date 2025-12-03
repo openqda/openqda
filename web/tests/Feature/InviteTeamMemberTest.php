@@ -23,7 +23,7 @@ class InviteTeamMemberTest extends TestCase
         $this->assertEqual(true, Features::sendsTeamInvitations());
 
         putenv('TEAM_INVITATION_REQUIRED=false');
-        $this->assertEqual(false, Features::sendsTeamInvitations());
+        $this->assertEquals(false, Features::sendsTeamInvitations());
     }
 
     public function test_team_members_can_be_invited_to_team(): void
@@ -31,7 +31,7 @@ class InviteTeamMemberTest extends TestCase
         config(['app.env' => 'testing']);
         putenv('TEAM_INVITATION_REQUIRED=true');
 
-        $this->assertEqual(true, Features::sendsTeamInvitations());
+        $this->assertEquals(true, Features::sendsTeamInvitations());
 
         Mail::fake();
 
