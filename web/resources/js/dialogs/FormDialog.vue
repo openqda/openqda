@@ -105,7 +105,7 @@ const keyDownHandler = (e) => {
 
 <template>
   <div>
-    <slot name="trigger" @click="start"></slot>
+    <slot name="trigger" @click="start" :trigger="start"></slot>
     <DialogBase
       :title="props.title ?? 'Rename'"
       :show="open"

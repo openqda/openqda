@@ -10,8 +10,11 @@
             :schema="createNewCodeSchema"
             :title="`Create a new ${codesView === 'codes' ? 'Code' : 'Codebook'}`"
             :submit="createCodeHandler"
+            @cancelled="unsetInvivoText"
+            @created="unsetInvivoText"
           >
-            <template #trigger="createCodeTriggerProps">
+            <template  #trigger="createCodeTriggerProps">
+                <button ref="create-btn-ref" class="hidden" @click="createCodeTriggerProps.onClick(openCreateCodeDialog)"></button>
               <Button
                 variant="outline-secondary"
                 class="w-full md:w-auto"
@@ -107,7 +110,7 @@
 
 <script setup>
 import { PlusIcon } from '@heroicons/vue/24/solid';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, useTemplateRef, watch } from 'vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import CodeTree from './coding/tree/CodeTree.vue';
 import CodingEditor from './coding/CodingEditor.vue';
@@ -133,6 +136,7 @@ import Footer from '../Layouts/Footer.vue';
 import Link from '../Components/Link.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
+import { useInvivoText } from './coding/useInvivoText.js'
 
 const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
 //------------------------------------------------------------------------
@@ -188,6 +192,7 @@ const {
   deleteCode,
   initCoding,
 } = useCodes();
+const { invivoText, unset:unsetInvivoText } = useInvivoText();
 const codingInitialized = ref(false);
 const codesTabs = [
   { value: 'codes', label: 'Codes' },
@@ -195,7 +200,16 @@ const codesTabs = [
   { value: 'cleanup', label: 'Cleanup' },
 ];
 
+// IN-VIVO CODE CREATION
 const codesView = ref(codesTabs[0].value);
+const createBtnRef = useTemplateRef('create-btn-ref');
+watch(invivoText, (nexText) => {
+    if (nexText) {
+        createBtnRef.value.click()
+    }
+})
+
+// NEW CODE CREATION
 const createNewCodeSchema = ref();
 const openCreateCodeDialog = () => {
   createNewCodeSchema.value = createCodeSchema({
@@ -203,6 +217,7 @@ const openCreateCodeDialog = () => {
     codebooks: codebooks.value,
   });
 };
+
 const createCodeHandler = async (formData) => {
   const code = await createCode(formData);
   const txt = createNewCodeSchema.value.title.defaultValue;

@@ -16,14 +16,16 @@ import { useCodes } from '../../../domain/codes/useCodes';
 import { useRange } from '../useRange';
 import { whitespace } from '../../../utils/regex';
 import { useUsers } from '../../../domain/teams/useUsers';
+import { useInvivoText } from '../useInvivoText'
 import ProfileImage from '../../../Components/user/ProfileImage.vue';
 
 const { getMemberBy } = useUsers();
-const { prevRange } = useRange();
-const { close, isOpen } = useContextMenu();
+const { prevRange, range, text:rangeText } = useRange();
+const { close, isOpen, top, left, width, maxHeight } = useContextMenu();
 const { codes } = useCodes();
 const { toDelete, deleteSelection } = useSelections();
-const emit = defineEmits(['code-selected', 'code-deleted', 'close']);
+const {set} = useInvivoText();
+const emit = defineEmits(['code-selected', 'code-deleted', 'close', 'code-to-create']);
 const query = ref('');
 const toDeleteSize = ref(0);
 watch(toDelete, (entries) => {
@@ -46,13 +48,23 @@ const filteredCodes = computed(() => {
   return codes.value.filter(filterFn);
 });
 const onClose = () => {
-  if (isOpen) {
+  if (isOpen.value) {
     reassign.value = null;
     query.value = '';
     close();
     emit('close');
   }
 };
+
+const createInVivo = () => {
+    const txt = rangeText?.value;
+    if (!txt?.length) return;
+    onClose();
+    setTimeout(() => {
+        console.debug('set text')
+        set(txt);
+    }, 100);
+}
 </script>
 
 <template>
@@ -62,9 +74,10 @@ const onClose = () => {
     :class="
       cn(
         'fixed p-3 z-50 bg-surface border-background border-4 max-h-screen mt-1 overflow-auto rounded-md shadow-lg overflow-y-scroll',
-        isOpen !== true && 'hidden'
+        !isOpen && 'hidden'
       )
     "
+    :style="{ top: `${top}px`, left: `${left}px`, width: `${width}px`, maxHeight: `${maxHeight}px` }"
   >
     <div v-if="toDeleteSize" class="mb-6 flex flex-col gap-2">
       <div class="block w-full text-xs font-semibold">
@@ -130,6 +143,14 @@ const onClose = () => {
         </div>
       </div>
     </div>
+
+      <div v-if="range?.length">
+          <Button variant="outline-secondary" @click="createInVivo">Create In-Vivo Code</Button>
+      </div>
+
+      <div v-if="!codes?.length" class="text-sm italic text-foreground/80">
+          You seem to have no codes created yet.
+      </div>
 
     <div
       v-if="codes?.length && (!toDeleteSize || reassign || prevRange?.length)"
