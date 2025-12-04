@@ -15,7 +15,6 @@ class InviteTeamMemberTest extends TestCase
 {
     use RefreshDatabase;
 
-
     protected function enable_invitations(): void
     {
         putenv('TEAM_INVITATION_REQUIRED=true');
