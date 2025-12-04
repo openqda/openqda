@@ -2,37 +2,48 @@
   <div class="contents">
     <!-- editor header with zoom controls -->
     <div class="px-3 py-6 block md:flex items-center justify-between">
-      <Headline1 class="m-0">{{ props.source?.name }}</Headline1>
-      <div class="flex items-center">
-        <button
-          type="button"
+      <Headline1 class="hidden md:block m-0">{{
+        props.source?.name
+      }}</Headline1>
+      <div class="flex gap-1 justify-end items-center">
+        <Transition name="fade">
+          <Button
+            v-if="range?.length"
+            variant="outline-secondary"
+            @click="showContextMenu"
+            class="hidden"
+            >Menu</Button
+          >
+        </Transition>
+        <Button
+          variant="outline"
           class="p-1 md:p-2 rounded hover:bg-foreground/10 transition-colors"
           title="Zoom Out"
           @click="setZoom('decrease')"
         >
           <svg
             viewBox="0 0 18 18"
-            class="w-5 h-5 stroke-current fill-none stroke-2"
+            class="w-5 h-5 stroke-current fill-none stroke-1"
           >
             <line x1="6" x2="12" y1="9" y2="9"></line>
             <circle cx="9" cy="9" r="6"></circle>
           </svg>
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          variant="outline"
           class="p-1 md:p-2 rounded hover:bg-foreground/10 transition-colors"
           title="Zoom In"
           @click="setZoom('increase')"
         >
           <svg
             viewBox="0 0 18 18"
-            class="w-5 h-5 stroke-current fill-none stroke-2"
+            class="w-5 h-5 stroke-current fill-none stroke-1"
           >
             <line x1="6" x2="12" y1="9" y2="9"></line>
             <line x1="9" x2="9" y1="6" y2="12"></line>
             <circle cx="9" cy="9" r="6"></circle>
           </svg>
-        </button>
+        </Button>
       </div>
     </div>
     <!-- editor content -->
@@ -51,15 +62,21 @@
       class="fixed bg-surface md:bg-transparent hover:border hover:border-primary w-full md:w-auto bottom-0 md:bottom-4 py-2 md:py-0 right-0 md:right-4 grow flex items-end"
       style="z-index: 50"
     >
-        <div v-if="range?.length" class="lg:hidden me-auto">
-            <Button variant="outline-secondary" @click="showContextMenu">Options</Button>
-        </div>
+      <Transition name="fade">
+        <Button
+          v-if="range?.length"
+          variant="outline-secondary"
+          @click="showContextMenu"
+          class="inline-flex md:hidden"
+          >Menu</Button
+        >
+      </Transition>
       <span class="text-foreground/60 w-4 h-4 animate-spin" v-show="updating">
         <ArrowPathIcon class="w-4 h-4" />
       </span>
       <span
         v-if="contentHash?.hash"
-        class="text-xs border-0 bg-surface p-1 font-mono me-3"
+        class="text-xs border-0 bg-surface p-1 font-mono me-3 ms-auto"
         :title="contentHash.hash"
         >Integrity: {{ contentHash.short }}</span
       >
@@ -72,7 +89,9 @@
     <div v-if="loadingDocument" class="p-3">
       <ActivityIndicator>{{ 'Loading source' }}</ActivityIndicator>
     </div>
-    <CodingContextMenu @close="contextMenuClosed" />
+    <Transition name="fade">
+      <CodingContextMenu @close="contextMenuClosed" />
+    </Transition>
   </div>
 </template>
 
@@ -99,7 +118,7 @@ import ActivityIndicator from '../../Components/ActivityIndicator.vue';
 import { cn } from '../../utils/css/cn.js';
 import { createHash } from '../../utils/createHash.js';
 import { useZoom } from '../../editor/useZoom.js';
-import Button from '../../Components/interactive/Button.vue'
+import Button from '../../Components/interactive/Button.vue';
 
 const editorContent = ref('');
 const contextMenu = useContextMenu();
@@ -348,9 +367,10 @@ const showContextMenu = (event) => {
   //
   // // Force a slight layout update so we can measure the contextMenu's dimensions
   contextMenuElement.offsetHeight;
-  const offsetY = event.clientY + contextMenuElement.offsetHeight > windowHeight
-    ?  windowHeight - contextMenuElement.offsetHeight
-    : event.clientY + 20
+  const offsetY =
+    event.clientY + contextMenuElement.offsetHeight > windowHeight
+      ? windowHeight - contextMenuElement.offsetHeight
+      : event.clientY + 20;
   //
   // if (event.clientY + contextMenuElement.offsetHeight > windowHeight) {
   //   // If the context menu would go out of bounds, adjust its top position
@@ -359,12 +379,12 @@ const showContextMenu = (event) => {
   //   contextMenuElement.style.top = `${event.clientY + 20}px`;
   // }
 
-    contextMenu.open(null, {
-        left: menuX,
-        top: isMobile ? 0 : offsetY,
-        width: menuWidth,
-        maxHeight: windowHeight < 720 ? windowHeight / 1.5 : windowHeight / 3,
-    });
+  contextMenu.open(null, {
+    left: menuX,
+    top: isMobile ? 0 : offsetY,
+    width: menuWidth,
+    maxHeight: windowHeight < 720 ? windowHeight / 1.5 : windowHeight / 3,
+  });
 };
 
 const contextMenuClosed = () => {

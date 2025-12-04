@@ -3,10 +3,10 @@ import { toRefs, reactive } from 'vue';
 const state = reactive({
   openWith: null,
   isOpen: false,
-    left: 0,
-    top: 0,
-    width: 0,
-    maxHeight: 0,
+  left: 0,
+  top: 0,
+  width: 0,
+  maxHeight: 0,
 });
 
 export const useContextMenu = () => {
@@ -23,11 +23,11 @@ export const useContextMenu = () => {
   };
 
   const close = () => {
-      state.isOpen = false;
-      state.left = 0;
-      state.top = 0;
-      state.width = 0;
-      state.maxHeight = 0;
+    state.isOpen = false;
+    state.left = 0;
+    state.top = 0;
+    state.width = 0;
+    state.maxHeight = 0;
     return true;
   };
 
@@ -36,6 +36,9 @@ export const useContextMenu = () => {
     open,
     close,
     isOpen,
-    left, top, width, maxHeight
+    left,
+    top,
+    width,
+    maxHeight,
   };
 };

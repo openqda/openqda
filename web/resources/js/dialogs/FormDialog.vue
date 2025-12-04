@@ -101,6 +101,8 @@ const keyDownHandler = (e) => {
     cancel();
   }
 };
+
+defineExpose({ start, cancel });
 </script>
 
 <template>

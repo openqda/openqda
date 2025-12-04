@@ -7,14 +7,14 @@
         </ActivityIndicator>
         <div v-else class="inline md:flex items-center justify-between mb-4">
           <CreateDialog
+            ref="createDialogRef"
             :schema="createNewCodeSchema"
             :title="`Create a new ${codesView === 'codes' ? 'Code' : 'Codebook'}`"
             :submit="createCodeHandler"
             @cancelled="unsetInvivoText"
             @created="unsetInvivoText"
           >
-            <template  #trigger="createCodeTriggerProps">
-                <button ref="create-btn-ref" class="hidden" @click="createCodeTriggerProps.onClick(openCreateCodeDialog)"></button>
+            <template #trigger="createCodeTriggerProps">
               <Button
                 variant="outline-secondary"
                 class="w-full md:w-auto"
@@ -136,7 +136,7 @@ import Footer from '../Layouts/Footer.vue';
 import Link from '../Components/Link.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
-import { useInvivoText } from './coding/useInvivoText.js'
+import { useInvivoText } from './coding/useInvivoText.js';
 
 const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
 //------------------------------------------------------------------------
@@ -192,22 +192,22 @@ const {
   deleteCode,
   initCoding,
 } = useCodes();
-const { invivoText, unset:unsetInvivoText } = useInvivoText();
+const { invivoText, unset: unsetInvivoText } = useInvivoText();
 const codingInitialized = ref(false);
 const codesTabs = [
   { value: 'codes', label: 'Codes' },
   { value: 'sources', label: 'Sources' },
   { value: 'cleanup', label: 'Cleanup' },
 ];
+const codesView = ref(codesTabs[0].value);
 
 // IN-VIVO CODE CREATION
-const codesView = ref(codesTabs[0].value);
-const createBtnRef = useTemplateRef('create-btn-ref');
+const createDialogRef = useTemplateRef('createDialogRef');
 watch(invivoText, (nexText) => {
-    if (nexText) {
-        createBtnRef.value.click()
-    }
-})
+  if (nexText) {
+    createDialogRef.value.start(openCreateCodeDialog);
+  }
+});
 
 // NEW CODE CREATION
 const createNewCodeSchema = ref();
