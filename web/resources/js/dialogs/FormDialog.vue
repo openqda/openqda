@@ -101,11 +101,13 @@ const keyDownHandler = (e) => {
     cancel();
   }
 };
+
+defineExpose({ start, cancel });
 </script>
 
 <template>
   <div>
-    <slot name="trigger" @click="start"></slot>
+    <slot name="trigger" @click="start" :trigger="start"></slot>
     <DialogBase
       :title="props.title ?? 'Rename'"
       :show="open"
