@@ -172,10 +172,14 @@ class SourceControllerTest extends TestCase
             'creating_user_id' => $this->user->id,
         ]);
 
+        // Create the file on disk so path validation passes
+        $htmlPath = $this->testFilePath.'/test.html';
+        file_put_contents($htmlPath, '<p>Initial content</p>');
+
         $sourceStatus = SourceStatus::create([
             'source_id' => $source->id,
             'status' => 'converted:html',
-            'path' => $this->testFilePath.'/test.html',
+            'path' => $htmlPath,
         ]);
 
         $content = ['editorContent' => '<p>Updated content</p>'];

@@ -299,13 +299,13 @@ onMounted(() => {
 
               <div class="flex items-center">
                 <!-- Cancel Team Invitation -->
-                <button
+                <Button
                   v-if="userPermissions.canRemoveTeamMembers"
-                  class="cursor-pointer ml-6 text-sm text-red-700 focus:outline-hidden"
+                  variant="outline"
                   @click="cancelTeamInvitation(invitation)"
                 >
                   Cancel
-                </button>
+                </Button>
               </div>
             </div>
           </div>
@@ -409,7 +409,7 @@ onMounted(() => {
         <template #form>
           <!-- Member Email -->
           <div class="col-span-6 sm:col-span-4 flex flex-col gap-3">
-            <InputLabel for="email" value="Email" />
+            <InputLabel for="email" value="Email" class="hidden" />
             <InputField
               id="email"
               v-model="addTeamMemberForm.email"
@@ -550,7 +550,10 @@ onMounted(() => {
       <template #title> Leave Team</template>
 
       <template #content>
-        Are you sure you would like to leave this team?
+        You are about to leave this team. If you continue, you will no longer
+        have access to the team's project and data. Rejoining the team will
+        require an invitation from the team owner. Are you sure you would like
+        to leave this team?
       </template>
 
       <template #footer>

@@ -6,6 +6,7 @@ import {
   ChevronDownIcon,
   DocumentDuplicateIcon,
   UsersIcon,
+  ShareIcon,
   KeyIcon,
 } from '@heroicons/vue/24/outline';
 import { Link } from '@inertiajs/vue3';
@@ -182,11 +183,22 @@ onMounted(() => {
           class="text-primary"
         />
         <template v-else>
-          <span class="self-center" title="Collaborative">
+          <span class="self-center" title="This project has collaborators">
             <UsersIcon v-if="entry.isCollaborative" class="w-4 h-4" />
           </span>
-          <span class="self-center" title="I own this project">
-            <KeyIcon v-if="entry.isOwner" class="w-4 h-4" />
+          <span
+            v-if="entry.isOwner"
+            class="self-center"
+            title="I own this project"
+          >
+            <KeyIcon class="w-4 h-4" />
+          </span>
+          <span
+            v-else
+            class="self-center"
+            title="I am a collaborator in this project"
+          >
+            <ShareIcon class="w-4 h-4" />
           </span>
           <span class="self-center flex" title="Sources in this project">
             <DocumentDuplicateIcon class="w-4 h-4" />
