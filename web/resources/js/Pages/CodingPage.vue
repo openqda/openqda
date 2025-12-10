@@ -41,6 +41,7 @@
             :challenge="deleteChallenge"
             :message="deleteMessage"
             :submit="deleteCode"
+            @close="closeDeleteDialog"
           />
           <ResponsiveTabList
             :tabs="codesTabs"
@@ -172,6 +173,7 @@ const {
   target: deleteTarget,
   challenge: deleteChallenge,
   message: deleteMessage,
+  close: closeDeleteDialog,
 } = useDeleteDialog();
 
 //------------------------------------------------------------------------

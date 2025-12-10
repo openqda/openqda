@@ -25,13 +25,13 @@ import { asyncTimeout } from '../../../utils/asyncTimeout';
 import { attemptAsync } from '../../../Components/notification/attemptAsync';
 import { useDeleteDialog } from '../../../dialogs/useDeleteDialog';
 import { useRenameDialog } from '../../../dialogs/useRenameDialog';
-import { useCreateDialog } from '../../../dialogs/useCreateDialog';
 import ContrastText from '../../../Components/text/ContrastText.vue';
 import { useRange } from '../useRange';
 import { rgbToHex } from '../../../utils/color/toHex';
 import { useSelections } from '../selections/useSelections';
+import FormDialog from '../../../dialogs/FormDialog.vue';
 
-const { toggleCode, createCodeSchema, getCodebook } = useCodes();
+const { createCode, toggleCode, createCodeSchema, getCodebook } = useCodes();
 const { collapsed, toggleCollapse } = useCodeTree();
 const { getMemberBy } = useUsers();
 const Selections = useSelections();
@@ -106,7 +106,6 @@ const handleCodeToggle = async (code) => {
 //------------------------------------------------------------------------
 const { open: openDeleteDialog } = useDeleteDialog();
 const { open: openRenameDialog } = useRenameDialog();
-const { open: openCreateDialog } = useCreateDialog();
 const editCode = (target) => {
   const schema = createCodeSchema({
     title: target.name,
@@ -122,18 +121,17 @@ const editCode = (target) => {
   delete schema.codebookId;
   openRenameDialog({ id: 'edit-code', target, schema });
 };
-const addSubcode = (parent) => {
+
+// CRATE SUBCODE
+const createNewCodeSchema = ref();
+const openCreateSubcodeDialog = (parent) => {
   const schema = createCodeSchema({
     codebooks: [getCodebook(parent.codebook)],
     codes: [parent],
     parent,
   });
   schema.color.defaultValue = rgbToHex(parent.color);
-  openCreateDialog({
-    id: 'edit-code',
-    schema,
-    onCreated: () => (open.value = true),
-  });
+  createNewCodeSchema.value = schema;
 };
 
 //------------------------------------------------------------------------
@@ -261,11 +259,22 @@ const { range } = useRange();
                 <span>Edit code</span>
               </div>
             </DropdownLink>
-            <DropdownLink as="button" @click.prevent="addSubcode(code)">
-              <div class="flex items-center">
-                <PlusIcon class="w-4 h-4 me-2" />
-                <span>Add subcode</span>
-              </div>
+            <DropdownLink as="button">
+              <FormDialog
+                :schema="createNewCodeSchema"
+                :title="`Create a subcode for ${code.name}`"
+                :submit="createCode"
+              >
+                <template #trigger="{ trigger }">
+                  <div
+                    @click="trigger(() => openCreateSubcodeDialog(code))"
+                    class="flex items-center"
+                  >
+                    <PlusIcon class="w-4 h-4 me-2" />
+                    <span>Add subcode</span>
+                  </div>
+                </template>
+              </FormDialog>
             </DropdownLink>
             <DropdownLink
               as="button"

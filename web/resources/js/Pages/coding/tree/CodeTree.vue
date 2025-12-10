@@ -5,6 +5,7 @@ import CodeTreeItem from './CodeTreeItem.vue';
 import { useCodebookOrder } from '../../../domain/codebooks/useCodebookOrder';
 import { attemptAsync } from '../../../Components/notification/attemptAsync';
 import CodebookRenderer from './CodebookRenderer.vue';
+import FormDialog from '../../../dialogs/FormDialog.vue';
 
 const props = defineProps({
   codes: Array,
@@ -85,5 +86,6 @@ observe('store/codes', {
       :parent-id="null"
       :show-details="showDetails[props.codebook.id]"
     />
+    <FormDialog />
   </div>
 </template>
