@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Controllers;
 
 use App\Models\Codebook;
 use App\Models\Project;
