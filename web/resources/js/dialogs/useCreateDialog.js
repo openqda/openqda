@@ -8,7 +8,6 @@ const state = reactive({
 });
 
 /**
- * @deprecated
  * @return {{schema, id, close: close, onCreated, open: open}}
  */
 export const useCreateDialog = () => {

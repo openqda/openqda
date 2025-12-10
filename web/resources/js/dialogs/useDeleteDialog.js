@@ -14,5 +14,10 @@ export const useDeleteDialog = () => {
     state.challenge = challenge;
     state.message = message;
   };
-  return { target, challenge, open, message };
+  const close = () => {
+    state.target = null;
+    state.challenge = null;
+    state.message = null;
+  };
+  return { target, challenge, open, close, message };
 };

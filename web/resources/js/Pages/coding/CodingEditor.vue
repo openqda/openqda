@@ -2,37 +2,48 @@
   <div class="contents">
     <!-- editor header with zoom controls -->
     <div class="px-3 py-6 block md:flex items-center justify-between">
-      <Headline1 class="m-0">{{ props.source?.name }}</Headline1>
-      <div class="flex items-center">
-        <button
-          type="button"
+      <Headline1 class="hidden md:block m-0">{{
+        props.source?.name
+      }}</Headline1>
+      <div class="flex gap-1 justify-end items-center">
+        <Transition name="fade">
+          <Button
+            v-if="range?.length"
+            variant="outline-secondary"
+            @click="showContextMenu"
+            class="hidden"
+            >Menu</Button
+          >
+        </Transition>
+        <Button
+          variant="outline"
           class="p-1 md:p-2 rounded hover:bg-foreground/10 transition-colors"
           title="Zoom Out"
           @click="setZoom('decrease')"
         >
           <svg
             viewBox="0 0 18 18"
-            class="w-5 h-5 stroke-current fill-none stroke-2"
+            class="w-5 h-5 stroke-current fill-none stroke-1"
           >
             <line x1="6" x2="12" y1="9" y2="9"></line>
             <circle cx="9" cy="9" r="6"></circle>
           </svg>
-        </button>
-        <button
-          type="button"
+        </Button>
+        <Button
+          variant="outline"
           class="p-1 md:p-2 rounded hover:bg-foreground/10 transition-colors"
           title="Zoom In"
           @click="setZoom('increase')"
         >
           <svg
             viewBox="0 0 18 18"
-            class="w-5 h-5 stroke-current fill-none stroke-2"
+            class="w-5 h-5 stroke-current fill-none stroke-1"
           >
             <line x1="6" x2="12" y1="9" y2="9"></line>
             <line x1="9" x2="9" y1="6" y2="12"></line>
             <circle cx="9" cy="9" r="6"></circle>
           </svg>
-        </button>
+        </Button>
       </div>
     </div>
     <!-- editor content -->
@@ -51,12 +62,21 @@
       class="fixed bg-surface md:bg-transparent hover:border hover:border-primary w-full md:w-auto bottom-0 md:bottom-4 py-2 md:py-0 right-0 md:right-4 grow flex items-end"
       style="z-index: 50"
     >
+      <Transition name="fade">
+        <Button
+          v-if="range?.length"
+          variant="outline-secondary"
+          @click="showContextMenu"
+          class="inline-flex md:hidden"
+          >Menu</Button
+        >
+      </Transition>
       <span class="text-foreground/60 w-4 h-4 animate-spin" v-show="updating">
         <ArrowPathIcon class="w-4 h-4" />
       </span>
       <span
         v-if="contentHash?.hash"
-        class="text-xs border-0 bg-surface p-1 font-mono me-3"
+        class="text-xs border-0 bg-surface p-1 font-mono me-3 ms-auto"
         :title="contentHash.hash"
         >Integrity: {{ contentHash.short }}</span
       >
@@ -69,7 +89,9 @@
     <div v-if="loadingDocument" class="p-3">
       <ActivityIndicator>{{ 'Loading source' }}</ActivityIndicator>
     </div>
-    <CodingContextMenu @close="contextMenuClosed" />
+    <Transition name="fade">
+      <CodingContextMenu @close="contextMenuClosed" />
+    </Transition>
   </div>
 </template>
 
@@ -96,12 +118,13 @@ import ActivityIndicator from '../../Components/ActivityIndicator.vue';
 import { cn } from '../../utils/css/cn.js';
 import { createHash } from '../../utils/createHash.js';
 import { useZoom } from '../../editor/useZoom.js';
+import Button from '../../Components/interactive/Button.vue';
 
 const editorContent = ref('');
 const contextMenu = useContextMenu();
 const { selected, createSelection, markToDelete } = useSelections();
 const { observe, selections, selectionsByIndex } = useCodes();
-const { prevRange, setRange } = useRange();
+const { prevRange, setRange, range } = useRange();
 const { setInstance, dispose } = useCodingEditor();
 const { zoom, setZoom } = useZoom();
 
@@ -283,8 +306,10 @@ const showContextMenu = (event) => {
     // Allow the browser's context menu to appear
     return;
   }
+  const isMobile = event.pointerType === 'touch' || event.type === 'touchstart';
 
   event.preventDefault();
+  event.stopPropagation();
 
   // XXX: it should be noted, that on Safari and mobile
   // browsers there is always a selection > 0 because they
@@ -301,6 +326,7 @@ const showContextMenu = (event) => {
   if (!hasSelection && !hasLinked) {
     return;
   }
+
   markToDelete(hasLinked ? currentSelections : null);
 
   let lowest = selectedArea.index;
@@ -319,14 +345,13 @@ const showContextMenu = (event) => {
   // use bounding rect to safely place the menu
   // const rect = quillInstance.getBounds(lowest, highest - lowest);
 
-  contextMenu.open();
   const contextMenuElement = document.getElementById('contextMenu');
 
   const windowHeight = window.innerHeight;
   const windowWidth = window.innerWidth;
 
   let menuWidth = windowWidth / 4;
-  if (menuWidth < 320) menuWidth = 320;
+  if (menuWidth <= 400) menuWidth = windowWidth;
 
   let mouseX = event.clientX;
   if (mouseX < menuWidth / 2) mouseX = menuWidth / 2;
@@ -335,20 +360,31 @@ const showContextMenu = (event) => {
   const offsetX = windowWidth - (mouseX + menuWidth / 2);
   if (offsetX < 0) menuX += offsetX;
 
-  contextMenuElement.style.left = `${menuX}px`;
-  contextMenuElement.style.width = `${menuWidth}px`;
-  contextMenuElement.style.maxHeight = `${windowHeight / 3}px`;
-  contextMenuElement.classList.remove('hidden');
-
-  // Force a slight layout update so we can measure the contextMenu's dimensions
+  // contextMenuElement.style.left = `${menuX}px`;
+  // contextMenuElement.style.width = `${menuWidth}px`;
+  // contextMenuElement.style.maxHeight = `${windowHeight / 3}px`;
+  // contextMenuElement.classList.remove('hidden');
+  //
+  // // Force a slight layout update so we can measure the contextMenu's dimensions
   contextMenuElement.offsetHeight;
+  const offsetY =
+    event.clientY + contextMenuElement.offsetHeight > windowHeight
+      ? windowHeight - contextMenuElement.offsetHeight
+      : event.clientY + 20;
+  //
+  // if (event.clientY + contextMenuElement.offsetHeight > windowHeight) {
+  //   // If the context menu would go out of bounds, adjust its top position
+  //   contextMenuElement.style.top = `${windowHeight - contextMenuElement.offsetHeight}px`;
+  // } else {
+  //   contextMenuElement.style.top = `${event.clientY + 20}px`;
+  // }
 
-  if (event.clientY + contextMenuElement.offsetHeight > windowHeight) {
-    // If the context menu would go out of bounds, adjust its top position
-    contextMenuElement.style.top = `${windowHeight - contextMenuElement.offsetHeight}px`;
-  } else {
-    contextMenuElement.style.top = `${event.clientY + 20}px`;
-  }
+  contextMenu.open(null, {
+    left: menuX,
+    top: isMobile ? 0 : offsetY,
+    width: menuWidth,
+    maxHeight: windowHeight < 720 ? windowHeight / 1.5 : windowHeight / 3,
+  });
 };
 
 const contextMenuClosed = () => {

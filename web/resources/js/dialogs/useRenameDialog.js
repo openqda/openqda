@@ -13,6 +13,10 @@ export const useRenameDialog = () => {
     state.target = target;
     state.id = id;
   };
-
-  return { id, schema, target, open };
+  const close = () => {
+    state.schema = null;
+    state.target = null;
+    state.id = null;
+  };
+  return { id, schema, target, open, close };
 };
