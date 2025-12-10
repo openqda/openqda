@@ -84,7 +84,7 @@ observe('store/codes', {
       v-if="sorting === codebook.id"
       class="w-full text-end text-xs text-secondary"
     >
-      Complete sorting before you continue with coding.
+      Deactivate sorting before you continue with coding.
     </p>
     <CodeTreeItem
       v-model="codeList"

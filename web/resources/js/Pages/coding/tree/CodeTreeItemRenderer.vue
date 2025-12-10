@@ -246,9 +246,16 @@ const { range } = useRange();
         </button>
 
         <!-- code menu -->
-        <Dropdown>
+        <Dropdown :disabled="sorting">
           <template #trigger>
-            <button class="p-2 md:p-1 lg:p-0 m-0">
+            <button
+              :class="
+                cn(
+                  'p-2 md:p-1 lg:p-0 m-0',
+                  sorting && 'cursor-not-allowed text-foreground/50'
+                )
+              "
+            >
               <EllipsisVerticalIcon class="w-4 h-4" />
             </button>
           </template>
