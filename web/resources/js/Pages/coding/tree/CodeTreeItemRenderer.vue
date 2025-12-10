@@ -249,6 +249,7 @@ const { range } = useRange();
         <Dropdown :disabled="sorting">
           <template #trigger>
             <button
+              :disabled="sorting"
               :class="
                 cn(
                   'p-2 md:p-1 lg:p-0 m-0',
