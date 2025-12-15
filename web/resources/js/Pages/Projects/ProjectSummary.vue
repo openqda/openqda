@@ -128,6 +128,16 @@ const deleteProject = async () => {
             <span class="text-xs font-mono px-2 py-1">{{ source.date }}</span>
           </div>
         </li>
+        <li
+          v-if="!project.sources?.length"
+          class="py-2 text-foreground/80 tracking-wide"
+        >
+          No sources have been added to this project yet. Go to
+          <Link :href="route('source.index', project?.id)" class="underline"
+            >the preparations page</Link
+          >
+          to crete or import new sources.
+        </li>
       </ul>
     </div>
 
