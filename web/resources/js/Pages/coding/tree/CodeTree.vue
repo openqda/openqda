@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useCodes } from '../../../domain/codes/useCodes';
-import CodeTreeItem from './CodeTreeItem.vue';
 import { useCodebookOrder } from '../../../domain/codebooks/useCodebookOrder';
 import { attemptAsync } from '../../../Components/notification/attemptAsync';
+import { useCodeTree } from './useCodeTree';
+import CodeTreeItem from './CodeTreeItem.vue';
 import CodebookRenderer from './CodebookRenderer.vue';
+import FormDialog from '../../../dialogs/FormDialog.vue';
 
 const props = defineProps({
   codes: Array,
@@ -12,7 +14,7 @@ const props = defineProps({
 });
 
 const { observe, showDetails } = useCodes();
-
+const { sorting } = useCodeTree();
 //------------------------------------------------------------------------
 // CODEBOOKS
 //------------------------------------------------------------------------
@@ -78,6 +80,12 @@ observe('store/codes', {
 <template>
   <div class="w-full">
     <CodebookRenderer :codebook="codebook" :codes="codes" />
+    <p
+      v-if="sorting === codebook.id"
+      class="w-full text-end text-xs text-secondary"
+    >
+      Deactivate sorting before you continue with coding.
+    </p>
     <CodeTreeItem
       v-model="codeList"
       class="py-4"
@@ -85,5 +93,6 @@ observe('store/codes', {
       :parent-id="null"
       :show-details="showDetails[props.codebook.id]"
     />
+    <FormDialog />
   </div>
 </template>

@@ -9,7 +9,7 @@ import { randomString } from '../utils/random/randomString';
 import Headline3 from '../Components/layout/Headline3.vue';
 import { asyncTimeout } from '../utils/asyncTimeout';
 
-const emit = defineEmits(['deleted', 'cancelled']);
+const emit = defineEmits(['deleted', 'cancelled', 'close']);
 const props = defineProps({
   target: {
     type: Object,
@@ -92,6 +92,7 @@ const submit = async () => {
       open.value = false;
       submitting.value = false;
       emit('deleted', deleted);
+      emit('close');
     }, 300);
   }
 };
@@ -107,6 +108,7 @@ const reset = () => {
 
 const cancel = () => {
   emit('cancelled');
+  emit('close');
   reset();
 };
 </script>
