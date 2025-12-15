@@ -27,6 +27,7 @@ import { request } from '../../utils/http/BackendRequest.js';
 import { useFiles } from './useFiles.js';
 import { PencilSquareIcon, XCircleIcon } from '@heroicons/vue/24/outline';
 import { useConversion } from '../../live/useConversion.js';
+import { attemptAsync } from '../notification/attemptAsync.js'
 
 /*---------------------------------------------------------------------------*/
 // DATA / PROPS
@@ -42,7 +43,8 @@ const props = defineProps({
 const { projectId } = props;
 const allSources = inject('sources');
 const documents = reactive(allSources);
-const { downloadSource, queueFilesForUpload } = useFiles({ projectId });
+const accept = ref();
+const { downloadSource, queueFilesForUpload, availableTypes } = useFiles({ projectId });
 async function retryTranscription(document) {
   const url = `/projects/${projectId}/sources/${document.id}/retrytranscription`;
   try {
@@ -188,7 +190,22 @@ const onDeleted = ({ id, name }) => {
 const { onConversionFailed, leaveConversionChannel, onConversionComplete } =
   useConversion({ projectId });
 
-onMounted(() => {
+onMounted(async () => {
+    const { response, error } = await attemptAsync(() => availableTypes())
+    if (error || response.data.status >= 400) {
+      accept.value = '*/*';
+      flashMessage(
+        error?.message ||
+          response.data.message ||
+          'Could not fetch accepted file types. Accepting all types.',
+        { type: 'error' }
+      );
+    } else {
+      const types = response.data;
+      accept.value = Object.keys(types).join(',');
+    }
+
+
   onConversionComplete((e) => {
     let documentIndex = -1;
     documents.forEach((doc, index) => {
@@ -308,6 +325,7 @@ async function fetchAndRenderDocument(document) {
     :schema="importSchema"
     title="Import file(s)"
     :progress="uploadProgress"
+    :accept="accept"
     :files-selected="importFiles"
   />
   <FilesList

@@ -134,6 +134,7 @@ Route::middleware([
      */
     Route::get('/projects/{project}/preparation', [SourceController::class, 'index'])->name('source.index');
     Route::delete('/files/{id}', [SourceController::class, 'destroy']);
+    Route::get('/projects/{project}/formats', [SourceController::class, 'availableFormats'])->name('source.available.formats');
     Route::post('/files/upload', [SourceController::class, 'store'])->name('source.store');
     Route::post('/files/transcribe', [SourceController::class, 'transcribe'])->name('source.transcribe');
     Route::get('/files/{id}', [SourceController::class, 'fetchDocument']);

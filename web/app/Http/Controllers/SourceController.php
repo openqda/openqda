@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use OwenIt\Auditing\Models\Audit;
@@ -49,41 +50,65 @@ class SourceController extends Controller
     }
 
     /**
-     * Store a new source file
-     *
-     *
+     * Provides a list of available file formats for upload.
+     * @return JsonResponse
+     */
+    public function availableFormats (Project $project)
+    {
+        // 1. get user
+        // 2. check if user has access to project
+        // 3. get transform services for project
+        // 4. return available formats
+
+        $formats = [
+            '.txt' => 'Plain Text (.txt)',
+            'audio/*' => 'Audio Files (.mp3, .wav, .m4a, etc.)',
+        ];
+
+        return response()->json($formats);
+    }
+
+    /**
+     * Stores and optionally converts a new source file.
+     * @param StoreSourceRequest $request
+     * @return JsonResponse
      * @throws Exception
      */
     public function store(StoreSourceRequest $request)
     {
         $file = $request->file('file');
         $projectId = $request->input('projectId');
+        Log::info('Uploading file: '.$file->getClientOriginalName().'.'.$file->extension().' to project ID: '.$projectId);
 
         // Generate filename without timestamp
         $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $filename = str_replace(' ', '_', $filename);
         $extension = $file->extension();
 
-        // Check if file exists and generate sequential number if needed
+        // Check if file exists and generate sequential number in case the file name is already taken
         $baseFilename = $filename;
         $counter = 1;
         $uniqueFilename = $filename.'.'.$extension;
         $relativePath = 'projects/'.$projectId.'/sources';
 
+        // iterate files with the same name to find a unique one
         while (Storage::exists($relativePath.'/'.$uniqueFilename)) {
             $uniqueFilename = $baseFilename.'_'.$counter.'.'.$extension;
             $counter++;
         }
 
+        // move the original file to storage
         $relativeFilePath = $file->storeAs($relativePath, $uniqueFilename);
         $path = storage_path("app/{$relativeFilePath}");
 
+        // we use a keyword to detect "new" created files that were not uploaded
         // Check for the keyword and wipe the content if found
         $fileContent = file_get_contents($path);
         $keyword = 'Llanfair­pwllgwyngyll­gogery­chwyrn­drobwll­llan­tysilio­gogo­goch';
 
         // Use the same filename pattern for HTML output
         $htmlOutputPath = storage_path('app/'.$relativePath.'/'.pathinfo($uniqueFilename, PATHINFO_FILENAME).'.html');
+
 
         $source = Source::updateOrCreate(
             ['id' => $request->input('sourceId', Str::uuid()->toString())],
@@ -100,24 +125,43 @@ class SourceController extends Controller
             ['path' => $htmlOutputPath, 'status' => 'converted:html']
         );
 
-        // Rest of your code remains the same
-        if (trim($fileContent) === $keyword) {
+        Log::info('Conversion for '.$filename.'.'.$extension);
+
+        $isEmpty = trim($fileContent) === $keyword;
+        $isPlain = $extension === 'txt';
+
+
+        if ($isEmpty) {
+            Log::info('Keyword detected in file. Creating empty HTML document.');
             file_put_contents($htmlOutputPath, config('app.layoutBaseHtml'));
             $htmlContent = config('app.layoutBaseHtml');
-        } else {
-            if ($extension === 'txt') {
-                $htmlContent = $this->convertTxtToHtml($path, $projectId);
-            } elseif ($extension === 'rtf') {
-                if (App::environment(['production', 'staging'])) {
-                    $this->convertFileToHtml($path, $projectId, $source->id);
-                } else {
-                    $htmlContent = $this->convertFileToHtmlLocally($path, $projectId);
-                    event(new ConversionCompleted($projectId, $source->id));
-                }
-            } else {
-                return response()->json(['error' => 'Unsupported file type'], 400);
-            }
         }
+
+        if (!$isEmpty && $isPlain) {
+            Log::info('Converting TXT file to HTML locally.');
+            $htmlContent = $this->convertTxtToHtml($path, $projectId);
+        }
+
+        if (! $isEmpty && ! $isPlain) {
+            Log::info('Converting file to HTML using job dispatch.');
+            $this->convertFileToHtml($path, $projectId, $source->id);
+        }
+
+//
+//          if (App::environment(['production', 'staging'])) {
+//
+//                          } else {
+//                              Log::info('Converting file to HTML locally.');
+//                              try {
+//                                  $htmlContent = $this->convertFileToHtmlLocally($path, $projectId);
+//                                  event(new ConversionCompleted($projectId, $source->id));
+//                                  } catch (Exception $e) {
+//                                     Log::info('Conversion failed, remove original file at '.$path);
+//                                      File::delete($path);
+//                                      Source::destroy($source->id);
+//                                      throw $e;
+//                                  }
+//                          }
 
         return response()->json([
             'newDocument' => [
@@ -253,21 +297,18 @@ class SourceController extends Controller
     }
 
     /**
-     * Converts a file to HTML
-     *
+     * Converts a file to HTML using a queued job, where an external service is called.
+     * @return JsonResponse
      * @throws Exception
      */
     private function convertFileToHtml($filePath, $projectId, $sourceId)
     {
-
         ConvertFileToHtmlJob::dispatch($filePath, $projectId, $sourceId)->onQueue('conversion');
-
         return response()->json(['message' => 'Conversion in progress']);
-
     }
 
     /**
-     * This uses a python script to convert a file from RTF to HTML
+     * This uses a python script to convert a file to HTML
      *
      * @return false|string
      *
@@ -291,22 +332,29 @@ class SourceController extends Controller
             throw new Exception('Python script not found at: '.$scriptPath);
         }
 
-        try {
             // Build the command to execute the Python script
-            $command = escapeshellcmd('python3 '.$scriptPath).' '.escapeshellarg($filePath).' '.escapeshellarg($outputDirectory);
+            $command = escapeshellcmd('/usr/bin/python3 '.$scriptPath).' '.escapeshellarg($filePath).' '.escapeshellarg($outputDirectory).' 2>&1';
+            Log::info('Python script command: '.$command);
 
             // Execute the command
-            $output = shell_exec($command);
+            $output=null;
+            $retval=null;
+            exec($command, $output, $retval);
+
+            $message = implode('\n', $output);
+            if ($retval !== 0) {
+                throw new Exception('Python script failed with return code '.$retval.'. Output: '.$message. ';');
+            }
+
+
 
             // Check if the output file was created
             if (file_exists($outputHtmlPath)) {
                 return file_get_contents($outputHtmlPath);
             } else {
-                throw new Exception('Conversion failed. Script output: '.$output);
+
+                throw new Exception('Conversion failed. Script output: '.implode('\n', $output));
             }
-        } catch (Exception $e) {
-            throw new Exception('Script execution failed: '.$e->getMessage());
-        }
     }
 
     /**
@@ -442,7 +490,8 @@ class SourceController extends Controller
 
         if ($fromAdminPanel) {
             // Logic to handle the call from the admin panel
-            $newPath = Str::replaceLast('.rtf', '.html', $source->upload_path);
+            $extension = pathinfo($source->upload_path, PATHINFO_EXTENSION);
+            $newPath = Str::replaceLast($extension, '.html', $source->upload_path);
             $source->converted->path = $newPath;
             $source->save();
         }

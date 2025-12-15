@@ -4,6 +4,7 @@ import { flashMessage } from '../notification/flashMessage.js';
 import { asyncTimeout } from '../../utils/asyncTimeout.js';
 import { usePage } from '@inertiajs/vue3';
 import { reactive } from 'vue';
+import { request } from '../../utils/http/BackendRequest.js'
 
 /**
  * Provides upload and download functionality for files (REFI:sources).
@@ -17,6 +18,13 @@ import { reactive } from 'vue';
 export const useFiles = () => {
   const { projectId, sources, auth } = usePage().props; // TODO (refactoring): decouple from props
   const profilePhotoUrl = auth.user.profile_photo_url;
+
+  const availableTypes = async () => {
+      return request({
+          type: 'get',
+          url: `/projects/${projectId}/formats`,
+      })
+  }
 
   /**
    * Adds given list of files to an upload queue that processes
@@ -54,6 +62,7 @@ export const useFiles = () => {
   return {
     downloadSource,
     queueFilesForUpload,
+    availableTypes
   };
 };
 
@@ -115,9 +124,7 @@ const runQueue = async ({ onError }) => {
  * @return {Promise<*>}
  */
 async function uploadFile({ file, source, projectId }) {
-  const isRtf =
-    file.type === 'text/rtf' || (file.name && file.name.endsWith('.rtf'));
-
+  const isTxt = (file.name && file.name.endsWith('.txt'));
   const formData = new FormData();
   formData.append('file', file);
   formData.append('projectId', projectId);
@@ -132,7 +139,7 @@ async function uploadFile({ file, source, projectId }) {
   });
 
   if (response.data.newDocument) {
-    if (isRtf) {
+    if (!isTxt) {
       response.data.newDocument.isConverting = true;
     } else {
       response.data.newDocument.converted = true;

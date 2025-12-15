@@ -1,11 +1,13 @@
-# RTF to HTML Converter Service
+# Documents HTML Converter Service
 
-This Flask application provides a service to convert RTF files to HTML.
-It's designed to receive RTF files via HTTP POST requests, convert them to HTML using the `unoconv` tool, and return the resulting HTML file.
+This Flask application provides a minimal service to convert RTF files to HTML. It's designed to receive various file
+formats via HTTP POST requests, convert them to HTML using the `pandoc` tool, and return the resulting HTML file.
+
+Please note: The mentioned RTF to HTML conversion is for legacy reasons and to keep compatibility with existing systems.
 
 ## Features
 
-- Converts RTF files to HTML.
+- Converts file formats files to HTML.
 - Accepts files via HTTP POST requests.
 - IP address filtering for security.
 - Secret password protection.
@@ -14,8 +16,7 @@ It's designed to receive RTF files via HTTP POST requests, convert them to HTML 
 
 - Python 3
 - Flask
-- unoconv
-- libreoffice
+- pandoc
 
 ## Local development
 
@@ -34,26 +35,18 @@ $scriptPath = base_path('../service-convert-rtf-to-html/convert_rtf_to_html_loca
    pip install Flask
    ```
 
-2. **Install unoconv**: `unoconv` is required for converting files. Install it on your system:
+2. **Install pandoc**: `pandoc` is required for converting files. Install it on your system:
 
    ```bash
-   sudo apt-get install unoconv
+   sudo apt-get install pandoc
    ```
 
    (The installation command might vary depending on your operating system.)
 
 
-3. **Install libreoffice**: `libreoffice` is required for converting files. Install it on your system:
+3. **Configuration**:
 
-   ```bash
-   sudo apt-get install libreoffice
-   ```
-
-   (The installation command might vary depending on your operating system.)
-
-4. **Configuration**:
-
-   - Set the `ALLOWED_IP` and `SECRET_PASSWORD` variables in `connect.py` to restrict access to the service.
+    - Set the `ALLOWED_IP` and `SECRET_PASSWORD` variables in `connect.py` to restrict access to the service.
 
 ## Running the Application
 
@@ -75,15 +68,17 @@ Send a POST request to `http://server_ip:8000/convertrtftohtml` with the followi
 Example using `curl`:
 
 ```bash
-curl -F "file=@/path/to/file.rtf" \
+curl -F "file=@/path/to/file.docx" \
      -F "password=your_secret_password" \
      http://server_ip:8000/convertrtftohtml
 ```
 
-Replace `/path/to/file.rtf` with the path to your RTF file and `your_secret_password` with the configured secret password.
+Replace `/path/to/file.docx` with the path to your RTF file and `your_secret_password` with the configured secret
+password.
 
 ## Security Note
 
-This application is intended for use in a controlled environment. Ensure proper security measures are in place, including firewall configurations and secure handling of the secret password.
+This application is intended for use in a controlled environment. Ensure proper security measures are in place,
+including firewall configurations and secure handling of the secret password.
 
 On production a firewall has been placed to accept connections only from one IP address.

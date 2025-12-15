@@ -35,8 +35,9 @@ class StoreSourceRequest extends FormRequest
      */
     public function rules()
     {
+        // get services
         return [
-            'file' => 'required|file|mimes:rtf,txt|max:10240', // File type and size restriction
+            'file' => 'required|file|mimes:txt,rtf|max:10240', // File type and size restriction
             'projectId' => 'required|exists:projects,id',
         ];
     }

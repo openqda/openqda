@@ -16,6 +16,7 @@ const props = defineProps({
   title: { type: String, required: false },
   filesSelected: Function,
   progress: Number,
+  accept: { type: String, default: '*/*' },
 });
 watch(
   () => props.schema,
@@ -62,6 +63,7 @@ const importAllFiles = async (files) => {
       <FilesImportWizard
         class="border-t border-foreground/10 pt-4"
         @files-selected="importAllFiles"
+        :accept="props.accept"
         :disabled="uploading"
       >
         <template #info>
