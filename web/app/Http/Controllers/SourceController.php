@@ -17,6 +17,7 @@ use App\Models\Project;
 use App\Models\Source;
 use App\Models\SourceStatus;
 use App\Models\Variable;
+use App\Traits\ValidatesStoragePath;
 use DB;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -36,6 +37,8 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
  */
 class SourceController extends Controller
 {
+    use ValidatesStoragePath;
+
     /**
      * View of the preparation page with the Sources (Documents)
      */
@@ -202,7 +205,17 @@ class SourceController extends Controller
     public function fetchDocument(FetchSourceRequest $request, $id)
     {
         $source = Source::with('variables')->findOrFail($id);
-        $content = file_get_contents($source->converted->path);
+
+        if (! $source->converted) {
+            return response()->json(['error' => 'Source file not found'], 404);
+        }
+
+        $validatedPath = $this->validateStoragePath($source->converted->path);
+        if ($validatedPath === null) {
+            return response()->json(['error' => 'Invalid file path'], 400);
+        }
+
+        $content = file_get_contents($validatedPath);
         $source->content = $content;
         $source->variables = $source->transformVariables();
 
@@ -228,12 +241,19 @@ class SourceController extends Controller
                 return response()->json(['success' => false, 'message' => 'Document not found']);
             }
 
-            $htmlOutputPath = $source->converted->path;
+            if (! $source->converted) {
+                return response()->json(['success' => false, 'message' => 'Source file not found']);
+            }
+
+            $validatedPath = $this->validateStoragePath($source->converted->path);
+            if ($validatedPath === null) {
+                return response()->json(['success' => false, 'message' => 'Invalid file path']);
+            }
 
             $source->modifying_user_id = auth()->id();
             $source->save();
 
-            file_put_contents($htmlOutputPath, $content);
+            file_put_contents($validatedPath, $content);
             $audit = new Audit([
                 'user_type' => 'App\Models\User',
                 'user_id' => auth()->id(),
