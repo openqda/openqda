@@ -21,20 +21,20 @@ class CodebookCodesControllerTest extends TestCase
     private function generateXml(array $structure): string
     {
         $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><CodeBook xmlns="urn:QDA-XML:codebook:1.0"/>');
-        
+
         if (isset($structure['origin'])) {
             $xml->addAttribute('origin', $structure['origin']);
         }
-        
+
         if (isset($structure['description'])) {
             $xml->addChild('Description', $structure['description']);
         }
-        
+
         if (isset($structure['codes'])) {
             $codesElement = $xml->addChild('Codes');
             $this->addCodesToXml($codesElement, $structure['codes']);
         }
-        
+
         return $xml->asXML();
     }
 
@@ -45,7 +45,7 @@ class CodebookCodesControllerTest extends TestCase
     {
         foreach ($codes as $codeData) {
             $code = $parent->addChild('Code');
-            
+
             if (isset($codeData['guid'])) {
                 $code->addAttribute('guid', $codeData['guid']);
             }
@@ -61,7 +61,7 @@ class CodebookCodesControllerTest extends TestCase
             if (isset($codeData['description'])) {
                 $code->addChild('Description', $codeData['description']);
             }
-            
+
             // Handle nested codes
             if (isset($codeData['children'])) {
                 $this->addCodesToXml($code, $codeData['children']);
@@ -75,11 +75,11 @@ class CodebookCodesControllerTest extends TestCase
     private function createXmlFileFromStructure(array $structure, string $filename = 'test.xml'): UploadedFile
     {
         $content = $this->generateXml($structure);
-        
+
         // Use sys_get_temp_dir() instead of tmpfile() to keep file persistent
         $tempPath = sys_get_temp_dir().'/'.uniqid('test_xml_', true).'.xml';
         file_put_contents($tempPath, $content);
-        
+
         return new UploadedFile($tempPath, $filename, 'text/xml', null, true);
     }
 
@@ -91,7 +91,7 @@ class CodebookCodesControllerTest extends TestCase
         // Use sys_get_temp_dir() instead of tmpfile() to keep file persistent
         $tempPath = sys_get_temp_dir().'/'.uniqid('test_xml_', true).'.xml';
         file_put_contents($tempPath, $content);
-        
+
         return new UploadedFile($tempPath, $filename, 'text/xml', null, true);
     }
 

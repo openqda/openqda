@@ -462,8 +462,7 @@ class CodebookControllerTest extends TestCase
         ]);
     }
 
-
-    //New test scenarios added
+    // New test scenarios added
     /**
      * Test updating codebook name and description.
      *
@@ -631,7 +630,7 @@ class CodebookControllerTest extends TestCase
             'per_page',
             'total',
         ]);
-        $this->assertEquals(10, count($response->json('data'))); 
+        $this->assertEquals(10, count($response->json('data')));
         $this->assertEquals(15, $response->json('total'));
     }
 
@@ -674,7 +673,7 @@ class CodebookControllerTest extends TestCase
             ->getJson(route('api.codebooks.public', ['per_page' => 100])); // Invalid value
 
         $response->assertStatus(200);
-        $this->assertEquals(10, count($response->json('data'))); 
+        $this->assertEquals(10, count($response->json('data')));
     }
 
     /**
@@ -1010,7 +1009,7 @@ class CodebookControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $project = Project::factory()->create(['creating_user_id' => $user->id]);
-        
+
         // Create codebook without code_order in properties
         $codebook = Codebook::factory()->create([
             'project_id' => $project->id,
@@ -1031,7 +1030,7 @@ class CodebookControllerTest extends TestCase
 
         $response->assertStatus(200);
         $codebook->refresh();
-        
+
         // Should initialize code_order to empty array
         $this->assertArrayHasKey('code_order', $codebook->properties);
         $this->assertEquals([], $codebook->properties['code_order']);

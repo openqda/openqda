@@ -41,6 +41,7 @@ class CodingControllerTest extends TestCase
         }
         parent::tearDown();
     }
+
     public function test_destroy_code_successfully()
     {
         // Create a user, project, source, and code

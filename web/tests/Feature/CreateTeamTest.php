@@ -29,9 +29,9 @@ class CreateTeamTest extends TestCase
         $this->actingAs($user = User::factory()->withPersonalTeam()->create());
 
         $this->post('/teams', [
-            'name'          => 'Second Team',
+            'name' => 'Second Team',
             'personal_team' => false,
-            'projectId'     => 1,
+            'projectId' => 1,
         ]);
 
         $user = $user->fresh();
@@ -39,18 +39,17 @@ class CreateTeamTest extends TestCase
 
         $this->assertTrue($user->isCurrentTeam($newTeam));
     }
+
     public function test_guest_cannot_create_team(): void
     {
         $response = $this->post('/teams', [
-            'name'          => 'Guest Team',
+            'name' => 'Guest Team',
             'personal_team' => false,
-            'projectId'     => 1,
+            'projectId' => 1,
         ]);
 
         $response->assertRedirect('/login');
 
         $this->assertDatabaseCount('teams', 0);
     }
-
-
 }
