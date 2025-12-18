@@ -27,7 +27,6 @@ jobs:
   # checked locally by developers.
   audit:
     name: Client audit
-    continue-on-error: true
     runs-on: ubuntu-latest
     steps:
       - name: checkout
