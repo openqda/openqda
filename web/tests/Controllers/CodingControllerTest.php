@@ -609,13 +609,13 @@ class CodingControllerTest extends TestCase
         );
     }
 
-    public function test_show_coding_page_redirects_when_no_locked_sources()
+    public function test_show_coding_page_with_no_locked_sources()
     {
         $user = User::factory()->create();
         $project = Project::factory()->create(['creating_user_id' => $user->id]);
         $source = Source::factory()->create(['project_id' => $project->id]);
 
-        // Don't lock the source - this should trigger the redirect
+        // Don't lock the source
         // Create converted file anyway
         $htmlPath = $this->testFilePath.'/test.html';
         file_put_contents($htmlPath, '<p>Test content</p>');
@@ -628,8 +628,12 @@ class CodingControllerTest extends TestCase
 
         $response = $this->actingAs($user)->get(route('coding.show', ['project' => $project->id]));
 
-        // Should redirect because there are no locked sources
-        $response->assertStatus(404);
+        // Should still render the page with null source when there are no locked sources
+        $response->assertStatus(200);
+        $response->assertInertia(fn ($page) => $page
+            ->component('CodingPage')
+            ->where('source', null)
+        );
     }
 
     public function test_destroy_code_with_children_throws_exception_in_recursive_call()
