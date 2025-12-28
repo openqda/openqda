@@ -50,7 +50,7 @@ jobs:
       - name: run audit
         run: |
           cd web
-          npm audit --omit=dev
+          npm audit --omit=dev --audit-level=high
   lint:
     name: Client Lint
     runs-on: ubuntu-latest
