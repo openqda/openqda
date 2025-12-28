@@ -2,10 +2,8 @@ name: "CodeQL config"
 
 # Paths to include in CodeQL analysis
 paths:
-  # JavaScript files
   - web/resources/js
   - web/plugins
-  # Python files
   - services
 
 # Paths to exclude from analysis (optional, can be added if needed)
