@@ -10,3 +10,7 @@ paths:
 paths-ignore:
   - web/storage/framework
   - web/storage/logs
+
+# Queries to run
+queries:
+  - uses: security-and-quality
