@@ -5,13 +5,8 @@ paths:
   # JavaScript files
   - web/resources/js
   - web/plugins
-  # PHP files
-  - web/app
-  - web/bootstrap
-  - web/config
-  - web/database
-  - web/storage
-  - web/tests
+  # Python files
+  - services
 
 # Paths to exclude from analysis (optional, can be added if needed)
 paths-ignore:
