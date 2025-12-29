@@ -72,7 +72,7 @@ Route::middleware([
 ])->group(function () {
 
     Route::post('/projects/{project}/sources/{source}/gethtmlcontent', [SourceController::class, 'retryConversion'])->name('source.convert');
-    Route::post('/projects/{project}/sources/{source}/retrytranscription', [SourceController::class, 'retryTranscription'])->name('source.convert');
+    Route::post('/projects/{project}/sources/{source}/retrytranscription', [SourceController::class, 'retryTranscription'])->name('source.transcript');
 
     /**
      * Projects
