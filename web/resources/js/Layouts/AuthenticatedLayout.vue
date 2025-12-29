@@ -4,6 +4,21 @@
     :menu="props.menu"
     :showFooter="props.showFooter"
   >
+    <div
+      v-if="notificationText && !hideNotification"
+      class="leading-6 tracking-wider bg-destructive text-primary-foreground text-sm text-center p-2"
+    >
+      <span class="mx-2">{{ notificationText }}</span>
+      <a href="/notification" class="underline">Read more</a>
+      <Button
+        variant="outline"
+        size="sm"
+        class="font-semibold float-end border-0"
+        @click="hideNotification = true"
+      >
+        <XMarkIcon class="h-4 w-4" />
+      </Button>
+    </div>
     <div class="h-full">
       <TransitionRoot as="template" :show="sidebarOpen">
         <Dialog class="relative z-50 lg:hidden" @close="sidebarOpen = false">
@@ -270,7 +285,11 @@ import { useHelpDialog } from '../dialogs/help/useHelpDialog.js';
 import HelpDialog from '../dialogs/help/HelpDialog.vue';
 import { useLegal } from '../domain/legal/useLegal.js';
 import ConsentDialog from '../domain/legal/ConsentDialog.vue';
+import { useGlobalNotification } from '../Components/layout/useGlobalNotification.js';
+import Button from '../Components/interactive/Button.vue';
 
+const { notificationText } = useGlobalNotification();
+const hideNotification = ref(false);
 const { consentRequired } = useLegal();
 const websocket = useWebSocketConnection();
 const navigation = ref([]);

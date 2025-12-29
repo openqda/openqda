@@ -63,6 +63,7 @@ $staticMarkdownRoute('/faq', 'faq.md', 'faq');
 $staticMarkdownRoute('/privacy', 'privacy.md', 'privacy');
 $staticMarkdownRoute('/terms', 'terms.md', 'terms');
 $staticMarkdownRoute('/license', 'license.md', 'license');
+$staticMarkdownRoute('/notification', 'notification.md', 'notification');
 
 Route::middleware([
     'auth:sanctum',
