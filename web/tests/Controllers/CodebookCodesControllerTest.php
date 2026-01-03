@@ -15,6 +15,19 @@ class CodebookCodesControllerTest extends TestCase
 {
     use RefreshDatabase;
 
+    private array $tempFiles = [];
+
+    protected function tearDown(): void
+    {
+        // Clean up temporary XML files
+        foreach ($this->tempFiles as $file) {
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
+        parent::tearDown();
+    }
+
     /**
      * Generate XML dynamically based on structure array.
      */
@@ -80,6 +93,9 @@ class CodebookCodesControllerTest extends TestCase
         $tempPath = sys_get_temp_dir().'/'.uniqid('test_xml_', true).'.xml';
         file_put_contents($tempPath, $content);
 
+        // Track file for cleanup
+        $this->tempFiles[] = $tempPath;
+
         return new UploadedFile($tempPath, $filename, 'text/xml', null, true);
     }
 
@@ -91,6 +107,9 @@ class CodebookCodesControllerTest extends TestCase
         // Use sys_get_temp_dir() instead of tmpfile() to keep file persistent
         $tempPath = sys_get_temp_dir().'/'.uniqid('test_xml_', true).'.xml';
         file_put_contents($tempPath, $content);
+
+        // Track file for cleanup
+        $this->tempFiles[] = $tempPath;
 
         return new UploadedFile($tempPath, $filename, 'text/xml', null, true);
     }

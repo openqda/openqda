@@ -55,8 +55,6 @@ class ProjectControllerTest extends TestCase
 
     public function test_store_fails_validation()
     {
-        $this->actingAs($this->user);
-
         $response = $this->post(route('project.store'), [], [
             'X-Requested-With' => 'XMLHttpRequest',  // AJAX request for JSON response
             'Accept' => 'application/json',           // Forces JSON response
