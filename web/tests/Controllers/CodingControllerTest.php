@@ -639,6 +639,7 @@ class CodingControllerTest extends TestCase
     public function test_destroy_code_with_children_throws_exception_in_recursive_call()
     {
         $originalDb = \DB::getFacadeRoot();
+
         try {
             $user = User::factory()->create();
             $project = Project::factory()->create(['creating_user_id' => $user->id]);
