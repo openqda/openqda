@@ -638,42 +638,49 @@ class CodingControllerTest extends TestCase
 
     public function test_destroy_code_with_children_throws_exception_in_recursive_call()
     {
-        $user = User::factory()->create();
-        $project = Project::factory()->create(['creating_user_id' => $user->id]);
-        $source = Source::factory()->create(['project_id' => $project->id]);
-        $codebook = Codebook::factory()->create(['project_id' => $project->id, 'creating_user_id' => $user->id]);
+        $originalDb = \DB::getFacadeRoot();
 
-        // Create parent and multiple child codes
-        $parentCode = Code::factory()->create(['codebook_id' => $codebook->id]);
-        $childCode1 = Code::factory()->create([
-            'codebook_id' => $codebook->id,
-            'parent_id' => $parentCode->id,
-        ]);
-        $childCode2 = Code::factory()->create([
-            'codebook_id' => $codebook->id,
-            'parent_id' => $parentCode->id,
-        ]);
+        try {
+            $user = User::factory()->create();
+            $project = Project::factory()->create(['creating_user_id' => $user->id]);
+            $source = Source::factory()->create(['project_id' => $project->id]);
+            $codebook = Codebook::factory()->create(['project_id' => $project->id, 'creating_user_id' => $user->id]);
 
-        // Mock DB::transaction to allow the first call but throw on recursive calls
-        $callCount = 0;
-        \DB::shouldReceive('transaction')
-            ->andReturnUsing(function ($callback) use (&$callCount) {
-                $callCount++;
-                if ($callCount > 1) {
-                    throw new \Exception('Recursive error');
-                }
+            // Create parent and multiple child codes
+            $parentCode = Code::factory()->create(['codebook_id' => $codebook->id]);
+            $childCode1 = Code::factory()->create([
+                'codebook_id' => $codebook->id,
+                'parent_id' => $parentCode->id,
+            ]);
+            $childCode2 = Code::factory()->create([
+                'codebook_id' => $codebook->id,
+                'parent_id' => $parentCode->id,
+            ]);
 
-                return $callback();
-            });
+            // Mock DB::transaction to allow the first call but throw on recursive calls
+            $callCount = 0;
+            \DB::shouldReceive('transaction')
+                ->andReturnUsing(function ($callback) use (&$callCount) {
+                    $callCount++;
+                    if ($callCount > 1) {
+                        throw new \Exception('Recursive error');
+                    }
 
-        $response = $this->actingAs($user)->delete(
-            route('coding.destroy', [$project->id, $source->id, $parentCode->id]),
-            [],
-            ['Accept' => 'application/json']
-        );
+                    return $callback();
+                });
 
-        $response->assertStatus(500);
-        $response->assertJson(['error' => 'Failed to delete code: Recursive error']);
+            $response = $this->actingAs($user)->delete(
+                route('coding.destroy', [$project->id, $source->id, $parentCode->id]),
+                [],
+                ['Accept' => 'application/json']
+            );
+
+            $response->assertStatus(500);
+            $response->assertJson(['error' => 'Failed to delete code: Recursive error']);
+        } finally {
+            \Mockery::close();
+            \DB::swap($originalDb);
+        }
     }
 
     public function test_destroy_code_with_parent_sets_parent_to_null()
