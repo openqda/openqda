@@ -707,18 +707,4 @@ class CodingControllerTest extends TestCase
         $response->assertStatus(200);
         $this->assertDatabaseMissing('codes', ['id' => $childCode->id]);
     }
-
-    // Add this helper method at the bottom of the class
-    protected function createTestStructure()
-    {
-        $user = User::factory()->create();
-        $project = Project::factory()->create(['creating_user_id' => $user->id]);
-        $codebook = Codebook::factory()->create(['project_id' => $project->id, 'creating_user_id' => $user->id]);
-
-        return [
-            'user' => $user,
-            'project' => $project,
-            'codebook' => $codebook,
-        ];
-    }
 }
