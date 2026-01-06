@@ -300,7 +300,7 @@ class SourceControllerTest extends TestCase
             ->post(route('sources.download', ['sourceId' => $source->id]));
 
         $response->assertStatus(200);
-        $response->assertHeader('Content-Type', 'text/plain; charset=UTF-8');
+        $this->assertEqualsIgnoringCase('text/plain; charset=UTF-8', $response->headers->get('content-type'));
     }
 
     public function test_unauthorized_user_cannot_access_source()
