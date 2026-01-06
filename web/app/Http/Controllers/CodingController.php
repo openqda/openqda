@@ -10,13 +10,14 @@ use App\Models\Codebook;
 use App\Models\Project;
 use App\Models\Source;
 use App\Traits\BuildsNestedCode;
+use App\Traits\ValidatesStoragePath;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class CodingController extends Controller
 {
-    use BuildsNestedCode;
+    use BuildsNestedCode, ValidatesStoragePath;
 
     /**
      * Store a newly created code.
@@ -70,7 +71,7 @@ class CodingController extends Controller
 
         // Get source (either from request or latest locked one)
         $source = $request->has('source') && $request->source
-            ? Source::findOrFail($request->source)
+            ? Source::where('project_id', $project->id)->where('id', $request->source)->firstOrFail()
             : Source::where('project_id', $project->id)
                 ->whereHas('variables', function ($query) {
                     $query->where('name', 'isLocked')
@@ -83,9 +84,12 @@ class CodingController extends Controller
         $allCodes = $rootCodes->map(fn ($code) => $this->buildNestedCode($code, $source ? $source->id : null));
 
         // Get content if source exists, otherwise return minimal data for the view
-        if ($source) {
-            $content = file_get_contents($source->converted->path);
-            $source->content = $content;
+        if ($source && $source->converted) {
+            $validatedPath = $this->validateStoragePath($source->converted->path);
+            if ($validatedPath !== null) {
+                $content = file_get_contents($validatedPath);
+                $source->content = $content;
+            }
             $source->variables = $source->transformVariables();
         }
 

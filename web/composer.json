@@ -20,6 +20,7 @@
         "laravel/reverb": "^1.4.6",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.8",
+        "openspout/openspout": "~4.28.0",
         "owen-it/laravel-auditing": "^13.5",
         "phpoffice/phpword": "^1.1",
         "predis/predis": "^2.2",

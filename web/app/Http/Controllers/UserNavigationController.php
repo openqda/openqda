@@ -7,7 +7,6 @@ use App\Http\Requests\SendFeedbackRequest;
 use App\Mail\UserFeedback;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -42,7 +41,6 @@ class UserNavigationController extends Controller
     {
         $data = $request->feedbackData();
         $userId = $data['userId'];
-        Log::info('Feedback received from user '.$userId, $data);
 
         // In order to avoid spam and mail flooding
         // we rate-limit message sending
