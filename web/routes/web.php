@@ -84,6 +84,7 @@ Route::middleware([
     Route::get('/projects/{project}/team', [ProjectController::class, 'getTeamData'])->name('project.team-data');
     Route::post('/projects/update/{project}', [ProjectController::class, 'updateProjectAttributes'])->name('project.update');
     Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('project.destroy');
+    Route::post('/projects/{project}/export', [ProjectController::class, 'export'])->name('projects.export');
 
     // For homepage/user audits
     Route::get('/audits', [AuditsController::class, 'index']);

@@ -23,6 +23,7 @@
           :project-id="projectId"
           context="projectPage"
         />
+        <ProjectExport v-if="currentSubView === 'export'" :project="project" />
       </BaseContainer>
     </template>
   </AuthenticatedLayout>
@@ -45,6 +46,7 @@ import ProjectSummary from './Projects/ProjectSummary.vue';
 import ProjectCodebooks from './Projects/codebooks/ProjectCodebooks.vue';
 import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
+import ProjectExport from './Projects/ProjectExport.vue';
 import Footer from '../Layouts/Footer.vue';
 
 const props = defineProps([
@@ -86,6 +88,11 @@ const tabs = ref([
     value: 'history',
     label: 'History',
     href: '#history',
+  },
+  {
+    value: 'export',
+    label: 'Export',
+    href: '#export',
   },
 ]);
 const currentSubView = ref('');
