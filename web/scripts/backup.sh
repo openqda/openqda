@@ -117,10 +117,10 @@ mkdir -p "$BACKUP_PATH" || error_exit "Failed to create temporary backup directo
 # 1. Backup Database
 log_message "Backing up database: $DB_NAME"
 if [ -n "$DB_PASSWORD" ]; then
-    mysqldump --host="$DB_HOST" \
+    # Use MYSQL_PWD environment variable to avoid password exposure in process list
+    MYSQL_PWD="$DB_PASSWORD" mysqldump --host="$DB_HOST" \
               --port="$DB_PORT" \
               --user="$DB_USER" \
-              --password="$DB_PASSWORD" \
               --single-transaction \
               --quick \
               --lock-tables=false \
@@ -199,8 +199,8 @@ log_message "Backup completed successfully: $BACKUP_NAME.tar.gz ($BACKUP_SIZE)"
 if [ "$BACKUP_RETENTION_DAYS" -gt 0 ]; then
     log_message "Cleaning up backups older than $BACKUP_RETENTION_DAYS days"
     find "$BACKUP_DIR" -name "openqda_backup_*.tar.gz" -type f -mtime +$BACKUP_RETENTION_DAYS -delete 2>> "$LOG_FILE"
-    OLD_LOGS=$(find "$BACKUP_DIR" -name "openqda_backup_*" -type d -mtime +$BACKUP_RETENTION_DAYS 2>/dev/null | wc -l)
-    if [ "$OLD_LOGS" -gt 0 ]; then
+    # Clean up old temporary backup directories if any exist
+    if find "$BACKUP_DIR" -name "openqda_backup_*" -type d -mtime +$BACKUP_RETENTION_DAYS 2>/dev/null | grep -q .; then
         find "$BACKUP_DIR" -name "openqda_backup_*" -type d -mtime +$BACKUP_RETENTION_DAYS -exec rm -rf {} + 2>> "$LOG_FILE"
         log_message "Cleaned up old backup directories"
     fi
