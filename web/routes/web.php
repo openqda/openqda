@@ -63,6 +63,7 @@ $staticMarkdownRoute('/faq', 'faq.md', 'faq');
 $staticMarkdownRoute('/privacy', 'privacy.md', 'privacy');
 $staticMarkdownRoute('/terms', 'terms.md', 'terms');
 $staticMarkdownRoute('/license', 'license.md', 'license');
+$staticMarkdownRoute('/notification', 'notification.md', 'notification');
 
 Route::middleware([
     'auth:sanctum',
@@ -71,7 +72,7 @@ Route::middleware([
 ])->group(function () {
 
     Route::post('/projects/{project}/sources/{source}/gethtmlcontent', [SourceController::class, 'retryConversion'])->name('source.convert');
-    Route::post('/projects/{project}/sources/{source}/retrytranscription', [SourceController::class, 'retryTranscription'])->name('source.convert');
+    Route::post('/projects/{project}/sources/{source}/retrytranscription', [SourceController::class, 'retryTranscription'])->name('source.transcript');
 
     /**
      * Projects

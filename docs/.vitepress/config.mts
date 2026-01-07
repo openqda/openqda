@@ -71,6 +71,13 @@ export default defineConfig({
         ]
       },
       {
+        text: 'Troubleshooting',
+        items: [
+          {text: 'SSL Certs', link: '/troubleshooting/ssl-certificates'},
+          {text: 'Unfinished migrations', link: '/troubleshooting/migrations'},
+        ]
+      },
+      {
         text: 'Legal',
         items: [
           { text: 'Imprint', link: '/imprint' },

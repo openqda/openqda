@@ -58,7 +58,6 @@ const handleTogglingCodebook = async (codebook) => {
     <span class="flex justify-between items-center gap-2">
       <span class="text-foreground/50 text-xs mx-2">
         <span>{{ codesCount ?? 0 }} codes</span>
-        <span v-if="sorting === codebook.id">, sorting mode</span>
       </span>
       <button
         :class="

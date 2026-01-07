@@ -172,10 +172,14 @@ class SourceControllerTest extends TestCase
             'creating_user_id' => $this->user->id,
         ]);
 
+        // Create the file on disk so path validation passes
+        $htmlPath = $this->testFilePath.'/test.html';
+        file_put_contents($htmlPath, '<p>Initial content</p>');
+
         $sourceStatus = SourceStatus::create([
             'source_id' => $source->id,
             'status' => 'converted:html',
-            'path' => $this->testFilePath.'/test.html',
+            'path' => $htmlPath,
         ]);
 
         $content = ['editorContent' => '<p>Updated content</p>'];
@@ -296,7 +300,7 @@ class SourceControllerTest extends TestCase
             ->post(route('sources.download', ['sourceId' => $source->id]));
 
         $response->assertStatus(200);
-        $response->assertHeader('Content-Type', 'text/plain; charset=UTF-8');
+        $this->assertEqualsIgnoringCase('text/plain; charset=UTF-8', $response->headers->get('content-type'));
     }
 
     public function test_unauthorized_user_cannot_access_source()

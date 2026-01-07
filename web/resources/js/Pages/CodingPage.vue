@@ -7,9 +7,12 @@
         </ActivityIndicator>
         <div v-else class="inline md:flex items-center justify-between mb-4">
           <CreateDialog
+            ref="createDialogRef"
             :schema="createNewCodeSchema"
             :title="`Create a new ${codesView === 'codes' ? 'Code' : 'Codebook'}`"
             :submit="createCodeHandler"
+            @cancelled="unsetInvivoText"
+            @created="unsetInvivoText"
           >
             <template #trigger="createCodeTriggerProps">
               <Button
@@ -38,6 +41,7 @@
             :challenge="deleteChallenge"
             :message="deleteMessage"
             :submit="deleteCode"
+            @close="closeDeleteDialog"
           />
           <ResponsiveTabList
             :tabs="codesTabs"
@@ -107,7 +111,7 @@
 
 <script setup>
 import { PlusIcon } from '@heroicons/vue/24/solid';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, useTemplateRef, watch } from 'vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import CodeTree from './coding/tree/CodeTree.vue';
 import CodingEditor from './coding/CodingEditor.vue';
@@ -133,6 +137,7 @@ import Footer from '../Layouts/Footer.vue';
 import Link from '../Components/Link.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
+import { useInvivoText } from './coding/useInvivoText.js';
 
 const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
 //------------------------------------------------------------------------
@@ -168,6 +173,7 @@ const {
   target: deleteTarget,
   challenge: deleteChallenge,
   message: deleteMessage,
+  close: closeDeleteDialog,
 } = useDeleteDialog();
 
 //------------------------------------------------------------------------
@@ -188,14 +194,24 @@ const {
   deleteCode,
   initCoding,
 } = useCodes();
+const { invivoText, unset: unsetInvivoText } = useInvivoText();
 const codingInitialized = ref(false);
 const codesTabs = [
   { value: 'codes', label: 'Codes' },
   { value: 'sources', label: 'Sources' },
   { value: 'cleanup', label: 'Cleanup' },
 ];
-
 const codesView = ref(codesTabs[0].value);
+
+// IN-VIVO CODE CREATION
+const createDialogRef = useTemplateRef('createDialogRef');
+watch(invivoText, (nexText) => {
+  if (nexText) {
+    createDialogRef.value.start(openCreateCodeDialog);
+  }
+});
+
+// NEW CODE CREATION
 const createNewCodeSchema = ref();
 const openCreateCodeDialog = () => {
   createNewCodeSchema.value = createCodeSchema({
@@ -203,6 +219,7 @@ const openCreateCodeDialog = () => {
     codebooks: codebooks.value,
   });
 };
+
 const createCodeHandler = async (formData) => {
   const code = await createCode(formData);
   const txt = createNewCodeSchema.value.title.defaultValue;
