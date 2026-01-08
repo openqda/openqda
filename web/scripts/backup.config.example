@@ -26,3 +26,17 @@ BACKUP_RETENTION_DAYS=30
 
 # Log file location
 LOG_FILE="/var/backups/openqda/backup.log"
+
+# Remote backup configuration (optional)
+# Enable remote backup via SCP
+REMOTE_BACKUP_ENABLED=false
+
+# Remote server configuration
+REMOTE_BACKUP_HOST=""
+REMOTE_BACKUP_USER=""
+REMOTE_BACKUP_PATH=""
+REMOTE_BACKUP_PORT="22"
+
+# Optional: SSH key path (if not using default)
+# REMOTE_BACKUP_KEY="/path/to/ssh/key"
+

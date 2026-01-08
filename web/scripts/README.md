@@ -1,15 +1,31 @@
-# OpenQDA Backup Script
+# OpenQDA Backup and Restore Scripts
 
-This directory contains scripts for backing up OpenQDA application data.
+This directory contains scripts for backing up and restoring OpenQDA application data.
 
 ## Overview
 
-The `backup.sh` script creates a complete backup of your OpenQDA installation, including:
+The backup solution includes two main scripts:
+
+- **`backup.sh`**: Creates complete backups with optional remote transfer via SCP
+- **`restore.sh`**: Restores backups with flexible options for selective restoration
+
+### Backup Script
+
+Creates a complete backup of your OpenQDA installation, including:
 
 - **Database dump**: Complete MySQL database export (compressed with gzip)
 - **Storage folder**: All application files in the `storage` directory (compressed tar archive)
 - **.env file**: Environment configuration file
 - **Backup metadata**: Information about the backup for easy restoration
+- **Remote transfer**: Optional automatic transfer to remote backup server via SCP
+
+### Restore Script
+
+Restores data from backups with the following features:
+
+- **Selective restoration**: Choose to restore database only, storage only, or both
+- **Non-overwrite storage**: Existing files in storage are preserved during restoration
+- **Safe .env handling**: Existing .env files are backed up before restoration
 
 ## Installation
 
@@ -23,9 +39,9 @@ The `backup.sh` script creates a complete backup of your OpenQDA installation, i
    nano backup.config
    ```
 
-3. Ensure the script is executable:
+3. Ensure the scripts are executable:
    ```bash
-   chmod +x backup.sh
+   chmod +x backup.sh restore.sh
    ```
 
 ## Usage
@@ -66,6 +82,8 @@ Configuration can be provided in three ways (in order of precedence):
 
 ### Configuration Options
 
+#### Backup Configuration
+
 | Option | Environment Variable | Default | Description |
 |--------|---------------------|---------|-------------|
 | Backup Directory | `BACKUP_DIR` | `/var/backups/openqda` | Directory where backups are stored |
@@ -78,6 +96,46 @@ Configuration can be provided in three ways (in order of precedence):
 | Environment File | `ENV_FILE` | `../.env` | Path to the .env file |
 | Retention Days | `BACKUP_RETENTION_DAYS` | `30` | Days to keep old backups (0 = keep all) |
 | Log File | `LOG_FILE` | `$BACKUP_DIR/backup.log` | Path to the log file |
+
+#### Remote Backup Configuration (Optional)
+
+| Option | Environment Variable | Default | Description |
+|--------|---------------------|---------|-------------|
+| Remote Backup Enabled | `REMOTE_BACKUP_ENABLED` | `false` | Enable/disable remote backup via SCP |
+| Remote Host | `REMOTE_BACKUP_HOST` | (empty) | Remote server hostname or IP |
+| Remote User | `REMOTE_BACKUP_USER` | (empty) | SSH username for remote server |
+| Remote Path | `REMOTE_BACKUP_PATH` | (empty) | Destination path on remote server |
+| Remote Port | `REMOTE_BACKUP_PORT` | `22` | SSH port for remote server |
+| SSH Key | `REMOTE_BACKUP_KEY` | (empty) | Path to SSH private key (optional) |
+
+### Setting Up Remote Backups
+
+To enable automatic remote backup transfer via SCP:
+
+1. **Set up SSH key authentication** (recommended):
+   ```bash
+   ssh-keygen -t rsa -b 4096
+   ssh-copy-id user@remote-server
+   ```
+
+2. **Configure in backup.config**:
+   ```bash
+   REMOTE_BACKUP_ENABLED=true
+   REMOTE_BACKUP_HOST="backup.example.com"
+   REMOTE_BACKUP_USER="backup-user"
+   REMOTE_BACKUP_PATH="/backups/openqda"
+   REMOTE_BACKUP_PORT="22"
+   # Optional: REMOTE_BACKUP_KEY="/home/user/.ssh/id_rsa"
+   ```
+
+3. **Test the connection**:
+   ```bash
+   ssh -p 22 backup-user@backup.example.com "ls -la /backups/openqda"
+   ```
+
+4. **Run backup** - The backup will be transferred automatically after local backup completes
+
+**Note**: Remote backup failure does not affect local backup. The local backup will remain available even if remote transfer fails.
 
 ## Setting Up Automated Backups with Cron
 
@@ -147,6 +205,68 @@ openqda_backup_YYYYMMDD_HHMMSS/
 ```
 
 ## Restoring from Backup
+
+### Using the Restore Script
+
+The `restore.sh` script provides flexible restoration options:
+
+#### Basic Restore (Database and Storage)
+
+```bash
+./restore.sh openqda_backup_20260108_000000.tar.gz
+```
+
+#### Restore Database Only
+
+```bash
+./restore.sh --db-only --db-password=secret openqda_backup_20260108_000000.tar.gz
+```
+
+#### Restore Storage Only
+
+```bash
+./restore.sh --storage-only openqda_backup_20260108_000000.tar.gz
+```
+
+#### Skip Database or Storage
+
+```bash
+# Skip database restoration
+./restore.sh --skip-db openqda_backup_20260108_000000.tar.gz
+
+# Skip storage restoration
+./restore.sh --skip-storage openqda_backup_20260108_000000.tar.gz
+```
+
+#### Custom Paths and Settings
+
+```bash
+./restore.sh \
+  --db-host db.example.com \
+  --db-name production_db \
+  --db-user admin \
+  --db-password secret \
+  --storage-path /var/www/openqda/storage \
+  --env-path /var/www/openqda/.env \
+  backup.tar.gz
+```
+
+#### Force .env Overwrite
+
+```bash
+./restore.sh --force-env openqda_backup_20260108_000000.tar.gz
+```
+
+### Restore Script Features
+
+- **Selective restoration**: Choose what to restore (database, storage, or both)
+- **Non-overwrite storage**: Existing files in storage are preserved automatically
+- **Safe .env handling**: Existing .env files are backed up with timestamp before restoration
+- **Post-restore checklist**: Displays important steps after restoration completes
+
+### Manual Restore (Alternative)
+
+If you prefer manual restoration:
 
 1. **Extract the backup archive:**
    ```bash

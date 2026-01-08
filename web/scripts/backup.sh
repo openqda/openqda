@@ -40,6 +40,14 @@ ENV_FILE="${ENV_FILE:-$WEB_DIR/.env}"
 BACKUP_RETENTION_DAYS="${BACKUP_RETENTION_DAYS:-30}"
 LOG_FILE="${LOG_FILE:-$BACKUP_DIR/backup.log}"
 
+# Remote backup configuration
+REMOTE_BACKUP_ENABLED="${REMOTE_BACKUP_ENABLED:-false}"
+REMOTE_BACKUP_HOST="${REMOTE_BACKUP_HOST:-}"
+REMOTE_BACKUP_USER="${REMOTE_BACKUP_USER:-}"
+REMOTE_BACKUP_PATH="${REMOTE_BACKUP_PATH:-}"
+REMOTE_BACKUP_PORT="${REMOTE_BACKUP_PORT:-22}"
+REMOTE_BACKUP_KEY="${REMOTE_BACKUP_KEY:-}"
+
 # Parse command-line arguments
 CONFIG_FILE=""
 while [[ $# -gt 0 ]]; do
@@ -195,7 +203,41 @@ rm -rf "$BACKUP_PATH" || log_message "WARNING: Failed to remove temporary backup
 BACKUP_SIZE=$(du -h "$BACKUP_NAME.tar.gz" | cut -f1)
 log_message "Backup completed successfully: $BACKUP_NAME.tar.gz ($BACKUP_SIZE)"
 
-# 6. Cleanup old backups
+# 6. Remote backup via SCP (if configured)
+if [ "$REMOTE_BACKUP_ENABLED" = "true" ]; then
+    log_message "Starting remote backup transfer..."
+    
+    # Validate remote backup configuration
+    if [ -z "$REMOTE_BACKUP_HOST" ] || [ -z "$REMOTE_BACKUP_USER" ] || [ -z "$REMOTE_BACKUP_PATH" ]; then
+        log_message "WARNING: Remote backup enabled but configuration incomplete (host, user, or path missing)"
+        log_message "Skipping remote backup"
+    else
+        # Build SCP command
+        SCP_CMD="scp -P $REMOTE_BACKUP_PORT"
+        
+        # Add SSH key if specified
+        if [ -n "$REMOTE_BACKUP_KEY" ]; then
+            SCP_CMD="$SCP_CMD -i $REMOTE_BACKUP_KEY"
+        fi
+        
+        # Add compression and other options
+        SCP_CMD="$SCP_CMD -C"
+        
+        log_message "Transferring backup to $REMOTE_BACKUP_USER@$REMOTE_BACKUP_HOST:$REMOTE_BACKUP_PATH"
+        
+        # Execute SCP
+        if $SCP_CMD "$BACKUP_NAME.tar.gz" "$REMOTE_BACKUP_USER@$REMOTE_BACKUP_HOST:$REMOTE_BACKUP_PATH/" 2>> "$LOG_FILE"; then
+            log_message "Remote backup completed successfully"
+        else
+            log_message "WARNING: Remote backup failed (check log for details)"
+            log_message "Local backup is still available at: $BACKUP_DIR/$BACKUP_NAME.tar.gz"
+        fi
+    fi
+else
+    log_message "Remote backup disabled"
+fi
+
+# 7. Cleanup old backups
 if [ "$BACKUP_RETENTION_DAYS" -gt 0 ]; then
     log_message "Cleaning up backups older than $BACKUP_RETENTION_DAYS days"
     find "$BACKUP_DIR" -name "openqda_backup_*.tar.gz" -type f -mtime +$BACKUP_RETENTION_DAYS -delete 2>> "$LOG_FILE"
