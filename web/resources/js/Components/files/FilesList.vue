@@ -102,7 +102,7 @@
             :class="
               cn(
                 'py-3 tracking-wide',
-                document.converted && !document.failed
+                document.converted && document.exists
                   ? ''
                   : 'cursor-not-allowed pointer-events-none',
                 !document.selected && 'cursor-pointer'
@@ -145,7 +145,7 @@
             <CloudArrowUpIcon class="w-5 h-5 text-secondary" />
           </div>
           <div
-            v-else-if="!document.converted && !document.failed"
+            v-else-if="!document.converted"
             class="inline-flex justify-center w-full p-1"
             :title="`Converting file in the background${conversionState(document)}. You may safely leave the page and come back later.`"
           >
@@ -154,12 +154,22 @@
             </div>
             Converting
           </div>
+
           <div
             v-else-if="document.failed"
             title="There was an error during upload or conversion. Please retry or delete this file."
             class="inline-flex justify-center w-full p-1 clickable"
           >
             <ExclamationTriangleIcon
+              class="w-5 h-5 text-destructive! rounded-md font-semibold"
+            />
+          </div>
+            <div
+            v-else-if="(!document.exists && document.converted)"
+            title="The document is missing from the server. Please contact support."
+            class="inline-flex justify-center w-full p-1 clickable"
+          >
+            <QuestionMarkCircleIcon
               class="w-5 h-5 text-destructive! rounded-md font-semibold"
             />
           </div>
@@ -272,6 +282,7 @@ import {
   ClockIcon,
   DocumentTextIcon,
   ExclamationTriangleIcon,
+  QuestionMarkCircleIcon,
   SpeakerWaveIcon,
 } from '@heroicons/vue/24/outline/index.js';
 import { computed, ref } from 'vue';

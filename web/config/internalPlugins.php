@@ -4,6 +4,7 @@ return [
     'rtf' => [
         'endpoint' => env('RTFENDPOINT', null),
         'pwd' => env('RTFPASSWORD', null),
+        'formats' => env('RTFFORMATS', null),
     ],
     'aTrainUpload' => env('SERVICE_TRANSFORM_ATRAIN_UPLOAD', null),
     'aTrainProcess' => env('SERVICE_TRANSFORM_ATRAIN_PROCESS', null),

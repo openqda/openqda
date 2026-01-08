@@ -5,6 +5,7 @@ import { asyncTimeout } from '../../utils/asyncTimeout.js';
 import { usePage } from '@inertiajs/vue3';
 import { reactive } from 'vue';
 import { request } from '../../utils/http/BackendRequest.js'
+import { randomUUID } from '../../utils/random/randomUUID.js'
 
 /**
  * Provides upload and download functionality for files (REFI:sources).
@@ -35,7 +36,10 @@ export const useFiles = () => {
    */
   const queueFilesForUpload = ({ files, onError }) => {
     for (const file of files) {
+      const uploadId = randomUUID();
+      file.tempId = uploadId;
       const source = reactive({
+        uploadId,
         name: file.name,
         type: file.type,
         size: file.size,
@@ -52,7 +56,7 @@ export const useFiles = () => {
     }
     setTimeout(() => {
       if (queueIsRunning) return;
-      runQueue({ onError })
+      runQueue({ sources, onError })
         .catch(onError)
         .finally(() => {
           queueIsRunning = false;
@@ -77,7 +81,7 @@ let queueIsRunning = false;
  * @param onError {function}
  * @return {Promise<void>}
  */
-const runQueue = async ({ onError }) => {
+const runQueue = async ({ onError, sources }) => {
   queueIsRunning = true;
   queue.sort((a, b) => {
     const aIsText = a.file.type === 'text/plain' ? 1 : 0;
@@ -101,7 +105,11 @@ const runQueue = async ({ onError }) => {
       source.userPicture = profilePhotoUrl;
     } catch (e) {
       source.failed = true;
-      onError(e);
+      const index = sources.indexOf(source);
+      if (index !== -1) {
+          sources.splice(index, 1);
+      }
+      onError(e, file, source);
     } finally {
       source.isUploading = false;
     }

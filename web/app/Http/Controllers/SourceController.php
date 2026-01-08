@@ -58,6 +58,8 @@ class SourceController extends Controller
      */
     public function availableFormats (Project $project)
     {
+        $baseFormats=config('internalPlugins.rtf.formats');
+        // TODO for plugin system
         // 1. get user
         // 2. check if user has access to project
         // 3. get transform services for project
@@ -67,6 +69,13 @@ class SourceController extends Controller
             '.txt' => 'Plain Text (.txt)',
             'audio/*' => 'Audio Files (.mp3, .wav, .m4a, etc.)',
         ];
+
+        if ($baseFormats) {
+            $formatList = explode(',', $baseFormats);
+            foreach ($formatList as $format) {
+                $formats['.'.$format] = strtoupper($format).' (.' . $format . ')';
+            }
+        }
 
         return response()->json($formats);
     }
@@ -123,32 +132,34 @@ class SourceController extends Controller
             ]
         );
 
-        $sourceStatus = SourceStatus::updateOrCreate(
-            ['source_id' => $source->id],
-            ['path' => $htmlOutputPath, 'status' => 'converted:html']
-        );
-
         Log::info('Conversion for '.$filename.'.'.$extension);
 
         $isEmpty = trim($fileContent) === $keyword;
         $isPlain = $extension === 'txt';
-
+        $status = 'converting';
 
         if ($isEmpty) {
             Log::info('Keyword detected in file. Creating empty HTML document.');
             file_put_contents($htmlOutputPath, config('app.layoutBaseHtml'));
             $htmlContent = config('app.layoutBaseHtml');
+            $status = 'converted:html';
         }
 
         if (!$isEmpty && $isPlain) {
             Log::info('Converting TXT file to HTML locally.');
             $htmlContent = $this->convertTxtToHtml($path, $projectId);
+            $status = 'converted:html';
         }
 
         if (! $isEmpty && ! $isPlain) {
             Log::info('Converting file to HTML using job dispatch.');
-            $this->convertFileToHtml($path, $projectId, $source->id);
+            $htmlContent = $this->convertFileToHtml($path, $projectId, $source->id);
         }
+
+        $sourceStatus = SourceStatus::updateOrCreate(
+            ['source_id' => $source->id],
+            ['path' => $htmlOutputPath, 'status' => $status]
+        );
 
 //
 //          if (App::environment(['production', 'staging'])) {
@@ -173,7 +184,9 @@ class SourceController extends Controller
                 'type' => 'text',
                 'user' => auth()->user()->name,
                 'content' => $htmlContent ?? '',
-                'converted' => File::exists($htmlOutputPath),
+                'converted' => $htmlContent ? true : false,
+                'converting' => $status === 'converting',
+                'exists' => File::exists($htmlOutputPath)
             ],
         ]);
     }
@@ -184,8 +197,10 @@ class SourceController extends Controller
     private function fetchAndTransformSources($projectId)
     {
         $sources = Source::where('project_id', $projectId)->with('variables')->get();
-
         return $sources->map(function ($source) {
+            $converted = $source->converted;
+            $exists = $converted ? File::exists($converted->path) : false;
+
             return [
                 'id' => $source->id,
                 'name' => $source->name,
@@ -194,7 +209,8 @@ class SourceController extends Controller
                 'userPicture' => $source->creatingUser->profile_photo_url,
                 'date' => $source->created_at->toDateString(),
                 'variables' => $source->transformVariables(),
-                'converted' => $source->converted ? File::exists($source->converted->path) : false,
+                'converted' => !!$converted,
+                'exists' => $exists,
             ];
         });
     }

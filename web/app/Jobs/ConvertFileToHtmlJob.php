@@ -36,11 +36,12 @@ class ConvertFileToHtmlJob implements ShouldQueue
 
     public function handle(): void
     {
+        Log::info('[ConvertFileToHtmlJob]: Starting conversion for file: '.$this->projectId.'|'.$this->sourceId.'|'.$this->filePath);
         $flaskServerUrl = config('internalPlugins.rtf.endpoint');
         $secretPassword = config('internalPlugins.rtf.pwd');
 
         if (! $flaskServerUrl || ! $secretPassword) {
-            Log::error('Conversion failed: Missing configuration.');
+            Log::error('[ConvertFileToHtmlJob]: Conversion failed: Missing configuration.');
             $this->fail();
 
             return;
@@ -66,9 +67,11 @@ class ConvertFileToHtmlJob implements ShouldQueue
         }
 
         try {
+            Log::info('[ConvertFileToHtmlJob]: send file for conversion to: '.$flaskServerUrl);
             $response = $this->sendFileForConversion($outputHtmlPath);
 
             if (! $response->successful()) {
+                Log::error('[ConvertFileToHtmlJob]: fail response from remove with status: '.$response->status());
                 $this->fail($response->status());
             } else {
                 $htmlContent = $response->body();
@@ -79,13 +82,12 @@ class ConvertFileToHtmlJob implements ShouldQueue
 
                 file_put_contents($outputHtmlPath, $htmlContent);
                 event(new ConversionCompleted($this->projectId, $this->sourceId));
-
             }
 
         } catch (\Exception $e) {
+            Log::error('Conversion or file operation failed: '.$e->getMessage());
             File::delete($outputHtmlPath); // Cleanup
             $this->fail($e);
-            Log::error('Conversion or file operation failed: '.$e->getMessage());
         }
     }
 
