@@ -21,3 +21,6 @@ yarn-error.log
 coverage
 
 *storybook.log
+
+# Backup script configuration (may contain credentials)
+scripts/backup.config
