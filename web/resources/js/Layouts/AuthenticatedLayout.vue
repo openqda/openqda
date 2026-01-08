@@ -340,16 +340,25 @@ const setupTeam = () => {
     clearInterval(pingIntervalId);
   }
   dispatchPresence().catch(console.error);
-  pingIntervalId = setInterval(async () => {
-    // Dispatch an event to the server to indicate that the user is still on the page
-    // This could be done via an Axios call to a specific endpoint that handles this logic
-    const { response, error } = await dispatchPresence();
-    if (error || response.status >= 400) {
-      console.error(error ?? response);
-      fails++;
-    }
-    if (fails >= 2) return clearInterval(pingIntervalId);
-  }, 5000); // Every 5 seconds
+
+  websocket.onConnected(() => {
+    console.error('connection to websocket server');
+    pingIntervalId = setInterval(async () => {
+      // Dispatch an event to the server to indicate that the user is still on the page
+      // This could be done via an Axios call to a specific endpoint that handles this logic
+      const { response, error } = await dispatchPresence();
+      if (error || response.status >= 400) {
+        console.error(error ?? response);
+        fails++;
+      }
+      if (fails >= 2) return clearInterval(pingIntervalId);
+    }, 5000); // Every 5 seconds
+  });
+  websocket.onConnectionFailed(() => {
+    console.error('connection failed, stopping presence pings');
+    clearInterval(pingIntervalId);
+  });
+
   document.addEventListener('beforeunload', cleanup);
 };
 onMounted(() => {

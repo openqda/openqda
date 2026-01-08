@@ -1,4 +1,4 @@
-import { reactive, toRefs } from 'vue';
+import { reactive, toRaw, toRefs } from 'vue';
 import { useEcho } from './useEcho.js';
 import { safeStringify } from '../utils/safeStringify.js';
 
@@ -28,6 +28,42 @@ window.debugSocket = () => {
 export const useWebSocketConnection = () => {
   const { connected, connecting, unavailable, failed, status, initialized } =
     toRefs(state);
+
+  const onConnected = (fn) => {
+    let interval = setInterval(() => {
+      if (connected.value) {
+        fn(
+          toRaw({
+            connected,
+            connecting,
+            unavailable,
+            failed,
+            status,
+            initialized,
+          })
+        );
+        clearInterval(interval);
+      }
+    }, 1000);
+  };
+
+  const onConnectionFailed = (fn) => {
+    let interval = setInterval(() => {
+      if (failed.value) {
+        fn(
+          toRaw({
+            connected,
+            connecting,
+            unavailable,
+            failed,
+            status,
+            initialized,
+          })
+        );
+        clearInterval(interval);
+      }
+    }, 1000);
+  };
 
   const initWebSocket = () => {
     debug('initWebSocket');
@@ -120,7 +156,9 @@ export const useWebSocketConnection = () => {
     unavailable,
     failed,
     status,
-    initWebSocket,
     initialized,
+    initWebSocket,
+    onConnected,
+    onConnectionFailed,
   };
 };
