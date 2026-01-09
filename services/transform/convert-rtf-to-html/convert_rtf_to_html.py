@@ -26,8 +26,7 @@ app = Flask(__name__)
 ALLOWED_IP = ''
 SECRET_PASSWORD = ''
 
-@app.route('/convertrtftohtml', methods=['POST'])
-@app.route("/convertrtftohtml", methods=["POST"])
+@app.route("/convert", methods=["POST"])
 def convert_rtf_to_html():
 
     try:
@@ -73,7 +72,8 @@ def convert_rtf_to_html():
                 )
 
                 # Run the script to convert the file
-                subprocess.run(["unoconv", "-f", "html", "-o", output_html, file_path])
+                # subprocess.run(["unoconv", "-f", "html", "-o", output_html, file_path])
+                subprocess.run(['pandoc', '-s', '-o', output_html, file_path])
 
                 # Check if the conversion was successful and return the result
                 if os.path.exists(output_html):
