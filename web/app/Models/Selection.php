@@ -2,14 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use OwenIt\Auditing\Contracts\Auditable;
 
 class Selection extends Model implements Auditable
 {
     use \OwenIt\Auditing\Auditable;
-    use HasUuids;
 
     protected $primaryKey = 'id';
 

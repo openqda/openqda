@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('selections', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->uuid('id')->default(DB::raw('(UUID())'));
+            $table->primary('id');
             $table->text('text');
             $table->text('description')->nullable();
             $table->string('start_position')->nullable();

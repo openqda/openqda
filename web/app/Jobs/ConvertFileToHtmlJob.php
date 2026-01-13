@@ -142,7 +142,6 @@ class ConvertFileToHtmlJob implements ShouldQueue
             ['status' => 'failed']
         );
         // broadcast failure event
-        $message = $exception ? $exception->getMessage() : 'Conversion failed';
-        event(new ConversionFailed($this->projectId, $this->sourceId, $this->filename, $message));
+        event(new ConversionFailed($this->projectId, $this->sourceId, $this->filename));
     }
 }

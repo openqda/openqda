@@ -21,5 +21,3 @@ yarn-error.log
 coverage
 
 *storybook.log
-# Test build artifacts
-public/build/
