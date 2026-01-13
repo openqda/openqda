@@ -540,7 +540,8 @@ class SourceController extends Controller
 
         // Existing conversion logic
         if (App::environment(['production', 'staging'])) {
-            $this->convertFileToHtml($path, $projectId, $source->id);
+            $filename = basename($path);
+            $this->convertFileToHtml($path, $projectId, $source->id, $filename);
         } else {
             $htmlContent = $this->convertFileToHtmlLocally($path, $projectId);
             event(new ConversionCompleted($projectId, $source->id));

@@ -37,6 +37,8 @@ class StoreSourceRequest extends FormRequest
     {
         // get services
         $formats = config('internalPlugins.rtf.formats', '');
+        // Remove leading periods from formats as Laravel's mimes rule expects extensions without periods
+        $formats = str_replace('.', '', $formats);
         $fileType = 'required|file|mimes:txt,'.$formats.'|max:10240'; // 10 MB size limit
 
         return [
