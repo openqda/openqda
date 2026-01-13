@@ -15,7 +15,6 @@
 [program:reverb]
 command=/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan reverb:start --debug --host=0.0.0.0 --port=8080 --hostname=%(ENV_REVERB_HOSTNAME)s
 user=www-data
-environment=LARAVEL_SAIL="1"
 stdout_logfile=/var/log/supervisor/reverb.log
 stdout_logfile_maxbytes=10MB
 stderr_logfile=/var/log/supervisor/reverb_err.log
