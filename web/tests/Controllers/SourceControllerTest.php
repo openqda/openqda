@@ -145,7 +145,8 @@ class SourceControllerTest extends TestCase
 
     public function test_store_validates_file_type()
     {
-        $file = UploadedFile::fake()->create(Str::random(6).'.docx', 100);
+        // Use a file type that is not supported (e.g., .exe, .zip)
+        $file = UploadedFile::fake()->create(Str::random(6).'.exe', 100);
 
         $response = $this->actingAs($this->user)
             ->postJson(route('source.store'), [  // Use postJson to automatically set headers for JSON response
