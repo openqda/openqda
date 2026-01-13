@@ -9,7 +9,9 @@
 #
 # Configuration:
 #   - Replace /var/www/html with your actual Laravel application path
-#   - Set REVERB_HOSTNAME to your domain or hostname
+#   - Set REVERB_HOSTNAME environment variable before starting supervisor:
+#     Example: export REVERB_HOSTNAME="your-domain.com"
+#     Or set in /etc/default/supervisor or /etc/supervisor/supervisord.conf
 #   - Adjust user to match your web server user (www-data, nginx, etc.)
 
 [program:reverb]
