@@ -52,7 +52,7 @@ async def convert(
     expected_password = config['SECRET_PASSWORD'] if 'SECRET_PASSWORD' in config else None
     if (password != expected_password) and expected_password is not None:
         logger.info(
-            f"Invalid password attempt from IP {request.client.host}: {password}"
+            f"Invalid password attempt from IP {request.client.host}"
         )
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
