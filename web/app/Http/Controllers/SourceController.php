@@ -131,6 +131,20 @@ class SourceController extends Controller
         // Use the same filename pattern for HTML output
         $htmlOutputPath = storage_path('app/'.$relativePath.'/'.pathinfo($uniqueFilename, PATHINFO_FILENAME).'.html');
 
+        // Determine source type based on file extension/mime type
+        $mimeType = $file->getMimeType();
+        $sourceType = 'text'; // default
+
+        if (str_starts_with($mimeType, 'audio/')) {
+            $sourceType = 'audio';
+        } elseif (str_starts_with($mimeType, 'video/')) {
+            $sourceType = 'video';
+        } elseif (str_starts_with($mimeType, 'image/')) {
+            $sourceType = 'picture';
+        } elseif ($mimeType === 'application/pdf' || $extension === 'pdf') {
+            $sourceType = 'pdf';
+        }
+
         $source = Source::updateOrCreate(
             ['id' => $sourceId],
             [
@@ -138,6 +152,7 @@ class SourceController extends Controller
                 'upload_path' => $path,
                 'project_id' => $projectId,
                 'creating_user_id' => Auth::id(),
+                'type' => $sourceType,
             ]
         );
 
