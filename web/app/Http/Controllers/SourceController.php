@@ -98,10 +98,12 @@ class SourceController extends Controller
         $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $extension = $file->extension();
         $isText = $extension === 'txt';
+        $isMarkdown = false;
 
         // markdown support
         if ($isText && ($file->getMimeType() === 'text/markdown' || stripos($file->getClientOriginalName(), '.md') !== false)) {
             $extension = 'md';
+            $isMarkdown = true;
         }
 
         $relativePath = 'projects/'.$projectId.'/sources';
