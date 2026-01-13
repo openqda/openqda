@@ -130,8 +130,17 @@
                   />
                 </div>
                 -->
+            <div
+                v-if="document.failed"
+                title="There was an error during upload or conversion. Please retry or delete this file."
+                class="inline-flex justify-center w-full p-1 clickable"
+            >
+                <ExclamationTriangleIcon
+                    class="w-5 h-5 text-destructive! rounded-md font-semibold"
+                />
+            </div>
           <div
-            v-if="document.isQueued"
+            v-else-if="document.isQueued"
             title="Queued for uploading"
             class="inline-flex justify-center w-full p-1"
           >
@@ -153,16 +162,6 @@
               <ArrowPathIcon class="w-5 h-5 text-secondary"></ArrowPathIcon>
             </div>
             Converting
-          </div>
-
-          <div
-            v-else-if="document.failed"
-            title="There was an error during upload or conversion. Please retry or delete this file."
-            class="inline-flex justify-center w-full p-1 clickable"
-          >
-            <ExclamationTriangleIcon
-              class="w-5 h-5 text-destructive! rounded-md font-semibold"
-            />
           </div>
             <div
             v-else-if="(!document.exists && document.converted)"

@@ -94,20 +94,28 @@ class SourceController extends Controller
 
         // Generate filename without timestamp
         $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $filename = str_replace(' ', '_', $filename);
         $extension = $file->extension();
+        $isText = $extension === 'txt';
 
-        // Check if file exists and generate sequential number in case the file name is already taken
-        $baseFilename = $filename;
-        $counter = 1;
-        $uniqueFilename = $filename.'.'.$extension;
+        // markdown support
+        if ($isText && ($file->getMimeType() === 'text/markdown' || stripos($file->getClientOriginalName(), '.md') !== false)) {
+            $extension = 'md';
+        }
+
+
+
         $relativePath = 'projects/'.$projectId.'/sources';
 
         // iterate files with the same name to find a unique one
-        while (Storage::exists($relativePath.'/'.$uniqueFilename)) {
-            $uniqueFilename = $baseFilename.'_'.$counter.'.'.$extension;
-            $counter++;
-        }
+        // while (Storage::exists($relativePath.'/'.$uniqueFilename)) {
+        //     $uniqueFilename = $baseFilename.'_'.$counter.'.'.$extension;
+        //     $counter++;
+        // }
+
+        // we use the unique source id to store files ascii safe and collision free
+        // old: $request->input('sourceId', Str::uuid()->toString())
+        $sourceId = Str::uuid()->toString();
+        $uniqueFilename = $sourceId.'.'.$extension;
 
         // move the original file to storage
         $relativeFilePath = $file->storeAs($relativePath, $uniqueFilename);
@@ -123,9 +131,9 @@ class SourceController extends Controller
 
 
         $source = Source::updateOrCreate(
-            ['id' => $request->input('sourceId', Str::uuid()->toString())],
+            ['id' => $sourceId],
             [
-                'name' => $uniqueFilename,
+                'name' => $filename.'.'.$extension,
                 'upload_path' => $path,
                 'project_id' => $projectId,
                 'creating_user_id' => Auth::id(),
@@ -135,9 +143,10 @@ class SourceController extends Controller
         Log::info('Conversion for '.$filename.'.'.$extension);
 
         $isEmpty = trim($fileContent) === $keyword;
-        $isPlain = $extension === 'txt';
+        $isPlain = $extension === 'txt' && !$isMarkdown;
         $status = 'converting';
 
+        // A - creating a new empty text file
         if ($isEmpty) {
             Log::info('Keyword detected in file. Creating empty HTML document.');
             file_put_contents($htmlOutputPath, config('app.layoutBaseHtml'));
@@ -145,17 +154,23 @@ class SourceController extends Controller
             $status = 'converted:html';
         }
 
+        // B - converting a plain text file as is
         if (!$isEmpty && $isPlain) {
             Log::info('Converting TXT file to HTML locally.');
             $htmlContent = $this->convertTxtToHtml($path, $projectId);
             $status = 'converted:html';
         }
 
+        // C - converting any other supported text-based formats using transform plugin
         if (! $isEmpty && ! $isPlain) {
             Log::info('Converting file to HTML using job dispatch.');
-            $htmlContent = $this->convertFileToHtml($path, $projectId, $source->id);
+            $htmlContent = $this->convertFileToHtml($path, $projectId, $source->id, $filename);
         }
 
+        // D - File is HTML already, then clean and store it directly
+        // TODO: implemented
+
+        // create initial source status
         $sourceStatus = SourceStatus::updateOrCreate(
             ['source_id' => $source->id],
             ['path' => $htmlOutputPath, 'status' => $status]
@@ -186,7 +201,8 @@ class SourceController extends Controller
                 'content' => $htmlContent ?? '',
                 'converted' => $htmlContent ? true : false,
                 'converting' => $status === 'converting',
-                'exists' => File::exists($htmlOutputPath)
+                'exists' => File::exists($htmlOutputPath),
+                'failed' => false,
             ],
         ]);
     }
@@ -200,7 +216,7 @@ class SourceController extends Controller
         return $sources->map(function ($source) {
             $converted = $source->converted;
             $exists = $converted ? File::exists($converted->path) : false;
-
+            $status = $source->sourceStatuses()->latest()->first();
             return [
                 'id' => $source->id,
                 'name' => $source->name,
@@ -211,6 +227,8 @@ class SourceController extends Controller
                 'variables' => $source->transformVariables(),
                 'converted' => !!$converted,
                 'exists' => $exists,
+                'status' => $status && $status->status ? $status->status : 'unknown',
+                'failed' => $status && $status->status === 'failed',
             ];
         });
     }
@@ -337,9 +355,9 @@ class SourceController extends Controller
      * @return JsonResponse
      * @throws Exception
      */
-    private function convertFileToHtml($filePath, $projectId, $sourceId)
+    private function convertFileToHtml($filePath, $projectId, $sourceId, $filename)
     {
-        ConvertFileToHtmlJob::dispatch($filePath, $projectId, $sourceId)->onQueue('conversion');
+        ConvertFileToHtmlJob::dispatch($filePath, $projectId, $sourceId, $filename)->onQueue('conversion');
         return response()->json(['message' => 'Conversion in progress']);
     }
 
