@@ -60,6 +60,15 @@ const importAllFiles = async (files) => {
   <DialogBase :show="open">
     <template #title>Import file(s)</template>
     <template #body>
+        <div class="text-sm my-5">
+            When uploading files, please make sure
+            <ul class="list-disc ml-5 mt-2">
+                <li>they are not violating other's privacy or copyright</li>
+                <li>they are not violating our <a class="hover:underline text-primary" href="/terms" target="_blank">terms</a></li>
+                <li>they do not exceed the maximum allowed size of 10MB</li>
+                <li>text-based files are encoded in <a class="hover:underline text-primary" href="/faq#utf8" target="_blank">utf-8</a> format for maximum compatibility</li>
+            </ul>
+        </div>
       <FilesImportWizard
         class="border-t border-foreground/10 pt-4"
         @files-selected="importAllFiles"
