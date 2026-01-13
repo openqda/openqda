@@ -1,0 +1,94 @@
+2026-01-13 08:16:23,974 - openqda:transform:convert-to-html - INFO - Access denied - IP not allowed: 172.18.0.1
+2026-01-13 08:17:11,960 - openqda:transform:convert-to-html - INFO - Access denied - IP not allowed: 172.18.0.1
+2026-01-13 08:17:22,491 - openqda:transform:convert-to-html - INFO - Access denied - IP not allowed: 172.18.0.1
+2026-01-13 08:18:27,207 - openqda:transform:convert-to-html - INFO - Access denied - IP not allowed: 172.18.0.1
+2026-01-13 08:19:08,074 - openqda:transform:convert-to-html - INFO - Access denied - IP not allowed: 172.18.0.1, allowed are ['']
+2026-01-13 08:20:33,232 - openqda:transform:convert-to-html - INFO - Access denied - IP not allowed: 172.18.0.1, allowed are ['']
+2026-01-13 08:20:55,460 - openqda:transform:convert-to-html - INFO - Access denied - IP not allowed: 172.18.0.1, allowed are ['127.0.0.1', 'localhost', 'laravel.test']
+2026-01-13 08:21:26,554 - openqda:transform:convert-to-html - INFO - convert file: a day in the life of qdi.odt from IP: 172.18.0.1
+2026-01-13 08:21:26,555 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmp1rv9yq4l/input.odt
+2026-01-13 08:21:26,555 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmp1rv9yq4l/output.html
+2026-01-13 08:27:12,406 - openqda:transform:convert-to-html - INFO - convert file: a day in the life of qdi.odt from IP: 172.18.0.1
+2026-01-13 08:27:12,406 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmp_7niion_/input.odt
+2026-01-13 08:27:12,406 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmp_7niion_/output.html
+2026-01-13 08:27:53,922 - openqda:transform:convert-to-html - INFO - convert file: a_day_in_the_life_of_qdi.odt from IP: 172.18.0.3
+2026-01-13 08:27:53,923 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmpuv0tzexc/input.odt
+2026-01-13 08:27:53,923 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmpuv0tzexc/output.html
+2026-01-13 08:38:23,613 - openqda:transform:convert-to-html - INFO - convert file: a_day_in_the_life_of_qdi_1.odt from IP: 172.18.0.3
+2026-01-13 08:38:23,614 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmp29brc62a/input.odt
+2026-01-13 08:38:23,614 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmp29brc62a/output.html
+2026-01-13 08:39:50,751 - openqda:transform:convert-to-html - INFO - convert file: a_day_in_the_life_of_qdi.rtf from IP: 172.18.0.3
+2026-01-13 08:39:50,752 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmpdvkj0fye/input.rtf
+2026-01-13 08:39:50,752 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmpdvkj0fye/output.html
+2026-01-13 08:40:33,523 - openqda:transform:convert-to-html - INFO - convert file: a day in the life of qdi.rtf from IP: 172.18.0.1
+2026-01-13 08:40:33,523 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmpif1xxob1/input.rtf
+2026-01-13 08:40:33,523 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmpif1xxob1/output.html
+2026-01-13 08:55:18,400 - openqda:transform:convert-to-html - INFO - convert file: 9ed6eaf6-ad2d-4d3f-8ba8-8728a09e3426.odt from IP: 172.18.0.3
+2026-01-13 08:55:18,400 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmpp_38f64g/input.odt
+2026-01-13 08:55:18,400 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmpp_38f64g/output.html
+2026-01-13 08:57:36,579 - openqda:transform:convert-to-html - INFO - convert file: ba21ba51-b7a7-4638-ace2-094173c5145a.odt from IP: 172.18.0.3
+2026-01-13 08:57:36,579 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmpt5x6ckwj/input.odt
+2026-01-13 08:57:36,579 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmpt5x6ckwj/output.html
+2026-01-13 09:34:21,090 - openqda:transform:convert-to-html - INFO - convert file: a day in the life of qdi.odt from IP: 172.18.0.1
+2026-01-13 09:34:21,091 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmpkuxrnbsa/input.odt
+2026-01-13 09:34:21,091 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmpkuxrnbsa/output.html
+2026-01-13 09:34:55,407 - openqda:transform:convert-to-html - INFO - convert file: f58bf790-8104-47ff-97b5-bcf079b00fef.odt from IP: 172.18.0.3
+2026-01-13 09:34:55,408 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmp483r1kf8/input.odt
+2026-01-13 09:34:55,408 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmp483r1kf8/output.html
+2026-01-13 09:39:10,814 - openqda:transform:convert-to-html - INFO - convert file: a day in the life of qdi.odt from IP: 172.18.0.1
+2026-01-13 09:39:10,815 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmpvs7y_adj/input.odt
+2026-01-13 09:39:10,815 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmpvs7y_adj/output.html
+2026-01-13 09:40:34,419 - openqda:transform:convert-to-html - INFO - convert file: a day in the life of qdi.odt from IP: 172.18.0.1
+2026-01-13 09:40:34,419 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmp1onu0h6v/input.odt
+2026-01-13 09:40:34,419 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmp1onu0h6v/output.html
+2026-01-13 09:53:41,667 - openqda:transform:convert-to-html - INFO - convert file: c2edb7db-adc4-4579-bb8e-b2bf98a9a871.odt from IP: 172.18.0.3
+2026-01-13 09:53:41,668 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmp08_h_pzq/input.odt
+2026-01-13 09:53:41,668 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmp08_h_pzq/output.html
+2026-01-13 09:54:05,151 - openqda:transform:convert-to-html - INFO - convert file: edc.odt from IP: 172.18.0.1
+2026-01-13 09:54:05,152 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmpgaf6ikm8/input.odt
+2026-01-13 09:54:05,152 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmpgaf6ikm8/output.html
+2026-01-13 10:01:09,024 - openqda:transform:convert-to-html - INFO - convert file: a7117e68-33d0-4274-9fac-28287f97d47d.txt from IP: 172.18.0.3
+2026-01-13 10:01:09,025 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmpr4kgv9r0/input.txt
+2026-01-13 10:01:09,025 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmpr4kgv9r0/output.html
+2026-01-13 10:03:40,841 - openqda:transform:convert-to-html - INFO - convert file: 43229869-6067-43ec-8f3a-2047e824d75f.md from IP: 172.18.0.3
+2026-01-13 10:03:40,842 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmp8zelmzkn/input.md
+2026-01-13 10:03:40,842 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmp8zelmzkn/output.html
+2026-01-13 10:04:52,563 - openqda:transform:convert-to-html - INFO - convert file: Expose.md from IP: 172.18.0.1
+2026-01-13 10:04:52,564 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmpz51nuz0t/input.md
+2026-01-13 10:04:52,564 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmpz51nuz0t/output.html
+2026-01-13 10:07:29,804 - openqda:transform:convert-to-html - INFO - convert file: 1c708024-25eb-44fc-b1fe-02323576922c.md from IP: 172.18.0.3
+2026-01-13 10:07:29,804 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmp4pb381h3/input.md
+2026-01-13 10:07:29,804 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmp4pb381h3/output.html
+2026-01-13 10:11:21,034 - openqda:transform:convert-to-html - INFO - convert file: cac0ce50-a76c-421c-b31e-f9388df21735.md from IP: 172.18.0.3
+2026-01-13 10:11:21,034 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmpxisu0938/input.md
+2026-01-13 10:11:21,034 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmpxisu0938/output.html
+2026-01-13 10:17:09,329 - openqda:transform:convert-to-html - INFO - convert file: 53ee6251-b521-412f-b997-9b2ed2bdf84a.md from IP: 172.18.0.3
+2026-01-13 10:17:09,329 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmphd3junoo/input.md
+2026-01-13 10:17:09,329 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmphd3junoo/output.html
+2026-01-13 10:17:35,238 - openqda:transform:convert-to-html - INFO - convert file: 31885517-a96b-471a-a590-87543bc7b4f3.md from IP: 172.18.0.3
+2026-01-13 10:17:35,238 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmpidasx68u/input.md
+2026-01-13 10:17:35,238 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmpidasx68u/output.html
+2026-01-13 10:18:02,341 - openqda:transform:convert-to-html - INFO - convert file: 22a18715-4ac0-42a2-b675-b9587142b834.md from IP: 172.18.0.3
+2026-01-13 10:18:02,342 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmp5xdpdai3/input.md
+2026-01-13 10:18:02,342 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmp5xdpdai3/output.html
+2026-01-13 10:24:02,638 - openqda:transform:convert-to-html - INFO - convert file: de52295d-3081-4a51-b49a-31b9a26de8ad.md from IP: 172.18.0.3
+2026-01-13 10:24:02,639 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmp18ineq0f/input.md
+2026-01-13 10:24:02,639 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmp18ineq0f/output.html
+2026-01-13 10:24:56,764 - openqda:transform:convert-to-html - INFO - convert file: 6e406358-461b-4792-9e5d-736e6dde4a18.rtf from IP: 172.18.0.3
+2026-01-13 10:24:56,765 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmpctqzdwz9/input.rtf
+2026-01-13 10:24:56,765 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmpctqzdwz9/output.html
+2026-01-13 10:32:26,934 - openqda:transform:convert-to-html - INFO - convert file: 1c476060-e27f-4575-8e57-61874c18bceb.md from IP: 172.18.0.3
+2026-01-13 10:32:26,934 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmpo3gvwn83/input.md
+2026-01-13 10:32:26,934 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmpo3gvwn83/output.html
+2026-01-13 10:36:18,170 - openqda:transform:convert-to-html - INFO - convert file: 14a570bd-d112-431a-b414-e20177534c3c.odt from IP: 172.18.0.3
+2026-01-13 10:36:18,170 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmpuoc2ciz6/input.odt
+2026-01-13 10:36:18,170 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmpuoc2ciz6/output.html
+2026-01-13 10:36:24,267 - openqda:transform:convert-to-html - INFO - convert file: f4ee568a-e156-4836-8c7a-b9cbb66e87e5.rtf from IP: 172.18.0.3
+2026-01-13 10:36:24,267 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmpjgobxdxf/input.rtf
+2026-01-13 10:36:24,267 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmpjgobxdxf/output.html
+2026-01-13 10:36:27,348 - openqda:transform:convert-to-html - INFO - convert file: 37f1fa78-2983-481d-8f06-b5ca8ad71773.odt from IP: 172.18.0.3
+2026-01-13 10:36:27,349 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmp5_vhqg2s/input.odt
+2026-01-13 10:36:27,349 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmp5_vhqg2s/output.html
+2026-01-13 10:44:11,673 - openqda:transform:convert-to-html - INFO - convert file: ef3a9f98-c567-4986-bec4-5b57d496c4f8.odt from IP: 172.18.0.3
+2026-01-13 10:44:11,673 - openqda:transform:convert-to-html - INFO - Store input file at path: /tmp/tmpuxb50oxj/input.odt
+2026-01-13 10:44:11,673 - openqda:transform:convert-to-html - INFO - Store outpt file at path: /tmp/tmpuxb50oxj/output.html
