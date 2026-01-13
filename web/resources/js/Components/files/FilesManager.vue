@@ -25,9 +25,9 @@ import { ensureFileExtension } from '../../utils/files/ensureFileExtension.js';
 import { createBlob } from '../../utils/files/createBlob.js';
 import { request } from '../../utils/http/BackendRequest.js';
 import { useFiles } from './useFiles.js';
-import { PencilSquareIcon, XCircleIcon } from '@heroicons/vue/24/outline';
 import { useConversion } from '../../live/useConversion.js';
-import { attemptAsync } from '../notification/attemptAsync.js'
+import { attemptAsync } from '../notification/attemptAsync.js';
+import { useDebug } from '../../utils/useDebug.js';
 
 /*---------------------------------------------------------------------------*/
 // DATA / PROPS
@@ -44,7 +44,9 @@ const { projectId } = props;
 const allSources = inject('sources');
 const documents = reactive(allSources);
 const accept = ref();
-const { downloadSource, queueFilesForUpload, availableTypes } = useFiles({ projectId });
+const { downloadSource, queueFilesForUpload, availableTypes } = useFiles({
+  projectId,
+});
 async function retryTranscription(document) {
   const url = `/projects/${projectId}/sources/${document.id}/retrytranscription`;
   try {
@@ -189,24 +191,25 @@ const onDeleted = ({ id, name }) => {
 /*---------------------------------------------------------------------------*/
 const { onConversionFailed, leaveConversionChannel, onConversionComplete } =
   useConversion({ projectId });
+const debug = useDebug({ scope: 'conversion' });
 
 onMounted(async () => {
-    const { response, error } = await attemptAsync(() => availableTypes())
-    if (error || response.data.status >= 400) {
-      accept.value = '*/*';
-      flashMessage(
-        error?.message ||
-          response.data.message ||
-          'Could not fetch accepted file types. Accepting all types.',
-        { type: 'error' }
-      );
-    } else {
-      const types = response.data;
-      accept.value = Object.keys(types).join(',');
-    }
-
+  const { response, error } = await attemptAsync(() => availableTypes());
+  if (error || response.data.status >= 400) {
+    accept.value = '*/*';
+    flashMessage(
+      error?.message ||
+        response.data.message ||
+        'Could not fetch accepted file types. Accepting all types.',
+      { type: 'error' }
+    );
+  } else {
+    const types = response.data;
+    accept.value = Object.keys(types).join(',');
+  }
 
   onConversionComplete((e) => {
+    debug('conversion complete', e);
     let documentIndex = -1;
     documents.forEach((doc, index) => {
       if (doc.id === e.sourceId) {
@@ -216,10 +219,18 @@ onMounted(async () => {
 
     if (documentIndex !== -1) {
       documents[documentIndex].converted = true;
+      documents[documentIndex].converting = false;
       documents[documentIndex].failed = false;
+      documents[documentIndex].exists = true;
+      flashMessage(`"${e.name}" successfully converted.`, { type: 'success' });
     }
   });
   onConversionFailed((e) => {
+    debug('conversion failed', e);
+    flashMessage(
+      `Could not convert file "${e.name}". ${e.message || 'Please try again later.'}`,
+      { type: 'error' }
+    );
     let documentIndex = -1;
     documents.forEach((doc, index) => {
       if (doc.id === e.sourceId) {
@@ -229,6 +240,8 @@ onMounted(async () => {
 
     if (documentIndex !== -1) {
       documents[documentIndex].converted = false;
+      documents[documentIndex].converting = false;
+      documents[documentIndex].exists = true;
       documents[documentIndex].failed = true;
     }
   });

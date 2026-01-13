@@ -277,7 +277,6 @@ onMounted(() => {
   const fileId = new URLSearchParams(window.location.search).get('file');
   const file = fileId && props.sources.find((f) => f.id === fileId);
   initialFile.value = file?.id ?? null;
-  console.debug({ sources: props.sources })
 });
 
 provide('sources', props.sources ?? []);

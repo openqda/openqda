@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Events\ConversionCompleted;
+use App\Events\ConversionFailed;
 use App\Models\SourceStatus;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -18,9 +19,13 @@ class ConvertFileToHtmlJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $filePath;
+
     protected $projectId;
+
     protected $sourceId;
+
     protected $filename;
+
     protected $loginfo;
 
     public $tries = 3; // Number of times the job may be attempted
@@ -38,7 +43,7 @@ class ConvertFileToHtmlJob implements ShouldQueue
 
     public function handle(): void
     {
-        Log::info($this->loginfo.'Starting conversion on '.$this->filePath );
+        Log::info($this->loginfo.'Starting conversion on '.$this->filePath);
         $flaskServerUrl = config('internalPlugins.rtf.endpoint');
         $secretPassword = config('internalPlugins.rtf.pwd');
 
@@ -46,6 +51,7 @@ class ConvertFileToHtmlJob implements ShouldQueue
             $message = $this->loginfo.'conversion failed: missing configuration';
             Log::info($message);
             $this->fail($message);
+
             return;
         }
 
@@ -76,6 +82,7 @@ class ConvertFileToHtmlJob implements ShouldQueue
             if (! $response->successful()) {
                 Log::error($this->loginfo.'fail response from remove with status: '.$response->status());
                 $this->fail($response->status());
+
                 return;
             }
             $htmlContent = $response->body();
@@ -96,7 +103,7 @@ class ConvertFileToHtmlJob implements ShouldQueue
                 ['status' => 'converted:html']
             );
 
-            event(new ConversionCompleted($this->projectId, $this->sourceId, 'converted:html'));
+            event(new ConversionCompleted($this->projectId, $this->sourceId, $this->filename));
         } catch (\Exception $e) {
             Log::error('Conversion or file operation failed: '.$e->getMessage());
             File::delete($outputHtmlPath); // Cleanup
@@ -135,6 +142,6 @@ class ConvertFileToHtmlJob implements ShouldQueue
             ['status' => 'failed']
         );
         // broadcast failure event
-        event(new ConversionCompleted($this->projectId, $this->sourceId, 'failed'));
+        event(new ConversionFailed($this->projectId, $this->sourceId, $this->filename));
     }
 }

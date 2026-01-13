@@ -7,8 +7,8 @@ import { ref } from 'vue';
 import Button from '../interactive/Button.vue';
 
 const props = defineProps({
-    accept: { type: String, default: '*/*' },
-})
+  accept: { type: String, default: '*/*' },
+});
 const emit = defineEmits(['filesSelected']);
 
 const localFiles = ref([]);
@@ -52,7 +52,7 @@ const uploadFiles = async () => {
 
     <WizardStep name="localUpload" title="Add your files">
       <Dropzone
-          :accept="props.accept"
+        :accept="props.accept"
         @files-dropped="addFiles"
         class="w-full min-h-20 border-dashed border-4 rounded-lg border-foreground/60 flex items-center justify-center text-foreground/60 text-sm"
       >

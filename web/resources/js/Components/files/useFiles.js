@@ -4,8 +4,8 @@ import { flashMessage } from '../notification/flashMessage.js';
 import { asyncTimeout } from '../../utils/asyncTimeout.js';
 import { usePage } from '@inertiajs/vue3';
 import { reactive } from 'vue';
-import { request } from '../../utils/http/BackendRequest.js'
-import { randomUUID } from '../../utils/random/randomUUID.js'
+import { request } from '../../utils/http/BackendRequest.js';
+import { randomUUID } from '../../utils/random/randomUUID.js';
 
 /**
  * Provides upload and download functionality for files (REFI:sources).
@@ -21,11 +21,11 @@ export const useFiles = () => {
   const profilePhotoUrl = auth.user.profile_photo_url;
 
   const availableTypes = async () => {
-      return request({
-          type: 'get',
-          url: `/projects/${projectId}/formats`,
-      })
-  }
+    return request({
+      type: 'get',
+      url: `/projects/${projectId}/formats`,
+    });
+  };
 
   /**
    * Adds given list of files to an upload queue that processes
@@ -66,7 +66,7 @@ export const useFiles = () => {
   return {
     downloadSource,
     queueFilesForUpload,
-    availableTypes
+    availableTypes,
   };
 };
 
@@ -107,7 +107,7 @@ const runQueue = async ({ onError, sources }) => {
       source.failed = true;
       const index = sources.indexOf(source);
       if (index !== -1) {
-          sources.splice(index, 1);
+        sources.splice(index, 1);
       }
       onError(e, file, source);
     } finally {
@@ -132,7 +132,7 @@ const runQueue = async ({ onError, sources }) => {
  * @return {Promise<*>}
  */
 async function uploadFile({ file, source, projectId }) {
-  const isTxt = (file.name && file.name.endsWith('.txt'));
+  const isTxt = file.name && file.name.endsWith('.txt');
   const formData = new FormData();
   formData.append('file', file);
   formData.append('projectId', projectId);

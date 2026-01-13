@@ -54,11 +54,12 @@ class SourceController extends Controller
 
     /**
      * Provides a list of available file formats for upload.
+     *
      * @return JsonResponse
      */
-    public function availableFormats (Project $project)
+    public function availableFormats(Project $project)
     {
-        $baseFormats=config('internalPlugins.rtf.formats');
+        $baseFormats = config('internalPlugins.rtf.formats');
         // TODO for plugin system
         // 1. get user
         // 2. check if user has access to project
@@ -73,7 +74,7 @@ class SourceController extends Controller
         if ($baseFormats) {
             $formatList = explode(',', $baseFormats);
             foreach ($formatList as $format) {
-                $formats['.'.$format] = strtoupper($format).' (.' . $format . ')';
+                $formats['.'.$format] = strtoupper($format).' (.'.$format.')';
             }
         }
 
@@ -82,8 +83,9 @@ class SourceController extends Controller
 
     /**
      * Stores and optionally converts a new source file.
-     * @param StoreSourceRequest $request
+     *
      * @return JsonResponse
+     *
      * @throws Exception
      */
     public function store(StoreSourceRequest $request)
@@ -101,8 +103,6 @@ class SourceController extends Controller
         if ($isText && ($file->getMimeType() === 'text/markdown' || stripos($file->getClientOriginalName(), '.md') !== false)) {
             $extension = 'md';
         }
-
-
 
         $relativePath = 'projects/'.$projectId.'/sources';
 
@@ -129,7 +129,6 @@ class SourceController extends Controller
         // Use the same filename pattern for HTML output
         $htmlOutputPath = storage_path('app/'.$relativePath.'/'.pathinfo($uniqueFilename, PATHINFO_FILENAME).'.html');
 
-
         $source = Source::updateOrCreate(
             ['id' => $sourceId],
             [
@@ -143,7 +142,7 @@ class SourceController extends Controller
         Log::info('Conversion for '.$filename.'.'.$extension);
 
         $isEmpty = trim($fileContent) === $keyword;
-        $isPlain = $extension === 'txt' && !$isMarkdown;
+        $isPlain = $extension === 'txt' && ! $isMarkdown;
         $status = 'converting';
 
         // A - creating a new empty text file
@@ -155,7 +154,7 @@ class SourceController extends Controller
         }
 
         // B - converting a plain text file as is
-        if (!$isEmpty && $isPlain) {
+        if (! $isEmpty && $isPlain) {
             Log::info('Converting TXT file to HTML locally.');
             $htmlContent = $this->convertTxtToHtml($path, $projectId);
             $status = 'converted:html';
@@ -176,21 +175,21 @@ class SourceController extends Controller
             ['path' => $htmlOutputPath, 'status' => $status]
         );
 
-//
-//          if (App::environment(['production', 'staging'])) {
-//
-//                          } else {
-//                              Log::info('Converting file to HTML locally.');
-//                              try {
-//                                  $htmlContent = $this->convertFileToHtmlLocally($path, $projectId);
-//                                  event(new ConversionCompleted($projectId, $source->id));
-//                                  } catch (Exception $e) {
-//                                     Log::info('Conversion failed, remove original file at '.$path);
-//                                      File::delete($path);
-//                                      Source::destroy($source->id);
-//                                      throw $e;
-//                                  }
-//                          }
+        //
+        //          if (App::environment(['production', 'staging'])) {
+        //
+        //                          } else {
+        //                              Log::info('Converting file to HTML locally.');
+        //                              try {
+        //                                  $htmlContent = $this->convertFileToHtmlLocally($path, $projectId);
+        //                                  event(new ConversionCompleted($projectId, $source->id));
+        //                                  } catch (Exception $e) {
+        //                                     Log::info('Conversion failed, remove original file at '.$path);
+        //                                      File::delete($path);
+        //                                      Source::destroy($source->id);
+        //                                      throw $e;
+        //                                  }
+        //                          }
 
         return response()->json([
             'newDocument' => [
@@ -213,10 +212,12 @@ class SourceController extends Controller
     private function fetchAndTransformSources($projectId)
     {
         $sources = Source::where('project_id', $projectId)->with('variables')->get();
+
         return $sources->map(function ($source) {
             $converted = $source->converted;
             $exists = $converted ? File::exists($converted->path) : false;
             $status = $source->sourceStatuses()->latest()->first();
+
             return [
                 'id' => $source->id,
                 'name' => $source->name,
@@ -225,7 +226,7 @@ class SourceController extends Controller
                 'userPicture' => $source->creatingUser->profile_photo_url,
                 'date' => $source->created_at->toDateString(),
                 'variables' => $source->transformVariables(),
-                'converted' => !!$converted,
+                'converted' => (bool) $converted,
                 'exists' => $exists,
                 'status' => $status && $status->status ? $status->status : 'unknown',
                 'failed' => $status && $status->status === 'failed',
@@ -352,12 +353,15 @@ class SourceController extends Controller
 
     /**
      * Converts a file to HTML using a queued job, where an external service is called.
+     *
      * @return JsonResponse
+     *
      * @throws Exception
      */
     private function convertFileToHtml($filePath, $projectId, $sourceId, $filename)
     {
         ConvertFileToHtmlJob::dispatch($filePath, $projectId, $sourceId, $filename)->onQueue('conversion');
+
         return response()->json(['message' => 'Conversion in progress']);
     }
 
@@ -386,29 +390,27 @@ class SourceController extends Controller
             throw new Exception('Python script not found at: '.$scriptPath);
         }
 
-            // Build the command to execute the Python script
-            $command = escapeshellcmd('/usr/bin/python3 '.$scriptPath).' '.escapeshellarg($filePath).' '.escapeshellarg($outputDirectory).' 2>&1';
-            Log::info('Python script command: '.$command);
+        // Build the command to execute the Python script
+        $command = escapeshellcmd('/usr/bin/python3 '.$scriptPath).' '.escapeshellarg($filePath).' '.escapeshellarg($outputDirectory).' 2>&1';
+        Log::info('Python script command: '.$command);
 
-            // Execute the command
-            $output=null;
-            $retval=null;
-            exec($command, $output, $retval);
+        // Execute the command
+        $output = null;
+        $retval = null;
+        exec($command, $output, $retval);
 
-            $message = implode('\n', $output);
-            if ($retval !== 0) {
-                throw new Exception('Python script failed with return code '.$retval.'. Output: '.$message. ';');
-            }
+        $message = implode('\n', $output);
+        if ($retval !== 0) {
+            throw new Exception('Python script failed with return code '.$retval.'. Output: '.$message.';');
+        }
 
+        // Check if the output file was created
+        if (file_exists($outputHtmlPath)) {
+            return file_get_contents($outputHtmlPath);
+        } else {
 
-
-            // Check if the output file was created
-            if (file_exists($outputHtmlPath)) {
-                return file_get_contents($outputHtmlPath);
-            } else {
-
-                throw new Exception('Conversion failed. Script output: '.implode('\n', $output));
-            }
+            throw new Exception('Conversion failed. Script output: '.implode('\n', $output));
+        }
     }
 
     /**

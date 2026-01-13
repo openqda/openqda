@@ -38,6 +38,7 @@ class StoreSourceRequest extends FormRequest
         // get services
         $formats = config('internalPlugins.rtf.formats', '');
         $fileType = 'required|file|mimes:txt,'.$formats.'|max:10240'; // 10 MB size limit
+
         return [
             'file' => $fileType, // File type and size restriction
             'projectId' => 'required|exists:projects,id',
