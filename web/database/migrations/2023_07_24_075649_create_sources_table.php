@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('sources', function (Blueprint $table) {
-            $table->uuid('id')->default(DB::raw('(UUID())'));
-            $table->primary('id');
+            $table->uuid('id')->primary();
             $table->string('name');
             $table->text('description')->nullable();
             $table->foreignId('creating_user_id')->constrained('users');

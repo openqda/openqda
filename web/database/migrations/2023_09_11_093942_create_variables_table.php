@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('variables', function (Blueprint $table) {
-            $table->uuid('id')->default(DB::raw('(UUID())'));
-            $table->primary('id');
+            $table->uuid('id')->primary();
             $table->foreignUuid('source_id');
             $table->string('name');
             $table->string('type_of_variable');

@@ -12,8 +12,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('source_statuses', function (Blueprint $table) {
-            $table->uuid('id')->default(DB::raw('(UUID())'));
-            $table->primary('id');
+            $table->uuid('id')->primary();
             $table->foreignUuid('source_id')->constrained('sources');
             $table->text('status');
             $table->string('path')->nullable(); // Allow optional paths

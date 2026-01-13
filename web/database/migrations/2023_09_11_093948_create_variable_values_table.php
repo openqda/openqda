@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('variable_values', function (Blueprint $table) {
-            $table->uuid('id')->default(DB::raw('(UUID())'));
-            $table->primary('id');
+            $table->uuid('id')->primary();
             $table->foreignUuid('variable_id')->constrained('variables');
             $table->text('text_value')->nullable();
             $table->boolean('boolean_value')->nullable();
