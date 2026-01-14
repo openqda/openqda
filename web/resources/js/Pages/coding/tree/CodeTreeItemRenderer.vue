@@ -183,14 +183,14 @@ const { range } = useRange();
               'w-full h-full text-left flex',
               code.active
                 ? 'hover:font-semibold'
-                : 'cursor-not-allowed text-foreground/20',
-              'contrast-text'
+                : 'cursor-not-allowed text-foreground/20'
             )
           "
         >
-          <span class="line-clamp-1 grow">{{ code.name }}</span>
-          <span class="text-xs ms-auto font-normal hidden group-hover:inline"
-            >Assign to {{ range.start }}:{{ range.end }}</span
+          <ContrastText class="line-clamp-1 grow">{{ code.name }}</ContrastText>
+          <ContrastText
+            class="text-xs ms-auto font-normal hidden group-hover:inline"
+            >Assign to {{ range.start }}:{{ range.end }}</ContrastText
           >
         </button>
         <ContrastText v-else class="line-clamp-1 grow items-center"
