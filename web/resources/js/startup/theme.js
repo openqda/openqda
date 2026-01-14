@@ -25,7 +25,9 @@ document.addEventListener('visibilitychange', async () => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-      const response = await axios.get('/preferences', { signal: controller.signal });
+      const response = await axios.get('/preferences', {
+        signal: controller.signal,
+      });
       clearTimeout(timeoutId);
 
       const currentTheme = response.data.theme || 'light';
@@ -39,10 +41,10 @@ document.addEventListener('visibilitychange', async () => {
         } else {
           htmlElement.classList.remove('dark');
         }
-        console.log('Theme synced from DB:', currentTheme);
+        console.warn('Theme synced from DB:', currentTheme);
       }
     } catch (error) {
-      console.debug('Theme sync skipped:', error.message);
+      console.warn('Theme sync skipped:', error.message);
     }
   }
 });

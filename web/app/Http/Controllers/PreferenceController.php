@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\UserPreference;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 
 class PreferenceController extends Controller
@@ -16,7 +15,7 @@ class PreferenceController extends Controller
     public function show(Request $request)
     {
         $userId = Auth::id();
-        if (!$userId) {
+        if (! $userId) {
             return response()->json(['theme' => 'light']);
         }
 
@@ -24,7 +23,7 @@ class PreferenceController extends Controller
         $preferences = UserPreference::where('user_id', $userId)->first();
 
         // If no preferences exist, create default ones
-        if (!$preferences) {
+        if (! $preferences) {
             $preferences = UserPreference::create([
                 'user_id' => $userId,
                 'theme' => 'light',
@@ -51,7 +50,7 @@ class PreferenceController extends Controller
         $preferences = UserPreference::where('user_id', $userId)->first();
 
         // Create default preferences if they don't exist
-        if (!$preferences) {
+        if (! $preferences) {
             $preferences = UserPreference::create([
                 'user_id' => $userId,
                 'theme' => 'light',
@@ -71,7 +70,7 @@ class PreferenceController extends Controller
     {
         $preferences = Auth::user()->preferences;
 
-        if (!$preferences || !isset($preferences[$key])) {
+        if (! $preferences || ! isset($preferences[$key])) {
             return response()->json(['error' => 'Preference not found'], 404);
         }
 
@@ -87,7 +86,7 @@ class PreferenceController extends Controller
         $preferences = $user->preferences;
 
         // Create default preferences if they don't exist
-        if (!$preferences) {
+        if (! $preferences) {
             $preferences = UserPreference::create([
                 'user_id' => $user->id,
                 'theme' => 'light',

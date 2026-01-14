@@ -87,7 +87,7 @@ const current = () => DOM.current;
 const update = (name) => {
   // Update DOM immediately (synchronous, no await)
   DOM.add(name);
-  
+
   // Fire backend sync in background without blocking
   Promise.resolve().then(() => {
     storage.update(name).catch(() => {});

@@ -24,11 +24,11 @@ ThemeBrowserStorage.isDefined = async () => {
   try {
     const timestamp = new Date().getTime();
     const response = await axios.get(`/preferences?_=${timestamp}`, {
-      headers: { 
+      headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      }
+        Pragma: 'no-cache',
+        Expires: '0',
+      },
     });
     return response.data && response.data.theme !== null;
   } catch {
@@ -41,36 +41,42 @@ ThemeBrowserStorage.value = async () => {
   try {
     const timestamp = new Date().getTime();
     const response = await axios.get(`/preferences?_=${timestamp}`, {
-      headers: { 
+      headers: {
         'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      }
+        Pragma: 'no-cache',
+        Expires: '0',
+      },
     });
     if (response.data && response.data.theme) {
       console.warn('Loaded theme from database:', response.data.theme);
       return response.data.theme;
     }
-  } catch (error) {
-    console.warn('Not authenticated or error fetching preferences, using default light theme');
+  } catch {
+    console.warn(
+      'Not authenticated or error fetching preferences, using default light theme'
+    );
   }
-  
+
   // Return default light theme when not authenticated or error
   return 'light';
 };
 
 ThemeBrowserStorage.update = async (name) => {
   console.warn('ThemeBrowserStorage.update called with:', name);
-  
+
   try {
     // Save to database only
-    const response = await axios.put('/preferences', { theme: name }, {
-      headers: { 
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0'
+    const response = await axios.put(
+      '/preferences',
+      { theme: name },
+      {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          Pragma: 'no-cache',
+          Expires: '0',
+        },
       }
-    });
+    );
     console.warn('✅ Theme saved to database:', response.data);
     return true;
   } catch (error) {
