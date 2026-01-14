@@ -1,0 +1,33 @@
+# Supervisor configuration for Laravel Queue Worker
+# This configuration can be copied to /etc/supervisor/conf.d/ for production use
+#
+# Usage:
+#   1. Copy this file: sudo cp supervisor-queue.conf.example /etc/supervisor/conf.d/queue-worker.conf
+#   2. Edit the file to set your environment-specific values
+#   3. Update supervisor: sudo supervisorctl reread && sudo supervisorctl update
+#   4. Start the service: sudo supervisorctl start queue-worker
+#
+# Configuration:
+#   - Replace /var/www/html with your actual Laravel application path
+#   - Adjust queues (conversion,default) if you have different queue names
+#   - Adjust user to match your web server user (www-data, nginx, etc.)
+#
+# Production Options:
+#   You may want to add these options to the command for production use:
+#   --sleep=3           : Number of seconds to sleep when no job is available
+#   --tries=3           : Number of times to attempt a job before logging it failed
+#   --max-time=3600     : Maximum number of seconds a job may run
+#   --timeout=60        : Number of seconds a child process can run
+#
+#   Example command with production options:
+#   command=/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan queue:work --queue=conversion,default --sleep=3 --tries=3 --max-time=3600
+
+[program:queue-worker]
+command=/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan queue:work --queue=conversion,default
+user=www-data
+stdout_logfile=/var/log/supervisor/queue-worker.log
+stdout_logfile_maxbytes=10MB
+stderr_logfile=/var/log/supervisor/queue-worker_err.log
+stderr_logfile_maxbytes=10MB
+autorestart=true
+stopwaitsecs=30
