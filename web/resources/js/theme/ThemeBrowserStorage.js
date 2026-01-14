@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 /**
  * @module
  */
@@ -11,28 +13,80 @@
  */
 
 /**
- * Storage implementation to store theme decisions in the browser's
- * localStorage.
+ * Storage implementation to store theme decisions in the database only.
+ * No localStorage is used. Defaults to 'light' theme when user is not authenticated.
+ * Uses simple polling to sync across tabs.
  * @type {ThemeStorage}
  */
 export const ThemeBrowserStorage = {};
 
-const storageKey = 'theme';
-const storage = localStorage;
-
-ThemeBrowserStorage.isDefined = async () => storage && storageKey in storage;
+ThemeBrowserStorage.isDefined = async () => {
+  try {
+    const timestamp = new Date().getTime();
+    const response = await axios.get(`/preferences?_=${timestamp}`, {
+      headers: { 
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
+    return response.data && response.data.theme !== null;
+  } catch {
+    // User not authenticated, default to light theme
+    return false;
+  }
+};
 
 ThemeBrowserStorage.value = async () => {
-  const value = storage.getItem(storageKey);
-  return value ?? null;
+  try {
+    const timestamp = new Date().getTime();
+    const response = await axios.get(`/preferences?_=${timestamp}`, {
+      headers: { 
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
+    if (response.data && response.data.theme) {
+      console.warn('Loaded theme from database:', response.data.theme);
+      return response.data.theme;
+    }
+  } catch (error) {
+    console.warn('Not authenticated or error fetching preferences, using default light theme');
+  }
+  
+  // Return default light theme when not authenticated or error
+  return 'light';
 };
 
 ThemeBrowserStorage.update = async (name) => {
-  storage.setItem(storageKey, name);
-  return true;
+  console.warn('ThemeBrowserStorage.update called with:', name);
+  
+  try {
+    // Save to database only
+    const response = await axios.put('/preferences', { theme: name }, {
+      headers: { 
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
+    console.warn('✅ Theme saved to database:', response.data);
+    return true;
+  } catch (error) {
+    console.warn('⚠️ Failed to save theme to database:', error.message);
+    return false;
+  }
 };
 
 ThemeBrowserStorage.remove = async () => {
-  storage.removeItem(storageKey);
-  return true;
+  try {
+    // Reset to default light theme in database
+    await axios.put('/preferences', { theme: 'light' });
+    console.warn('✅ Theme reset to light in database');
+    return true;
+  } catch (error) {
+    console.warn('⚠️ Could not reset theme in database:', error.message);
+    return false;
+  }
 };

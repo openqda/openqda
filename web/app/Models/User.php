@@ -104,6 +104,14 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
     }
 
     /**
+     * Get the user's preferences.
+     */
+    public function preferences(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(UserPreference::class);
+    }
+
+    /**
      * Get all projects where the user is part of the team or the creator.
      */
     public function allRelatedProjects($withAudits = false): Collection|array|\LaravelIdea\Helper\App\Models\_IH_Project_C

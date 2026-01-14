@@ -81,13 +81,17 @@ const current = () => DOM.current;
  * Updates the current theme by given value,
  * if supported (light, dark)
  * @function
- * @async
  * @param name {string}
- * @return {Promise<*>}
+ * @return {void} - updates immediately without waiting
  */
-const update = async (name) => {
+const update = (name) => {
+  // Update DOM immediately (synchronous, no await)
   DOM.add(name);
-  return storage.update(name);
+  
+  // Fire backend sync in background without blocking
+  Promise.resolve().then(() => {
+    storage.update(name).catch(() => {});
+  });
 };
 
 /**
