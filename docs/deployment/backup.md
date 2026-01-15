@@ -97,24 +97,24 @@ crontab -e
 ```
 
 Add this line:
-```cron
+```bash
 0 0 * * * /path/to/openqda/web/scripts/backup.sh >> /var/log/openqda-backup.log 2>&1
 ```
 
 ### Other Schedules
 
 **Every 6 hours:**
-```cron
+```bash
 0 */6 * * * /path/to/openqda/web/scripts/backup.sh
 ```
 
 **Weekly on Sunday at 2 AM:**
-```cron
+```bash
 0 2 * * 0 /path/to/openqda/web/scripts/backup.sh
 ```
 
 **Monthly on the 1st at 3 AM:**
-```cron
+```bash
 0 3 1 * * /path/to/openqda/web/scripts/backup.sh
 ```
 
