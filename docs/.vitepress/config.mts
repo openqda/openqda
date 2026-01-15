@@ -68,6 +68,7 @@ export default defineConfig({
         text: 'Deployment',
         items: [
           {text: 'Overview', link: '/deployment/deployment'},
+          {text: 'Backup & Recovery', link: '/deployment/backup'},
         ]
       },
       {

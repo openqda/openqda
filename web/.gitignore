@@ -24,5 +24,10 @@ coverage
 
 *storybook.log
 
+
 /storage/pail
 .phpactor.json
+
+# Backup script configuration (may contain credentials)
+scripts/backup.config
+
