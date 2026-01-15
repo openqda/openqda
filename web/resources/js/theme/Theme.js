@@ -89,8 +89,12 @@ const update = (name) => {
   DOM.add(name);
 
   // Fire backend sync in background without blocking
-  Promise.resolve().then(() => {
-    storage.update(name).catch(() => {});
+  Promise.resolve().then(async () => {
+    try {
+      await storage.update(name);
+    } catch {
+      // Silently ignore storage errors
+    }
   });
 };
 

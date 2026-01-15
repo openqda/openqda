@@ -14,18 +14,18 @@ class PreferenceController extends Controller
      */
     public function show(Request $request)
     {
-        $userId = Auth::id();
-        if (! $userId) {
+        $user = auth()->user();
+        if (! $user) {
             return response()->json(['theme' => 'light']);
         }
 
-        // Query directly by user_id, don't load full user relation
-        $preferences = UserPreference::where('user_id', $userId)->first();
+        // Query directly by user_id
+        $preferences = UserPreference::where('user_id', $user->id)->first();
 
         // If no preferences exist, create default ones
         if (! $preferences) {
             $preferences = UserPreference::create([
-                'user_id' => $userId,
+                'user_id' => $user->id,
                 'theme' => 'light',
             ]);
         }
@@ -46,13 +46,13 @@ class PreferenceController extends Controller
             'theme' => 'sometimes|string|in:light,dark',
         ]);
 
-        $userId = Auth::id();
-        $preferences = UserPreference::where('user_id', $userId)->first();
+        $user = auth()->user();
+        $preferences = UserPreference::where('user_id', $user->id)->first();
 
         // Create default preferences if they don't exist
         if (! $preferences) {
             $preferences = UserPreference::create([
-                'user_id' => $userId,
+                'user_id' => $user->id,
                 'theme' => 'light',
             ]);
         }
