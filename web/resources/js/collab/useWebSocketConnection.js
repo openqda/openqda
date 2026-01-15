@@ -37,7 +37,7 @@ export const useWebSocketConnection = () => {
     }
 
     debug('get echo');
-    const { init, options } = useEcho();
+    const { init, options, stop } = useEcho();
     debug('echo options are', safeStringify(options()));
     const echo = init();
     debug(`echo state: ${echo.connector.pusher.connection.state}`);
@@ -74,6 +74,7 @@ export const useWebSocketConnection = () => {
       state.unavailable = true;
       state.connecting = false;
       state.status = 'Unavailable or unreachable';
+      stop();
       debug('Echo unavailable or unreachable.', JSON.stringify(payload));
     });
 
@@ -109,6 +110,7 @@ export const useWebSocketConnection = () => {
       state.status = 'error';
       state.info = payload;
       debug('Echo disconnected...', safeStringify(payload));
+      stop();
     });
 
     debug('complete init');

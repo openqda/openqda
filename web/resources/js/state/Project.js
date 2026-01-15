@@ -1,8 +1,4 @@
 /**
- * @module
- */
-
-/**
  * Global client-side facade to
  * retrieve the current valid project id.
  * @type {object}

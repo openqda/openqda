@@ -107,18 +107,18 @@ export const useTeam = () => {
   };
 
   const dispatchPresence = async () => {
-    debug('dispatch presence');
-    const { response, error } = await request({
-      url: '/user/navigation',
-      type: 'post',
-      body: {
-        url: window.location.href,
-        team: teamId.value,
-      },
-    });
-    debug('dispatch presence response?', response);
-    debug('dispatch presence error?', error);
-    return { response, error };
+    // debug('dispatch presence');
+    // const { response, error } = await request({
+    //   url: '/user/navigation',
+    //   type: 'post',
+    //   body: {
+    //     url: window.location.href,
+    //     team: teamId.value,
+    //   },
+    // });
+    // debug('dispatch presence response?', response);
+    // debug('dispatch presence error?', error);
+    // return { response, error };
   };
 
   const dispose = () => {
