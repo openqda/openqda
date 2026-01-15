@@ -4,10 +4,11 @@ OpenQDA includes a comprehensive backup and restore solution that allows you to 
 
 ## Overview
 
-The backup solution includes two main scripts:
+The backup solution includes three main scripts:
 
 - **`backup.sh`**: Creates complete backups with optional remote transfer via SCP
 - **`restore.sh`**: Restores backups with flexible options for selective restoration
+- **`pull.sh`**: Pulls (downloads) backups from a remote server via SCP
 
 The backup script creates a complete snapshot of your OpenQDA installation, including:
 
@@ -22,6 +23,13 @@ The restore script provides:
 - **Selective Restoration**: Choose to restore database only, storage only, or both
 - **Non-Overwrite Storage**: Existing files are preserved during restoration
 - **Safe .env Handling**: Existing configuration files are backed up before restoration
+
+The pull script provides:
+
+- **List Remote Backups**: View available backups on the remote server
+- **Pull Latest Backup**: Download the most recent backup
+- **Pull Specific Backup**: Download a backup by name
+- **Pull All Backups**: Download all backups from the remote server
 
 ## Quick Start
 
@@ -161,6 +169,100 @@ The archive contains:
 - `storage.tar.gz`: Compressed storage directory
 - `.env`: Environment configuration
 - `backup_info.txt`: Backup metadata
+
+## Pulling Backups from Remote Server
+
+The `pull.sh` script allows you to download backups from a remote server via SCP. This is particularly useful when you want to retrieve backups from a remote backup server for restoration, rather than pushing backups to a remote location.
+
+### Setup
+
+The pull script uses the same remote backup configuration as the backup script. Ensure you have configured the following settings in your `backup.config` file:
+
+```bash
+REMOTE_BACKUP_HOST="backup.example.com"
+REMOTE_BACKUP_USER="backup-user"
+REMOTE_BACKUP_PATH="/backups/openqda"
+REMOTE_BACKUP_PORT="22"
+# Optional: REMOTE_BACKUP_KEY="/path/to/ssh/key"
+```
+
+### List Available Backups
+
+View all backups available on the remote server:
+
+```bash
+cd /path/to/openqda/web/scripts
+./pull.sh --list
+```
+
+This will display a list of all backup files on the remote server with their sizes and dates.
+
+### Pull the Latest Backup
+
+Download the most recent backup from the remote server:
+
+```bash
+./pull.sh --latest
+```
+
+The script will automatically identify and download the newest backup file.
+
+### Pull a Specific Backup
+
+Download a backup by its filename:
+
+```bash
+./pull.sh --name openqda_backup_20260108_000000.tar.gz
+```
+
+### Pull All Backups
+
+Download all available backups from the remote server:
+
+```bash
+./pull.sh --all
+```
+
+The script will download all backups, automatically skipping any that already exist locally to avoid redundant transfers.
+
+### Pull Script Options
+
+| Option | Description |
+|--------|-------------|
+| `-c, --config FILE` | Path to configuration file |
+| `-d, --dir DIR` | Local destination directory (default: `/var/backups/openqda`) |
+| `-l, --list` | List available backups on remote server |
+| `-n, --name NAME` | Specific backup name to pull |
+| `--latest` | Pull the latest backup |
+| `--all` | Pull all backups from remote server |
+| `-h, --help` | Show help message |
+
+### Pull Script Features
+
+- **Smart duplicate detection**: Automatically skips backups that already exist locally
+- **Compressed transfer**: Uses SCP compression for faster transfers
+- **SSH key support**: Can use SSH keys for authentication
+- **Detailed logging**: All operations are logged to `pull.log`
+- **Error handling**: Continues with remaining backups if one fails during `--all` mode
+
+### Example Workflow
+
+A typical workflow for pulling and restoring a backup from a remote server:
+
+1. **List available backups**:
+   ```bash
+   ./pull.sh --list
+   ```
+
+2. **Pull the latest backup**:
+   ```bash
+   ./pull.sh --latest
+   ```
+
+3. **Restore the pulled backup**:
+   ```bash
+   ./restore.sh /var/backups/openqda/openqda_backup_20260108_000000.tar.gz
+   ```
 
 ## Restoring from Backup
 

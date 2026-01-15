@@ -4,10 +4,11 @@ This directory contains scripts for backing up and restoring OpenQDA application
 
 ## Overview
 
-The backup solution includes two main scripts:
+The backup solution includes three main scripts:
 
 - **`backup.sh`**: Creates complete backups with optional remote transfer via SCP
 - **`restore.sh`**: Restores backups with flexible options for selective restoration
+- **`pull.sh`**: Pulls (downloads) backups from a remote server via SCP
 
 ### Backup Script
 
@@ -27,6 +28,16 @@ Restores data from backups with the following features:
 - **Non-overwrite storage**: Existing files in storage are preserved during restoration
 - **Safe .env handling**: Existing .env files are backed up before restoration
 
+### Pull Script
+
+Pulls backups from a remote server with the following features:
+
+- **List remote backups**: View available backups on the remote server
+- **Pull latest backup**: Download the most recent backup
+- **Pull specific backup**: Download a backup by name
+- **Pull all backups**: Download all backups from the remote server
+- **Skip existing**: Automatically skips backups that already exist locally
+
 ## Installation
 
 1. Copy the configuration template:
@@ -41,7 +52,7 @@ Restores data from backups with the following features:
 
 3. Ensure the scripts are executable:
    ```bash
-   chmod +x backup.sh restore.sh
+   chmod +x backup.sh restore.sh pull.sh
    ```
 
 ## Usage
@@ -203,6 +214,91 @@ openqda_backup_YYYYMMDD_HHMMSS/
 ├── .env                    # Environment configuration
 └── backup_info.txt         # Backup metadata
 ```
+
+## Pulling Backups from Remote Server
+
+### Using the Pull Script
+
+The `pull.sh` script allows you to download backups from a remote server via SCP. This is useful when backups are stored on a remote backup server and you need to retrieve them for restoration.
+
+#### List Available Backups
+
+View all backups available on the remote server:
+
+```bash
+./pull.sh --list
+```
+
+#### Pull the Latest Backup
+
+Download the most recent backup:
+
+```bash
+./pull.sh --latest
+```
+
+#### Pull a Specific Backup
+
+Download a backup by name:
+
+```bash
+./pull.sh --name openqda_backup_20260108_000000.tar.gz
+```
+
+#### Pull All Backups
+
+Download all available backups from the remote server:
+
+```bash
+./pull.sh --all
+```
+
+#### Custom Configuration
+
+Use a custom configuration file or local destination directory:
+
+```bash
+./pull.sh --config /path/to/backup.config --dir /custom/backup/location --latest
+```
+
+#### Pull Script Options
+
+| Option | Description |
+|--------|-------------|
+| `-c, --config FILE` | Path to configuration file |
+| `-d, --dir DIR` | Local destination directory for pulled backups |
+| `-l, --list` | List available backups on remote server |
+| `-n, --name NAME` | Specific backup name to pull |
+| `--latest` | Pull the latest backup |
+| `--all` | Pull all backups from remote server |
+| `-h, --help` | Show help message |
+
+#### Pull Script Features
+
+- **Smart duplicate detection**: Automatically skips backups that already exist locally
+- **Compressed transfer**: Uses SCP compression for faster transfers
+- **SSH key support**: Can use SSH keys for authentication
+- **Detailed logging**: All operations are logged to `pull.log`
+- **Error handling**: Continues with remaining backups if one fails
+
+#### Required Configuration for Pull Script
+
+The pull script requires the same remote backup configuration as the backup script:
+
+| Option | Environment Variable | Description |
+|--------|---------------------|-------------|
+| Remote Host | `REMOTE_BACKUP_HOST` | Remote server hostname or IP |
+| Remote User | `REMOTE_BACKUP_USER` | SSH username for remote server |
+| Remote Path | `REMOTE_BACKUP_PATH` | Path to backups on remote server |
+| Remote Port | `REMOTE_BACKUP_PORT` | SSH port (default: 22) |
+| SSH Key | `REMOTE_BACKUP_KEY` | Path to SSH private key (optional) |
+
+**Example workflow:**
+
+1. Configure remote backup settings in `backup.config`
+2. List available backups: `./pull.sh --list`
+3. Pull the latest backup: `./pull.sh --latest`
+4. Restore the pulled backup: `./restore.sh /var/backups/openqda/openqda_backup_*.tar.gz`
 
 ## Restoring from Backup
 
