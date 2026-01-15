@@ -294,15 +294,8 @@ const { consentRequired } = useLegal();
 const websocket = useWebSocketConnection();
 const navigation = ref([]);
 const sidebarOpen = ref(false);
-const {
-  initTeams,
-  dispatchPresence,
-  teamInitialized,
-  hasTeam,
-  dispose,
-  teamId,
-  usersInChannel,
-} = useTeam();
+const { initTeams, teamInitialized, hasTeam, dispose, teamId, usersInChannel } =
+  useTeam();
 websocket.initWebSocket();
 const debug = useDebug({ scope: 'nav' });
 const { isActive: helpIsActive, open: openHelp } = useHelpDialog();
@@ -323,10 +316,7 @@ const props = defineProps({
   },
 });
 
-let pingIntervalId;
-let fails = 0;
 const cleanup = () => {
-  clearInterval(pingIntervalId);
   dispose();
 };
 
@@ -335,22 +325,33 @@ const setupTeam = () => {
     return;
   }
   initTeams();
+  document.addEventListener('beforeunload', dispose);
+};
 
-  if (pingIntervalId) {
-    clearInterval(pingIntervalId);
-  }
-  dispatchPresence().catch(console.error);
-  pingIntervalId = setInterval(async () => {
-    // Dispatch an event to the server to indicate that the user is still on the page
-    // This could be done via an Axios call to a specific endpoint that handles this logic
-    //const { response, error } = await dispatchPresence();
-    //if (error || response.status >= 400) {
-    //  console.error(error ?? response);
-    //  fails++;
-    //}
-    //if (fails >= 2) return clearInterval(pingIntervalId);
-  }, 50000); // Every 50 seconds
-  document.addEventListener('beforeunload', cleanup);
+const setupConversion = ({ projectId }) => {
+  const { onConversionComplete, onConversionFailed } = useConversion({
+    projectId,
+  });
+  onConversionFailed((e) => {
+    const { sourceId } = e;
+    let message = 'Conversion of a file failed!';
+    const file =
+      sourceId && props.sources && props.sources.find((s) => s.id === sourceId);
+    if (file) {
+      message = `Conversion of ${file.name} failed!`;
+    }
+    flashMessage(message, { type: 'error ' });
+  });
+  onConversionComplete((e) => {
+    const { sourceId } = e;
+    let message = 'Conversion of a file successful!';
+    const file =
+      sourceId && props.sources && props.sources.find((s) => s.id === sourceId);
+    if (file) {
+      message = `Conversion of ${file.name} successful!`;
+    }
+    flashMessage(message, { type: 'success ' });
+  });
 };
 onMounted(() => {
   const projectId = Project.getId();
@@ -379,29 +380,11 @@ onMounted(() => {
     watch(teamId, setupTeam, { immediate: true });
   }
 
-  const { onConversionComplete, onConversionFailed } = useConversion({
-    projectId,
-  });
-  onConversionFailed((e) => {
-    const { sourceId } = e;
-    let message = 'Conversion of a file failed!';
-    const file =
-      sourceId && props.sources && props.sources.find((s) => s.id === sourceId);
-    if (file) {
-      message = `Conversion of ${file.name} failed!`;
-    }
-    flashMessage(message, { type: 'error ' });
-  });
-  onConversionComplete((e) => {
-    const { sourceId } = e;
-    let message = 'Conversion of a file successful!';
-    const file =
-      sourceId && props.sources && props.sources.find((s) => s.id === sourceId);
-    if (file) {
-      message = `Conversion of ${file.name} successful!`;
-    }
-    flashMessage(message, { type: 'success ' });
-  });
+  if (projectId) {
+    setupConversion(projectId);
+  } else {
+    debug('TODO: watch for projectId');
+  }
 });
 
 const team = ref([]);
