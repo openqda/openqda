@@ -343,12 +343,12 @@ const setupTeam = () => {
   pingIntervalId = setInterval(async () => {
     // Dispatch an event to the server to indicate that the user is still on the page
     // This could be done via an Axios call to a specific endpoint that handles this logic
-    const { response, error } = await dispatchPresence();
-    if (error || response.status >= 400) {
-      console.error(error ?? response);
-      fails++;
-    }
-    if (fails >= 2) return clearInterval(pingIntervalId);
+    //const { response, error } = await dispatchPresence();
+    //if (error || response.status >= 400) {
+    //  console.error(error ?? response);
+    //  fails++;
+    //}
+    //if (fails >= 2) return clearInterval(pingIntervalId);
   }, 50000); // Every 50 seconds
   document.addEventListener('beforeunload', cleanup);
 };
