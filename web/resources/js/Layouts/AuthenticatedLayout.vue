@@ -381,7 +381,7 @@ onMounted(() => {
   }
 
   if (projectId) {
-    setupConversion(projectId);
+    setupConversion({ projectId });
   } else {
     debug('TODO: watch for projectId');
   }
