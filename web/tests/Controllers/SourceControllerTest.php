@@ -145,7 +145,7 @@ class SourceControllerTest extends TestCase
 
     public function test_store_validates_file_type()
     {
-        $file = UploadedFile::fake()->create(Str::random(6).'.docx', 100);
+        $file = UploadedFile::fake()->create(Str::random(6).'.exe', 100);
 
         $response = $this->actingAs($this->user)
             ->postJson(route('source.store'), [  // Use postJson to automatically set headers for JSON response
@@ -412,13 +412,13 @@ class SourceControllerTest extends TestCase
         $this->assertTrue($newDoc['converted']);
     }
 
-    public function test_store_rtf_dispatches_conversion_job_in_production()
+    public function test_store_markdown_dispatches_conversion_job_in_production()
     {
         Queue::fake();
         $originalEnv = $this->app['env'];
         $this->app->instance('env', 'production');
 
-        $rtf = UploadedFile::fake()->create(Str::random(6).'.rtf', 8, 'application/rtf');
+        $rtf = UploadedFile::fake()->create(Str::random(6).'.md', 8, 'text/plain');
 
         $response = $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
             ->actingAs($this->user)
@@ -427,7 +427,7 @@ class SourceControllerTest extends TestCase
                 'projectId' => $this->project->id,
             ]);
 
-        $response->assertStatus(302);
+        $response->assertStatus(200);
         Queue::assertPushed(ConvertFileToHtmlJob::class);
 
         $this->app->instance('env', $originalEnv);
