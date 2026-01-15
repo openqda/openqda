@@ -1,6 +1,6 @@
 import { Theme } from '../theme/Theme.js';
 import { ThemeBrowserStorage } from '../theme/ThemeBrowserStorage.js';
-import axios from 'axios';
+import BackendRequest from '../utils/http/BackendRequest.js';
 
 /**
  * Theme initialization - defaults to light mode
@@ -22,15 +22,14 @@ document.addEventListener('visibilitychange', async () => {
   if (document.visibilityState === 'visible') {
     try {
       // 3s timeout to avoid long delays
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 3000);
-
-      const response = await axios.get('/preferences', {
-        signal: controller.signal,
+      const request = new BackendRequest({
+        url: '/preferences',
+        type: 'get',
+        extraOptions: { timeout: 3000 },
       });
-      clearTimeout(timeoutId);
+      await request.send();
 
-      const currentTheme = response.data.theme || 'light';
+      const currentTheme = request.response?.data?.theme || 'light';
       const htmlElement = document.documentElement;
       const activeTheme = htmlElement.getAttribute('data-theme') || 'light';
 

@@ -32,6 +32,9 @@ class PreferenceController extends Controller
 
         return response()
             ->json($preferences)
+            // Prevent HTTP response caching - when visibilitychange
+            // listener fires on tab focus, browser must fetch fresh theme from server, not serve
+            // stale cached HTTP response; without these headers cross-tab sync breaks
             ->header('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0')
             ->header('Pragma', 'no-cache')
             ->header('Expires', '0');

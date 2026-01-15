@@ -171,9 +171,7 @@ Route::middleware([
     /**
      * User Preferences
      */
-    Route::get('/preferences', [\App\Http\Controllers\PreferenceController::class, 'show'])->name('preferences.show');
-    Route::put('/preferences', [\App\Http\Controllers\PreferenceController::class, 'update'])->name('preferences.update');
-    Route::get('/preferences/{key}', [\App\Http\Controllers\PreferenceController::class, 'getPreference'])->name('preferences.show-single');
-    Route::put('/preferences/{key}', [\App\Http\Controllers\PreferenceController::class, 'updatePreference'])->name('preferences.update-single');
+    Route::get('/preferences/{key?}', [\App\Http\Controllers\PreferenceController::class, 'show'])->name('preferences.show');
+    Route::put('/preferences/{key}', [\App\Http\Controllers\PreferenceController::class, 'update'])->name('preferences.update');
 
 });

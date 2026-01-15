@@ -1,4 +1,4 @@
-import axios from 'axios';
+import BackendRequest from '../utils/http/BackendRequest.js';
 
 /**
  * @module
@@ -23,14 +23,19 @@ export const ThemeBrowserStorage = {};
 ThemeBrowserStorage.isDefined = async () => {
   try {
     const timestamp = new Date().getTime();
-    const response = await axios.get(`/preferences?_=${timestamp}`, {
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        Pragma: 'no-cache',
-        Expires: '0',
+    const request = new BackendRequest({
+      url: `/preferences?_=${timestamp}`,
+      type: 'get',
+      extraOptions: {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          Pragma: 'no-cache',
+          Expires: '0',
+        },
       },
     });
-    return response.data && response.data.theme !== null;
+    await request.send();
+    return request.response?.data && request.response.data.theme !== null;
   } catch {
     // User not authenticated, default to light theme
     return false;
@@ -40,16 +45,21 @@ ThemeBrowserStorage.isDefined = async () => {
 ThemeBrowserStorage.value = async () => {
   try {
     const timestamp = new Date().getTime();
-    const response = await axios.get(`/preferences?_=${timestamp}`, {
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        Pragma: 'no-cache',
-        Expires: '0',
+    const request = new BackendRequest({
+      url: `/preferences?_=${timestamp}`,
+      type: 'get',
+      extraOptions: {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          Pragma: 'no-cache',
+          Expires: '0',
+        },
       },
     });
-    if (response.data && response.data.theme) {
-      console.warn('Loaded theme from database:', response.data.theme);
-      return response.data.theme;
+    await request.send();
+    if (request.response?.data && request.response.data.theme) {
+      console.warn('Loaded theme from database:', request.response.data.theme);
+      return request.response.data.theme;
     }
   } catch {
     console.warn(
@@ -66,18 +76,20 @@ ThemeBrowserStorage.update = async (name) => {
 
   try {
     // Save to database only
-    const response = await axios.put(
-      '/preferences',
-      { theme: name },
-      {
+    const request = new BackendRequest({
+      url: '/preferences',
+      type: 'put',
+      data: { theme: name },
+      extraOptions: {
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate',
           Pragma: 'no-cache',
           Expires: '0',
         },
-      }
-    );
-    console.warn('✅ Theme saved to database:', response.data);
+      },
+    });
+    await request.send();
+    console.warn('✅ Theme saved to database:', request.response?.data);
     return true;
   } catch (error) {
     console.warn('⚠️ Failed to save theme to database:', error.message);
@@ -88,7 +100,12 @@ ThemeBrowserStorage.update = async (name) => {
 ThemeBrowserStorage.remove = async () => {
   try {
     // Reset to default light theme in database
-    await axios.put('/preferences', { theme: 'light' });
+    const request = new BackendRequest({
+      url: '/preferences',
+      type: 'put',
+      data: { theme: 'light' },
+    });
+    await request.send();
     console.warn('✅ Theme reset to light in database');
     return true;
   } catch (error) {
