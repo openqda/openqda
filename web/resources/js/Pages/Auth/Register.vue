@@ -23,13 +23,15 @@ const form = useForm({
   privacy: false,
   research: false,
 });
-
 const submissionError = ref(null);
 const submit = () => {
   if (form.processing) return;
-  const reset = () => form.reset('password', 'password_confirmation');
+  form.clearErrors();
   form.post(route('register'), {
-    onFinish: reset,
+    onSuccess: () => {
+      form.clearErrors();
+      form.reset();
+    },
     onError: (e) => {
       console.error(e);
       submissionError.value = e;
@@ -198,11 +200,12 @@ const submit = () => {
 
       <div>
         <InputLabel
+          v-show="false"
           for="altcha_widget"
           value="Checking, if you are a human"
           class="text-secondary-foreground dark:text-foreground"
         />
-        <Altcha v-model="form.altcha" v-once />
+        <Altcha v-model:payload="form.altcha" class="text-primary-foreground" />
         <InputError class="mt-2" :message="form.errors.altcha" />
       </div>
 
@@ -229,6 +232,7 @@ const submit = () => {
 
         <Button
           type="submit"
+          size="lg"
           class="rounded-full border-2 border-secondary-foreground uppercase font-bold ms-6 py-3 text-secondary-foreground my-5 bg-transparent hover:bg-secondary-foreground hover:text-secondary"
           :class="{ 'opacity-25': form.processing }"
           :disabled="form.processing"
