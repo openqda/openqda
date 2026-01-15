@@ -81,23 +81,12 @@ async def convert(
             shutil.copyfileobj(file.file, f)
         file.file.close()
 
-        # Run the script to convert the file
-        # Sanitize the user-provided title before passing it to pandoc
-        safe_title = (title or "").strip()
-        # Limit length to avoid excessively large arguments
-        max_title_length = 200
-        if len(safe_title) > max_title_length:
-            safe_title = safe_title[:max_title_length]
-        # Remove newline and carriage return characters to keep the argument well-formed
-        safe_title = safe_title.replace("\n", " ").replace("\r", " ")
-
         args = [
             'pandoc',
             str(input_path),
             "-t", "html5",
             "-s",
-            "-o", str(output_path),
-            "-M", f"title={safe_title}",
+            "-o", str(output_path)
         ]
         try:
             result = subprocess.run(args, capture_output=True, text=True, check=True)
