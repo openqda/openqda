@@ -210,7 +210,7 @@ pull_backup() {
     fi
     
     # Pull the backup
-    if $SCP_CMD "$REMOTE_BACKUP_USER@$REMOTE_BACKUP_HOST:$remote_file" "$local_file" 2>> "$LOG_FILE"; then
+    if $SCP_CMD "$REMOTE_BACKUP_USER@$REMOTE_BACKUP_HOST:'$remote_file'" "$local_file" 2>> "$LOG_FILE"; then
         # Calculate backup size
         BACKUP_SIZE=$(du -h "$local_file" | cut -f1)
         log_message "Successfully pulled backup: $backup_file ($BACKUP_SIZE)"
