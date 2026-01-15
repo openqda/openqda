@@ -1,5 +1,3 @@
-import { usePage } from '@inertiajs/vue3';
-
 /**
  * Global client-side facade to
  * retrieve the current valid project id.
@@ -13,14 +11,9 @@ export const Project = {};
  * @returns {undefined|string}
  */
 Project.getId = () => {
-  let projectId = usePage().props.projectId;
-
-  if (Project.isValidId(projectId)) {
-    return projectId;
-  }
   const path = window.location.pathname;
   const segments = path.split('/').filter(Boolean);
-  projectId = segments[0] === 'projects' && segments[1];
+  let projectId = segments[0] === 'projects' && segments[1];
 
   if (!Project.isValidId(projectId)) {
     projectId = sessionStorage.getItem('projectId');

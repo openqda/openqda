@@ -256,7 +256,7 @@
 
 <script setup>
 import { Routes } from '../routes/Routes.js';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { cn } from '../utils/css/cn.js';
 import {
@@ -354,7 +354,7 @@ const setupConversion = ({ projectId }) => {
   });
 };
 onMounted(() => {
-  const projectId = Project.getId();
+  const projectId = Project.getId() ?? usePage().props.projectId;
   const active = route().current();
 
   if (projectId && sessionStorage.getItem('projectId') !== projectId) {
