@@ -25,7 +25,7 @@ class UserNavigationController extends Controller
         ]);
 
         // Dispatch the event
-        event(new UserNavigated(auth()->id(), $data['url'], $request->input('team'), Auth::user()->profile_photo_url));
+        // event(new UserNavigated(auth()->id(), $data['url'], $request->input('team'), Auth::user()->profile_photo_url));
 
         return response()->json(['status' => 'success']);
     }

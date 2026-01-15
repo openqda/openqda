@@ -349,7 +349,7 @@ const setupTeam = () => {
       fails++;
     }
     if (fails >= 2) return clearInterval(pingIntervalId);
-  }, 5000); // Every 5 seconds
+  }, 50000); // Every 50 seconds
   document.addEventListener('beforeunload', cleanup);
 };
 onMounted(() => {
