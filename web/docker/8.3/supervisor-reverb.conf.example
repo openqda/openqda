@@ -1,0 +1,25 @@
+# Supervisor configuration for Laravel Reverb WebSocket server
+# This configuration can be copied to /etc/supervisor/conf.d/ for production use
+#
+# Usage:
+#   1. Copy this file: sudo cp supervisor-reverb.conf.example /etc/supervisor/conf.d/reverb.conf
+#   2. Edit the file to set your environment-specific values
+#   3. Update supervisor: sudo supervisorctl reread && sudo supervisorctl update
+#   4. Start the service: sudo supervisorctl start reverb
+#
+# Configuration:
+#   - Replace /var/www/html with your actual Laravel application path
+#   - Set REVERB_HOSTNAME environment variable before starting supervisor:
+#     Example: export REVERB_HOSTNAME="your-domain.com"
+#     Or set in /etc/default/supervisor or /etc/supervisor/supervisord.conf
+#   - Adjust user to match your web server user (www-data, nginx, etc.)
+
+[program:reverb]
+command=/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan reverb:start --debug --host=0.0.0.0 --port=8080 --hostname=%(ENV_REVERB_HOSTNAME)s
+user=www-data
+stdout_logfile=/var/log/supervisor/reverb.log
+stdout_logfile_maxbytes=10MB
+stderr_logfile=/var/log/supervisor/reverb_err.log
+stderr_logfile_maxbytes=10MB
+autorestart=true
+stopwaitsecs=30
