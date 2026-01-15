@@ -341,6 +341,6 @@ df -h /var/backups/openqda
 ## Additional Resources
 
 For more detailed information, see:
-- [Backup Script README](../../web/scripts/README.md)
+- [Backup Script README](https://github.com/openqda/openqda/blob/main/web/scripts/README.md)
 - [Manual Installation Guide](../installation/manual.md)
 - [Deployment Guide](./deployment.md)
