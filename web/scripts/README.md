@@ -147,30 +147,30 @@ To enable automatic remote backup transfer via SCP:
    ```
 
 2. Add the following line for daily backup at midnight:
-   ```cron
+   ```bash
    0 0 * * * /path/to/openqda/web/scripts/backup.sh >> /var/log/openqda-backup.log 2>&1
    ```
 
 ### Alternative Schedules
 
 **Every 6 hours:**
-```cron
+```bash
 0 */6 * * * /path/to/openqda/web/scripts/backup.sh
 ```
 
 **Weekly on Sunday at 2 AM:**
-```cron
+```bash
 0 2 * * 0 /path/to/openqda/web/scripts/backup.sh
 ```
 
 **Monthly on the 1st at 3 AM:**
-```cron
+```bash
 0 3 1 * * /path/to/openqda/web/scripts/backup.sh
 ```
 
 ### Using a Configuration File with Cron
 
-```cron
+```bash
 0 0 * * * /path/to/openqda/web/scripts/backup.sh --config /etc/openqda/backup.config
 ```
 
@@ -178,7 +178,7 @@ To enable automatic remote backup transfer via SCP:
 
 You can also set environment variables in your crontab:
 
-```cron
+```bash
 BACKUP_DIR=/mnt/backups
 DB_PASSWORD=mypassword
 0 0 * * * /path/to/openqda/web/scripts/backup.sh
