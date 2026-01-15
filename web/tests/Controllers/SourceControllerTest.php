@@ -427,7 +427,7 @@ class SourceControllerTest extends TestCase
                 'projectId' => $this->project->id,
             ]);
 
-        $response->assertStatus(200);
+        $response->assertStatus(302);
         Queue::assertPushed(ConvertFileToHtmlJob::class);
 
         $this->app->instance('env', $originalEnv);
