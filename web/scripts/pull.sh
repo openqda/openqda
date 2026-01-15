@@ -169,7 +169,7 @@ list_remote_backups() {
     log_message "Listing backups on remote server: $REMOTE_BACKUP_USER@$REMOTE_BACKUP_HOST:$REMOTE_BACKUP_PATH"
     
     # List backup files on remote server
-    if $SSH_CMD "$REMOTE_BACKUP_USER@$REMOTE_BACKUP_HOST" "ls -lh $REMOTE_BACKUP_PATH/openqda_backup_*.tar.gz 2>/dev/null" 2>> "$LOG_FILE"; then
+    if $SSH_CMD "$REMOTE_BACKUP_USER@$REMOTE_BACKUP_HOST" "ls -lh '$REMOTE_BACKUP_PATH'/openqda_backup_*.tar.gz 2>/dev/null" 2>> "$LOG_FILE"; then
         echo ""
         log_message "Available backups listed above"
     else
@@ -181,7 +181,7 @@ list_remote_backups() {
 # Function to get latest backup name
 get_latest_backup() {
     local latest=""
-    latest=$($SSH_CMD "$REMOTE_BACKUP_USER@$REMOTE_BACKUP_HOST" "ls -t $REMOTE_BACKUP_PATH/openqda_backup_*.tar.gz 2>/dev/null | head -n 1" 2>> "$LOG_FILE")
+    latest=$($SSH_CMD "$REMOTE_BACKUP_USER@$REMOTE_BACKUP_HOST" "ls -t '$REMOTE_BACKUP_PATH'/openqda_backup_*.tar.gz 2>/dev/null | head -n 1" 2>> "$LOG_FILE")
     
     if [ -z "$latest" ]; then
         error_exit "No backups found on remote server"
@@ -227,7 +227,7 @@ pull_all_backups() {
     
     # Get list of all backup files
     local backup_list=""
-    backup_list=$($SSH_CMD "$REMOTE_BACKUP_USER@$REMOTE_BACKUP_HOST" "ls $REMOTE_BACKUP_PATH/openqda_backup_*.tar.gz 2>/dev/null" 2>> "$LOG_FILE")
+    backup_list=$($SSH_CMD "$REMOTE_BACKUP_USER@$REMOTE_BACKUP_HOST" "ls '$REMOTE_BACKUP_PATH'/openqda_backup_*.tar.gz 2>/dev/null" 2>> "$LOG_FILE")
     
     if [ -z "$backup_list" ]; then
         error_exit "No backups found on remote server"
@@ -280,19 +280,41 @@ elif [ "$PULL_LATEST" = true ]; then
     BACKUP_NAME=$(get_latest_backup)
     log_message "Latest backup: $BACKUP_NAME"
     pull_backup "$BACKUP_NAME"
-    log_message "========================================"
-    log_message "Latest backup pulled successfully"
-    log_message "Location: $BACKUP_DIR/$BACKUP_NAME"
-    log_message "========================================"
-    exit 0
+    result=$?
+    if [ $result -eq 0 ]; then
+        log_message "========================================"
+        log_message "Latest backup pulled successfully"
+        log_message "Location: $BACKUP_DIR/$BACKUP_NAME"
+        log_message "========================================"
+        exit 0
+    elif [ $result -eq 2 ]; then
+        log_message "========================================"
+        log_message "Latest backup already exists locally"
+        log_message "Location: $BACKUP_DIR/$BACKUP_NAME"
+        log_message "========================================"
+        exit 0
+    else
+        error_exit "Failed to pull latest backup"
+    fi
 elif [ -n "$BACKUP_NAME" ]; then
     # Pull specific backup
     pull_backup "$BACKUP_NAME"
-    log_message "========================================"
-    log_message "Backup pulled successfully"
-    log_message "Location: $BACKUP_DIR/$BACKUP_NAME"
-    log_message "========================================"
-    exit 0
+    result=$?
+    if [ $result -eq 0 ]; then
+        log_message "========================================"
+        log_message "Backup pulled successfully"
+        log_message "Location: $BACKUP_DIR/$BACKUP_NAME"
+        log_message "========================================"
+        exit 0
+    elif [ $result -eq 2 ]; then
+        log_message "========================================"
+        log_message "Backup already exists locally"
+        log_message "Location: $BACKUP_DIR/$BACKUP_NAME"
+        log_message "========================================"
+        exit 0
+    else
+        error_exit "Failed to pull backup: $BACKUP_NAME"
+    fi
 else
     # No operation specified
     echo "Error: No operation specified"
