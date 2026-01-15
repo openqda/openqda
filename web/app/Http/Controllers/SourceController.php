@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use OwenIt\Auditing\Models\Audit;
@@ -52,8 +53,38 @@ class SourceController extends Controller
     }
 
     /**
-     * Store a new source file
+     * Provides a list of available file formats for upload.
      *
+     * @return JsonResponse
+     */
+    public function availableFormats(Project $project)
+    {
+        $baseFormats = config('internalPlugins.rtf.formats');
+        // TODO for plugin system
+        // 1. get user
+        // 2. check if user has access to project
+        // 3. get transform services for project
+        // 4. return available formats
+
+        $formats = [
+            '.txt' => 'Plain Text (.txt)',
+            'audio/*' => 'Audio Files (.mp3, .wav, .m4a, etc.)',
+        ];
+
+        if ($baseFormats) {
+            $formatList = explode(',', $baseFormats);
+            foreach ($formatList as $format) {
+                $formats['.'.$format] = strtoupper($format).' (.'.$format.')';
+            }
+        }
+
+        return response()->json($formats);
+    }
+
+    /**
+     * Stores and optionally converts a new source file.
+     *
+     * @return JsonResponse
      *
      * @throws Exception
      */
@@ -61,26 +92,38 @@ class SourceController extends Controller
     {
         $file = $request->file('file');
         $projectId = $request->input('projectId');
+        Log::info('Uploading file: '.$file->getClientOriginalName().'.'.$file->extension().' to project ID: '.$projectId);
 
         // Generate filename without timestamp
         $filename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
-        $filename = str_replace(' ', '_', $filename);
         $extension = $file->extension();
+        $isText = $extension === 'txt';
+        $isMarkdown = false;
 
-        // Check if file exists and generate sequential number if needed
-        $baseFilename = $filename;
-        $counter = 1;
-        $uniqueFilename = $filename.'.'.$extension;
-        $relativePath = 'projects/'.$projectId.'/sources';
-
-        while (Storage::exists($relativePath.'/'.$uniqueFilename)) {
-            $uniqueFilename = $baseFilename.'_'.$counter.'.'.$extension;
-            $counter++;
+        // markdown support
+        if ($isText && ($file->getMimeType() === 'text/markdown' || stripos($file->getClientOriginalName(), '.md') !== false)) {
+            $extension = 'md';
+            $isMarkdown = true;
         }
 
+        $relativePath = 'projects/'.$projectId.'/sources';
+
+        // iterate files with the same name to find a unique one
+        // while (Storage::exists($relativePath.'/'.$uniqueFilename)) {
+        //     $uniqueFilename = $baseFilename.'_'.$counter.'.'.$extension;
+        //     $counter++;
+        // }
+
+        // we use the unique source id to store files ascii safe and collision free
+        // old: $request->input('sourceId', Str::uuid()->toString())
+        $sourceId = Str::uuid()->toString();
+        $uniqueFilename = $sourceId.'.'.$extension;
+
+        // move the original file to storage
         $relativeFilePath = $file->storeAs($relativePath, $uniqueFilename);
         $path = storage_path("app/{$relativeFilePath}");
 
+        // we use a keyword to detect "new" created files that were not uploaded
         // Check for the keyword and wipe the content if found
         $fileContent = file_get_contents($path);
         $keyword = 'Llanfair­pwllgwyngyll­gogery­chwyrn­drobwll­llan­tysilio­gogo­goch';
@@ -89,38 +132,66 @@ class SourceController extends Controller
         $htmlOutputPath = storage_path('app/'.$relativePath.'/'.pathinfo($uniqueFilename, PATHINFO_FILENAME).'.html');
 
         $source = Source::updateOrCreate(
-            ['id' => $request->input('sourceId', Str::uuid()->toString())],
+            ['id' => $sourceId],
             [
-                'name' => $uniqueFilename,
+                'name' => $filename.'.'.$extension,
                 'upload_path' => $path,
                 'project_id' => $projectId,
                 'creating_user_id' => Auth::id(),
             ]
         );
 
-        $sourceStatus = SourceStatus::updateOrCreate(
-            ['source_id' => $source->id],
-            ['path' => $htmlOutputPath, 'status' => 'converted:html']
-        );
+        Log::info('Conversion for '.$filename.'.'.$extension);
 
-        // Rest of your code remains the same
-        if (trim($fileContent) === $keyword) {
+        $isEmpty = trim($fileContent) === $keyword;
+        $isPlain = $extension === 'txt' && ! $isMarkdown;
+        $status = 'converting';
+
+        // A - creating a new empty text file
+        if ($isEmpty) {
+            Log::info('Keyword detected in file. Creating empty HTML document.');
             file_put_contents($htmlOutputPath, config('app.layoutBaseHtml'));
             $htmlContent = config('app.layoutBaseHtml');
-        } else {
-            if ($extension === 'txt') {
-                $htmlContent = $this->convertTxtToHtml($path, $projectId);
-            } elseif ($extension === 'rtf') {
-                if (App::environment(['production', 'staging'])) {
-                    $this->convertFileToHtml($path, $projectId, $source->id);
-                } else {
-                    $htmlContent = $this->convertFileToHtmlLocally($path, $projectId);
-                    event(new ConversionCompleted($projectId, $source->id));
-                }
-            } else {
-                return response()->json(['error' => 'Unsupported file type'], 400);
-            }
+            $status = 'converted:html';
         }
+
+        // B - converting a plain text file as is
+        if (! $isEmpty && $isPlain) {
+            Log::info('Converting TXT file to HTML locally.');
+            $htmlContent = $this->convertTxtToHtml($path, $projectId);
+            $status = 'converted:html';
+        }
+
+        // C - converting any other supported text-based formats using transform plugin
+        if (! $isEmpty && ! $isPlain) {
+            Log::info('Converting file to HTML using job dispatch.');
+            $htmlContent = $this->convertFileToHtml($path, $projectId, $source->id, $filename);
+        }
+
+        // D - File is HTML already, then clean and store it directly
+        // TODO: implemented
+
+        // create initial source status
+        $sourceStatus = SourceStatus::updateOrCreate(
+            ['source_id' => $source->id],
+            ['path' => $htmlOutputPath, 'status' => $status]
+        );
+
+        //
+        //          if (App::environment(['production', 'staging'])) {
+        //
+        //                          } else {
+        //                              Log::info('Converting file to HTML locally.');
+        //                              try {
+        //                                  $htmlContent = $this->convertFileToHtmlLocally($path, $projectId);
+        //                                  event(new ConversionCompleted($projectId, $source->id));
+        //                                  } catch (Exception $e) {
+        //                                     Log::info('Conversion failed, remove original file at '.$path);
+        //                                      File::delete($path);
+        //                                      Source::destroy($source->id);
+        //                                      throw $e;
+        //                                  }
+        //                          }
 
         return response()->json([
             'newDocument' => [
@@ -129,7 +200,10 @@ class SourceController extends Controller
                 'type' => 'text',
                 'user' => auth()->user()->name,
                 'content' => $htmlContent ?? '',
-                'converted' => File::exists($htmlOutputPath),
+                'converted' => $htmlContent ? true : false,
+                'converting' => $status === 'converting',
+                'exists' => File::exists($htmlOutputPath),
+                'failed' => false,
             ],
         ]);
     }
@@ -142,6 +216,10 @@ class SourceController extends Controller
         $sources = Source::where('project_id', $projectId)->with('variables')->get();
 
         return $sources->map(function ($source) {
+            $converted = $source->converted;
+            $exists = $converted ? File::exists($converted->path) : false;
+            $status = $source->sourceStatuses()->latest()->first();
+
             return [
                 'id' => $source->id,
                 'name' => $source->name,
@@ -150,7 +228,10 @@ class SourceController extends Controller
                 'userPicture' => $source->creatingUser->profile_photo_url,
                 'date' => $source->created_at->toDateString(),
                 'variables' => $source->transformVariables(),
-                'converted' => $source->converted ? File::exists($source->converted->path) : false,
+                'converted' => (bool) $converted,
+                'exists' => $exists,
+                'status' => $status && $status->status ? $status->status : 'unknown',
+                'failed' => $status && $status->status === 'failed',
             ];
         });
     }
@@ -273,21 +354,21 @@ class SourceController extends Controller
     }
 
     /**
-     * Converts a file to HTML
+     * Converts a file to HTML using a queued job, where an external service is called.
+     *
+     * @return JsonResponse
      *
      * @throws Exception
      */
-    private function convertFileToHtml($filePath, $projectId, $sourceId)
+    private function convertFileToHtml($filePath, $projectId, $sourceId, $filename)
     {
-
-        ConvertFileToHtmlJob::dispatch($filePath, $projectId, $sourceId)->onQueue('conversion');
+        ConvertFileToHtmlJob::dispatch($filePath, $projectId, $sourceId, $filename)->onQueue('conversion');
 
         return response()->json(['message' => 'Conversion in progress']);
-
     }
 
     /**
-     * This uses a python script to convert a file from RTF to HTML
+     * This uses a python script to convert a file to HTML
      *
      * @return false|string
      *
@@ -311,21 +392,26 @@ class SourceController extends Controller
             throw new Exception('Python script not found at: '.$scriptPath);
         }
 
-        try {
-            // Build the command to execute the Python script
-            $command = escapeshellcmd('python3 '.$scriptPath).' '.escapeshellarg($filePath).' '.escapeshellarg($outputDirectory);
+        // Build the command to execute the Python script
+        $command = escapeshellcmd('/usr/bin/python3 '.$scriptPath).' '.escapeshellarg($filePath).' '.escapeshellarg($outputDirectory).' 2>&1';
+        Log::info('Python script command: '.$command);
 
-            // Execute the command
-            $output = shell_exec($command);
+        // Execute the command
+        $output = null;
+        $retval = null;
+        exec($command, $output, $retval);
 
-            // Check if the output file was created
-            if (file_exists($outputHtmlPath)) {
-                return file_get_contents($outputHtmlPath);
-            } else {
-                throw new Exception('Conversion failed. Script output: '.$output);
-            }
-        } catch (Exception $e) {
-            throw new Exception('Script execution failed: '.$e->getMessage());
+        $message = implode('\n', $output);
+        if ($retval !== 0) {
+            throw new Exception('Python script failed with return code '.$retval.'. Output: '.$message.';');
+        }
+
+        // Check if the output file was created
+        if (file_exists($outputHtmlPath)) {
+            return file_get_contents($outputHtmlPath);
+        } else {
+
+            throw new Exception('Conversion failed. Script output: '.implode('\n', $output));
         }
     }
 
@@ -454,7 +540,8 @@ class SourceController extends Controller
 
         // Existing conversion logic
         if (App::environment(['production', 'staging'])) {
-            $this->convertFileToHtml($path, $projectId, $source->id);
+            $filename = pathinfo($source->upload_path, PATHINFO_FILENAME);
+            $this->convertFileToHtml($path, $projectId, $source->id, $filename);
         } else {
             $htmlContent = $this->convertFileToHtmlLocally($path, $projectId);
             event(new ConversionCompleted($projectId, $source->id));
@@ -462,7 +549,8 @@ class SourceController extends Controller
 
         if ($fromAdminPanel) {
             // Logic to handle the call from the admin panel
-            $newPath = Str::replaceLast('.rtf', '.html', $source->upload_path);
+            $extension = pathinfo($source->upload_path, PATHINFO_EXTENSION);
+            $newPath = Str::replaceLast($extension, '.html', $source->upload_path);
             $source->converted->path = $newPath;
             $source->save();
         }

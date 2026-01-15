@@ -10,16 +10,18 @@
           :key="field.key"
           scope="col"
           :class="
-            cn(
-              'text-center text-xs font-normal text-foreground/50 sm:pl-0',
-              field.class
-            )
+            cn('text-xs font-normal text-foreground/50 sm:pl-0', field.class)
           "
         >
           <a
             href
             @click.prevent="() => sort(field.key)"
-            class="flex justify-center tracking-wider"
+            :class="
+              cn(
+                'flex items-center tracking-wider',
+                `justify-${field.pos ?? 'center'}`
+              )
+            "
             :title="field.title"
           >
             <span>{{ field.label }}</span>
@@ -102,7 +104,7 @@
             :class="
               cn(
                 'py-3 tracking-wide',
-                document.converted && !document.failed
+                document.converted && document.exists
                   ? ''
                   : 'cursor-not-allowed pointer-events-none',
                 !document.selected && 'cursor-pointer'
@@ -131,7 +133,16 @@
                 </div>
                 -->
           <div
-            v-if="document.isQueued"
+            v-if="document.failed"
+            title="There was an error during upload or conversion. Please retry or delete this file."
+            class="inline-flex justify-center w-full p-1 clickable"
+          >
+            <ExclamationTriangleIcon
+              class="w-5 h-5 text-destructive! rounded-md font-semibold"
+            />
+          </div>
+          <div
+            v-else-if="document.isQueued"
             title="Queued for uploading"
             class="inline-flex justify-center w-full p-1"
           >
@@ -145,7 +156,7 @@
             <CloudArrowUpIcon class="w-5 h-5 text-secondary" />
           </div>
           <div
-            v-else-if="!document.converted && !document.failed"
+            v-else-if="!document.converted || document.converting"
             class="inline-flex justify-center w-full p-1"
             :title="`Converting file in the background${conversionState(document)}. You may safely leave the page and come back later.`"
           >
@@ -155,11 +166,13 @@
             Converting
           </div>
           <div
-            v-else-if="document.failed"
-            title="There was an error during upload or conversion. Please retry or delete this file."
+            v-else-if="
+              !document.exists && document.converted && !document.converting
+            "
+            title="The document is missing from the server. Please contact support."
             class="inline-flex justify-center w-full p-1 clickable"
           >
-            <ExclamationTriangleIcon
+            <QuestionMarkCircleIcon
               class="w-5 h-5 text-destructive! rounded-md font-semibold"
             />
           </div>
@@ -180,7 +193,7 @@
           </div>
         </td>
         <td
-          class="py-2 text-center"
+          class="py-2 text-start"
           v-if="fieldsVisible.date && hover !== index"
         >
           {{ document.date }}
@@ -204,17 +217,18 @@
           v-show="$props.actions?.length"
           class="py-2 text-center tracking-wider justify-center align-middle items-center relative"
         >
-          <Button
-            variant="outline"
-            @click="toggleMenu(document.id)"
-            :class="cn(openMenuId === document.id && 'border-primary')"
-            size="sm"
-          >
+          <span>
             <EllipsisVerticalIcon
-              class="w-4 h-4 menu-toggle z-0"
+              @click="toggleMenu(document.id)"
+              title="Open actions menu"
+              :class="
+                cn(
+                  'w-4 h-4 menu-toggle z-0',
+                  openMenuId === document.id && 'text-primary font-semibold'
+                )
+              "
             ></EllipsisVerticalIcon>
-          </Button>
-
+          </span>
           <div
             v-show="isMenuOpen(document.id)"
             v-click-outside="{ callback: handleOutsideClick }"
@@ -272,13 +286,13 @@ import {
   ClockIcon,
   DocumentTextIcon,
   ExclamationTriangleIcon,
+  QuestionMarkCircleIcon,
   SpeakerWaveIcon,
 } from '@heroicons/vue/24/outline/index.js';
 import { computed, ref } from 'vue';
 import { vClickOutside } from '../../utils/vue/clickOutsideDirective.js';
 import { cn } from '../../utils/css/cn.js';
 import ProfileImage from '../user/ProfileImage.vue';
-import Button from '../interactive/Button.vue';
 
 const emit = defineEmits(['select', 'delete']);
 const props = defineProps([
@@ -297,8 +311,9 @@ const headerFields = ref([
   {
     label: 'File',
     key: 'name',
+    pos: 'start',
     title: 'Sort by name',
-    class: 'w-4/6',
+    class: 'w-4/6 text-start',
   },
   {
     label: 'Type',
@@ -309,6 +324,7 @@ const headerFields = ref([
   {
     label: 'Date',
     key: 'date',
+    pos: 'start',
     title: 'Sort by last edited date',
     class: 'w-2/6',
   },

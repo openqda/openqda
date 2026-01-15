@@ -16,10 +16,21 @@ class ConversionCompleted implements ShouldBroadcast
 
     public $sourceId;
 
-    public function __construct($projectId, $sourceId)
+    public $name;
+
+    public function __construct($projectId, $sourceId, $name)
     {
         $this->projectId = $projectId;
         $this->sourceId = $sourceId;
+        $this->name = $name;
+    }
+
+    /**
+     * The name of the queue on which to place the broadcasting job.
+     */
+    public function broadcastQueue(): string
+    {
+        return 'conversion';
     }
 
     public function broadcastOn()
@@ -32,6 +43,7 @@ class ConversionCompleted implements ShouldBroadcast
         return [
             'projectId' => $this->projectId,
             'sourceId' => $this->sourceId,
+            'name' => $this->name,
         ];
     }
 }

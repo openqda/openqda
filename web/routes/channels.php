@@ -1,5 +1,6 @@
 <?php
 
+use App\Broadcasting\SourceConversionChannel;
 use Illuminate\Support\Facades\Broadcast;
 
 /*
@@ -22,8 +23,4 @@ Broadcast::channel('team.{team}', function ($user, \App\Models\Team $team) {
 
 });
 
-Broadcast::channel('conversion.{project}', function ($user, \App\Models\Project $project) {
-    $userTeamIds = $user->teams->pluck('id');
-
-    return $user->id === $project->creating_user_id || $userTeamIds->contains($project->team_id);
-});
+Broadcast::channel('conversion.{project}', SourceConversionChannel::class);

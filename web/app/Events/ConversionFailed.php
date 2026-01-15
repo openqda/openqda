@@ -14,13 +14,26 @@ class ConversionFailed implements ShouldBroadcast
 
     public $projectId;
 
+    public $name;
+
     public $sourceId;
 
-    public function __construct($projectId, $sourceId, $message)
+    public $message;
+
+    public function __construct($projectId, $sourceId, $name, $message)
     {
         $this->projectId = $projectId;
         $this->sourceId = $sourceId;
+        $this->name = $name;
         $this->$message = $message;
+    }
+
+    /**
+     * The name of the queue on which to place the broadcasting job.
+     */
+    public function broadcastQueue(): string
+    {
+        return 'conversion';
     }
 
     public function broadcastOn()
@@ -33,6 +46,8 @@ class ConversionFailed implements ShouldBroadcast
         return [
             'projectId' => $this->projectId,
             'sourceId' => $this->sourceId,
+            'name' => $this->name,
+            'message' => $this->message,
         ];
     }
 }
