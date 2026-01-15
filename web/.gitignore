@@ -3,6 +3,8 @@
 /public/build
 /public/hot
 /public/storage
+/public/js/
+/public/css/
 /storage/*.key
 /vendor
 .env
@@ -21,3 +23,11 @@ yarn-error.log
 coverage
 
 *storybook.log
+
+
+/storage/pail
+.phpactor.json
+
+# Backup script configuration (may contain credentials)
+scripts/backup.config
+

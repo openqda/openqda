@@ -7,10 +7,11 @@
     "require": {
         "php": "^8.2",
         "ext-dom": "*",
+        "ext-simplexml": "*",
         "filament/filament": "^3.2",
         "filament/forms": "^v3.2.117",
         "filipfonal/filament-log-manager": "^2.0",
-        "grantholle/laravel-altcha": "dev-main",
+        "grantholle/laravel-altcha": "2.1.1",
         "guzzlehttp/guzzle": "^7.2",
         "henck/rtf-to-html": "^1.2",
         "inertiajs/inertia-laravel": "^1.0.0",
@@ -26,8 +27,7 @@
         "pusher/pusher-php-server": "^7.2",
         "react/promise": "3.*",
         "spatie/laravel-ray": "^1.33",
-        "tightenco/ziggy": "^1.0",
-        "ext-simplexml": "*"
+        "tightenco/ziggy": "^1.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.16",

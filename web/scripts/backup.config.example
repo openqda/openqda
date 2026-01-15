@@ -1,0 +1,42 @@
+# OpenQDA Backup Configuration
+#
+# This file contains configuration for the backup script.
+# Copy this file to backup.config and adjust the values as needed.
+#
+# All settings can also be provided as environment variables or command-line arguments.
+
+# Backup destination directory
+BACKUP_DIR="/var/backups/openqda"
+
+# Database configuration
+DB_HOST="localhost"
+DB_PORT="3306"
+DB_NAME="web"
+DB_USER="root"
+DB_PASSWORD=""
+
+# Application paths
+# Relative to the web directory or absolute paths
+STORAGE_PATH="/path/to/openqda/web/storage"
+ENV_FILE="/path/to/openqda/web/.env"
+
+# Backup retention (days)
+# Set to 0 to disable automatic cleanup
+BACKUP_RETENTION_DAYS=30
+
+# Log file location
+LOG_FILE="/var/backups/openqda/backup.log"
+
+# Remote backup configuration (optional)
+# Enable remote backup via SCP
+REMOTE_BACKUP_ENABLED=false
+
+# Remote server configuration
+REMOTE_BACKUP_HOST=""
+REMOTE_BACKUP_USER=""
+REMOTE_BACKUP_PATH=""
+REMOTE_BACKUP_PORT="22"
+
+# Optional: SSH key path (if not using default)
+# REMOTE_BACKUP_KEY="/path/to/ssh/key"
+
