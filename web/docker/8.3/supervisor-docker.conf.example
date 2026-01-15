@@ -1,0 +1,50 @@
+# Complete Supervisor configuration for Laravel in Docker containers
+# This configuration includes the main PHP server, Reverb WebSocket, and Queue Worker
+#
+# Usage in Docker:
+#   1. Copy this file to your container's supervisor config directory
+#   2. In your Dockerfile, add:
+#      COPY supervisor-docker.conf.example /etc/supervisor/conf.d/supervisord.conf
+#   3. Set environment variables in your docker-compose.yml or Dockerfile:
+#      - SUPERVISOR_PHP_COMMAND
+#      - SUPERVISOR_PHP_USER
+#      - REVERB_HOSTNAME
+#
+# Note: This configuration logs to stdout/stderr for Docker compatibility
+
+[supervisord]
+nodaemon=true
+user=root
+logfile=/var/log/supervisor/supervisord.log
+pidfile=/var/run/supervisord.pid
+
+[program:php]
+command=%(ENV_SUPERVISOR_PHP_COMMAND)s
+user=%(ENV_SUPERVISOR_PHP_USER)s
+environment=LARAVEL_SAIL="1"
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+
+[program:reverb]
+command=/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan reverb:start --debug --host=0.0.0.0 --port=8080 --hostname=%(ENV_REVERB_HOSTNAME)s
+user=%(ENV_SUPERVISOR_PHP_USER)s
+environment=LARAVEL_SAIL="1"
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+autorestart=true
+stopwaitsecs=30
+
+[program:queue-worker]
+command=/usr/bin/php -d variables_order=EGPCS /var/www/html/artisan queue:work --queue=conversion,default
+user=%(ENV_SUPERVISOR_PHP_USER)s
+environment=LARAVEL_SAIL="1"
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+autorestart=true
+stopwaitsecs=30

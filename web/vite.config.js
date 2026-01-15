@@ -21,7 +21,7 @@ export default defineConfig({
                     includeAbsolute: false,
                 },
                 compilerOptions: {
-                    isCustomElement: (tag) => ['altcha-widget'].includes(tag),
+                  isCustomElement: (tag) => tag.indexOf('-') >= 0
                 }
             },
         }),
