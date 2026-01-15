@@ -14,7 +14,7 @@ class PreferenceController extends Controller
      */
     public function show(Request $request)
     {
-        $user = auth()->user();
+        $user = Auth::user();
         if (! $user) {
             return response()->json(['theme' => 'light']);
         }
@@ -41,15 +41,19 @@ class PreferenceController extends Controller
     }
 
     /**
-     * Update the user's preferences.
+     * Update a specific preference value.
      */
-    public function update(Request $request)
+    public function updatePreference(Request $request, string $key = 'theme')
     {
-        $validated = $request->validate([
-            'theme' => 'sometimes|string|in:light,dark',
-        ]);
+        // Accept value either as { theme: 'light' } or { value: 'light' }
+        $rules = [$key => 'required'];
+        if ($key === 'theme') {
+            $rules[$key] = 'required|string|in:light,dark';
+        }
 
-        $user = auth()->user();
+        $validated = $request->validate($rules);
+
+        $user = Auth::user();
         $preferences = UserPreference::where('user_id', $user->id)->first();
 
         // Create default preferences if they don't exist
@@ -60,49 +64,10 @@ class PreferenceController extends Controller
             ]);
         }
 
-        // Update preferences
-        $preferences->update($validated);
+        // Update the preference using Eloquent model
+        $preferences->{$key} = $validated[$key];
+        $preferences->save();
 
-        return response()->json($preferences);
-    }
-
-    /**
-     * Get a specific preference value.
-     */
-    public function getPreference(Request $request, string $key)
-    {
-        $preferences = Auth::user()->preferences;
-
-        if (! $preferences || ! isset($preferences[$key])) {
-            return response()->json(['error' => 'Preference not found'], 404);
-        }
-
-        return response()->json([$key => $preferences[$key]]);
-    }
-
-    /**
-     * Update a specific preference value.
-     */
-    public function updatePreference(Request $request, string $key)
-    {
-        $user = Auth::user();
-        $preferences = $user->preferences;
-
-        // Create default preferences if they don't exist
-        if (! $preferences) {
-            $preferences = UserPreference::create([
-                'user_id' => $user->id,
-                'theme' => 'light',
-            ]);
-        }
-
-        $validated = $request->validate([
-            'value' => 'required',
-        ]);
-
-        // Update the specific preference
-        $preferences->update([$key => $validated['value']]);
-
-        return response()->json([$key => $preferences[$key]]);
+        return response()->json([$key => $preferences->{$key}]);
     }
 }

@@ -20,8 +20,16 @@ import BackendRequest from '../utils/http/BackendRequest.js';
  */
 export const ThemeBrowserStorage = {};
 
-ThemeBrowserStorage.isDefined = async () => {
-  try {
+// Cache the fetch request to prevent multiple concurrent requests
+let fetchPromise = null;
+
+const fetchThemePreference = async () => {
+  // Reuse in-flight request if one exists
+  if (fetchPromise) {
+    return fetchPromise;
+  }
+
+  fetchPromise = (async () => {
     const timestamp = new Date().getTime();
     const request = new BackendRequest({
       url: `/preferences?_=${timestamp}`,
@@ -34,67 +42,73 @@ ThemeBrowserStorage.isDefined = async () => {
         },
       },
     });
-    await request.send();
-    return request.response?.data && request.response.data.theme !== null;
-  } catch {
-    // User not authenticated, default to light theme
-    return false;
-  }
+
+    try {
+      await request.send();
+      return request.response?.data?.theme ?? null;
+    } catch {
+      return null;
+    } finally {
+      // Clear cache after request completes
+      fetchPromise = null;
+    }
+  })();
+
+  return fetchPromise;
+};
+
+ThemeBrowserStorage.isDefined = async () => {
+  // For unauthenticated users, theme is null but we want to use default 'light'
+  // So always return true to ensure Theme.init uses our value() method
+  return true;
 };
 
 ThemeBrowserStorage.value = async () => {
-  try {
-    const timestamp = new Date().getTime();
-    const request = new BackendRequest({
-      url: `/preferences?_=${timestamp}`,
-      type: 'get',
-      extraOptions: {
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          Pragma: 'no-cache',
-          Expires: '0',
-        },
-      },
-    });
-    await request.send();
-    if (request.response?.data && request.response.data.theme) {
-      console.warn('Loaded theme from database:', request.response.data.theme);
-      return request.response.data.theme;
-    }
-  } catch {
-    console.warn(
-      'Not authenticated or error fetching preferences, using default light theme'
-    );
+  const theme = await fetchThemePreference();
+  if (theme) {
+    console.warn('Loaded theme from database:', theme);
+    return theme;
   }
 
-  // Return default light theme when not authenticated or error
+  console.warn(
+    'Not authenticated or error fetching preferences, using default light theme'
+  );
   return 'light';
 };
 
 ThemeBrowserStorage.update = async (name) => {
   console.warn('ThemeBrowserStorage.update called with:', name);
 
-  try {
-    // Save to database only
-    const request = new BackendRequest({
-      url: '/preferences',
-      type: 'put',
-      data: { theme: name },
-      extraOptions: {
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          Pragma: 'no-cache',
-          Expires: '0',
-        },
+  const request = new BackendRequest({
+    url: '/preferences',
+    type: 'put',
+    body: { theme: name },
+    extraOptions: {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        Pragma: 'no-cache',
+        Expires: '0',
       },
-    });
-    await request.send();
-    console.warn('✅ Theme saved to database:', request.response?.data);
-    return true;
-  } catch (error) {
-    console.warn('⚠️ Failed to save theme to database:', error.message);
+    },
+  });
+  await request.send();
+
+  if (request.error) {
+    console.error('⚠️ Failed to save theme to database:', request.error);
     return false;
   }
+
+  if (!request.response || request.response.status !== 200) {
+    console.error(
+      '⚠️ Unexpected response:',
+      request.response?.status,
+      request.response?.data
+    );
+    return false;
+  }
+
+  console.warn('✅ Theme saved to database:', request.response.data);
+  return true;
 };
 
 ThemeBrowserStorage.remove = async () => {
@@ -103,7 +117,7 @@ ThemeBrowserStorage.remove = async () => {
     const request = new BackendRequest({
       url: '/preferences',
       type: 'put',
-      data: { theme: 'light' },
+      body: { theme: 'light' },
     });
     await request.send();
     console.warn('✅ Theme reset to light in database');
