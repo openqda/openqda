@@ -24,12 +24,13 @@ The restore script provides:
 - **Non-Overwrite Storage**: Existing files are preserved during restoration
 - **Safe .env Handling**: Existing configuration files are backed up before restoration
 
-The pull script provides:
+The pull script provides (run on backup server):
 
-- **List Remote Backups**: View available backups on the remote server
-- **Pull Latest Backup**: Download the most recent backup
+- **Security-Focused**: Application server doesn't need backup server credentials
+- **List Remote Backups**: View available backups on the application server
+- **Pull Latest Backup**: Download the most recent backup from application server
 - **Pull Specific Backup**: Download a backup by name
-- **Pull All Backups**: Download all backups from the remote server
+- **Pull All Backups**: Download all backups from the application server
 
 ## Quick Start
 
@@ -170,36 +171,62 @@ The archive contains:
 - `.env`: Environment configuration
 - `backup_info.txt`: Backup metadata
 
-## Pulling Backups from Remote Server
+## Pulling Backups from Application Server
 
-The `pull.sh` script allows you to download backups from a remote server via SCP. This is particularly useful when you want to retrieve backups from a remote backup server for restoration, rather than pushing backups to a remote location.
+The `pull.sh` script is designed to run **ON THE BACKUP SERVER** to pull backups **FROM THE APPLICATION SERVER** via SCP. This provides better security than pushing backups, as the application server does not need write credentials to the backup server.
+
+### Security Benefits
+
+If the application server is compromised:
+- **No backup server credentials exposed**: The attacker cannot access the backup server
+- **Backups remain safe**: The backup server controls when and how backups are retrieved
+- **Read-only access**: Application server only provides SSH read access to backup files
 
 ### Setup
 
-The pull script uses the same remote backup configuration as the backup script. Ensure you have configured the following settings in your `backup.config` file:
+#### On the Application Server
 
-```bash
-REMOTE_BACKUP_HOST="backup.example.com"
-REMOTE_BACKUP_USER="backup-user"
-REMOTE_BACKUP_PATH="/backups/openqda"
-REMOTE_BACKUP_PORT="22"
-# Optional: REMOTE_BACKUP_KEY="/path/to/ssh/key"
-```
+1. Ensure `backup.sh` creates backups locally
+2. Optionally disable remote push by setting `REMOTE_BACKUP_ENABLED=false` in `backup.config`
+3. Create a read-only SSH user for the backup server to use
+4. Ensure backup files are readable by this user
+
+#### On the Backup Server
+
+1. Copy the pull script and configuration:
+   ```bash
+   cp /path/to/openqda/web/scripts/pull.sh /usr/local/bin/
+   cp /path/to/openqda/web/scripts/pull.config.example /etc/openqda/pull.config
+   ```
+
+2. Configure access to the application server in `pull.config`:
+   ```bash
+   APP_SERVER_HOST="app.example.com"
+   APP_SERVER_USER="backup-reader"
+   APP_SERVER_BACKUP_PATH="/var/backups/openqda"
+   APP_SERVER_PORT="22"
+   # Optional: APP_SERVER_KEY="/path/to/ssh/key"
+   ```
+
+3. Set up SSH key authentication (recommended):
+   ```bash
+   ssh-keygen -t rsa -b 4096
+   ssh-copy-id backup-reader@app.example.com
+   ```
 
 ### List Available Backups
 
-View all backups available on the remote server:
+View all backups available on the application server:
 
 ```bash
-cd /path/to/openqda/web/scripts
 ./pull.sh --list
 ```
 
-This will display a list of all backup files on the remote server with their sizes and dates.
+This will display a list of all backup files on the application server with their sizes and dates.
 
 ### Pull the Latest Backup
 
-Download the most recent backup from the remote server:
+Download the most recent backup from the application server:
 
 ```bash
 ./pull.sh --latest
@@ -217,7 +244,7 @@ Download a backup by its filename:
 
 ### Pull All Backups
 
-Download all available backups from the remote server:
+Download all available backups from the application server:
 
 ```bash
 ./pull.sh --all
@@ -231,14 +258,15 @@ The script will download all backups, automatically skipping any that already ex
 |--------|-------------|
 | `-c, --config FILE` | Path to configuration file |
 | `-d, --dir DIR` | Local destination directory (default: `/var/backups/openqda`) |
-| `-l, --list` | List available backups on remote server |
+| `-l, --list` | List available backups on application server |
 | `-n, --name NAME` | Specific backup name to pull |
 | `--latest` | Pull the latest backup |
-| `--all` | Pull all backups from remote server |
+| `--all` | Pull all backups from application server |
 | `-h, --help` | Show help message |
 
 ### Pull Script Features
 
+- **Security-focused**: Application server doesn't need backup server credentials
 - **Smart duplicate detection**: Automatically skips backups that already exist locally
 - **Compressed transfer**: Uses SCP compression for faster transfers
 - **SSH key support**: Can use SSH keys for authentication
@@ -247,14 +275,14 @@ The script will download all backups, automatically skipping any that already ex
 
 ### Example Workflow
 
-A typical workflow for pulling and restoring a backup from a remote server:
+A typical workflow for pulling and restoring a backup from the application server:
 
-1. **List available backups**:
+1. **List available backups** (on backup server):
    ```bash
    ./pull.sh --list
    ```
 
-2. **Pull the latest backup**:
+2. **Pull the latest backup** (on backup server):
    ```bash
    ./pull.sh --latest
    ```
