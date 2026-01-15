@@ -192,6 +192,7 @@ get_latest_backup() {
 }
 
 # Function to pull a specific backup
+# Returns: 0 = success (downloaded), 2 = skipped (already exists), 1 = failed
 pull_backup() {
     local backup_file="$1"
     local remote_file="$REMOTE_BACKUP_PATH/$backup_file"
@@ -205,7 +206,7 @@ pull_backup() {
     if [ -f "$local_file" ]; then
         log_message "WARNING: Backup already exists locally: $local_file"
         log_message "Skipping download (file already present)"
-        return 0
+        return 2
     fi
     
     # Pull the backup
@@ -240,18 +241,13 @@ pull_all_backups() {
         local backup_file
         backup_file=$(basename "$remote_file")
         
-        if pull_backup "$backup_file"; then
-            if [ -f "$BACKUP_DIR/$backup_file" ]; then
-                # Check if it was newly downloaded or already existed
-                local new_file=true
-                [ -f "$BACKUP_DIR/$backup_file" ] && new_file=false
-                
-                if [ "$new_file" = true ]; then
-                    success_count=$((success_count + 1))
-                else
-                    skip_count=$((skip_count + 1))
-                fi
-            fi
+        pull_backup "$backup_file"
+        local result=$?
+        
+        if [ $result -eq 0 ]; then
+            success_count=$((success_count + 1))
+        elif [ $result -eq 2 ]; then
+            skip_count=$((skip_count + 1))
         else
             fail_count=$((fail_count + 1))
         fi
