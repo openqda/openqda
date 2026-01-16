@@ -287,7 +287,7 @@ Here are some tips to speed up your plugin development:
 As shown in the template, you can leverage an API in order
 to reactively get the filtered data and re-render your output.
 
-For a better understanding you might want to look at [the API file](../../web/resources/js/Pages/analysis/visualization/createVisualizationAPI.js).
+For a better understanding you might want to look at [the API file](https://github.com/openqda/openqda/blob/main/web/resources/js/Pages/analysis/visualization/createVisualizationAPI.js).
 
 ### Register the plugin
 

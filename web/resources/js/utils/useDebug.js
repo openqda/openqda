@@ -11,8 +11,8 @@ const DEBUG = import.meta.env.VITE_DEBUG_CLIENT ?? import.meta.env.DEBUG_CLIENT;
  * contains `VITE_DEBUG_CLIENT` with a value, that is a supported
  * `console` method, such as 'log', 'info', 'debug', 'warn', 'error' etc.
  * @function
- * @param mode
- * @param scope
+ * @param mode {'log'|'info'|'debug'|'warn'|'error'}
+ * @param scope {string} name of the component to debug
  * @return {(function(any):any)}
  */
 export const useDebug = ({ mode, scope } = {}) => {

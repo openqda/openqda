@@ -44,6 +44,10 @@ export const useEcho = () => {
       return window.Echo;
     },
     echo: () => window.Echo,
+    stop: () => {
+      window.Echo?.disconnect();
+      window.Echo?.connector?.pusher?.disconnect();
+    },
     options: () => ({ ...options }),
   };
 };

@@ -67,6 +67,21 @@ services:
 #            WEB_CONCURRENCY: 2
 #        networks:
 #            - sail
+
+    plugin.transform.converthtml:
+        # our transform service that runs pandoc to
+        # convert various document formats to HTML
+        # container console: docker exec -it plugin-transform-convert-html /bin/bash
+        container_name: plugin-transform-convert-html
+        build:
+            context: ../services/transform/convert-to-html
+            dockerfile: Dockerfile
+        ports:
+            - '9666:9666'
+        volumes:
+            - '../services/transform/convert-to-html/storage:/app/storage'
+        networks:
+            - sail
 networks:
     sail:
         driver: bridge
