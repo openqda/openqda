@@ -300,7 +300,11 @@ async function fetchAndRenderDocument(document) {
     // Call fileSelected with the fetched document
     fileSelected(fetchedDocument);
   } catch (error) {
-    console.error('Failed to fetch document:', error);
+    console.error(error);
+    flashMessage(
+      `Failed to fetch document: ${error.message} ${error.response?.data?.message || error.response?.data?.error || ''}. Id=${document.id}`,
+      { type: 'error' }
+    );
   }
 }
 </script>
