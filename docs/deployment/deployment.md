@@ -5,7 +5,7 @@ Currently, there are two options for deployment:
 
 ## Backup and Recovery
 
-OpenQDA includes a comprehensive backup script that can be scheduled to run automatically. The backup script creates a complete snapshot of your application data including database, storage files, and configuration. For detailed information on setting up automated backups, see the [Backup Script Documentation](https://github.com/openqda/openqda/blob/main/web/scripts/README.md).
+OpenQDA includes a comprehensive backup script that can be scheduled to run automatically. The backup script creates a complete snapshot of your application data including database, storage files, and configuration. For detailed information on setting up automated backups, see the [Backup & Recovery Guide](./backup.md).
 
 
 ## Via Docker
