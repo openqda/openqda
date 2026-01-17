@@ -10,6 +10,7 @@ use App\Models\Codebook;
 use App\Models\Project;
 use App\Models\Source;
 use App\Traits\BuildsNestedCode;
+use App\Traits\SourceExists;
 use App\Traits\ValidatesStoragePath;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,7 +18,7 @@ use Inertia\Inertia;
 
 class CodingController extends Controller
 {
-    use BuildsNestedCode, ValidatesStoragePath;
+    use BuildsNestedCode, SourceExists, ValidatesStoragePath;
 
     /**
      * Store a newly created code.
@@ -44,12 +45,34 @@ class CodingController extends Controller
     public function show(Request $request, Project $project)
     {
         $projectId = $project->id;
-        $allSources = Source::where('project_id', $projectId)
+        $allSources = Source::where('project_id', $projectId)->with('variables')
             ->whereHas('variables', function ($query) {
                 $query->where('name', 'isLocked')
                     ->where('boolean_value', true);
             })
-            ->get();
+
+            ->get()
+            ->map(function ($source) {
+                $converted = $source->converted;
+                $status = $source->sourceStatuses()->latest()->first();
+                $source->status = $status ? $status->status : 'pending';
+                $exists = $this->sourceExists($source);
+
+                return [
+                    'id' => $source->id,
+                    'name' => $source->name,
+                    'type' => $source->type,
+                    'user' => $source->creatingUser->name,
+                    'userPicture' => $source->creatingUser->profile_photo_url,
+                    'date' => $source->created_at->toDateString(),
+                    'selectionsCount' => $source->selections()->count(),
+                    'variables' => $source->variables,
+                    'converted' => (bool) $converted,
+                    'exists' => $exists,
+                    'status' => $status && $status->status ? $status->status : 'unknown',
+                    'failed' => $status && $status->status === 'failed',
+                ];
+            });
 
         // Handle codebook creation/retrieval
         $codebook = $project->codebooks()->first() ?? $this->createDefaultCodebook($project, $request);
