@@ -88,6 +88,24 @@ The backup script can be configured in three ways (in order of precedence):
 | `REMOTE_BACKUP_PATH` | (empty) | Destination path on remote server |
 | `REMOTE_BACKUP_PORT` | `22` | SSH port for remote server |
 | `REMOTE_BACKUP_KEY` | (empty) | Path to SSH private key (optional) |
+
+#### Backup File Group Permission (Optional)
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `BACKUP_FILE_GROUP_PERMISSION` | (empty) | Group name to set on backup files for pull-based backups |
+
+When using pull-based backups (where the backup server pulls backups from the application server), you can configure this option to automatically set the group ownership on created backup files. This allows the backup server's SSH user to read the backup files.
+
+**Example:**
+```bash
+BACKUP_FILE_GROUP_PERMISSION="backup-group"
+```
+
+**Setup:**
+1. Create a shared group on the application server
+2. Add both the backup script user and the backup server's SSH user to this group
+3. The backup script will automatically set group ownership and ensure group-read permission
 | `DB_NAME` | `web` | Database name |
 | `DB_USER` | `root` | MySQL username |
 | `DB_PASSWORD` | (empty) | MySQL password |
@@ -188,8 +206,23 @@ If the application server is compromised:
 
 1. Ensure `backup.sh` creates backups locally
 2. Optionally disable remote push by setting `REMOTE_BACKUP_ENABLED=false` in `backup.config`
-3. Create a read-only SSH user for the backup server to use
-4. Ensure backup files are readable by this user
+3. Create a shared group and users for backup access:
+   ```bash
+   # Create a group for backup access
+   sudo groupadd backup-group
+   
+   # Add the backup script user (e.g., www-data) to the group
+   sudo usermod -a -G backup-group www-data
+   
+   # Create a read-only SSH user for the backup server
+   sudo useradd -m -s /bin/bash backup-reader
+   sudo usermod -a -G backup-group backup-reader
+   ```
+4. Configure group permission in `backup.config`:
+   ```bash
+   BACKUP_FILE_GROUP_PERMISSION="backup-group"
+   ```
+5. Set up SSH key authentication for the backup-reader user
 
 #### On the Backup Server
 

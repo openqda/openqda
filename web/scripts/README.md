@@ -128,6 +128,25 @@ Configuration can be provided in three ways (in order of precedence):
 | Remote Port | `REMOTE_BACKUP_PORT` | `22` | SSH port for remote server |
 | SSH Key | `REMOTE_BACKUP_KEY` | (empty) | Path to SSH private key (optional) |
 
+#### Backup File Group Permission (Optional)
+
+| Option | Environment Variable | Default | Description |
+|--------|---------------------|---------|-------------|
+| Group Permission | `BACKUP_FILE_GROUP_PERMISSION` | (empty) | Group name to set on backup files for pull-based backups |
+
+This setting is useful when using pull-based backups where a backup server connects to the application server to fetch backups. When configured, the backup script will set the group ownership of the created backup file to the specified group and ensure it's group-readable. The backup user on the backup server should be a member of this group.
+
+**Example configuration:**
+```bash
+BACKUP_FILE_GROUP_PERMISSION="backup-group"
+```
+
+**Setup steps:**
+1. Create a group on the application server: `sudo groupadd backup-group`
+2. Add the backup script user to the group: `sudo usermod -a -G backup-group www-data`
+3. Add the backup server's SSH user to the group: `sudo usermod -a -G backup-group backup-reader`
+4. Configure the option in `backup.config`
+
 ### Setting Up Remote Backups
 
 To enable automatic remote backup transfer via SCP:
