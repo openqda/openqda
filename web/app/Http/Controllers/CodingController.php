@@ -50,7 +50,6 @@ class CodingController extends Controller
                 $query->where('name', 'isLocked')
                     ->where('boolean_value', true);
             })
-
             ->get()
             ->map(function ($source) {
                 $converted = $source->converted;
