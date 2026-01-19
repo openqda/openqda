@@ -37,7 +37,7 @@ const exportToCSV = ({ contents, project, users }) => {
         csv.addRow([
           /* file */ entry.name,
           /* code category */ code.name,
-          /* created by */ user?.name ?? selection?.createdBy ?? user?.id,
+          /* created by */ user?.name ?? user?.id ?? selection?.createdBy ?? '',
           /* created at */ toLocaleDateString(selection.createdAt),
           toLocaleDateString(
             selection.updatedAt !== selection.createdAt
@@ -46,7 +46,7 @@ const exportToCSV = ({ contents, project, users }) => {
           ),
           selection.start,
           selection.end,
-          selection.text.replace(whitespace, ' '),
+          selection.text,
         ]);
       });
     });
