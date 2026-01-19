@@ -40,11 +40,11 @@ class SourceExistsTraitTest extends TestCase
     /**
      * Helper method to create a SourceStatus record for a source
      */
-    private function createSourceStatus(Source $source, string $path): SourceStatus
+    private function createSourceStatus(Source $source, string $path, string $status = 'converted:html'): SourceStatus
     {
         return SourceStatus::create([
             'source_id' => $source->id,
-            'status' => 'converted:html',
+            'status' => $status,
             'path' => $path,
         ]);
     }
