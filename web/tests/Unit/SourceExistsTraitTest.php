@@ -32,11 +32,21 @@ class SourceExistsTraitTest extends TestCase
             }
         };
 
-        // Create test file path
-        $this->testFilePath = storage_path('app/test_source_exists');
-        if (! File::exists($this->testFilePath)) {
-            File::makeDirectory($this->testFilePath, 0755, true);
-        }
+        // Create test file path with unique identifier
+        $this->testFilePath = storage_path('app/test_source_exists_'.uniqid());
+        File::makeDirectory($this->testFilePath, 0755, true);
+    }
+
+    /**
+     * Helper method to create a SourceStatus record for a source
+     */
+    private function createSourceStatus(Source $source, string $path): SourceStatus
+    {
+        return SourceStatus::create([
+            'source_id' => $source->id,
+            'status' => 'converted:html',
+            'path' => $path,
+        ]);
     }
 
     public function test_source_exists_returns_true_when_converted_path_exists()
@@ -49,19 +59,12 @@ class SourceExistsTraitTest extends TestCase
         $source = Source::factory()->create();
         
         // Create a SourceStatus record
-        SourceStatus::create([
-            'source_id' => $source->id,
-            'status' => 'converted:html',
-            'path' => $filePath,
-        ]);
+        $this->createSourceStatus($source, $filePath);
 
         // Test the method
         $result = $this->testClass->testSourceExists($source);
 
         $this->assertTrue($result);
-
-        // Clean up
-        File::delete($filePath);
     }
 
     public function test_source_exists_returns_false_when_converted_path_missing()
@@ -71,11 +74,7 @@ class SourceExistsTraitTest extends TestCase
         
         $missingPath = $this->testFilePath.'/nonexistent.html';
         
-        SourceStatus::create([
-            'source_id' => $source->id,
-            'status' => 'converted:html',
-            'path' => $missingPath,
-        ]);
+        $this->createSourceStatus($source, $missingPath);
 
         // Test the method
         $result = $this->testClass->testSourceExists($source);
@@ -98,9 +97,6 @@ class SourceExistsTraitTest extends TestCase
         $result = $this->testClass->testSourceExists($source);
 
         $this->assertTrue($result);
-
-        // Clean up
-        File::delete($filePath);
     }
 
     public function test_source_exists_returns_false_when_upload_path_missing()
@@ -136,11 +132,7 @@ class SourceExistsTraitTest extends TestCase
         // Create a source with empty converted path
         $source = Source::factory()->create();
         
-        SourceStatus::create([
-            'source_id' => $source->id,
-            'status' => 'converted:html',
-            'path' => '',
-        ]);
+        $this->createSourceStatus($source, '');
 
         // Test the method
         $result = $this->testClass->testSourceExists($source);
@@ -175,20 +167,12 @@ class SourceExistsTraitTest extends TestCase
             'upload_path' => $uploadPath,
         ]);
         
-        SourceStatus::create([
-            'source_id' => $source->id,
-            'status' => 'converted:html',
-            'path' => $convertedPath,
-        ]);
+        $this->createSourceStatus($source, $convertedPath);
 
         // Test the method - should use converted path
         $result = $this->testClass->testSourceExists($source);
 
         $this->assertTrue($result);
-
-        // Clean up
-        File::delete($convertedPath);
-        File::delete($uploadPath);
     }
 
     public function test_source_exists_falls_back_to_upload_when_converted_path_empty()
@@ -202,29 +186,18 @@ class SourceExistsTraitTest extends TestCase
             'upload_path' => $uploadPath,
         ]);
         
-        SourceStatus::create([
-            'source_id' => $source->id,
-            'status' => 'converted:html',
-            'path' => '',  // Empty converted path
-        ]);
+        $this->createSourceStatus($source, '');  // Empty converted path
 
         // Test the method - should fall back to upload_path
         $result = $this->testClass->testSourceExists($source);
 
         $this->assertTrue($result);
-
-        // Clean up
-        File::delete($uploadPath);
     }
 
     protected function tearDown(): void
     {
-        // Clean up test directory
+        // Clean up test directory recursively
         if (File::exists($this->testFilePath)) {
-            $files = File::files($this->testFilePath);
-            foreach ($files as $file) {
-                File::delete($file);
-            }
             File::deleteDirectory($this->testFilePath);
         }
 
