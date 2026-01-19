@@ -1,7 +1,13 @@
 import { createCSVBuilder } from '../utils/files/createCSVBuilder.js';
 import { saveTextFile } from '../utils/files/saveTextFile.js';
 import { usePage } from '@inertiajs/vue3';
+import { toLocaleDateString } from '../utils/date/toLocaleDateString.js';
+import { whitespace } from '../utils/regex.js';
 
+/**
+ * Export hook for exporting project data.
+ * @return {{exportToCSV: (function({contents: *, users: *}): Promise<void>)}}
+ */
 export const useExport = () => {
   const { project } = usePage().props;
 
@@ -12,9 +18,6 @@ export const useExport = () => {
 };
 
 const exportToCSV = ({ contents, project, users }) => {
-  const doubleQuote = /"/g;
-  const quote = "'";
-  const whitespace = /\s+/g;
   const csv = createCSVBuilder({
     header: [
       'file',
@@ -32,24 +35,25 @@ const exportToCSV = ({ contents, project, users }) => {
       code.segments.forEach((selection) => {
         const user = users[selection.createdBy];
         csv.addRow([
-          entry.name,
-          code.name,
-          user?.name ? user.name : selection.createdBy,
-          selection.createdAt,
-          selection.updatedAt !== selection.createdAt
-            ? selection.updatedAt
-            : '',
+          /* file */ entry.name,
+          /* code category */ code.name,
+          /* created by */ user?.name ?? selection?.createdBy ?? user?.id,
+          /* created at */ toLocaleDateString(selection.createdAt),
+          toLocaleDateString(
+            selection.updatedAt !== selection.createdAt
+              ? selection.updatedAt
+              : ''
+          ),
           selection.start,
           selection.end,
-          `"${selection.text.replace(doubleQuote, quote).replace(whitespace, ' ')}"`,
+          selection.text.replace(whitespace, ' '),
         ]);
       });
     });
   });
-
   const out = csv.build();
   const date = new Date().toLocaleDateString().replace(/[_.:,\s]+/g, ' ');
-  const name = `${project.name} ${date}.csv`;
+  const name = `OpenQDA ${project.name} ${date}.csv`;
   return saveTextFile({
     text: out,
     name: name,

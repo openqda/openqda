@@ -2,6 +2,8 @@
  * @module
  */
 
+import { whitespace } from '../regex.js';
+
 /**
  * Creates a new CSV builder that allows to construct a new csv
  * string by given options and added rows.
@@ -48,7 +50,21 @@ class CSVBuilder {
 }
 
 const toLine = (row, { separator, newline }) => {
-  return row.join(separator) + newline;
+  let line = '';
+  for (let field of row) {
+    if (line !== '') {
+      line += separator;
+    }
+    if (field === null || field === undefined) {
+      field = '';
+    }
+    let s = String(field).replace(whitespace, ' ');
+    if (/[,"\r\n]/.test(s)) {
+      s = '"' + s.replace(/"/g, '""') + '"';
+    }
+    line += s;
+  }
+  return line + newline;
 };
 
 export const className = CSVBuilder.name;
