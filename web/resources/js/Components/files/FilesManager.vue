@@ -10,6 +10,8 @@ import {
   CloudArrowUpIcon,
   DocumentArrowDownIcon,
   PlusIcon,
+  PencilSquareIcon,
+  XCircleIcon,
 } from '@heroicons/vue/24/solid';
 import { inject, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
@@ -300,7 +302,16 @@ async function fetchAndRenderDocument(document) {
     // Call fileSelected with the fetched document
     fileSelected(fetchedDocument);
   } catch (error) {
-    console.error('Failed to fetch document:', error);
+    console.error(error);
+    const responseMessage =
+      error?.response?.data?.message ?? error?.response?.data?.error ?? '';
+    const combinedMessage = [error?.message, responseMessage]
+      .filter(Boolean)
+      .join(' - ');
+    const message = `Failed to fetch document${
+      combinedMessage ? `: ${combinedMessage}` : ''
+    }. Id=${document.id}`;
+    flashMessage(message, { type: 'error' });
   }
 }
 </script>

@@ -104,7 +104,7 @@
             :class="
               cn(
                 'py-3 tracking-wide',
-                document.converted && document.exists
+                document.converted
                   ? ''
                   : 'cursor-not-allowed pointer-events-none',
                 !document.selected && 'cursor-pointer'
@@ -156,7 +156,7 @@
             <CloudArrowUpIcon class="w-5 h-5 text-secondary" />
           </div>
           <div
-            v-else-if="!document.converted || document.converting"
+            v-else-if="document.converting || !document.converted"
             class="inline-flex justify-center w-full p-1"
             :title="`Converting file in the background${conversionState(document)}. You may safely leave the page and come back later.`"
           >
@@ -166,10 +166,8 @@
             Converting
           </div>
           <div
-            v-else-if="
-              !document.exists && document.converted && !document.converting
-            "
-            title="The document is missing from the server. Please contact support."
+            v-else-if="!document.exists"
+            :title="`The document is not found. DO NOT DELETE - instead, please contact support. Document status: ${document.status ?? document.variables?.transcription_job_status}`"
             class="inline-flex justify-center w-full p-1 clickable"
           >
             <QuestionMarkCircleIcon
