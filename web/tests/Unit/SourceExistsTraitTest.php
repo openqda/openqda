@@ -34,8 +34,8 @@ class SourceExistsTraitTest extends TestCase
 
         // Create test file path
         $this->testFilePath = storage_path('app/test_source_exists');
-        if (! file_exists($this->testFilePath)) {
-            mkdir($this->testFilePath, 0755, true);
+        if (! File::exists($this->testFilePath)) {
+            File::makeDirectory($this->testFilePath, 0755, true);
         }
     }
 
@@ -43,7 +43,7 @@ class SourceExistsTraitTest extends TestCase
     {
         // Create a test file
         $filePath = $this->testFilePath.'/converted.html';
-        file_put_contents($filePath, '<p>test content</p>');
+        File::put($filePath, '<p>test content</p>');
 
         // Create a source with converted status (persisted to database)
         $source = Source::factory()->create();
@@ -61,7 +61,7 @@ class SourceExistsTraitTest extends TestCase
         $this->assertTrue($result);
 
         // Clean up
-        unlink($filePath);
+        File::delete($filePath);
     }
 
     public function test_source_exists_returns_false_when_converted_path_missing()
@@ -87,7 +87,7 @@ class SourceExistsTraitTest extends TestCase
     {
         // Create a test file
         $filePath = $this->testFilePath.'/upload.txt';
-        file_put_contents($filePath, 'test content');
+        File::put($filePath, 'test content');
 
         // Create a source without converted status but with upload_path
         $source = Source::factory()->create([
@@ -100,7 +100,7 @@ class SourceExistsTraitTest extends TestCase
         $this->assertTrue($result);
 
         // Clean up
-        unlink($filePath);
+        File::delete($filePath);
     }
 
     public function test_source_exists_returns_false_when_upload_path_missing()
@@ -167,8 +167,8 @@ class SourceExistsTraitTest extends TestCase
         $convertedPath = $this->testFilePath.'/converted_priority.html';
         $uploadPath = $this->testFilePath.'/upload_priority.txt';
         
-        file_put_contents($convertedPath, '<p>converted</p>');
-        file_put_contents($uploadPath, 'uploaded');
+        File::put($convertedPath, '<p>converted</p>');
+        File::put($uploadPath, 'uploaded');
 
         // Create a source with both paths
         $source = Source::factory()->create([
@@ -187,15 +187,15 @@ class SourceExistsTraitTest extends TestCase
         $this->assertTrue($result);
 
         // Clean up
-        unlink($convertedPath);
-        unlink($uploadPath);
+        File::delete($convertedPath);
+        File::delete($uploadPath);
     }
 
     public function test_source_exists_falls_back_to_upload_when_converted_path_empty()
     {
         // Create upload file
         $uploadPath = $this->testFilePath.'/fallback_upload.txt';
-        file_put_contents($uploadPath, 'uploaded');
+        File::put($uploadPath, 'uploaded');
 
         // Create a source with empty converted path but valid upload_path
         $source = Source::factory()->create([
@@ -214,20 +214,18 @@ class SourceExistsTraitTest extends TestCase
         $this->assertTrue($result);
 
         // Clean up
-        unlink($uploadPath);
+        File::delete($uploadPath);
     }
 
     protected function tearDown(): void
     {
         // Clean up test directory
-        if (file_exists($this->testFilePath)) {
-            $files = glob($this->testFilePath.'/*');
+        if (File::exists($this->testFilePath)) {
+            $files = File::files($this->testFilePath);
             foreach ($files as $file) {
-                if (is_file($file)) {
-                    unlink($file);
-                }
+                File::delete($file);
             }
-            rmdir($this->testFilePath);
+            File::deleteDirectory($this->testFilePath);
         }
 
         parent::tearDown();
