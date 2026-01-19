@@ -39,6 +39,7 @@ it('escapes fields with special characters', () => {
       'with"quote',
       'with\nnewline',
       'with`backticks`',
+      'with;separator',
     ],
   });
   builder.addRow([
@@ -47,8 +48,9 @@ it('escapes fields with special characters', () => {
     'value "with" quotes',
     'line1\nline2',
     `value with \`backticks\``,
+    'value;with;separators',
   ]);
-  const expected = `normal;"with,comma";"with""quote";with newline;with\`backticks\`\nsimple;"value,with,commas";"value ""with"" quotes";line1 line2;value with \`backticks\`\n`;
+  const expected = `normal;"with,comma";"with""quote";"with\nnewline";with\`backticks\`;"with;separator"\nsimple;"value,with,commas";"value ""with"" quotes";"line1\nline2";value with \`backticks\`;"value;with;separators"\n`;
   const actual = builder.build();
   expect(actual).toBe(expected);
 });
