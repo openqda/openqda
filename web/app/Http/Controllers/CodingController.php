@@ -50,7 +50,6 @@ class CodingController extends Controller
                 $query->where('name', 'isLocked')
                     ->where('boolean_value', true);
             })
-
             ->get()
             ->map(function ($source) {
                 $converted = $source->converted;
@@ -66,7 +65,7 @@ class CodingController extends Controller
                     'userPicture' => $source->creatingUser->profile_photo_url,
                     'date' => $source->created_at->toDateString(),
                     'selectionsCount' => $source->selections()->count(),
-                    'variables' => $source->variables,
+                    'variables' => $source->transformVariables(),
                     'converted' => (bool) $converted,
                     'exists' => $exists,
                     'status' => $status && $status->status ? $status->status : 'unknown',

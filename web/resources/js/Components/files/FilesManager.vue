@@ -301,10 +301,15 @@ async function fetchAndRenderDocument(document) {
     fileSelected(fetchedDocument);
   } catch (error) {
     console.error(error);
-    flashMessage(
-      `Failed to fetch document: ${error.message} ${error.response?.data?.message || error.response?.data?.error || ''}. Id=${document.id}`,
-      { type: 'error' }
-    );
+    const responseMessage =
+      error?.response?.data?.message ?? error?.response?.data?.error ?? '';
+    const combinedMessage = [error?.message, responseMessage]
+      .filter(Boolean)
+      .join(' - ');
+    const message = `Failed to fetch document${
+      combinedMessage ? `: ${combinedMessage}` : ''
+    }. Id=${document.id}`;
+    flashMessage(message, { type: 'error' });
   }
 }
 </script>
