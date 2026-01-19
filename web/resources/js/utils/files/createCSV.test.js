@@ -30,3 +30,27 @@ it('throws on incompatible row length', () => {
     );
   });
 });
+
+it('escapes fields with special characters', () => {
+  const builder = createCSVBuilder({
+    header: [
+      'normal',
+      'with,comma',
+      'with"quote',
+      'with\nnewline',
+      'with`backticks`',
+      'with;separator',
+    ],
+  });
+  builder.addRow([
+    'simple',
+    'value,with,commas',
+    'value "with" quotes',
+    'line1\nline2',
+    `value with \`backticks\``,
+    'value;with;separators',
+  ]);
+  const expected = `normal;"with,comma";"with""quote";"with\nnewline";with\`backticks\`;"with;separator"\nsimple;"value,with,commas";"value ""with"" quotes";"line1\nline2";value with \`backticks\`;"value;with;separators"\n`;
+  const actual = builder.build();
+  expect(actual).toBe(expected);
+});
