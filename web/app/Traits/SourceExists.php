@@ -9,7 +9,7 @@ trait SourceExists
 {
     /**
      * Validate that a source exists by given path,
-     * either by its exists property or by checking the file system.
+     * by checking the file system.
      * Does not validate whether the path is within allowed storage.
      *
      * @param  Source  $source  The source to validate
