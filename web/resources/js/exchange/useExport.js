@@ -2,7 +2,6 @@ import { createCSVBuilder } from '../utils/files/createCSVBuilder.js';
 import { saveTextFile } from '../utils/files/saveTextFile.js';
 import { usePage } from '@inertiajs/vue3';
 import { toLocaleDateString } from '../utils/date/toLocaleDateString.js';
-import { whitespace } from '../utils/regex.js';
 
 /**
  * Export hook for exporting project data.
