@@ -2,7 +2,7 @@
 
 ################################################################################
 # OpenQDA Backup Pull Script
-# 
+#
 # This script is run ON THE BACKUP SERVER to pull backups FROM the application
 # server via SCP. This provides better security than pushing backups, as the
 # application server does not need credentials to access the backup server.
@@ -157,24 +157,21 @@ fi
 mkdir -p "$BACKUP_DIR" || error_exit "Failed to create backup directory: $BACKUP_DIR"
 
 # Build SSH/SCP command arrays
-SSH_CMD=(ssh -p "$APP_SERVER_PORT")
-SCP_CMD=(scp -P "$APP_SERVER_PORT")
+SSH_CMD="ssh -p $APP_SERVER_PORT"
+SCP_CMD="scp -P $APP_SERVER_PORT"
 
 # Add SSH key if specified
 if [ -n "$APP_SERVER_KEY" ]; then
-    SSH_CMD+=(-i "$APP_SERVER_KEY")
-    SCP_CMD+=(-i "$APP_SERVER_KEY")
+    SSH_CMD="$SSH_CMD -i $APP_SERVER_KEY"
+    SCP_CMD="$SCP_CMD -i $APP_SERVER_KEY"
 fi
-
-# Add compression for SCP
-SCP_CMD+=(-C)
 
 # Function to list remote backups
 list_remote_backups() {
-    log_message "Listing backups on application server: $APP_SERVER_USER@$APP_SERVER_HOST:$APP_SERVER_BACKUP_PATH"
-    
+    log_message "Listing backups on application server: $SSH_CMD $APP_SERVER_USER@$APP_SERVER_HOST:$APP_SERVER_BACKUP_PATH"
+
     # List backup files on application server
-    if "${SSH_CMD[@]}" "$APP_SERVER_USER@$APP_SERVER_HOST" "ls -lh '$APP_SERVER_BACKUP_PATH'/openqda_backup_*.tar.gz 2>/dev/null" 2>> "$LOG_FILE"; then
+    if $SSH_CMD "$APP_SERVER_USER@$APP_SERVER_HOST" "ls -lh '$APP_SERVER_BACKUP_PATH'/openqda_backup_*.tar.gz 2>/dev/null" 2>> "$LOG_FILE"; then
         echo ""
         log_message "Available backups listed above"
     else
@@ -186,12 +183,12 @@ list_remote_backups() {
 # Function to get latest backup name
 get_latest_backup() {
     local latest=""
-    latest=$("${SSH_CMD[@]}" "$APP_SERVER_USER@$APP_SERVER_HOST" "ls -t '$APP_SERVER_BACKUP_PATH'/openqda_backup_*.tar.gz 2>/dev/null | head -n 1" 2>> "$LOG_FILE")
-    
+    latest=$($SSH_CMD "$APP_SERVER_USER@$APP_SERVER_HOST" "ls -t '$APP_SERVER_BACKUP_PATH'/openqda_backup_*.tar.gz 2>/dev/null | head -n 1" 2>> "$LOG_FILE")
+
     if [ -z "$latest" ]; then
         error_exit "No backups found on application server"
     fi
-    
+
     # Extract just the filename
     basename "$latest"
 }
@@ -202,20 +199,21 @@ pull_backup() {
     local backup_file="$1"
     local remote_file="$APP_SERVER_BACKUP_PATH/$backup_file"
     local local_file="$BACKUP_DIR/$backup_file"
-    
+
     log_message "Pulling backup: $backup_file"
     log_message "From: $APP_SERVER_USER@$APP_SERVER_HOST:$remote_file"
     log_message "To: $local_file"
-    
+
     # Check if file already exists locally
     if [ -f "$local_file" ]; then
         log_message "WARNING: Backup already exists locally: $local_file"
         log_message "Skipping download (file already present)"
         return 2
     fi
-    
+
     # Pull the backup
-    if "${SCP_CMD[@]}" "$APP_SERVER_USER@$APP_SERVER_HOST:'$remote_file'" "$local_file" 2>> "$LOG_FILE"; then
+    log_message "$SCP_CMD $APP_SERVER_USER@$APP_SERVER_HOST:$remote_file"
+    if $SCP_CMD "$APP_SERVER_USER@$APP_SERVER_HOST:$remote_file" "$local_file" 2>> "$LOG_FILE"; then
         # Calculate backup size
         BACKUP_SIZE=$(du -h "$local_file" | cut -f1)
         log_message "Successfully pulled backup: $backup_file ($BACKUP_SIZE)"
@@ -229,26 +227,26 @@ pull_backup() {
 # Function to pull all backups
 pull_all_backups() {
     log_message "Pulling all backups from application server..."
-    
+
     # Get list of all backup files
     local backup_list=""
-    backup_list=$("${SSH_CMD[@]}" "$APP_SERVER_USER@$APP_SERVER_HOST" "ls '$APP_SERVER_BACKUP_PATH'/openqda_backup_*.tar.gz 2>/dev/null" 2>> "$LOG_FILE")
-    
+    backup_list=$($SSH_CMD "$APP_SERVER_USER@$APP_SERVER_HOST" "ls '$APP_SERVER_BACKUP_PATH'/openqda_backup_*.tar.gz 2>/dev/null" 2>> "$LOG_FILE")
+
     if [ -z "$backup_list" ]; then
         error_exit "No backups found on application server"
     fi
-    
+
     local success_count=0
     local skip_count=0
     local fail_count=0
-    
+
     while IFS= read -r remote_file; do
         local backup_file
         backup_file=$(basename "$remote_file")
-        
+
         pull_backup "$backup_file"
         local result=$?
-        
+
         if [ $result -eq 0 ]; then
             success_count=$((success_count + 1))
         elif [ $result -eq 2 ]; then
@@ -257,7 +255,7 @@ pull_all_backups() {
             fail_count=$((fail_count + 1))
         fi
     done <<< "$backup_list"
-    
+
     log_message "========================================"
     log_message "Pull all backups completed"
     log_message "Successfully pulled: $success_count"
