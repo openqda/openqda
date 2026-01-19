@@ -10,6 +10,8 @@ import {
   CloudArrowUpIcon,
   DocumentArrowDownIcon,
   PlusIcon,
+  PencilSquareIcon,
+  XCircleIcon,
 } from '@heroicons/vue/24/solid';
 import { inject, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
