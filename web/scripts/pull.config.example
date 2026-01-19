@@ -1,0 +1,26 @@
+# OpenQDA Backup Pull Configuration
+#
+# This file contains configuration for the pull script.
+# Copy this file to pull.config and adjust the values as needed.
+#
+# The pull script is run ON THE BACKUP SERVER to pull backups FROM the
+# application server. This provides better security than pushing backups,
+# as the application server does not need credentials to access the backup server.
+#
+# All settings can also be provided as environment variables or command-line arguments.
+
+# Local backup directory (on the backup server)
+BACKUP_DIR="/var/backups/openqda"
+
+# Application server configuration (where backups are created)
+# This is the server running OpenQDA with backups created by backup.sh
+APP_SERVER_HOST="app.example.com"
+APP_SERVER_USER="backup-reader"
+APP_SERVER_BACKUP_PATH="/var/backups/openqda"
+APP_SERVER_PORT="22"
+
+# Optional: SSH key path (if not using default)
+# APP_SERVER_KEY="/path/to/ssh/key"
+
+# Log file location
+LOG_FILE="/var/backups/openqda/pull.log"
