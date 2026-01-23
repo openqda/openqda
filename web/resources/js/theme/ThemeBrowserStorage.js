@@ -1,3 +1,5 @@
+import BackendRequest from '../utils/http/BackendRequest.js';
+
 /**
  * @module
  */
@@ -11,28 +13,117 @@
  */
 
 /**
- * Storage implementation to store theme decisions in the browser's
- * localStorage.
+ * Storage implementation to store theme decisions in the database only.
+ * No localStorage is used. Defaults to 'light' theme when user is not authenticated.
+ * Uses simple polling to sync across tabs.
  * @type {ThemeStorage}
  */
 export const ThemeBrowserStorage = {};
 
-const storageKey = 'theme';
-const storage = localStorage;
+// Cache the fetch request to prevent multiple concurrent requests
+let fetchPromise = null;
 
-ThemeBrowserStorage.isDefined = async () => storage && storageKey in storage;
+const fetchThemePreference = async () => {
+  // Reuse in-flight request if one exists
+  if (fetchPromise) {
+    return fetchPromise;
+  }
+
+  fetchPromise = (async () => {
+    const timestamp = new Date().getTime();
+    const request = new BackendRequest({
+      url: `/preferences?_=${timestamp}`,
+      type: 'get',
+      extraOptions: {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          Pragma: 'no-cache',
+          Expires: '0',
+        },
+      },
+    });
+
+    try {
+      await request.send();
+      return request.response?.data?.theme ?? null;
+    } catch {
+      return null;
+    } finally {
+      // Clear cache after request completes
+      fetchPromise = null;
+    }
+  })();
+
+  return fetchPromise;
+};
+
+ThemeBrowserStorage.isDefined = async () => {
+  // For unauthenticated users, theme is null but we want to use default 'light'
+  // So always return true to ensure Theme.init uses our value() method
+  return true;
+};
 
 ThemeBrowserStorage.value = async () => {
-  const value = storage.getItem(storageKey);
-  return value ?? null;
+  const theme = await fetchThemePreference();
+  if (theme) {
+    console.warn('Loaded theme from database:', theme);
+    return theme;
+  }
+
+  console.warn(
+    'Not authenticated or error fetching preferences, using default light theme'
+  );
+  return 'light';
 };
 
 ThemeBrowserStorage.update = async (name) => {
-  storage.setItem(storageKey, name);
+  console.warn('ThemeBrowserStorage.update called with:', name);
+
+  const request = new BackendRequest({
+    url: '/preferences',
+    type: 'put',
+    body: { theme: name },
+    extraOptions: {
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        Pragma: 'no-cache',
+        Expires: '0',
+      },
+    },
+  });
+  await request.send();
+
+  if (request.error) {
+    console.error('⚠️ Failed to save theme to database:', request.error);
+    return false;
+  }
+
+  if (!request.response || request.response.status !== 200) {
+    console.error(
+      '⚠️ Unexpected response:',
+      request.response?.status,
+      request.response?.data
+    );
+    return false;
+  }
+
+  console.warn('✅ Theme saved to database:', request.response.data);
   return true;
 };
 
 ThemeBrowserStorage.remove = async () => {
-  storage.removeItem(storageKey);
-  return true;
+  try {
+    // Reset to default light theme in database
+    const request = new BackendRequest({
+      url: '/preferences',
+      type: 'put',
+      body: { theme: 'light' },
+    });
+    await request.send();
+    console.warn('✅ Theme reset to light in database');
+    return true;
+  } catch (error) {
+    console.warn('⚠️ Could not reset theme in database:', error.message);
+    return false;
+  }
 };
