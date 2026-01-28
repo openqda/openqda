@@ -142,8 +142,9 @@
               id="location"
               name="location"
               class="text-foreground"
+              emptyOptionTitle="(Select a visualization)"
               :options="availablePlugins"
-              :value="visualizerName ?? 'list'"
+              :value="visualizerName ?? ''"
               @change="
                 selectVisualizerPlugin($event.target);
                 setShowMenu(false);
@@ -240,8 +241,8 @@ const {
 //------------------------------------------------------------------------
 const { exportToCSV } = useExport();
 
-onMounted(async () => {
-  selectVisualizerPlugin({ value: 'list', unlessExists: true });
+onMounted(() => {
+  // selectVisualizerPlugin({ value: 'list', unlessExists: true });
   if (checkedSources.value.size === 0) checkSource('all');
   if (checkedCodes.value.size === 0) checkCode('all');
 });
