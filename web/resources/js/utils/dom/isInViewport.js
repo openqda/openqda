@@ -11,7 +11,7 @@
  * @return {boolean}
  */
 export const isInViewport = (el) => {
-  if (!el) return false
+  if (!el) return false;
   const { top, left, right, bottom } = el.getBoundingClientRect();
   const { innerHeight, innerWidth } = window;
   const { clientHeight, clientWidth } = document.documentElement;

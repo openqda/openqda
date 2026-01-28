@@ -159,7 +159,10 @@
           />
           <Button v-if="hasOptions" @click="setShowMenu(true)">Options</Button>
         </div>
-        <div v-if="contentView === 'visualize' && visualizerName" class="h-full w-full">
+        <div
+          v-if="contentView === 'visualize' && visualizerName"
+          class="h-full w-full"
+        >
           <VisualizeCoding />
         </div>
         <div
@@ -169,7 +172,8 @@
           <div>
             <Headline2>Analysis</Headline2>
             <div class="my-4 block">
-              Here you can run different visualizations on your created selections.
+              Here you can run different visualizations on your created
+              selections.
             </div>
             <HelpResources class="flex flex-col gap-4" />
           </div>
@@ -199,7 +203,6 @@ import { useUsers } from '../domain/teams/useUsers.js';
 import Footer from '../Layouts/Footer.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
-import Link from '../Components/Link.vue';
 
 //------------------------------------------------------------------------
 // DATA / PROPS

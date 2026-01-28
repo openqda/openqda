@@ -15,8 +15,8 @@ const props = defineProps({
   defaultOption: Boolean,
   emptyOptionTitle: {
     type: String,
-    default: '(Select one)'
-  }
+    default: '(Select one)',
+  },
 });
 const current = ref(props.value);
 </script>
@@ -33,7 +33,7 @@ const current = ref(props.value);
       @change="(e) => (current = e.target.value)"
     >
       <option v-if="props.options || props.defaultOption" disabled value="">
-        {{emptyOptionTitle}}
+        {{ emptyOptionTitle }}
       </option>
       <option
         v-if="props.options"
