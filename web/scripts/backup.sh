@@ -136,6 +136,7 @@ if [ -n "$DB_PASSWORD" ]; then
               --single-transaction \
               --quick \
               --lock-tables=false \
+              --no-tablespaces \
               "$DB_NAME" > "$BACKUP_PATH/database.sql" 2>> "$LOG_FILE" || error_exit "Database backup failed"
 else
     mysqldump --host="$DB_HOST" \
@@ -144,6 +145,7 @@ else
               --single-transaction \
               --quick \
               --lock-tables=false \
+              --no-tablespaces \
               "$DB_NAME" > "$BACKUP_PATH/database.sql" 2>> "$LOG_FILE" || error_exit "Database backup failed"
 fi
 
