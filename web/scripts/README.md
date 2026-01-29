@@ -396,10 +396,34 @@ The `restore.sh` script provides flexible restoration options:
 
 ### Restore Script Features
 
+- **Docker and Host Support**: Automatically detects Docker environment and connects to the correct MySQL instance
+  - When running inside a Docker container (e.g., `laravel.test`), defaults to `mysql` container
+  - When running on host system, defaults to `localhost`
+  - Can be overridden with `--db-host` option
 - **Selective restoration**: Choose what to restore (database, storage, or both)
 - **Non-overwrite storage**: Existing files in storage are preserved automatically
 - **Safe .env handling**: Existing .env files are backed up with timestamp before restoration
 - **Post-restore checklist**: Displays important steps after restoration completes
+
+### Restoring in Docker Environment
+
+When using Docker Compose for development, you can restore backups from within the Laravel container:
+
+```bash
+# Enter the Laravel container
+docker exec -it laravel.test bash
+
+# Navigate to scripts directory
+cd /var/www/html/scripts
+
+# Run restore (automatically detects mysql container)
+./restore.sh openqda_backup_20260108_000000.tar.gz
+
+# Or explicitly specify the mysql container
+./restore.sh --db-host mysql openqda_backup_20260108_000000.tar.gz
+```
+
+The script automatically detects that it's running inside Docker and uses the `mysql` container name as the database host.
 
 ### Manual Restore (Alternative)
 
