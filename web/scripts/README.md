@@ -423,7 +423,7 @@ cd /var/www/html/scripts
 ./restore.sh --db-host mysql openqda_backup_20260108_000000.tar.gz
 ```
 
-The script automatically detects it's running inside Docker and uses the `mysql` container name as the database host.
+The script automatically detects that it's running inside Docker and uses the `mysql` container name as the database host.
 
 ### Manual Restore (Alternative)
 
