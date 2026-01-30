@@ -10,6 +10,7 @@ import Button from '../../Components/interactive/Button.vue';
 import { router } from '@inertiajs/vue3';
 import BaseContainer from '../../Layouts/BaseContainer.vue';
 import LegalForm from './Partials/LegalForm.vue';
+import { Theme } from '../../theme/Theme.js';
 // import '../../Pages/Profile/Partials/TwoFactorAuthenticationForm.vue';
 
 defineProps({
@@ -18,7 +19,17 @@ defineProps({
 });
 
 function onLogout() {
-  router.post(route('logout'));
+  // Perform logout and reset theme after it completes
+  router.post(
+    route('logout'),
+    {},
+    {
+      onSuccess: () => {
+        // Reset theme to default 'light' after logout completes
+        Theme.update('light');
+      },
+    }
+  );
 }
 </script>
 
