@@ -17,7 +17,12 @@ class UserPreference extends Model
      */
     protected $fillable = [
         'user_id',
+        'project_id',
         'theme',
+        'sources',
+        'zoom',
+        'codebooks',
+        'analysis',
     ];
 
     /**
@@ -25,7 +30,12 @@ class UserPreference extends Model
      *
      * @var array<string, string>
      */
-    protected $casts = [];
+    protected $casts = [
+        'sources' => 'json',
+        'zoom' => 'json',
+        'codebooks' => 'json',
+        'analysis' => 'json',
+    ];
 
     /**
      * Get the user that owns this preference.
@@ -33,5 +43,13 @@ class UserPreference extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the project that owns this preference.
+     */
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
     }
 }
