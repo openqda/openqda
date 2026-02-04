@@ -6,6 +6,7 @@ use App\Http\Controllers\AuditsController;
 use App\Http\Controllers\CodebookCodesController;
 use App\Http\Controllers\CodebookController;
 use App\Http\Controllers\CodingController;
+use App\Http\Controllers\PreferenceController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SelectionController;
 use App\Http\Controllers\SettingsController;
@@ -172,6 +173,5 @@ Route::middleware([
     /**
      * User Preferences
      */
-    Route::put('/preferences/{key?}', [\App\Http\Controllers\PreferenceController::class, 'updatePreference'])->name('preferences.update');
-
+    Route::put('/projects/{project}/preferences', [PreferenceController::class, 'updatePreference'])->name('projects.preferences.update');
 });
