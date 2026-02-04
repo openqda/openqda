@@ -97,5 +97,3 @@ export const request = async (options) => {
   globalHooks.forEach((fn) => fn(req));
   return req;
 };
-
-export default BackendRequest;
