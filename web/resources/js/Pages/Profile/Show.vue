@@ -31,6 +31,22 @@ function onLogout() {
     }
   );
 }
+
+function onThemeChange(newTheme) {
+  const projectId = new URLSearchParams(window.location.search).get(
+    'projectId'
+  );
+  if (!projectId) return;
+
+  router.put(
+    route('projects.preferences.update', { project: projectId }),
+    { theme: newTheme },
+    {
+      preserveScroll: true,
+      preserveState: true,
+    }
+  );
+}
 </script>
 
 <template>
@@ -45,7 +61,7 @@ function onLogout() {
         </form>
         <div class="flex justify-between py-4 border-b border-foreground/10">
           <InputLabel> Theme </InputLabel>
-          <ThemeSwitch />
+          <ThemeSwitch @change="onThemeChange" />
         </div>
 
         <UpdateProfileInformationForm

@@ -21,6 +21,6 @@ class PreferenceController extends Controller
             $request->validated()
         );
 
-        return response()->json(['message' => 'Preferences updated successfully']);
+        return back();
     }
 }
