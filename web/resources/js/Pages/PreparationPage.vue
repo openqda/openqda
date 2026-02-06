@@ -208,6 +208,27 @@ const unlockSource = async () => {
 /*---------------------------------------------------------------------------*/
 const { zoom, setZoom } = useZoom();
 
+watch(zoom, (newZoom) => {
+  const projectId = props.projectId;
+  const fileId = editorSourceRef.value.id;
+
+  if (!projectId || !fileId) return;
+
+  router.put(
+    route('projects.preferences.update', { project: projectId }),
+    {
+      zoom: {
+        file: {
+          [fileId]: newZoom,
+        },
+      },
+    },
+    {
+      preserveScroll: true,
+      preserveState: true,
+    }
+  );
+});
 /*---------------------------------------------------------------------------*/
 // EDITING
 /*---------------------------------------------------------------------------*/

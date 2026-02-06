@@ -138,6 +138,31 @@ import Link from '../Components/Link.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
 import { useInvivoText } from './coding/useInvivoText.js';
+import { useZoom } from '../editor/useZoom.js';
+
+const { zoom } = useZoom();
+
+watch(zoom, (newZoom) => {
+  const projectId = props.projectId;
+  const sourceId = new URLSearchParams(window.location.search).get('source');
+
+  if (!projectId || !sourceId) return;
+
+  router.put(
+    route('projects.preferences.update', { project: projectId }),
+    {
+      zoom: {
+        source: {
+          [sourceId]: newZoom,
+        },
+      },
+    },
+    {
+      preserveScroll: true,
+      preserveState: true,
+    }
+  );
+});
 
 const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
 //------------------------------------------------------------------------
