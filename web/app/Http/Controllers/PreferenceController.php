@@ -13,7 +13,7 @@ class PreferenceController extends Controller
      */
     public function updatePreference(UpdateUserPreferenceRequest $request, Project $project)
     {
-        // Load or create WITHOUT replacing existing preferences 
+        // Load or create WITHOUT replacing existing preferences
         $prefs = UserPreference::firstOrNew([
             'user_id' => $request->user()->id,
             'project_id' => $project->id,
