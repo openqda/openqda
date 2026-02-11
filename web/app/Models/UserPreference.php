@@ -31,10 +31,10 @@ class UserPreference extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'sources' => 'json',
-        'zoom' => 'json',
-        'codebooks' => 'json',
-        'analysis' => 'json',
+        'sources' => 'array',
+        'zoom' => 'array',
+        'codebooks' => 'array',
+        'analysis' => 'array',
     ];
 
     /**

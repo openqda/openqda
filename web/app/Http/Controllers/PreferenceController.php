@@ -30,6 +30,15 @@ class PreferenceController extends Controller
             unset($data['zoom']);
         }
 
+        // Merge codebooks so previous codebook visibility map is not overwritten
+        if (array_key_exists('codebooks', $data)) {
+            $prefs->codebooks = array_replace_recursive(
+                $prefs->codebooks ?? [],
+                $data['codebooks'] ?? []
+            );
+            unset($data['codebooks']);
+        }
+
         $prefs->fill($data);
         $prefs->save();
 
