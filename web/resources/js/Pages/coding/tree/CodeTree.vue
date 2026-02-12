@@ -8,6 +8,8 @@ import CodeTreeItem from './CodeTreeItem.vue';
 import CodebookRenderer from './CodebookRenderer.vue';
 import FormDialog from '../../../dialogs/FormDialog.vue';
 
+const emits = defineEmits(['update:modelValue', 'save-code-visibility']);
+
 const props = defineProps({
   codes: Array,
   codebook: Object,
@@ -92,6 +94,9 @@ observe('store/codes', {
       :group-id="props.codebook.id"
       :parent-id="null"
       :show-details="showDetails[props.codebook.id]"
+      @save-code-visibility="
+        (payload) => emits('save-code-visibility', payload)
+      "
     />
     <FormDialog />
   </div>

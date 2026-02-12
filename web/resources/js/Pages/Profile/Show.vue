@@ -10,6 +10,7 @@ import Button from '../../Components/interactive/Button.vue';
 import { router } from '@inertiajs/vue3';
 import BaseContainer from '../../Layouts/BaseContainer.vue';
 import LegalForm from './Partials/LegalForm.vue';
+import { Theme } from '../../theme/Theme.js';
 // import '../../Pages/Profile/Partials/TwoFactorAuthenticationForm.vue';
 
 defineProps({
@@ -18,7 +19,33 @@ defineProps({
 });
 
 function onLogout() {
-  router.post(route('logout'));
+  // Perform logout and reset theme after it completes
+  router.post(
+    route('logout'),
+    {},
+    {
+      onSuccess: () => {
+        // Reset theme to default 'light' after logout completes
+        Theme.update('light');
+      },
+    }
+  );
+}
+
+function onThemeChange(newTheme) {
+  const projectId = new URLSearchParams(window.location.search).get(
+    'projectId'
+  );
+  if (!projectId) return;
+
+  router.put(
+    route('projects.preferences.update', { project: projectId }),
+    { theme: newTheme },
+    {
+      preserveScroll: true,
+      preserveState: true,
+    }
+  );
 }
 </script>
 
@@ -34,7 +61,7 @@ function onLogout() {
         </form>
         <div class="flex justify-between py-4 border-b border-foreground/10">
           <InputLabel> Theme </InputLabel>
-          <ThemeSwitch />
+          <ThemeSwitch @change="onThemeChange" />
         </div>
 
         <UpdateProfileInformationForm

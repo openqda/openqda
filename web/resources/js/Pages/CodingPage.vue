@@ -56,6 +56,7 @@
           :codebook="codebook"
           :codes="codes.filter((code) => code.codebook === codebook.id)"
           v-if="codesView === 'codes'"
+          @save-code-visibility="saveCodeVisibilityToDb"
         />
         <FilesList
           v-if="codesView === 'sources'"
@@ -138,6 +139,47 @@ import Link from '../Components/Link.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
 import { useInvivoText } from './coding/useInvivoText.js';
+import { useZoom } from '../editor/useZoom.js';
+
+const { zoom } = useZoom();
+
+watch(zoom, (newZoom) => {
+  const projectId = props.projectId;
+  const sourceId = new URLSearchParams(window.location.search).get('source');
+
+  if (!projectId || !sourceId) return;
+
+  router.put(
+    route('projects.preferences.update', { project: projectId }),
+    {
+      zoom: {
+        source: {
+          [sourceId]: newZoom,
+        },
+      },
+    },
+    {
+      preserveScroll: true,
+      preserveState: true,
+    }
+  );
+});
+
+function saveCodeVisibilityToDb({ codebookId, codeId, visible }) {
+  router.put(
+    route('projects.preferences.update', { project: props.projectId }),
+    {
+      codebooks: {
+        [codebookId]: {
+          visibility: {
+            [codeId]: visible,
+          },
+        },
+      },
+    },
+    { preserveScroll: true, preserveState: true }
+  );
+}
 
 const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
 //------------------------------------------------------------------------

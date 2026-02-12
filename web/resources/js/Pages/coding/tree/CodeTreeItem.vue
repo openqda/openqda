@@ -21,6 +21,9 @@
         :sorting="groupId === sorting"
         :show-details="props.showDetails"
         class="w-full"
+        @save-code-visibility="
+          (payload) => emits('save-code-visibility', payload)
+        "
       />
       <Collapse
         :when="sorting === groupId || !el.children?.length || collapsed[el.id]"
@@ -32,6 +35,9 @@
           :group-id="groupId"
           :parent-id="el.id"
           :show-details="props.showDetails"
+          @save-code-visibility="
+            (payload) => emits('save-code-visibility', payload)
+          "
         />
       </Collapse>
     </li>
@@ -61,7 +67,7 @@ const props = defineProps({
   showDetails: Boolean,
 });
 
-const emits = defineEmits(['update:modelValue']);
+const emits = defineEmits(['update:modelValue', 'save-code-visibility']);
 const list = computed({
   get: () => props.modelValue,
   set: (value) => {
