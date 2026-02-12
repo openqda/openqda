@@ -39,6 +39,15 @@ class PreferenceController extends Controller
             unset($data['codebooks']);
         }
 
+        // Merge analysis visibility settings
+        if (array_key_exists('analysis', $data)) {
+            $prefs->analysis = array_replace_recursive(
+                $prefs->analysis ?? [],
+                $data['analysis'] ?? []
+            );
+            unset($data['analysis']);
+        }
+
         $prefs->fill($data);
         $prefs->save();
 

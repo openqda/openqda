@@ -42,6 +42,29 @@ class PreferenceControllerTest extends TestCase
         ]);
     }
 
+    public function test_zoom_preferences_are_created_if_not_existing(): void
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create();
+
+        $this->actingAs($user)->put(route('projects.preferences.update', $project), [
+            'zoom' => [
+                'coding' => ['viewer' => 2],
+            ],
+        ]);
+
+        $this->assertDatabaseHas('user_preferences', [
+            'user_id' => $user->id,
+            'project_id' => $project->id,
+        ]);
+
+        $prefs = UserPreference::first();
+
+        $this->assertEquals([
+            'coding' => ['viewer' => 2],
+        ], $prefs->zoom);
+    }
+
     public function test_zoom_preferences_are_merged(): void
     {
         $user = User::factory()->create();
@@ -142,6 +165,126 @@ class PreferenceControllerTest extends TestCase
 
         $this->actingAs($user)->put(route('projects.preferences.update', $project), [
             'theme' => 'light',
+        ]);
+
+        $this->assertEquals(
+            1,
+            UserPreference::where('user_id', $user->id)
+                ->where('project_id', $project->id)
+                ->count()
+        );
+    }
+
+    public function test_codebook_preferences_are_merged(): void
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create();
+
+        $prefs = UserPreference::create([
+            'user_id' => $user->id,
+            'project_id' => $project->id,
+            'codebooks' => [
+                '1' => [
+                    'visibility' => [
+                        'code-a' => true,
+                        'code-b' => false,
+                    ],
+                ],
+            ],
+        ]);
+
+        $this->actingAs($user)->put(route('projects.preferences.update', $project), [
+            'codebooks' => [
+                '1' => [
+                    'visibility' => [
+                        'code-b' => true,
+                    ],
+                ],
+            ],
+        ]);
+
+        $prefs->refresh();
+
+        $this->assertEquals([
+            '1' => [
+                'visibility' => [
+                    'code-a' => true,
+                    'code-b' => true,
+                ],
+            ],
+        ], $prefs->codebooks);
+    }
+
+    public function test_updating_codebooks_does_not_modify_zoom(): void
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create();
+
+        $prefs = UserPreference::create([
+            'user_id' => $user->id,
+            'project_id' => $project->id,
+            'zoom' => [
+                'coding' => ['viewer' => 3],
+            ],
+            'codebooks' => [],
+        ]);
+
+        $this->actingAs($user)->put(route('projects.preferences.update', $project), [
+            'codebooks' => [
+                '1' => ['visibility' => ['x' => true]],
+            ],
+        ]);
+
+        $prefs->refresh();
+
+        $this->assertEquals([
+            'coding' => ['viewer' => 3],
+        ], $prefs->zoom);
+    }
+
+    public function test_updating_theme_does_not_modify_zoom_or_codebooks(): void
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create();
+
+        $prefs = UserPreference::create([
+            'user_id' => $user->id,
+            'project_id' => $project->id,
+            'theme' => 'light',
+            'zoom' => [
+                'coding' => ['viewer' => 2],
+            ],
+            'codebooks' => [
+                '1' => ['visibility' => ['x' => true]],
+            ],
+        ]);
+
+        $this->actingAs($user)->put(route('projects.preferences.update', $project), [
+            'theme' => 'dark',
+        ]);
+
+        $prefs->refresh();
+
+        $this->assertSame('dark', $prefs->theme);
+        $this->assertEquals([
+            'coding' => ['viewer' => 2],
+        ], $prefs->zoom);
+        $this->assertEquals([
+            '1' => ['visibility' => ['x' => true]],
+        ], $prefs->codebooks);
+    }
+
+    public function test_updating_zoom_and_codebooks_does_not_create_duplicate_rows(): void
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create();
+
+        $this->actingAs($user)->put(route('projects.preferences.update', $project), [
+            'zoom' => ['coding' => ['viewer' => 1]],
+        ]);
+
+        $this->actingAs($user)->put(route('projects.preferences.update', $project), [
+            'codebooks' => ['1' => ['visibility' => ['a' => true]]],
         ]);
 
         $this->assertEquals(
