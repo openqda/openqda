@@ -1,0 +1,16 @@
+name: "CodeQL config"
+
+# Paths to include in CodeQL analysis
+paths:
+  - web/resources/js
+  - web/plugins
+  - services
+
+# Paths to exclude from analysis (optional, can be added if needed)
+paths-ignore:
+  - web/storage/framework
+  - web/storage/logs
+
+# Queries to run
+queries:
+  - uses: security-and-quality
