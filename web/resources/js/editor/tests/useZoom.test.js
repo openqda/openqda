@@ -1,13 +1,21 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { useZoom } from '../useZoom.js';
+import { Preferences } from '../../domain/user/Preferences.js';
+import sinon from 'sinon';
 
 describe('useZoom', () => {
-  let zoom, setZoom;
+  let zoom, setZoom, preferenceCall;
+
   beforeEach(() => {
     const result = useZoom();
     zoom = result.zoom;
+    preferenceCall = sinon.stub(Preferences, 'updateZoom').resolves();
     setZoom = result.setZoom;
     setZoom(1.0); // zoom starts at 1.0 for every test
+  });
+
+  afterEach(() => {
+    preferenceCall.restore();
   });
 
   it('provides a default zoom of 1.0', () => {

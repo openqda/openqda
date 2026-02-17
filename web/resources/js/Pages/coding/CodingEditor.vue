@@ -19,7 +19,7 @@
           variant="outline"
           class="p-1 md:p-2 rounded hover:bg-foreground/10 transition-colors"
           title="Zoom Out"
-          @click="setZoom('decrease')"
+          @click="setZoom('decrease', props.source?.id)"
         >
           <svg
             viewBox="0 0 18 18"
@@ -33,7 +33,7 @@
           variant="outline"
           class="p-1 md:p-2 rounded hover:bg-foreground/10 transition-colors"
           title="Zoom In"
-          @click="setZoom('increase')"
+          @click="setZoom('increase', props.source?.id)"
         >
           <svg
             viewBox="0 0 18 18"
@@ -126,7 +126,8 @@ const { selected, createSelection, markToDelete } = useSelections();
 const { observe, selections, selectionsByIndex } = useCodes();
 const { prevRange, setRange, range } = useRange();
 const { setInstance, dispose } = useCodingEditor();
-const { zoom, setZoom } = useZoom();
+const { getZoom, setZoom } = useZoom();
+const zoom = computed(() => getZoom(props.source?.id));
 
 const zoomStyle = computed(() => {
   const z = zoom.value || 1.0;
