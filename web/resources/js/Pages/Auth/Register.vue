@@ -67,7 +67,7 @@ const submit = () => {
           id="name"
           v-model="form.name"
           type="text"
-          placeholder="Provide your name"
+          placeholder="Provide a name (e.g. your full name or a nickname)"
           class="text-secondary-foreground placeholder-secondary-foreground/50 dark:text-foreground autofill:text-secondary-foreground dark:autofill:text-foreground dark:placeholder-foreground border-b-secondary-foreground focus:border-b-secondary-foreground"
           required
           autofocus

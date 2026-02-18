@@ -1,6 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import { useForm, usePage } from '@inertiajs/vue3';
+import { useForm } from '@inertiajs/vue3';
 import ActionSection from '../../../Components/ActionSection.vue';
 import DangerButton from '../../../Components/DangerButton.vue';
 import DialogModal from '../../../Components/DialogModal.vue';
@@ -8,14 +8,21 @@ import InputError from '../../../form/InputError.vue';
 import SecondaryButton from '../../..//Components/SecondaryButton.vue';
 import InputField from '../../../form/InputField.vue';
 import { request } from '../../../utils/http/BackendRequest.js';
+import { useUsers } from '../../../domain/teams/useUsers.js';
 
 const confirmingUserDeletion = ref(false);
 const passwordInput = ref(null);
 const ownTeams = ref([]);
 const loading = ref(true);
-const user = usePage().props.auth.user;
+const { userIsVerified, getOwnUser } = useUsers();
 
 onMounted(async () => {
+  const user = getOwnUser();
+  const isVerified = userIsVerified();
+  if (!isVerified) {
+    loading.value = false;
+    return;
+  }
   const { response, error } = await request({
     url: `/user/${user.id}/owned-teams`,
     type: 'get',
