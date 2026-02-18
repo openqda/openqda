@@ -13,7 +13,7 @@ const state = reactive({
 export const useCodes = () => {
   const { details } = toRefs(state);
   const page = usePage();
-  const { allCodes, codebooks, projectId, source } = page.props;
+  const { allCodes, codebooks, projectId, source, preferences } = page.props;
   const sourceId = source?.id;
   const key = `${projectId}-${sourceId}`;
   const codeStore = Codes.by(key);
@@ -27,8 +27,8 @@ export const useCodes = () => {
       results.added.push(...res.added);
       results.clean.push(...res.clean);
     };
-    toResults(codebookStore.init(codebooks));
-    toResults(codeStore.init(allCodes));
+    toResults(codebookStore.init(codebooks, preferences[0].codebooks));
+    toResults(codeStore.init(allCodes, preferences[0].codebooks));
     toResults(
       selectionStore.init(initialSelections, (id) => {
         try {
