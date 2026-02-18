@@ -16,7 +16,7 @@ export const useUsers = () => {
 
   const userIsVerified = () => {
     const user = getOwnUser();
-    return user?.email_verified_at instanceof Date;
+    return Boolean(user?.email_verified_at);
   };
 
   const getMemberBy = (id) => {
