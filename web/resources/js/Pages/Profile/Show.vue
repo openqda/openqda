@@ -35,7 +35,7 @@ function onLogout() {
           class="p-4 rounded border border-destructive text-sm text-foreground"
         >
           <div class="flex items-center gap-2 mb-2">
-            <ExclamationTriangleIcon class="w-10 h-10 text-destructive" />
+            <ExclamationTriangleIcon class="w-10 h-10 text-destructive" aria-hidden="true" />
             <p>
               Your email address has not yet been verified. You will not be able
               to access all OpenQDA features until this has been done.
