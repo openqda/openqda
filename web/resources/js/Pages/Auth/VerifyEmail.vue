@@ -28,7 +28,7 @@ const submit = () => {
     <div
       class="text-foreground text-start w-full bg-surface rounded shadow-lg p-4"
     >
-      <Headline1 class="font-semibold font text-center my-4"
+      <Headline1 class="font-semibold text-center my-4"
         >Thank you for your registration!</Headline1
       >
       <div class="mb-4 text-sm">
