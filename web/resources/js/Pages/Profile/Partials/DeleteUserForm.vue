@@ -14,15 +14,10 @@ const confirmingUserDeletion = ref(false);
 const passwordInput = ref(null);
 const ownTeams = ref([]);
 const loading = ref(true);
-const { userIsVerified, getOwnUser } = useUsers();
+const { getOwnUser } = useUsers();
 
 onMounted(async () => {
   const user = getOwnUser();
-  const isVerified = userIsVerified();
-  if (!isVerified) {
-    loading.value = false;
-    return;
-  }
   const { response, error } = await request({
     url: `/user/${user.id}/owned-teams`,
     type: 'get',
@@ -91,12 +86,12 @@ const closeModal = () => {
               target="_blank"
               v-if="team.projects.length > 0"
               :href="'/projects/' + team.projects[0].id + '/overview#collab'"
-              class="text-blue-600 hover:underline"
+              class="text-secondary hover:underline"
             >
               {{ team.projects[0].name }} -
               {{ team.projects[0].description }}
             </a>
-            <span v-else class="text-gray-600"
+            <span v-else class="text-foreground/60"
               >Please contact us to delete your account</span
             >
           </li>
