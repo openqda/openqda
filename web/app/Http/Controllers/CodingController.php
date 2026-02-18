@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\DestroyCodeRequest;
+use App\Http\Requests\ShowCodingPageRequest;
 use App\Http\Requests\StoreCodeRequest;
 use App\Http\Requests\UpdateCodeRequest;
 use App\Models\Code;
@@ -42,7 +43,7 @@ class CodingController extends Controller
         return response()->json(['message' => 'Code successfully created', 'id' => $code->id], 201);
     }
 
-    public function show(Request $request, Project $project)
+    public function show(ShowCodingPageRequest $request, Project $project)
     {
         $projectId = $project->id;
         $allSources = Source::where('project_id', $projectId)->with('variables')
