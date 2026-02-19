@@ -775,4 +775,228 @@ class SourceControllerTest extends TestCase
 
         parent::tearDown();
     }
+
+    /**
+     * Test that new sources are stored with relative paths
+     */
+    public function test_store_saves_relative_paths_for_new_sources()
+    {
+        $content = Str::random(24);
+        $file = UploadedFile::fake()->createWithContent('test_relative.txt', $content);
+
+        $response = $this->actingAs($this->user)
+            ->post(route('source.store'), [
+                'file' => $file,
+                'projectId' => $this->project->id,
+            ]);
+
+        $response->assertStatus(200);
+        $newDoc = $response->json('newDocument');
+
+        // Verify source was created
+        $source = Source::find($newDoc['id']);
+        $this->assertNotNull($source);
+
+        // Verify upload_path is stored as relative path (not starting with /)
+        $this->assertStringStartsWith('storage/app/projects/', $source->upload_path);
+        $this->assertStringNotStartsWith('/', $source->upload_path);
+
+        // Verify the SourceStatus path is also relative
+        $sourceStatus = SourceStatus::where('source_id', $source->id)->first();
+        $this->assertNotNull($sourceStatus);
+        $this->assertStringStartsWith('storage/app/projects/', $sourceStatus->path);
+        $this->assertStringNotStartsWith('/', $sourceStatus->path);
+    }
+
+    /**
+     * Test that sources with absolute paths (legacy) can still be read
+     */
+    public function test_fetch_document_with_absolute_path_legacy()
+    {
+        $source = Source::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        // Create file with absolute path (legacy format)
+        $htmlPath = $this->testFilePath.'/legacy_absolute.html';
+        file_put_contents($htmlPath, '<p>Legacy content</p>');
+
+        SourceStatus::create([
+            'source_id' => $source->id,
+            'status' => 'converted:html',
+            'path' => $htmlPath, // Absolute path
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->get("/files/{$source->id}");
+
+        $response->assertStatus(200);
+        $response->assertJsonFragment(['content' => '<p>Legacy content</p>']);
+    }
+
+    /**
+     * Test that sources with relative paths can be read
+     */
+    public function test_fetch_document_with_relative_path()
+    {
+        $source = Source::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        // Create file with relative path (new format)
+        $htmlPath = $this->testFilePath.'/new_relative.html';
+        file_put_contents($htmlPath, '<p>New relative content</p>');
+
+        // Store as relative path
+        $relativePath = 'storage/app/projects/'.$this->project->id.'/sources/new_relative.html';
+
+        SourceStatus::create([
+            'source_id' => $source->id,
+            'status' => 'converted:html',
+            'path' => $relativePath, // Relative path
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->get("/files/{$source->id}");
+
+        $response->assertStatus(200);
+        $response->assertJsonFragment(['content' => '<p>New relative content</p>']);
+    }
+
+    /**
+     * Test that update works with both absolute and relative paths
+     */
+    public function test_update_source_content_with_relative_path()
+    {
+        $source = Source::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        // Create file with relative path
+        $htmlPath = $this->testFilePath.'/update_relative.html';
+        file_put_contents($htmlPath, '<p>Original</p>');
+
+        $relativePath = 'storage/app/projects/'.$this->project->id.'/sources/update_relative.html';
+
+        SourceStatus::create([
+            'source_id' => $source->id,
+            'status' => 'converted:html',
+            'path' => $relativePath,
+        ]);
+
+        $newContent = '<p>Updated content</p>';
+
+        $response = $this->actingAs($this->user)
+            ->post(route('source.update'), [
+                'id' => $source->id,
+                'content' => $newContent,
+            ]);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        // Verify file was updated
+        $this->assertEquals($newContent, file_get_contents($htmlPath));
+    }
+
+    /**
+     * Test that download works with relative paths
+     */
+    public function test_download_source_with_relative_path()
+    {
+        $content = Str::random(24);
+        $filePath = $this->testFilePath.'/download_relative.txt';
+        file_put_contents($filePath, $content);
+
+        $relativePath = 'storage/app/projects/'.$this->project->id.'/sources/download_relative.txt';
+
+        $source = Source::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+            'upload_path' => $relativePath, // Relative path
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->post(route('sources.download', ['sourceId' => $source->id]));
+
+        $response->assertStatus(200);
+        $this->assertEquals($content, $response->getContent());
+    }
+
+    /**
+     * Test that destroy works with relative paths
+     */
+    public function test_destroy_source_with_relative_paths()
+    {
+        // Create files
+        $uploadPath = $this->testFilePath.'/destroy_relative_upload.txt';
+        $htmlPath = $this->testFilePath.'/destroy_relative_converted.html';
+
+        file_put_contents($uploadPath, Str::random(32));
+        file_put_contents($htmlPath, '<p>'.Str::random(16).'</p>');
+
+        // Use relative paths
+        $relativeUploadPath = 'storage/app/projects/'.$this->project->id.'/sources/destroy_relative_upload.txt';
+        $relativeHtmlPath = 'storage/app/projects/'.$this->project->id.'/sources/destroy_relative_converted.html';
+
+        $source = Source::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+            'upload_path' => $relativeUploadPath,
+        ]);
+
+        SourceStatus::create([
+            'source_id' => $source->id,
+            'status' => 'converted:html',
+            'path' => $relativeHtmlPath,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->delete('/files/'.$source->id);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        $this->assertSoftDeleted('sources', ['id' => $source->id]);
+        $this->assertFalse(file_exists($uploadPath));
+        $this->assertFalse(file_exists($htmlPath));
+    }
+
+    /**
+     * Test that destroy still works with legacy absolute paths
+     */
+    public function test_destroy_source_with_absolute_paths_legacy()
+    {
+        // Create files
+        $uploadPath = $this->testFilePath.'/destroy_absolute_upload.txt';
+        $htmlPath = $this->testFilePath.'/destroy_absolute_converted.html';
+
+        file_put_contents($uploadPath, Str::random(32));
+        file_put_contents($htmlPath, '<p>'.Str::random(16).'</p>');
+
+        $source = Source::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+            'upload_path' => $uploadPath, // Absolute path
+        ]);
+
+        SourceStatus::create([
+            'source_id' => $source->id,
+            'status' => 'converted:html',
+            'path' => $htmlPath, // Absolute path
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->delete('/files/'.$source->id);
+
+        $response->assertStatus(200);
+        $response->assertJson(['success' => true]);
+
+        $this->assertSoftDeleted('sources', ['id' => $source->id]);
+        $this->assertFalse(file_exists($uploadPath));
+        $this->assertFalse(file_exists($htmlPath));
+    }
 }
