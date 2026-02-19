@@ -39,7 +39,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
  */
 class SourceController extends Controller
 {
-    use SourceExists, ValidatesStoragePath;
+    use SourceExists, ValidatesStoragePath, ResolvesStoragePath;
 
     /**
      * View of the preparation page with the Sources (Documents)
@@ -122,21 +122,25 @@ class SourceController extends Controller
 
         // move the original file to storage
         $relativeFilePath = $file->storeAs($relativePath, $uniqueFilename);
-        $path = storage_path("app/{$relativeFilePath}");
+        $absolutePath = storage_path("app/{$relativeFilePath}");
+        
+        // Store as relative path (new format)
+        $relativeDatabasePath = $this->makeRelativePath($absolutePath);
 
         // we use a keyword to detect "new" created files that were not uploaded
         // Check for the keyword and wipe the content if found
-        $fileContent = file_get_contents($path);
+        $fileContent = file_get_contents($absolutePath);
         $keyword = 'Llanfair­pwllgwyngyll­gogery­chwyrn­drobwll­llan­tysilio­gogo­goch';
 
         // Use the same filename pattern for HTML output
         $htmlOutputPath = storage_path('app/'.$relativePath.'/'.pathinfo($uniqueFilename, PATHINFO_FILENAME).'.html');
+        $relativeHtmlPath = $this->makeRelativePath($htmlOutputPath);
 
         $source = Source::updateOrCreate(
             ['id' => $sourceId],
             [
                 'name' => $filename.'.'.$extension,
-                'upload_path' => $path,
+                'upload_path' => $relativeDatabasePath,
                 'project_id' => $projectId,
                 'creating_user_id' => Auth::id(),
             ]
@@ -159,14 +163,14 @@ class SourceController extends Controller
         // B - converting a plain text file as is
         if (! $isEmpty && $isPlain) {
             Log::info('Converting TXT file to HTML locally.');
-            $htmlContent = $this->convertTxtToHtml($path, $projectId);
+            $htmlContent = $this->convertTxtToHtml($absolutePath, $projectId);
             $status = 'converted:html';
         }
 
         // C - converting any other supported text-based formats using transform plugin
         if (! $isEmpty && ! $isPlain) {
             Log::info('Converting file to HTML using job dispatch.');
-            $htmlContent = $this->convertFileToHtml($path, $projectId, $source->id, $filename);
+            $htmlContent = $this->convertFileToHtml($absolutePath, $projectId, $source->id, $filename);
         }
 
         // D - File is HTML already, then clean and store it directly
@@ -175,7 +179,7 @@ class SourceController extends Controller
         // create initial source status
         $sourceStatus = SourceStatus::updateOrCreate(
             ['source_id' => $source->id],
-            ['path' => $htmlOutputPath, 'status' => $status]
+            ['path' => $relativeHtmlPath, 'status' => $status]
         );
 
         //
@@ -511,8 +515,8 @@ class SourceController extends Controller
 
             // Delete the plain_text file
             if ($source->upload_path) {
-                // Assuming it's a relative path from Laravel's base directory
-                $plainTextFullPath = $source->upload_path;
+                // Resolve path (handles both absolute and relative)
+                $plainTextFullPath = $this->resolveStoragePath($source->upload_path);
                 if (File::exists($plainTextFullPath)) {
                     File::delete($plainTextFullPath);
                 }
@@ -520,9 +524,10 @@ class SourceController extends Controller
 
             // Delete the rich_text file
             if (($source->converted && $source->converted->path)) {
-                // Assuming it's an absolute path from the system's root
-                if (File::exists($source->converted->path)) {
-                    File::delete($source->converted->path);
+                // Resolve path (handles both absolute and relative)
+                $convertedPath = $this->resolveStoragePath($source->converted->path);
+                if (File::exists($convertedPath)) {
+                    File::delete($convertedPath);
 
                 }
             }
@@ -542,13 +547,15 @@ class SourceController extends Controller
      */
     private function getHtmlContent(string $path, mixed $projectId, Source $source, bool $fromAdminPanel = false): string|false
     {
+        // Resolve path (handles both absolute and relative)
+        $resolvedPath = $this->resolveStoragePath($path);
 
         // Existing conversion logic
         if (App::environment(['production', 'staging'])) {
             $filename = pathinfo($source->upload_path, PATHINFO_FILENAME);
-            $this->convertFileToHtml($path, $projectId, $source->id, $filename);
+            $this->convertFileToHtml($resolvedPath, $projectId, $source->id, $filename);
         } else {
-            $htmlContent = $this->convertFileToHtmlLocally($path, $projectId);
+            $htmlContent = $this->convertFileToHtmlLocally($resolvedPath, $projectId);
             event(new ConversionCompleted($projectId, $source->id));
         }
 
@@ -588,14 +595,15 @@ class SourceController extends Controller
             $filename = Str::uuid().'.'.$file->getClientOriginalExtension();
             $projectId = $request->input('project_id');
             $relativeFilePath = $file->storeAs('projects/'.$projectId.'/sources', $filename);
-            $path = storage_path("app/{$relativeFilePath}");
+            $absolutePath = storage_path("app/{$relativeFilePath}");
+            $relativeDatabasePath = $this->makeRelativePath($absolutePath);
 
             $source = Source::create([
                 'name' => $file->getClientOriginalName(),
                 'creating_user_id' => $user->id,
                 'project_id' => $projectId,
                 'type' => 'audio',
-                'upload_path' => $path,
+                'upload_path' => $relativeDatabasePath,
             ]);
 
             SourceStatus::create([
@@ -603,7 +611,7 @@ class SourceController extends Controller
                 'status' => 'converting',
             ]);
 
-            TranscriptionJob::dispatch($path, $projectId, $source->id)->onQueue('conversion');
+            TranscriptionJob::dispatch($absolutePath, $projectId, $source->id)->onQueue('conversion');
 
             return response()->json([
                 'message' => 'File uploaded and processing started',
@@ -635,7 +643,9 @@ class SourceController extends Controller
         }
 
         if ($jobRef->text_value == 'failed') {
-            TranscriptionJob::dispatch($source->upload_path, $project->id, $source->id)->onQueue('conversion');
+            // Resolve path (handles both absolute and relative)
+            $resolvedPath = $this->resolveStoragePath($source->upload_path);
+            TranscriptionJob::dispatch($resolvedPath, $project->id, $source->id)->onQueue('conversion');
 
             return response()->json(['message' => 'Conversion restarted', 'status' => 'restarted']);
         } else {
@@ -652,7 +662,10 @@ class SourceController extends Controller
     {
         $source = Source::findOrFail($sourceId);
         $source->createAudit(Source::AUDIT_DOWNLOADED, ['message' => $source->name.' was downloaded']);
+        
+        // Resolve path (handles both absolute and relative)
+        $resolvedPath = $this->resolveStoragePath($source->upload_path);
 
-        return response()->download($source->upload_path, $source->name);
+        return response()->download($resolvedPath, $source->name);
     }
 }

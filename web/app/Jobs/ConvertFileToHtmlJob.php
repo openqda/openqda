@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Events\ConversionCompleted;
 use App\Events\ConversionFailed;
 use App\Models\SourceStatus;
+use App\Traits\ResolvesStoragePath;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Log;
 
 class ConvertFileToHtmlJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ResolvesStoragePath;
 
     protected $filePath;
 
@@ -65,6 +66,7 @@ class ConvertFileToHtmlJob implements ShouldQueue
 
         // Construct the new output HTML path
         $outputHtmlPath = $outputDirectory.'/'.$filenameWithoutExt.'.html';
+        $relativeHtmlPath = $this->makeRelativePath($outputHtmlPath);
 
         // Remove single quotes from the path
         if (str_starts_with($outputHtmlPath, "'")) {
@@ -97,10 +99,10 @@ class ConvertFileToHtmlJob implements ShouldQueue
             Log::info($this->loginfo.' saving converted file to: '.$outputHtmlPath);
             file_put_contents($outputHtmlPath, $htmlContent);
 
-            Log::info($this->loginfo.' update source status converted:html');
+            Log::info($this->loginfo.' update source status converted:html with relative path');
             SourceStatus::updateOrCreate(
                 ['source_id' => $this->sourceId],
-                ['status' => 'converted:html']
+                ['status' => 'converted:html', 'path' => $relativeHtmlPath]
             );
 
             event(new ConversionCompleted($this->projectId, $this->sourceId, $this->filename));

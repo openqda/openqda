@@ -6,6 +6,7 @@ use App\Events\ConversionCompleted;
 use App\Events\ConversionFailed;
 use App\Models\SourceStatus;
 use App\Models\Variable;
+use App\Traits\ResolvesStoragePath;
 use File;
 use GuzzleHttp\Promise\PromiseInterface;
 use Illuminate\Bus\Queueable;
@@ -19,7 +20,7 @@ use Illuminate\Support\Facades\Log;
 
 class TranscriptionJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ResolvesStoragePath;
 
     protected $filePath;
 
@@ -186,11 +187,14 @@ class TranscriptionJob implements ShouldQueue
         // Log::info('start saving downloaded file');
         $txtContent = $response->body();
         file_put_contents($outputFilePath, $txtContent);
+        
+        // Convert to relative path for database storage
+        $relativeHtmlPath = $this->makeRelativePath($outputFilePath);
 
         // create a new status for the same source.
         $sourceStatus = SourceStatus::where('source_id', $this->sourceId)->first();
         $sourceStatus->status = 'converted:html';
-        $sourceStatus->path = $outputFilePath;
+        $sourceStatus->path = $relativeHtmlPath;
         $sourceStatus->update();
 
         // delete file on aTrain
