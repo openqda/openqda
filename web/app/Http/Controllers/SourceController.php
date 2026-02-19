@@ -39,7 +39,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
  */
 class SourceController extends Controller
 {
-    use SourceExists, ValidatesStoragePath, ResolvesStoragePath;
+    use ResolvesStoragePath, SourceExists, ValidatesStoragePath;
 
     /**
      * View of the preparation page with the Sources (Documents)

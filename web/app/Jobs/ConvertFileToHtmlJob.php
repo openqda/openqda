@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Log;
 
 class ConvertFileToHtmlJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, ResolvesStoragePath;
+    use Dispatchable, InteractsWithQueue, Queueable, ResolvesStoragePath, SerializesModels;
 
     protected $filePath;
 
