@@ -142,8 +142,9 @@
               id="location"
               name="location"
               class="text-foreground"
+              emptyOptionTitle="(Select a visualization)"
               :options="availablePlugins"
-              :value="visualizerName ?? 'list'"
+              :value="visualizerName ?? ''"
               @change="
                 selectVisualizerPlugin($event.target);
                 setShowMenu(false);
@@ -158,8 +159,24 @@
           />
           <Button v-if="hasOptions" @click="setShowMenu(true)">Options</Button>
         </div>
-        <div v-if="contentView === 'visualize'" class="h-full w-full">
+        <div
+          v-if="contentView === 'visualize' && visualizerName"
+          class="h-full w-full"
+        >
           <VisualizeCoding />
+        </div>
+        <div
+          class="flex-col lg:flex items-center justify-center h-full text-foreground/50 p-2 md:p-4 lg:p-8"
+          v-else
+        >
+          <div>
+            <Headline2>Analysis</Headline2>
+            <div class="my-4 block">
+              Here you can run different visualizations on your created
+              selections.
+            </div>
+            <HelpResources class="flex flex-col gap-4" />
+          </div>
         </div>
       </BaseContainer>
     </template>
@@ -167,7 +184,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import Button from '../Components/interactive/Button.vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
@@ -184,27 +201,14 @@ import SelectField from '../form/SelectField.vue';
 import ContrastText from '../Components/text/ContrastText.vue';
 import { useUsers } from '../domain/teams/useUsers.js';
 import Footer from '../Layouts/Footer.vue';
+import Headline2 from '../Components/layout/Headline2.vue';
+import HelpResources from '../Components/HelpResources.vue';
 
 //------------------------------------------------------------------------
 // DATA / PROPS
 //------------------------------------------------------------------------
 const props = defineProps(['codebooks', 'project']);
 const { allUsers } = useUsers();
-
-//------------------------------------------------------------------------
-// VIEWS / TABS
-//------------------------------------------------------------------------
-const menuTabs = [
-  { value: 'sources', label: 'Sources' },
-  { value: 'codes', label: 'Codes' },
-  { value: 'export', label: 'Export' },
-];
-const menuView = ref(menuTabs[0].value);
-const contentTabs = [
-  { value: 'visualize', label: 'Visualize' },
-  { value: 'analyze', label: 'Analyze' },
-];
-const contentView = ref(contentTabs[0].value);
 
 //------------------------------------------------------------------------
 // PAGE
@@ -225,6 +229,8 @@ const {
   checkSource,
   hasSelections,
   selection,
+  checkedSourcesSize,
+  checkedCodesSize,
 } = useAnalysis();
 
 const {
@@ -236,12 +242,38 @@ const {
 } = useVisualizerPlugins();
 
 //------------------------------------------------------------------------
+// VIEWS / TABS
+//------------------------------------------------------------------------
+
+const menuTabs = computed(() => {
+  const sourceCount = checkedSourcesSize();
+  const codeCount = checkedCodesSize();
+  const maxSources = checkedSources.value.size;
+  const maxCodes = checkedCodes.value.size;
+  return [
+    {
+      value: 'sources',
+      label: 'Sources',
+      count: `${sourceCount}/${maxSources}`,
+    },
+    { value: 'codes', label: 'Codes', count: `${codeCount}/${maxCodes}` },
+    { value: 'export', label: 'Export' },
+  ];
+});
+const menuView = ref(menuTabs.value[0].value);
+const contentTabs = [
+  { value: 'visualize', label: 'Visualize' },
+  { value: 'analyze', label: 'Analyze' },
+];
+const contentView = ref(contentTabs[0].value);
+
+//------------------------------------------------------------------------
 // EXPORTS
 //------------------------------------------------------------------------
 const { exportToCSV } = useExport();
 
-onMounted(async () => {
-  selectVisualizerPlugin({ value: 'list', unlessExists: true });
+onMounted(() => {
+  // selectVisualizerPlugin({ value: 'list', unlessExists: true });
   if (checkedSources.value.size === 0) checkSource('all');
   if (checkedCodes.value.size === 0) checkCode('all');
 });

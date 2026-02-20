@@ -95,6 +95,11 @@ export const useAnalysis = () => {
     updateHasSelection();
   };
 
+  const checkedSourcesSize = () =>
+    Array.from(state.checkedSources.values()).filter(Boolean).length;
+  const checkedCodesSize = () =>
+    Array.from(state.checkedCodes.values()).filter(Boolean).length;
+
   const updateHasSelection = debounce(() => {
     // TODO debounce or throttle?
     const values = [];
@@ -156,5 +161,7 @@ export const useAnalysis = () => {
     checkCode,
     codes: allCodes,
     sources: allSources,
+    checkedSourcesSize,
+    checkedCodesSize,
   };
 };
