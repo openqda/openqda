@@ -92,16 +92,14 @@ Route::middleware([
     Route::get('/audits/{project}', [AuditsController::class, 'projectAudits']);
 
     /**
-     * Coding
+     * Coding - Codes
      */
     Route::get('/projects/{project}/codes', [CodingController::class, 'show'])->name('coding.show');
     Route::post('/projects/{project}/codes', [CodingController::class, 'store'])->name('coding.store');
     Route::patch('/projects/{project}/codes/{code}', [CodingController::class, 'updateAttribute'])->name('coding.update-attribute');
-    Route::post('/projects/{project}/sources/{source}/codes/{code}/selections/{selection}/change-code', [SelectionController::class, 'changeCode'])->name('selection.change-code');
-    Route::post('/projects/{project}/sources/{source}/codes/{code}/remove-parent', [CodingController::class, 'removeParent'])->name('coding.remove-parent');
-    Route::post('/projects/{project}/sources/{source}/codes/{code}/up-hierarchy', [CodingController::class, 'upHierarchy'])->name('coding.up-hierarchy');
-    Route::delete('/projects/{project}/sources/{source}/codes/{code}', [CodingController::class, 'destroy'])->name('coding.destroy');
-    Route::post('/projects/{project}/sources/{source}/codes/{code}/description', [CodingController::class, 'updateDescription'])->name('coding.update-description');
+    Route::post('/projects/{project}/codes/{code}/remove-parent', [CodingController::class, 'removeParent'])->name('coding.remove-parent');
+    Route::post('/projects/{project}/codes/{code}/up-hierarchy', [CodingController::class, 'upHierarchy'])->name('coding.up-hierarchy');
+    Route::delete('/projects/{project}/codes/{code}', [CodingController::class, 'destroy'])->name('coding.destroy');
 
     /**
      * Codebooks
@@ -128,6 +126,7 @@ Route::middleware([
      */
     Route::post('/projects/{project}/sources/{source}/codes/{code}', [SelectionController::class, 'store'])->name('selection.store');
     Route::delete('/projects/{project}/sources/{source}/codes/{code}/selections/{selection}', [SelectionController::class, 'destroy'])->name('selection.destroy');
+    Route::post('/projects/{project}/sources/{source}/codes/{code}/selections/{selection}/change-code', [SelectionController::class, 'changeCode'])->name('selection.change-code');
     Route::delete('/projects/{project}/sources/{source}/selections/{selection}', [SelectionController::class, 'destroyOrphan'])->name('selection.destroyOrphan');
 
     /**
