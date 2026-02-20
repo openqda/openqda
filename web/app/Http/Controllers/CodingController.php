@@ -138,17 +138,17 @@ class CodingController extends Controller
      *
      * @return JsonResponse
      */
-    public function destroy(DestroyCodeRequest $request, Project $project, Source $source, Code $code, bool $isRecursiveCall = false)
+    public function destroy(DestroyCodeRequest $request, Project $project, Code $code, bool $isRecursiveCall = false)
     {
         try {
             // Use a database transaction to ensure atomicity
-            return \DB::transaction(function () use ($request, $project, $source, $code, $isRecursiveCall) {
+            return \DB::transaction(function () use ($request, $project, $code, $isRecursiveCall) {
                 // Get all child codes that have this code as their parent
                 $childCodes = Code::where('parent_id', $code->id)->get();
 
                 // Recursively delete all children
                 foreach ($childCodes as $childCode) {
-                    $this->destroy($request, $project, $source, $childCode, true);
+                    $this->destroy($request, $project, $childCode, true);
                 }
 
                 if ($code->parent_id) {
@@ -204,10 +204,9 @@ class CodingController extends Controller
     }
 
     /**
-     * @return JsonResponse
-     *                      Remove the parent of a code
+     * @return JsonResponse Remove the parent of a code
      */
-    public function removeParent(Request $request, Project $project, Source $source, Code $code)
+    public function removeParent(Request $request, Project $project, Code $code)
     {
         // Remove the parent_id from the code
         $code->removeParent();
@@ -217,10 +216,9 @@ class CodingController extends Controller
     }
 
     /**
-     * @return JsonResponse
-     *                      Move the code up the hierarchy by one level
+     * @return JsonResponse Move the code up the hierarchy by one level
      */
-    public function upHierarchy(Request $request, Project $project, Source $source, Code $code)
+    public function upHierarchy(Request $request, Project $project, Code $code)
     {
 
         // Update the parent_id from the code's parent
