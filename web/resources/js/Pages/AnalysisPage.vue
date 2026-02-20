@@ -61,7 +61,16 @@
                   :id="source.id"
                   type="checkbox"
                   :checked="checkedSources.get(source.id)"
-                  @change="checkSource(source.id)"
+                  @change="
+                    () => {
+                      checkSource(source.id);
+                      saveAnalysisVisibility(
+                        'sources',
+                        source.id,
+                        checkedSources.get(source.id)
+                      );
+                    }
+                  "
                   class="cursor-pointer"
                 />
               </td>
@@ -118,7 +127,16 @@
                     :id="code.id"
                     type="checkbox"
                     :checked="checkedCodes.get(code.id)"
-                    @change="checkCode(code.id)"
+                    @change="
+                      () => {
+                        checkCode(code.id);
+                        saveAnalysisVisibility(
+                          'codes',
+                          code.id,
+                          checkedCodes.get(code.id)
+                        );
+                      }
+                    "
                     class="cursor-pointer"
                   />
                 </td>
@@ -184,6 +202,29 @@ import SelectField from '../form/SelectField.vue';
 import ContrastText from '../Components/text/ContrastText.vue';
 import { useUsers } from '../domain/teams/useUsers.js';
 import Footer from '../Layouts/Footer.vue';
+import { router } from '@inertiajs/vue3';
+
+function saveAnalysisVisibility(type, id, value) {
+  const projectId = props.project.id;
+  if (!projectId || !id) return;
+
+  router.put(
+    route('projects.preferences.update', { project: projectId }),
+    {
+      analysis: {
+        visibility: {
+          [type]: {
+            [id]: value,
+          },
+        },
+      },
+    },
+    {
+      preserveScroll: true,
+      preserveState: true,
+    }
+  );
+}
 
 //------------------------------------------------------------------------
 // DATA / PROPS

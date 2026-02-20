@@ -3,6 +3,7 @@ import { reactive, ref, toRef, watch } from 'vue';
 import { debounce } from '../../utils/dom/debounce.js';
 import { Project } from './Project.js';
 import { Routes } from '../../routes/Routes.js';
+import { Preferences } from '../user/Preferences.js';
 
 const state = reactive({
   sortBy: {
@@ -81,7 +82,17 @@ export const useProjects = () => {
       .filter(projectsFilter)
       .sort(byConfig);
   };
-  const updateSorter = (sorter) => {
+
+  /**
+   *
+   * @param sorter {{id: number, field: string, type: string, order: string, label: string}} new sorter configuration
+   * @return {Promise<void>}
+   */
+  const updateSorter = async (sorter) => {
+    // update in backend
+    await Preferences.updateSorter({ projectId, sorter });
+
+    // update in local state
     sortBy.value = sorter;
     state.sortBy = sorter;
     updateSortOder();

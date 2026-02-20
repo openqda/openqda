@@ -56,6 +56,7 @@
           :codebook="codebook"
           :codes="codes.filter((code) => code.codebook === codebook.id)"
           v-if="codesView === 'codes'"
+          @save-code-visibility="saveCodeVisibilityToDb"
         />
         <FilesList
           v-if="codesView === 'sources'"
@@ -138,6 +139,22 @@ import Link from '../Components/Link.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
 import { useInvivoText } from './coding/useInvivoText.js';
+
+function saveCodeVisibilityToDb({ codebookId, codeId, visible }) {
+  router.put(
+    route('projects.preferences.update', { project: props.projectId }),
+    {
+      codebooks: {
+        [codebookId]: {
+          visibility: {
+            [codeId]: visible,
+          },
+        },
+      },
+    },
+    { preserveScroll: true, preserveState: true }
+  );
+}
 
 const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
 //------------------------------------------------------------------------

@@ -32,7 +32,7 @@ class CodeStore extends AbstractStore {
     return codes;
   }
 
-  init(docs) {
+  init(docs, preferences) {
     const codeList = [];
     const toClean = [];
     if (this.size.value === 0 && docs.length > 0) {
@@ -54,7 +54,7 @@ class CodeStore extends AbstractStore {
               ],
             });
           } else {
-            code.active = true;
+            code.active = preferences?.visibility?.[code.id] ?? true;
             code.parent = parent;
             code.order = getOrder(code.codebook);
             code.order = getOrder(code.codebook);

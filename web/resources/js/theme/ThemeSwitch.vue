@@ -4,6 +4,8 @@ import { Theme } from './Theme.js';
 import { SunIcon, MoonIcon } from '@heroicons/vue/24/outline';
 import { onMounted, ref } from 'vue';
 
+const emit = defineEmits(['change']);
+
 const current = ref(null);
 const isDark = ref(false);
 defineProps({
@@ -24,6 +26,7 @@ const toggleTheme = (e) => {
   Theme.update(newTheme);
   current.value = newTheme;
   isDark.value = newTheme === Theme.DARK;
+  emit('change', newTheme);
 };
 </script>
 

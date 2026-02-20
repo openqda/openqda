@@ -6,6 +6,7 @@ use App\Http\Controllers\AuditsController;
 use App\Http\Controllers\CodebookCodesController;
 use App\Http\Controllers\CodebookController;
 use App\Http\Controllers\CodingController;
+use App\Http\Controllers\PreferenceController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SelectionController;
 use App\Http\Controllers\SettingsController;
@@ -169,4 +170,9 @@ Route::middleware([
     Route::resource('settings', SettingsController::class);
     Route::patch('settings/{setting}/value', [SettingsController::class, 'updateValue'])->name('settings.update-value');
 
+    /**
+     * User Preferences
+     */
+    Route::put('/preferences/{project}/update', [PreferenceController::class, 'updateProjectPreference'])->name('preferences.update.project');
+    Route::put('/preferences/update', [PreferenceController::class, 'updateGlobalPreference'])->name('preferences.update.global');
 });

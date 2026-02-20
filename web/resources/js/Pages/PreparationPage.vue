@@ -39,7 +39,7 @@
             :CanUnlock="editorSourceRef.CanUnlock"
             :viewerZoom="zoom"
             :useViewZoom="true"
-            @update:zoom="setZoom"
+            @update:zoom="(action) => setZoom(action, editorSourceRef.id)"
             @autosave="saveQuillContent"
           >
             <template #status>
@@ -119,7 +119,7 @@
 </template>
 
 <script setup>
-import { defineProps, onMounted, provide, ref, watch } from 'vue';
+import { computed, defineProps, onMounted, provide, ref, watch } from 'vue';
 import PreparationsEditor from '../editor/PreparationsEditor.vue';
 import FilesManager from '../Components/files/FilesManager.vue';
 import Button from '../Components/interactive/Button.vue';
@@ -206,7 +206,8 @@ const unlockSource = async () => {
 /*---------------------------------------------------------------------------*/
 // ZOOM
 /*---------------------------------------------------------------------------*/
-const { zoom, setZoom } = useZoom();
+const { getZoom, setZoom } = useZoom();
+const zoom = computed(() => getZoom(editorSourceRef.value?.id));
 
 /*---------------------------------------------------------------------------*/
 // EDITING
