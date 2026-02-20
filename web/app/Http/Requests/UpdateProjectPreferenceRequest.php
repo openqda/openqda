@@ -4,13 +4,15 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateUserPreferenceRequest extends FormRequest
+class UpdateProjectPreferenceRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
+        // we dont need to validate project id here,
+        // because the settings are associated by user Id
         return auth()->check();
     }
 
@@ -22,7 +24,6 @@ class UpdateUserPreferenceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'theme' => 'sometimes|string|in:light,dark',
             'sources' => 'sometimes|array',
             'zoom' => 'sometimes|array',
             'codebooks' => 'sometimes|array',

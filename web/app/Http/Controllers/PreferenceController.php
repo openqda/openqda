@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UpdateUserPreferenceRequest;
+use App\Http\Requests\UpdateProjectPreferenceRequest;
 use App\Models\Project;
-use App\Models\UserPreference;
+use App\Models\UserPreference; // rename to UserProjectPreferences
 
+// use App\Models\GlobalPreference;
 class PreferenceController extends Controller
 {
     /**
      * Update a specific preference value.
      */
-    public function updatePreference(UpdateUserPreferenceRequest $request, Project $project)
+    public function updateProjectPreference(UpdateProjectPreferenceRequest $request, Project $project)
     {
         // Load or create WITHOUT replacing existing preferences
         $prefs = UserPreference::firstOrNew([
@@ -52,5 +53,10 @@ class PreferenceController extends Controller
         $prefs->save();
 
         return back();
+    }
+
+    public function updateGlobalPreference(UpdateGlobalPreferenceRequest $request)
+    {
+        // TODO implement global preferences for theme and for projects sorting
     }
 }

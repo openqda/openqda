@@ -8,18 +8,23 @@ Preferences.updateSorter = async () => {
 };
 
 Preferences.updateZoom = async ({ projectId, sourceId, level }) => {
-  router.put(
-    route('projects.preferences.update', { project: projectId }),
-    {
-      zoom: {
-        source: {
-          [sourceId]: level,
-        },
+  const data = {
+    zoom: {
+      source: {
+        [sourceId]: level,
       },
     },
-    {
-      preserveScroll: true,
-      preserveState: true,
-    }
-  );
+  };
+  return router.put(endpoint(projectId), data, routeOptions);
 };
+
+Preferences.updateTheme = async (options) => {
+  return router.put(endpoint(), options, routeOptions);
+};
+
+const endpoint = (project) =>
+  project
+    ? route('preferences.update.project', { project })
+    : route('preferences.update.global');
+
+const routeOptions = { preserveScroll: true, preserveState: true };

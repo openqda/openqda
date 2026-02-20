@@ -173,5 +173,6 @@ Route::middleware([
     /**
      * User Preferences
      */
-    Route::put('/projects/{project}/preferences', [PreferenceController::class, 'updatePreference'])->name('projects.preferences.update');
+    Route::put('/preferences/{project}/update', [PreferenceController::class, 'updateProjectPreference'])->name('preferences.update.project');
+    Route::put('/preferences/update', [PreferenceController::class, 'updateGlobalPreference'])->name('preferences.update.global');
 });
