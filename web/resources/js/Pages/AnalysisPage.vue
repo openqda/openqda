@@ -184,7 +184,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import Button from '../Components/interactive/Button.vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
@@ -211,21 +211,6 @@ const props = defineProps(['codebooks', 'project']);
 const { allUsers } = useUsers();
 
 //------------------------------------------------------------------------
-// VIEWS / TABS
-//------------------------------------------------------------------------
-const menuTabs = [
-  { value: 'sources', label: 'Sources' },
-  { value: 'codes', label: 'Codes' },
-  { value: 'export', label: 'Export' },
-];
-const menuView = ref(menuTabs[0].value);
-const contentTabs = [
-  { value: 'visualize', label: 'Visualize' },
-  { value: 'analyze', label: 'Analyze' },
-];
-const contentView = ref(contentTabs[0].value);
-
-//------------------------------------------------------------------------
 // PAGE
 //------------------------------------------------------------------------
 const pageTitle = ref(`Analysis - ${trunc(props.project.name, 50)}`);
@@ -244,6 +229,8 @@ const {
   checkSource,
   hasSelections,
   selection,
+  checkedSourcesSize,
+  checkedCodesSize,
 } = useAnalysis();
 
 const {
@@ -253,6 +240,32 @@ const {
   setShowMenu,
   selectVisualizerPlugin,
 } = useVisualizerPlugins();
+
+//------------------------------------------------------------------------
+// VIEWS / TABS
+//------------------------------------------------------------------------
+
+const menuTabs = computed(() => {
+  const sourceCount = checkedSourcesSize();
+  const codeCount = checkedCodesSize();
+  const maxSources = checkedSources.value.size;
+  const maxCodes = checkedCodes.value.size;
+  return [
+    {
+      value: 'sources',
+      label: 'Sources',
+      count: `${sourceCount}/${maxSources}`,
+    },
+    { value: 'codes', label: 'Codes', count: `${codeCount}/${maxCodes}` },
+    { value: 'export', label: 'Export' },
+  ];
+});
+const menuView = ref(menuTabs.value[0].value);
+const contentTabs = [
+  { value: 'visualize', label: 'Visualize' },
+  { value: 'analyze', label: 'Analyze' },
+];
+const contentView = ref(contentTabs[0].value);
 
 //------------------------------------------------------------------------
 // EXPORTS
