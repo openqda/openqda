@@ -48,6 +48,10 @@ REMOTE_BACKUP_PATH="${REMOTE_BACKUP_PATH:-}"
 REMOTE_BACKUP_PORT="${REMOTE_BACKUP_PORT:-22}"
 REMOTE_BACKUP_KEY="${REMOTE_BACKUP_KEY:-}"
 
+# Backup file group permission (optional)
+# Set the group ownership of the backup file to allow backup server to pull it
+BACKUP_FILE_GROUP_PERMISSION="${BACKUP_FILE_GROUP_PERMISSION:-}"
+
 # Parse command-line arguments
 CONFIG_FILE=""
 while [[ $# -gt 0 ]]; do
@@ -132,6 +136,7 @@ if [ -n "$DB_PASSWORD" ]; then
               --single-transaction \
               --quick \
               --lock-tables=false \
+              --no-tablespaces \
               "$DB_NAME" > "$BACKUP_PATH/database.sql" 2>> "$LOG_FILE" || error_exit "Database backup failed"
 else
     mysqldump --host="$DB_HOST" \
@@ -140,6 +145,7 @@ else
               --single-transaction \
               --quick \
               --lock-tables=false \
+              --no-tablespaces \
               "$DB_NAME" > "$BACKUP_PATH/database.sql" 2>> "$LOG_FILE" || error_exit "Database backup failed"
 fi
 
@@ -202,6 +208,18 @@ rm -rf "$BACKUP_PATH" || log_message "WARNING: Failed to remove temporary backup
 # Calculate backup size
 BACKUP_SIZE=$(du -h "$BACKUP_NAME.tar.gz" | cut -f1)
 log_message "Backup completed successfully: $BACKUP_NAME.tar.gz ($BACKUP_SIZE)"
+
+# Set group permission on backup file if configured
+if [ -n "$BACKUP_FILE_GROUP_PERMISSION" ]; then
+    log_message "Setting group permission to: $BACKUP_FILE_GROUP_PERMISSION"
+    if chgrp "$BACKUP_FILE_GROUP_PERMISSION" "$BACKUP_NAME.tar.gz" 2>> "$LOG_FILE"; then
+        # Make the file group-readable so the backup server can pull it
+        chmod g+r "$BACKUP_NAME.tar.gz" 2>> "$LOG_FILE" || log_message "WARNING: Failed to set group read permission"
+        log_message "Group permission set successfully"
+    else
+        log_message "WARNING: Failed to set group permission (check if group exists and user has permission)"
+    fi
+fi
 
 # 6. Remote backup via SCP (if configured)
 if [ "$REMOTE_BACKUP_ENABLED" = "true" ]; then

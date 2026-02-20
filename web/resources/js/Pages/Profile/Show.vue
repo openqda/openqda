@@ -10,8 +10,11 @@ import Button from '../../Components/interactive/Button.vue';
 import { router } from '@inertiajs/vue3';
 import BaseContainer from '../../Layouts/BaseContainer.vue';
 import LegalForm from './Partials/LegalForm.vue';
-import { Theme } from '../../theme/Theme.js';
+import { useUsers } from '../../domain/teams/useUsers.js';
+import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline/index.js';
 // import '../../Pages/Profile/Partials/TwoFactorAuthenticationForm.vue';
+
+const { userIsVerified } = useUsers();
 
 defineProps({
   confirmsTwoFactorAuthentication: Boolean,
@@ -53,6 +56,21 @@ function onThemeChange(newTheme) {
   <AuthenticatedLayout :menu="false">
     <template #main>
       <BaseContainer class="w-full lg:w-3/4 xl:w-1/2 p-1 lg:p-3">
+        <div
+          v-if="!userIsVerified()"
+          class="p-4 rounded border border-destructive text-sm text-foreground"
+        >
+          <div class="flex items-center gap-2 mb-2">
+            <ExclamationTriangleIcon
+              class="w-10 h-10 text-destructive"
+              aria-hidden="true"
+            />
+            <p>
+              Your email address has not yet been verified. You will not be able
+              to access all OpenQDA features until this has been done.
+            </p>
+          </div>
+        </div>
         <form @submit.prevent="logout">
           <div class="flex justify-between py-4 border-b border-foreground/10">
             <InputLabel> Logout </InputLabel>

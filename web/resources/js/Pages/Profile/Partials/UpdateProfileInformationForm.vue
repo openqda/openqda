@@ -113,13 +113,15 @@ const clearPhotoFileInput = () => {
           "
         >
           <p class="text-sm mt-2">
-            Your email address is unverified.
+            <span class="text-destructive me-2"
+              >Your email address is unverified.</span
+            >
 
             <Link
               :href="route('verification.send')"
               method="post"
               as="button"
-              class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-cerulean-700"
+              class="underline text-sm text-foreground hover:text-destructive rounded-md focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-destructive"
               @click.prevent="sendEmailVerification"
             >
               Click here to re-send the verification email.

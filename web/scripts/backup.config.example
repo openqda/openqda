@@ -40,3 +40,11 @@ REMOTE_BACKUP_PORT="22"
 # Optional: SSH key path (if not using default)
 # REMOTE_BACKUP_KEY="/path/to/ssh/key"
 
+# Backup file group permission (optional)
+# Set the group ownership of the backup file to allow backup server to pull it.
+# This is useful when using pull-based backups where the backup server connects
+# to this server to fetch backups. The backup user on the backup server should
+# be a member of this group.
+# Example: BACKUP_FILE_GROUP_PERMISSION="backup-group"
+# BACKUP_FILE_GROUP_PERMISSION=""
+

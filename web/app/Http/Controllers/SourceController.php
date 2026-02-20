@@ -17,6 +17,7 @@ use App\Models\Project;
 use App\Models\Source;
 use App\Models\SourceStatus;
 use App\Models\Variable;
+use App\Traits\SourceExists;
 use App\Traits\ValidatesStoragePath;
 use DB;
 use Exception;
@@ -38,7 +39,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
  */
 class SourceController extends Controller
 {
-    use ValidatesStoragePath;
+    use SourceExists, ValidatesStoragePath;
 
     /**
      * View of the preparation page with the Sources (Documents)
@@ -217,7 +218,7 @@ class SourceController extends Controller
 
         return $sources->map(function ($source) {
             $converted = $source->converted;
-            $exists = $converted ? File::exists($converted->path) : false;
+            $exists = $this->sourceExists($source);
             $status = $source->sourceStatuses()->latest()->first();
 
             return [
@@ -331,10 +332,14 @@ class SourceController extends Controller
                 return response()->json(['success' => false, 'message' => 'Invalid file path']);
             }
 
+            // attempting to write the content back to the file
+            // before saving it, to prevent ambiguous states
+            file_put_contents($validatedPath, $content);
+
+            // if write was successful, update the source record
             $source->modifying_user_id = auth()->id();
             $source->save();
 
-            file_put_contents($validatedPath, $content);
             $audit = new Audit([
                 'user_type' => 'App\Models\User',
                 'user_id' => auth()->id(),

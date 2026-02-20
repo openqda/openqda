@@ -8,13 +8,18 @@
 # - Storage folder restoration (optional, non-overwrite)
 # - .env configuration file
 #
+# The script automatically detects if it's running inside a Docker container
+# and adjusts the default database host accordingly:
+# - Inside Docker: defaults to "mysql" (container name)
+# - Outside Docker: defaults to "localhost"
+#
 # Usage: ./restore.sh [options] BACKUP_FILE
 # Options:
 #   --db-only           Restore only the database
 #   --storage-only      Restore only storage files
 #   --skip-db           Skip database restoration
 #   --skip-storage      Skip storage restoration
-#   --db-host HOST      Database host (default: localhost)
+#   --db-host HOST      Database host (default: auto-detected)
 #   --db-port PORT      Database port (default: 3306)
 #   --db-name NAME      Database name (default: web)
 #   --db-user USER      Database user (default: root)
@@ -33,10 +38,17 @@ set -u  # Exit on undefined variable
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WEB_DIR="$(dirname "$SCRIPT_DIR")"
 
+# Detect if running inside Docker container
+# If inside Docker and mysql container exists, use "mysql" as default host
+DEFAULT_DB_HOST="localhost"
+if [ -f /.dockerenv ] && getent hosts mysql >/dev/null 2>&1; then
+    DEFAULT_DB_HOST="mysql"
+fi
+
 # Default configuration
 RESTORE_DB=true
 RESTORE_STORAGE=true
-DB_HOST="localhost"
+DB_HOST="$DEFAULT_DB_HOST"
 DB_PORT="3306"
 DB_NAME="web"
 DB_USER="root"
@@ -57,7 +69,7 @@ show_help() {
     echo "  --storage-only      Restore only storage files"
     echo "  --skip-db           Skip database restoration"
     echo "  --skip-storage      Skip storage restoration"
-    echo "  --db-host HOST      Database host (default: localhost)"
+    echo "  --db-host HOST      Database host (default: auto-detected, 'mysql' in Docker, 'localhost' otherwise)"
     echo "  --db-port PORT      Database port (default: 3306)"
     echo "  --db-name NAME      Database name (default: web)"
     echo "  --db-user USER      Database user (default: root)"

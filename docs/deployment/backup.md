@@ -4,10 +4,11 @@ OpenQDA includes a comprehensive backup and restore solution that allows you to 
 
 ## Overview
 
-The backup solution includes two main scripts:
+The backup solution includes three main scripts:
 
 - **`backup.sh`**: Creates complete backups with optional remote transfer via SCP
 - **`restore.sh`**: Restores backups with flexible options for selective restoration
+- **`pull.sh`**: Pulls (downloads) backups from a remote server via SCP
 
 The backup script creates a complete snapshot of your OpenQDA installation, including:
 
@@ -22,6 +23,14 @@ The restore script provides:
 - **Selective Restoration**: Choose to restore database only, storage only, or both
 - **Non-Overwrite Storage**: Existing files are preserved during restoration
 - **Safe .env Handling**: Existing configuration files are backed up before restoration
+
+The pull script provides (run on backup server):
+
+- **Security-Focused**: Application server doesn't need backup server credentials
+- **List Remote Backups**: View available backups on the application server
+- **Pull Latest Backup**: Download the most recent backup from application server
+- **Pull Specific Backup**: Download a backup by name
+- **Pull All Backups**: Download all backups from the application server
 
 ## Quick Start
 
@@ -79,6 +88,24 @@ The backup script can be configured in three ways (in order of precedence):
 | `REMOTE_BACKUP_PATH` | (empty) | Destination path on remote server |
 | `REMOTE_BACKUP_PORT` | `22` | SSH port for remote server |
 | `REMOTE_BACKUP_KEY` | (empty) | Path to SSH private key (optional) |
+
+#### Backup File Group Permission (Optional)
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `BACKUP_FILE_GROUP_PERMISSION` | (empty) | Group name to set on backup files for pull-based backups |
+
+When using pull-based backups (where the backup server pulls backups from the application server), you can configure this option to automatically set the group ownership on created backup files. This allows the backup server's SSH user to read the backup files.
+
+**Example:**
+```bash
+BACKUP_FILE_GROUP_PERMISSION="backup-group"
+```
+
+**Setup:**
+1. Create a shared group on the application server
+2. Add both the backup script user and the backup server's SSH user to this group
+3. The backup script will automatically set group ownership and ensure group-read permission
 | `DB_NAME` | `web` | Database name |
 | `DB_USER` | `root` | MySQL username |
 | `DB_PASSWORD` | (empty) | MySQL password |
@@ -161,6 +188,142 @@ The archive contains:
 - `storage.tar.gz`: Compressed storage directory
 - `.env`: Environment configuration
 - `backup_info.txt`: Backup metadata
+
+## Pulling Backups from Application Server
+
+The `pull.sh` script is designed to run **ON THE BACKUP SERVER** to pull backups **FROM THE APPLICATION SERVER** via SCP. This provides better security than pushing backups, as the application server does not need write credentials to the backup server.
+
+### Security Benefits
+
+If the application server is compromised:
+- **No backup server credentials exposed**: The attacker cannot access the backup server
+- **Backups remain safe**: The backup server controls when and how backups are retrieved
+- **Read-only access**: Application server only provides SSH read access to backup files
+
+### Setup
+
+#### On the Application Server
+
+1. Ensure `backup.sh` creates backups locally
+2. Optionally disable remote push by setting `REMOTE_BACKUP_ENABLED=false` in `backup.config`
+3. Create a shared group and users for backup access:
+   ```bash
+   # Create a group for backup access
+   sudo groupadd backup-group
+   
+   # Add the backup script user (e.g., www-data) to the group
+   sudo usermod -a -G backup-group www-data
+   
+   # Create a read-only SSH user for the backup server
+   sudo useradd -m -s /bin/bash backup-reader
+   sudo usermod -a -G backup-group backup-reader
+   ```
+4. Configure group permission in `backup.config`:
+   ```bash
+   BACKUP_FILE_GROUP_PERMISSION="backup-group"
+   ```
+5. Set up SSH key authentication for the backup-reader user
+
+#### On the Backup Server
+
+1. Copy the pull script and configuration:
+   ```bash
+   cp /path/to/openqda/web/scripts/pull.sh /usr/local/bin/
+   cp /path/to/openqda/web/scripts/pull.config.example /etc/openqda/pull.config
+   ```
+
+2. Configure access to the application server in `pull.config`:
+   ```bash
+   APP_SERVER_HOST="app.example.com"
+   APP_SERVER_USER="backup-reader"
+   APP_SERVER_BACKUP_PATH="/var/backups/openqda"
+   APP_SERVER_PORT="22"
+   # Optional: APP_SERVER_KEY="/path/to/ssh/key"
+   ```
+
+3. Set up SSH key authentication (recommended):
+   ```bash
+   ssh-keygen -t rsa -b 4096
+   ssh-copy-id backup-reader@app.example.com
+   ```
+
+### List Available Backups
+
+View all backups available on the application server:
+
+```bash
+./pull.sh --list
+```
+
+This will display a list of all backup files on the application server with their sizes and dates.
+
+### Pull the Latest Backup
+
+Download the most recent backup from the application server:
+
+```bash
+./pull.sh --latest
+```
+
+The script will automatically identify and download the newest backup file.
+
+### Pull a Specific Backup
+
+Download a backup by its filename:
+
+```bash
+./pull.sh --name openqda_backup_20260108_000000.tar.gz
+```
+
+### Pull All Backups
+
+Download all available backups from the application server:
+
+```bash
+./pull.sh --all
+```
+
+The script will download all backups, automatically skipping any that already exist locally to avoid redundant transfers.
+
+### Pull Script Options
+
+| Option | Description |
+|--------|-------------|
+| `-c, --config FILE` | Path to configuration file |
+| `-d, --dir DIR` | Local destination directory (default: `/var/backups/openqda`) |
+| `-l, --list` | List available backups on application server |
+| `-n, --name NAME` | Specific backup name to pull |
+| `--latest` | Pull the latest backup |
+| `--all` | Pull all backups from application server |
+| `-h, --help` | Show help message |
+
+### Pull Script Features
+
+- **Security-focused**: Application server doesn't need backup server credentials
+- **Smart duplicate detection**: Automatically skips backups that already exist locally
+- **Compressed transfer**: Uses SCP compression for faster transfers
+- **SSH key support**: Can use SSH keys for authentication
+- **Detailed logging**: All operations are logged to `pull.log`
+- **Error handling**: Continues with remaining backups if one fails during `--all` mode
+
+### Example Workflow
+
+A typical workflow for pulling and restoring a backup from the application server:
+
+1. **List available backups** (on backup server):
+   ```bash
+   ./pull.sh --list
+   ```
+
+2. **Pull the latest backup** (on backup server):
+   ```bash
+   ./pull.sh --latest
+   ```
+
+3. **Restore the pulled backup**:
+   ```bash
+   ./restore.sh /var/backups/openqda/openqda_backup_20260108_000000.tar.gz
+   ```
 
 ## Restoring from Backup
 

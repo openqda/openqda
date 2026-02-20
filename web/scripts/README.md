@@ -4,10 +4,11 @@ This directory contains scripts for backing up and restoring OpenQDA application
 
 ## Overview
 
-The backup solution includes two main scripts:
+The backup solution includes three main scripts:
 
 - **`backup.sh`**: Creates complete backups with optional remote transfer via SCP
 - **`restore.sh`**: Restores backups with flexible options for selective restoration
+- **`pull.sh`**: Pulls (downloads) backups from a remote server via SCP
 
 ### Backup Script
 
@@ -27,11 +28,25 @@ Restores data from backups with the following features:
 - **Non-overwrite storage**: Existing files in storage are preserved during restoration
 - **Safe .env handling**: Existing .env files are backed up before restoration
 
+### Pull Script
+
+**Run on the backup server** to pull backups from the application server with the following features:
+
+- **Security-focused**: Application server doesn't need credentials to backup server
+- **List remote backups**: View available backups on the application server
+- **Pull latest backup**: Download the most recent backup
+- **Pull specific backup**: Download a backup by name
+- **Pull all backups**: Download all backups from the application server
+- **Skip existing**: Automatically skips backups that already exist locally
+
+This approach is more secure than pushing backups, as a compromised application server cannot compromise the backup server.
+
 ## Installation
 
-1. Copy the configuration template:
+1. Copy the configuration templates:
    ```bash
    cp backup.config.example backup.config
+   cp pull.config.example pull.config  # If using pull-based backups
    ```
 
 2. Edit `backup.config` with your specific settings:
@@ -39,9 +54,14 @@ Restores data from backups with the following features:
    nano backup.config
    ```
 
-3. Ensure the scripts are executable:
+3. If using pull-based backups, edit `pull.config` on your backup server:
    ```bash
-   chmod +x backup.sh restore.sh
+   nano pull.config
+   ```
+
+4. Ensure the scripts are executable:
+   ```bash
+   chmod +x backup.sh restore.sh pull.sh
    ```
 
 ## Usage
@@ -107,6 +127,25 @@ Configuration can be provided in three ways (in order of precedence):
 | Remote Path | `REMOTE_BACKUP_PATH` | (empty) | Destination path on remote server |
 | Remote Port | `REMOTE_BACKUP_PORT` | `22` | SSH port for remote server |
 | SSH Key | `REMOTE_BACKUP_KEY` | (empty) | Path to SSH private key (optional) |
+
+#### Backup File Group Permission (Optional)
+
+| Option | Environment Variable | Default | Description |
+|--------|---------------------|---------|-------------|
+| Group Permission | `BACKUP_FILE_GROUP_PERMISSION` | (empty) | Group name to set on backup files for pull-based backups |
+
+This setting is useful when using pull-based backups where a backup server connects to the application server to fetch backups. When configured, the backup script will set the group ownership of the created backup file to the specified group and ensure it's group-readable. The backup user on the backup server should be a member of this group.
+
+**Example configuration:**
+```bash
+BACKUP_FILE_GROUP_PERMISSION="backup-group"
+```
+
+**Setup steps:**
+1. Create a group on the application server: `sudo groupadd backup-group`
+2. Add the backup script user to the group: `sudo usermod -a -G backup-group www-data`
+3. Add the backup server's SSH user to the group: `sudo usermod -a -G backup-group backup-reader`
+4. Configure the option in `backup.config`
 
 ### Setting Up Remote Backups
 
@@ -204,6 +243,104 @@ openqda_backup_YYYYMMDD_HHMMSS/
 └── backup_info.txt         # Backup metadata
 ```
 
+## Pulling Backups from Application Server
+
+### Using the Pull Script
+
+**Important**: The `pull.sh` script is designed to run **ON THE BACKUP SERVER** to pull backups **FROM THE APPLICATION SERVER**. This provides better security than pushing backups, as the application server does not need write credentials to the backup server.
+
+#### Security Benefits
+
+- **No backup server credentials on application server**: If the application server is compromised, the backup server remains secure
+- **Read-only access**: Application server only needs to allow SSH read access to backup files
+- **Backup server controls access**: Backup server actively pulls backups on its own schedule
+
+#### Setup
+
+1. **On the application server**: Ensure backups are created locally by `backup.sh` (disable remote push if needed)
+2. **On the backup server**: Install `pull.sh` and configure access to the application server
+
+#### List Available Backups
+
+View all backups available on the application server:
+
+```bash
+./pull.sh --list
+```
+
+#### Pull the Latest Backup
+
+Download the most recent backup:
+
+```bash
+./pull.sh --latest
+```
+
+#### Pull a Specific Backup
+
+Download a backup by name:
+
+```bash
+./pull.sh --name openqda_backup_20260108_000000.tar.gz
+```
+
+#### Pull All Backups
+
+Download all available backups from the application server:
+
+```bash
+./pull.sh --all
+```
+
+#### Custom Configuration
+
+Use a custom configuration file or local destination directory:
+
+```bash
+./pull.sh --config /path/to/pull.config --dir /custom/backup/location --latest
+```
+
+#### Pull Script Options
+
+| Option | Description |
+|--------|-------------|
+| `-c, --config FILE` | Path to configuration file |
+| `-d, --dir DIR` | Local destination directory for pulled backups |
+| `-l, --list` | List available backups on application server |
+| `-n, --name NAME` | Specific backup name to pull |
+| `--latest` | Pull the latest backup |
+| `--all` | Pull all backups from application server |
+| `-h, --help` | Show help message |
+
+#### Pull Script Features
+
+- **Security-focused**: Application server doesn't need backup server credentials
+- **Smart duplicate detection**: Automatically skips backups that already exist locally
+- **Compressed transfer**: Uses SCP compression for faster transfers
+- **SSH key support**: Can use SSH keys for authentication
+- **Detailed logging**: All operations are logged to `pull.log`
+- **Error handling**: Continues with remaining backups if one fails
+
+#### Required Configuration for Pull Script
+
+The pull script requires configuration for accessing the application server:
+
+| Option | Environment Variable | Description |
+|--------|---------------------|-------------|
+| Application Server Host | `APP_SERVER_HOST` | Application server hostname or IP |
+| Application Server User | `APP_SERVER_USER` | SSH username for application server |
+| Application Server Path | `APP_SERVER_BACKUP_PATH` | Path to backups on application server |
+| Application Server Port | `APP_SERVER_PORT` | SSH port (default: 22) |
+| SSH Key | `APP_SERVER_KEY` | Path to SSH private key (optional) |
+
+**Example workflow:**
+
+1. **On application server**: Run backups regularly with `backup.sh` (with remote push disabled)
+2. **On backup server**: Configure `pull.config` with application server details
+3. **On backup server**: List available backups: `./pull.sh --list`
+4. **On backup server**: Pull the latest backup: `./pull.sh --latest`
+5. **Optional**: Restore if needed: `./restore.sh /var/backups/openqda/openqda_backup_*.tar.gz`
+
 ## Restoring from Backup
 
 ### Using the Restore Script
@@ -259,10 +396,34 @@ The `restore.sh` script provides flexible restoration options:
 
 ### Restore Script Features
 
+- **Docker and Host Support**: Automatically detects Docker environment and connects to the correct MySQL instance
+  - When running inside a Docker container (e.g., `laravel.test`), defaults to `mysql` container
+  - When running on host system, defaults to `localhost`
+  - Can be overridden with `--db-host` option
 - **Selective restoration**: Choose what to restore (database, storage, or both)
 - **Non-overwrite storage**: Existing files in storage are preserved automatically
 - **Safe .env handling**: Existing .env files are backed up with timestamp before restoration
 - **Post-restore checklist**: Displays important steps after restoration completes
+
+### Restoring in Docker Environment
+
+When using Docker Compose for development, you can restore backups from within the Laravel container:
+
+```bash
+# Enter the Laravel container
+docker exec -it laravel.test bash
+
+# Navigate to scripts directory
+cd /var/www/html/scripts
+
+# Run restore (automatically detects mysql container)
+./restore.sh openqda_backup_20260108_000000.tar.gz
+
+# Or explicitly specify the mysql container
+./restore.sh --db-host mysql openqda_backup_20260108_000000.tar.gz
+```
+
+The script automatically detects that it's running inside Docker and uses the `mysql` container name as the database host.
 
 ### Manual Restore (Alternative)
 

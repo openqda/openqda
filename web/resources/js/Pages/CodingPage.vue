@@ -165,9 +165,17 @@ const sourceDocuments = ref(
     .filter((source) => {
       if (source.id === props.source?.id) return false;
       if (source.isLocked) return true;
-      return (source.variables ?? []).find(
-        ({ name, boolean_value }) => name === 'isLocked' && boolean_value === 1
-      );
+
+      // backwards compatibility: check raw variables array
+      // TODO: remove 1.2.0
+      if (Array.isArray(source.variables)) {
+        return (source.variables ?? []).find(
+          ({ name, boolean_value }) =>
+            name === 'isLocked' && boolean_value === 1
+        );
+      } else {
+        return !!source.variables?.isLocked;
+      }
     })
     .map((source) => {
       const copy = { ...source };
