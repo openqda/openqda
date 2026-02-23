@@ -34,6 +34,7 @@
             buttonTitle="Update code"
             :submit="updateCode"
             :show="!!editSchema"
+            @close="closeEditDialog"
           />
           <DeleteDialog
             :title="`Permanently delete ${deleteTarget?.name}`"
@@ -176,7 +177,11 @@ const switchFile = (file) => {
 //------------------------------------------------------------------------
 // GENERIC EDIT DIALOG
 //------------------------------------------------------------------------
-const { schema: editSchema, target: editTarget } = useRenameDialog();
+const {
+  schema: editSchema,
+  target: editTarget,
+  close: closeEditDialog,
+} = useRenameDialog();
 const {
   target: deleteTarget,
   challenge: deleteChallenge,
