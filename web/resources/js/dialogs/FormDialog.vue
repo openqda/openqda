@@ -31,7 +31,7 @@ const props = defineProps({
   show: Boolean,
 });
 
-const emit = defineEmits(['created', 'cancelled']);
+const emit = defineEmits(['created', 'cancelled', 'close']);
 const error = ref(null);
 const complete = ref(false);
 const submitting = ref(false);
@@ -85,6 +85,7 @@ const submit = async (document) => {
       open.value = false;
       submitting.value = false;
       emit('created', created);
+      emit('close');
     }, 300);
   }
 };
@@ -94,6 +95,7 @@ const cancel = () => {
   submitting.value = false;
   complete.value = false;
   emit('cancelled');
+  emit('close');
 };
 
 const keyDownHandler = (e) => {

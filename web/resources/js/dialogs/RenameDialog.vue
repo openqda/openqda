@@ -24,7 +24,7 @@ const props = defineProps({
   schema: Object,
 });
 
-const emit = defineEmits(['renamed', 'cancelled']);
+const emit = defineEmits(['renamed', 'cancelled', 'close']);
 const newName = ref(null);
 const error = ref(null);
 const complete = ref(false);
@@ -92,6 +92,7 @@ const submit = async () => {
       open.value = false;
       submitting.value = false;
       emit('renamed', { id: localId.value, name: newName.value });
+      emit('close');
     }, 300);
   }
 };
@@ -104,6 +105,7 @@ const cancel = () => {
   submitting.value = false;
   complete.value = false;
   emit('cancelled');
+  emit('close');
 };
 </script>
 
