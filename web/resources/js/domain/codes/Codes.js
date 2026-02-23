@@ -88,7 +88,6 @@ export const Codes = createStoreRepository({
 
 Codes.create = async ({
   projectId,
-  source,
   title,
   name,
   description,
@@ -96,7 +95,7 @@ Codes.create = async ({
   parentId,
   color,
 }) => {
-  const store = Codes.by(`${projectId}-${source.id}`);
+  const store = Codes.by(`${projectId}`);
   const code = {
     id: randomUUID(),
     text: [],
@@ -117,7 +116,7 @@ Codes.create = async ({
   }
 
   const { response, error } = await request({
-    url: `/projects/${projectId}/codes`,
+    url: route('coding.store', { project: projectId }),
     type: 'post',
     body,
   });
@@ -135,9 +134,9 @@ Codes.create = async ({
   return { response, error, code };
 };
 
-Codes.delete = ({ projectId, source, code }) => {
+Codes.delete = ({ projectId, code }) => {
   return request({
-    url: `/projects/${projectId}/sources/${source.id}/codes/${code.id}`,
+    url: route('coding.destroy', { project: projectId, code: code.id }),
     type: 'delete',
   });
 };
@@ -159,24 +158,26 @@ Codes.update = ({
   if (color) body.color = color;
   if (parent) body.parent_id = toRaw(parent.id);
   if (parent === null) body.parent_id = null;
-
   return request({
-    url: `/projects/${projectId}/codes/${code.id}`,
+    url: route('coding.update-attribute', {
+      project: projectId,
+      code: code.id,
+    }),
     type: 'patch',
     body,
   });
 };
 
-Codes.removeParent = ({ projectId, code, source }) => {
+Codes.removeParent = ({ projectId, code }) => {
   return request({
-    url: `/projects/${projectId}/sources/${source.id}/codes/${code.id}/remove-parent`,
+    url: route('coding.remove-parent', { project: projectId, code: code.id }),
     type: 'post',
   });
 };
 
-Codes.upHierarchy = ({ projectId, source, code }) => {
+Codes.upHierarchy = ({ projectId, code }) => {
   return request({
-    url: `/projects/${projectId}/sources/${source.id}/codes/${code.id}/up-hierarchy`,
+    url: route('coding.up-hierarchy', { project: projectId, code: code.id }),
     type: 'post',
   });
 };
@@ -199,7 +200,7 @@ Codes.addChild = ({ projectId, child }) => {
      showDescription: false,
      */
   return request({
-    url: `/projects/${projectId}/codes`,
+    url: route('coding.store', { project: projectId }),
     type: 'post',
     body: child,
   });
