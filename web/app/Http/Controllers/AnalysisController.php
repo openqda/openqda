@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ShowAnalysisPage;
 use App\Models\Code;
 use App\Models\Project;
+use App\Models\Selection;
 use App\Models\Source;
 use App\Traits\BuildsNestedCode;
 use App\Traits\SourceExists;
@@ -28,6 +29,7 @@ class AnalysisController extends Controller
                 ->get()
                 ->map(function ($source) {
                     $converted = $source->converted;
+                    $status = $source->sourceStatuses()->latest()->first();
                     $status = $source->sourceStatuses()->latest()->first();
                     $source->status = $status ? $status->status : 'pending';
                     $exists = $this->sourceExists($source);
@@ -54,7 +56,7 @@ class AnalysisController extends Controller
                 ->whereIn('codebook_id', $codebooks->pluck('id'))
                 ->get();
 
-            $allCodes = $rootCodes->map(fn ($code) => $this->buildNestedCode($code));
+            $allCodes = $rootCodes->map(fn ($code) => $this->buildNestedCode($code, null, false));
             // collaboration
             if ($project->team) {
                 $team = $project->team->load('users');
@@ -94,5 +96,16 @@ class AnalysisController extends Controller
                 'message' => 'Failed to load analysis page. Please try again.',
             ]);
         }
+    }
+
+    public function getSelections(ShowAnalysisPage $request, Project $project)
+    {
+        $selections = Selection::where('project_id', $project->id)
+            ->get()
+            ->toArray();
+
+        return [
+            'selections' => $selections,
+        ];
     }
 }

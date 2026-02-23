@@ -3,6 +3,7 @@ import { usePage } from '@inertiajs/vue3';
 import { debounce } from '../../utils/dom/debounce.js';
 import { unfoldCodes } from './unfoldCodes.js';
 import { createByPropertySorter } from '../../utils/array/createByPropertySorter.js';
+import { request } from '../../utils/http/BackendRequest.js';
 
 const state = reactive({
   checkedSources: new Map(),
@@ -11,12 +12,14 @@ const state = reactive({
   allCodesChecked: false,
   selection: [],
   hasSelections: false,
+  selectionsLoaded: false,
 });
 
 const byName = createByPropertySorter('name');
 
 export const useAnalysis = () => {
-  const { sources, codes, codebooks } = usePage().props;
+  const { sources, codes, codebooks, project } = usePage().props;
+  const projectId = String(project.id);
   const {
     hasSelections,
     checkedCodes,
@@ -24,6 +27,7 @@ export const useAnalysis = () => {
     checkedSources,
     allSourcesChecked,
     selection,
+    selectionsLoaded,
   } = toRefs(state);
   const activeCodebooks = {};
   codebooks.forEach((cb) => {
@@ -150,6 +154,35 @@ export const useAnalysis = () => {
     hasSelections.value = values.length > 0;
   }, 500);
 
+  const loadSelections = async () => {
+    if (selectionsLoaded.value) {
+      return true;
+    }
+    const url = route('analysis.selections', { project: projectId });
+    const { error, response } = await request({ url, type: 'get' });
+    if (error) {
+      throw error;
+    }
+    if (response.status >= 400) {
+      throw new Error(`[${response.status}]: Failed to load selections`);
+    }
+    const { selections } = response.data;
+    selections.forEach((selection) => {
+      const { code_id } = selection;
+      (allCodes.value ?? []).forEach((code) => {
+        if (code.id === code_id) {
+          code.text.push(selection);
+        }
+      });
+    });
+    updateHasSelection();
+    state.selectionsLoaded = true;
+    return true;
+  };
+  const leaveAnalysis = () => {
+    state.selectionsLoaded = false;
+  };
+
   return {
     checkedSources,
     checkedCodes,
@@ -157,6 +190,9 @@ export const useAnalysis = () => {
     allSourcesChecked,
     selection,
     hasSelections,
+    selectionsLoaded,
+    loadSelections,
+    leaveAnalysis,
     checkSource,
     checkCode,
     codes: allCodes,

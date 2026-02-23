@@ -39,9 +39,16 @@ export const useVisualizerPlugins = () => {
     state.showMenu = value;
   };
 
+  const disposeVisualizerPlugin = () => {
+      visualizerName.value = null;
+      visualizerComponent.value = null;
+      hasOptions.value = null;
+  }
+
   return {
     availablePlugins,
     selectVisualizerPlugin,
+    disposeVisualizerPlugin,
     visualizerComponent,
     visualizerName,
     showMenu,

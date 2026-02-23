@@ -103,7 +103,9 @@ class CodingController extends Controller
                 ->first();
 
         // Build nested codes structure
-        $allCodes = $rootCodes->map(fn ($code) => $this->buildNestedCode($code, $source ? $source->id : null));
+        $withSelections = (bool) $source?->id;
+        $sourceId = $source ? $source->id : null;
+        $allCodes = $rootCodes->map(fn ($code) => $this->buildNestedCode($code, $sourceId, $withSelections));
 
         // Get content if source exists, otherwise return minimal data for the view
         if ($source && $source->converted) {

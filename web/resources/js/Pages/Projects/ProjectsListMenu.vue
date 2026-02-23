@@ -57,7 +57,7 @@ const focusCurrent = () => {
       return item.getAttribute('data-id') == currentProject.id;
     });
 
-    if (!isInViewport(li)) {
+    if (li && !isInViewport(li)) {
       setTimeout(() => {
         li.scrollIntoView({
           behavior: 'instant',

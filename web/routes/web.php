@@ -121,7 +121,7 @@ Route::middleware([
      * Analysis
      */
     Route::get('/projects/{project}/analysis', [AnalysisController::class, 'show'])->name('analysis.show');
-    Route::get('/projects/{project}/analysis', [AnalysisController::class, 'show'])->name('analysis.show');
+    Route::get('/projects/{project}/analysis/selections', [AnalysisController::class, 'getSelections'])->name('analysis.selections');
 
     /**
      * Selection
