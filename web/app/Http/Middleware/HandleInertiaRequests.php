@@ -2,7 +2,8 @@
 
 namespace App\Http\Middleware;
 
-use App\Models\UserPreference;
+use App\Models\UserGlobalPreference;
+use App\Models\UserProjectPreference;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -34,7 +35,6 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-
         // Get the current URL
         $currentUrl = $request->fullUrl();
 
@@ -81,10 +81,14 @@ class HandleInertiaRequests extends Middleware
                 project => ... load from project pref table by user id and project id if project id is in url
               ]
             */
-            'preferences' => fn () => $request->user()
-                ? UserPreference::where('user_id', $request->user()->id)->get()
-                : [],
-
+            'preferences' => fn () => $request->user() ? [
+                'global' => UserGlobalPreference::where('user_id', $request->user()->id)->first(),
+                'project' => ($projectId && is_numeric($projectId))
+                    ? UserProjectPreference::where('user_id', $request->user()->id)
+                        ->where('project_id', (int) $projectId)
+                        ->first()
+                    : null,
+            ] : null,
         ], [
             'shouldInterpolate' => true,
         ]);

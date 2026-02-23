@@ -4,7 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Project;
 use App\Models\User;
-use App\Models\UserPreference;
+use App\Models\UserProjectPreference;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -35,7 +35,7 @@ class PreferenceControllerTest extends TestCase
 
         $response->assertRedirect();
 
-        $this->assertDatabaseHas('user_preferences', [
+        $this->assertDatabaseHas('user_project_preferences', [
             'user_id' => $user->id,
             'project_id' => $project->id,
             'theme' => 'dark',
@@ -53,12 +53,12 @@ class PreferenceControllerTest extends TestCase
             ],
         ]);
 
-        $this->assertDatabaseHas('user_preferences', [
+        $this->assertDatabaseHas('user_project_preferences', [
             'user_id' => $user->id,
             'project_id' => $project->id,
         ]);
 
-        $prefs = UserPreference::first();
+        $prefs = UserProjectPreference::first();
 
         $this->assertEquals([
             'coding' => ['viewer' => 2],
@@ -70,7 +70,7 @@ class PreferenceControllerTest extends TestCase
         $user = User::factory()->create();
         $project = Project::factory()->create();
 
-        $prefs = UserPreference::create([
+        $prefs = UserProjectPreference::create([
             'user_id' => $user->id,
             'project_id' => $project->id,
             'theme' => 'light',
@@ -114,13 +114,13 @@ class PreferenceControllerTest extends TestCase
             'theme' => 'light',
         ]);
 
-        $this->assertDatabaseHas('user_preferences', [
+        $this->assertDatabaseHas('user_project_preferences', [
             'user_id' => $user1->id,
             'project_id' => $project->id,
             'theme' => 'dark',
         ]);
 
-        $this->assertDatabaseHas('user_preferences', [
+        $this->assertDatabaseHas('user_project_preferences', [
             'user_id' => $user2->id,
             'project_id' => $project->id,
             'theme' => 'light',
@@ -141,13 +141,13 @@ class PreferenceControllerTest extends TestCase
             'theme' => 'light',
         ]);
 
-        $this->assertDatabaseHas('user_preferences', [
+        $this->assertDatabaseHas('user_project_preferences', [
             'user_id' => $user->id,
             'project_id' => $project1->id,
             'theme' => 'dark',
         ]);
 
-        $this->assertDatabaseHas('user_preferences', [
+        $this->assertDatabaseHas('user_project_preferences', [
             'user_id' => $user->id,
             'project_id' => $project2->id,
             'theme' => 'light',
@@ -169,7 +169,7 @@ class PreferenceControllerTest extends TestCase
 
         $this->assertEquals(
             1,
-            UserPreference::where('user_id', $user->id)
+            UserProjectPreference::where('user_id', $user->id)
                 ->where('project_id', $project->id)
                 ->count()
         );
@@ -180,7 +180,7 @@ class PreferenceControllerTest extends TestCase
         $user = User::factory()->create();
         $project = Project::factory()->create();
 
-        $prefs = UserPreference::create([
+        $prefs = UserProjectPreference::create([
             'user_id' => $user->id,
             'project_id' => $project->id,
             'codebooks' => [
@@ -220,7 +220,7 @@ class PreferenceControllerTest extends TestCase
         $user = User::factory()->create();
         $project = Project::factory()->create();
 
-        $prefs = UserPreference::create([
+        $prefs = UserProjectPreference::create([
             'user_id' => $user->id,
             'project_id' => $project->id,
             'zoom' => [
@@ -247,7 +247,7 @@ class PreferenceControllerTest extends TestCase
         $user = User::factory()->create();
         $project = Project::factory()->create();
 
-        $prefs = UserPreference::create([
+        $prefs = UserProjectPreference::create([
             'user_id' => $user->id,
             'project_id' => $project->id,
             'theme' => 'light',
@@ -289,7 +289,7 @@ class PreferenceControllerTest extends TestCase
 
         $this->assertEquals(
             1,
-            UserPreference::where('user_id', $user->id)
+            UserProjectPreference::where('user_id', $user->id)
                 ->where('project_id', $project->id)
                 ->count()
         );

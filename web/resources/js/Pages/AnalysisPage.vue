@@ -209,7 +209,7 @@ function saveAnalysisVisibility(type, id, value) {
   if (!projectId || !id) return;
 
   router.put(
-    route('projects.preferences.update', { project: projectId }),
+    route('preferences.update.project', { project: projectId }),
     {
       analysis: {
         visibility: {

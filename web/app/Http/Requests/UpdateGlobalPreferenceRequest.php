@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateProjectPreferenceRequest extends FormRequest
+class UpdateGlobalPreferenceRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,6 +23,7 @@ class UpdateProjectPreferenceRequest extends FormRequest
     {
         return [
             'theme' => 'sometimes|string|in:light,dark',
+            'projects' => 'sometimes|array',
         ];
     }
 }

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateGlobalPreferenceRequest;
 use App\Http\Requests\UpdateProjectPreferenceRequest;
 use App\Models\Project;
-use App\Models\UserPreference; // rename to UserProjectPreferences
+use App\Models\UserGlobalPreference;
+use App\Models\UserProjectPreference;
 
 // use App\Models\GlobalPreference;
 class PreferenceController extends Controller
@@ -15,7 +17,7 @@ class PreferenceController extends Controller
     public function updateProjectPreference(UpdateProjectPreferenceRequest $request, Project $project)
     {
         // Load or create WITHOUT replacing existing preferences
-        $prefs = UserPreference::firstOrNew([
+        $prefs = UserProjectPreference::firstOrNew([
             'user_id' => $request->user()->id,
             'project_id' => $project->id,
         ]);
@@ -57,6 +59,30 @@ class PreferenceController extends Controller
 
     public function updateGlobalPreference(UpdateGlobalPreferenceRequest $request)
     {
-        // TODO implement global preferences for theme and for projects sorting
+        $prefs = UserGlobalPreference::firstOrNew([
+            'user_id' => $request->user()->id,
+        ]);
+
+        $data = $request->validated();
+
+        // Merge project sorting
+        if (array_key_exists('projects', $data)) {
+            $prefs->projects = array_replace_recursive(
+                $prefs->projects ?? [],
+                $data['projects'] ?? []
+            );
+            unset($data['projects']);
+        }
+
+        // Theme saved as a separate field, not merged, as it's a single value
+        if (array_key_exists('theme', $data)) {
+            $prefs->theme = $data['theme'];
+            unset($data['theme']);
+        }
+
+        $prefs->fill($data);
+        $prefs->save();
+
+        return back();
     }
 }

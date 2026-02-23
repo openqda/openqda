@@ -142,7 +142,7 @@ import { useInvivoText } from './coding/useInvivoText.js';
 
 function saveCodeVisibilityToDb({ codebookId, codeId, visible }) {
   router.put(
-    route('projects.preferences.update', { project: props.projectId }),
+    route('preferences.update.project', { project: props.projectId }),
     {
       codebooks: {
         [codebookId]: {

@@ -25,6 +25,9 @@ class UpdateProjectPreferenceRequest extends FormRequest
     {
         return [
             'sources' => 'sometimes|array',
+            'sources.sort' => ['sometimes', 'array'],
+            'sources.sort.*.by' => ['required_with:sources.sort', 'string'],
+            'sources.sort.*.dir' => ['required_with:sources.sort', 'in:asc,desc'],
             'zoom' => 'sometimes|array',
             'codebooks' => 'sometimes|array',
             'analysis' => 'sometimes|array',

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class UserPreference extends Model
+class UserGlobalPreference extends Model
 {
     use HasFactory;
 
@@ -17,12 +17,8 @@ class UserPreference extends Model
      */
     protected $fillable = [
         'user_id',
-        'project_id',
+        'projects',
         'theme',
-        'sources',
-        'zoom',
-        'codebooks',
-        'analysis',
     ];
 
     /**
@@ -31,10 +27,7 @@ class UserPreference extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'sources' => 'array',
-        'zoom' => 'array',
-        'codebooks' => 'array',
-        'analysis' => 'array',
+        'projects' => 'array',
     ];
 
     /**
@@ -43,13 +36,5 @@ class UserPreference extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    /**
-     * Get the project that owns this preference.
-     */
-    public function project(): BelongsTo
-    {
-        return $this->belongsTo(Project::class);
     }
 }
