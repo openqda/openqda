@@ -200,7 +200,7 @@
 </template>
 
 <script setup>
-import { computed, onUnmounted, onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import Button from '../Components/interactive/Button.vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
