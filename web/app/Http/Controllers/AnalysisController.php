@@ -30,7 +30,7 @@ class AnalysisController extends Controller
                 ->map(function ($source) {
                     $converted = $source->converted;
                     $status = $source->sourceStatuses()->latest()->first();
-                    $status = $source->sourceStatuses()->latest()->first();
+
                     $source->status = $status ? $status->status : 'pending';
                     $exists = $this->sourceExists($source);
 
@@ -100,9 +100,9 @@ class AnalysisController extends Controller
 
     public function getSelections(ShowAnalysisPage $request, Project $project)
     {
-        $selections = Selection::where('project_id', $project->id)
-            ->get()
-            ->toArray();
+        $selections = Selection::with(['code', 'source'])
+            ->where('project_id', $project->id)
+            ->get();
 
         return [
             'selections' => $selections,

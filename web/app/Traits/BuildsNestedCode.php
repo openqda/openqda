@@ -10,7 +10,7 @@ trait BuildsNestedCode
      * Build nested structure for each code including its children and selections.
      *
      * @param  int|null  $sourceId  Optional source ID to filter selections
-     * @param  bool  withSelections  Optional flag to include selections in the output
+     * @param  bool  $withSelections  Optional flag to include selections in the output
      */
     protected function buildNestedCode(Code $code, $sourceId = null, bool $withSelections = false): array
     {
@@ -36,9 +36,18 @@ trait BuildsNestedCode
 
     protected function getCodeSelectionCount(Code $code, $sourceId = null): int
     {
-        return $sourceId
-            ? $code->selectionsForSource($sourceId)->count()
-            : $code->selections()->count();
+        if ($sourceId === null) {
+            // If the 'selections' relation is already eager loaded, use the in-memory collection
+            if ($code->relationLoaded('selections')) {
+                return $code->selections->count();
+            }
+
+            // Fallback: count via query
+            return $code->selections()->count();
+        }
+
+        // For source-specific counts, fall back to querying the scoped relation
+        return $code->selectionsForSource($sourceId)->count();
     }
 
     /**

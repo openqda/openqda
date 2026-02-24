@@ -171,6 +171,9 @@ export const useAnalysis = () => {
       const { code_id } = selection;
       (allCodes.value ?? []).forEach((code) => {
         if (code.id === code_id) {
+          if (!Array.isArray(code.text)) {
+            code.text = [];
+          }
           code.text.push(toSelection(selection));
         }
       });
