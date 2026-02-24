@@ -326,7 +326,7 @@ onMounted(() => {
   if (checkedSources.value.size === 0) checkSource('all');
   if (checkedCodes.value.size === 0) checkCode('all');
   if (visualizerName.value) {
-      selectVisualizerPlugin({ value: visualizerName.value });
+    selectVisualizerPlugin({ value: visualizerName.value });
   }
 });
 </script>

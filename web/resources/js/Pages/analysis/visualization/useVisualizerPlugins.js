@@ -40,10 +40,10 @@ export const useVisualizerPlugins = () => {
   };
 
   const disposeVisualizerPlugin = () => {
-      visualizerName.value = null;
-      visualizerComponent.value = null;
-      hasOptions.value = null;
-  }
+    visualizerName.value = null;
+    visualizerComponent.value = null;
+    hasOptions.value = null;
+  };
 
   return {
     availablePlugins,
