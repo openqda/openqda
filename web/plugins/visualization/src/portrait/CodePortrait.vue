@@ -24,16 +24,16 @@ const scale = ref(1);
 const gap = ref(1);
 const radius = ref(0);
 
-const getSegmentsForFile = (file) => {
+const getSelectionssFor = (source) => {
   const codes = props.codes.filter(
     (code) =>
       !!props.checkedCodes.get(code.id) &&
-      (code.text ?? []).some((t) => t.source_id === file.id)
+      (code.text ?? []).some((t) => t.source_id === source.id)
   );
   return codes
     .flatMap((code) => {
       return code.text
-        .filter((t) => t.source_id === file.id)
+        .filter((t) => t.source_id === source.id)
         .map((segment) => ({ segment, color: rgba2hex(code.color) }));
     })
     .sort((a, b) => a.segment.start - b.segment.start);
@@ -59,7 +59,7 @@ const getColumns = (gridSize) => {
 const filterFilesBySegments = () => {
   const updatedSources = [];
   props.sources.forEach((source) => {
-    const c = getSegmentsForFile(source);
+    const c = getSelectionssFor(source);
     if (c.length) {
       segments.value.set(source.id, c);
     } else {
@@ -185,8 +185,8 @@ const rgba2hex = (color) => {
           </h3>
           <div class="flex flex-wrap">
             <span
-              v-for="(entry, index) in segments.get(source.id)"
-              :key="`${source.id}-${index}`"
+              v-for="(entry) in segments.get(source.id)"
+              :key="`${source.id}-${entry.segment.id}`"
               :title="`${entry.segment.start}-${entry.segment.end};\n\n${entry.segment.text.substring(0, 250)}...`"
               :class="
                 API.cn(
