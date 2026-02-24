@@ -119,7 +119,7 @@ const editCode = (target) => {
     defaultValue: target.id,
   };
   delete schema.codebookId;
-  openRenameDialog({ id: 'edit-code', target, schema });
+  openRenameDialog({ id: `edit-code-${target.id}`, target, schema });
 };
 
 // CRATE SUBCODE
@@ -291,7 +291,7 @@ const { range } = useRange();
                   target: code,
                   challenge: 'name',
                   message:
-                    'This will also delete ALL selections in ALL sources within this project that are related to this code!',
+                    'This will also delete all selections across all sources within this project, that are related to this code!',
                 })
               "
             >

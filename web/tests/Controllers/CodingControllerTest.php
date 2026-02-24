@@ -47,12 +47,11 @@ class CodingControllerTest extends TestCase
         // Create a user, project, source, and code
         $user = User::factory()->create();
         $project = Project::factory()->create(['creating_user_id' => $user->id]);
-        $source = Source::factory()->create(['project_id' => $project->id]);
         $codebook = Codebook::factory()->create(['project_id' => $project->id, 'creating_user_id' => $user->id]);
         $code = Code::factory()->create(['codebook_id' => $codebook->id]);
 
         // Acting as the created user
-        $response = $this->actingAs($user)->delete(route('coding.destroy', [$project->id, $source->id, $code->id]), [], ['Accept' => 'application/json']);
+        $response = $this->actingAs($user)->delete(route('coding.destroy', [$project->id, $code->id]), [], ['Accept' => 'application/json']);
 
         // Assert the code was deleted successfully
         $response->assertStatus(200);
@@ -65,7 +64,6 @@ class CodingControllerTest extends TestCase
         // Create a user, project, source, and codes
         $user = User::factory()->create();
         $project = Project::factory()->create(['creating_user_id' => $user->id]);
-        $source = Source::factory()->create(['project_id' => $project->id]);
         $codebook = Codebook::factory()->create(['project_id' => $project->id, 'creating_user_id' => $user->id]);
 
         // Create parent and child codes
@@ -76,7 +74,7 @@ class CodingControllerTest extends TestCase
         ]);
 
         // Acting as the created user, delete the parent code
-        $response = $this->actingAs($user)->delete(route('coding.destroy', [$project->id, $source->id, $parentCode->id]), [], ['Accept' => 'application/json']);
+        $response = $this->actingAs($user)->delete(route('coding.destroy', [$project->id, $parentCode->id]), [], ['Accept' => 'application/json']);
 
         // Assert the parent code was deleted successfully
         $response->assertStatus(200);
@@ -93,12 +91,11 @@ class CodingControllerTest extends TestCase
         $user = User::factory()->create();
         $user2 = User::factory()->create();
         $project = Project::factory()->create(['creating_user_id' => $user->id]);
-        $source = Source::factory()->create(['project_id' => $project->id]);
         $codebook = Codebook::factory()->create(['project_id' => $project->id, 'creating_user_id' => $user->id]);
         $code = Code::factory()->create(['codebook_id' => $codebook->id]);
 
         // Acting as the created user
-        $response = $this->actingAs($user2)->delete(route('coding.destroy', [$project->id, $source->id, $code->id]), [], ['Accept' => 'application/json']);
+        $response = $this->actingAs($user2)->delete(route('coding.destroy', [$project->id, $code->id]), [], ['Accept' => 'application/json']);
 
         // Assert the response is unauthorized
         $response->assertStatus(403);
@@ -296,7 +293,6 @@ class CodingControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $project = Project::factory()->create(['creating_user_id' => $user->id]);
-        $source = Source::factory()->create(['project_id' => $project->id]);
         $codebook = Codebook::factory()->create(['project_id' => $project->id, 'creating_user_id' => $user->id]);
 
         // Create parent and child code
@@ -308,7 +304,7 @@ class CodingControllerTest extends TestCase
 
         // Remove parent from child code
         $response = $this->actingAs($user)->post(
-            route('coding.remove-parent', [$project->id, $source->id, $childCode->id]),
+            route('coding.remove-parent', [$project->id, $childCode->id]),
             [],
             ['Accept' => 'application/json']
         );
@@ -327,7 +323,6 @@ class CodingControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $project = Project::factory()->create(['creating_user_id' => $user->id]);
-        $source = Source::factory()->create(['project_id' => $project->id]);
         $codebook = Codebook::factory()->create(['project_id' => $project->id, 'creating_user_id' => $user->id]);
 
         // Create grandparent, parent, and child codes
@@ -343,7 +338,7 @@ class CodingControllerTest extends TestCase
 
         // Move child code up hierarchy (should now have grandparent as parent)
         $response = $this->actingAs($user)->post(
-            route('coding.up-hierarchy', [$project->id, $source->id, $childCode->id]),
+            route('coding.up-hierarchy', [$project->id, $childCode->id]),
             [],
             ['Accept' => 'application/json']
         );
@@ -643,7 +638,6 @@ class CodingControllerTest extends TestCase
         try {
             $user = User::factory()->create();
             $project = Project::factory()->create(['creating_user_id' => $user->id]);
-            $source = Source::factory()->create(['project_id' => $project->id]);
             $codebook = Codebook::factory()->create(['project_id' => $project->id, 'creating_user_id' => $user->id]);
 
             // Create parent and multiple child codes
@@ -670,7 +664,7 @@ class CodingControllerTest extends TestCase
                 });
 
             $response = $this->actingAs($user)->delete(
-                route('coding.destroy', [$project->id, $source->id, $parentCode->id]),
+                route('coding.destroy', [$project->id, $parentCode->id]),
                 [],
                 ['Accept' => 'application/json']
             );
@@ -687,7 +681,6 @@ class CodingControllerTest extends TestCase
     {
         $user = User::factory()->create();
         $project = Project::factory()->create(['creating_user_id' => $user->id]);
-        $source = Source::factory()->create(['project_id' => $project->id]);
         $codebook = Codebook::factory()->create(['project_id' => $project->id, 'creating_user_id' => $user->id]);
 
         // Create parent and child code
@@ -699,7 +692,7 @@ class CodingControllerTest extends TestCase
 
         // Delete the child code (which has a parent)
         $response = $this->actingAs($user)->delete(
-            route('coding.destroy', [$project->id, $source->id, $childCode->id]),
+            route('coding.destroy', [$project->id, $childCode->id]),
             [],
             ['Accept' => 'application/json']
         );

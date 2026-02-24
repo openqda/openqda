@@ -6,14 +6,6 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
     plugins: [
-        tailwindcss(),
-        laravel({
-            input: "resources/js/app.js",
-            refresh: [
-                ...refreshPaths,
-                'app/Livewire/**',
-            ],
-        }),
         vue({
             template: {
                 transformAssetUrls: {
@@ -25,6 +17,14 @@ export default defineConfig({
                 }
             },
         }),
+        laravel({
+            input: "resources/js/app.js",
+            refresh: [
+                ...refreshPaths,
+                'app/Livewire/**',
+            ],
+        }),
+        tailwindcss(),
     ],
     build: {
         sourcemap: true

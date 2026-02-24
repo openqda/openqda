@@ -5,8 +5,9 @@ import DialogBase from './DialogBase.vue';
 import TextInput from '../form/TextInput.vue';
 import InputError from '../form/InputError.vue';
 import ActionMessage from '../Components/ActionMessage.vue';
-import { randomString } from '../utils/random/randomString';
 import Headline3 from '../Components/layout/Headline3.vue';
+import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline/index.js';
+import { randomString } from '../utils/random/randomString';
 import { asyncTimeout } from '../utils/asyncTimeout';
 
 const emit = defineEmits(['deleted', 'cancelled', 'close']);
@@ -116,36 +117,45 @@ const cancel = () => {
 <template>
   <DialogBase :show="open">
     <template #title>
-      <p
-        v-if="props.message"
-        class="text-center py-6 px-2 bg-destructive/20 rounded-md mb-4"
-      >
-        <Headline3 class="block bold text-destructive text-xl"
-          >Attention!</Headline3
+      <div v-if="props.message" class="py-6 font-normal">
+        <Headline3
+          class="block font-semibold mb-4 border rounded-md border-destructive p-2"
         >
-        <span class="font-normal">{{ props.message }}</span>
-      </p>
-      <div class="w-full text-center">
-        Sure you want to delete
-        <span class="text-secondary/80">{{ target?.name }}</span
-        >?
+          <ExclamationTriangleIcon
+            class="text-destructive w-6 h-6 inline-block mr-1"
+          />
+          <span class="text-destructive">Attention!</span>
+        </Headline3>
+        <p class="text-sm">
+          Are you sure you want to delete
+          <span class="font-semibold text-destructive"
+            >"{{ target?.name }}"</span
+          >?
+        </p>
+        <ul class="list-disc list-outside mt-2 text-sm ps-4 leading-6">
+          <li>This action cannot be undone.</li>
+          <li>It will be added to the audit trail</li>
+          <li v-if="props.message">{{ props.message }}</li>
+        </ul>
       </div>
+      <div class="w-full"></div>
     </template>
     <template #body>
       <div v-if="!!currentChallenge">
-        <p class="text-center text-foreground/60">
-          If so, please enter the following code to confirm deletion
+        <p class="text-sm px-2 text-center">
+          If you are sure to continue, please enter the following to confirm
+          deletion:
         </p>
         <p
-          class="w-full text-center font-semibold text-xl font-mono tracking-widest text-foreground py-2"
+          class="w-full text-center font-semibold font-mono tracking-widest text-foreground py-2"
         >
           {{ currentChallenge }}
         </p>
         <TextInput
           v-model="challengeEntered"
-          :placeholder="`Enter ${currentChallenge} to confirm`"
+          placeholder="Enter to confirm"
           type="text"
-          class="w-full text-center font-semibold text-xl font-mono tracking-widest text-foreground"
+          class="w-full text-center font-semibold font-mono tracking-widest text-foreground"
           @keydown.enter="submit()"
           autofocus
         />
