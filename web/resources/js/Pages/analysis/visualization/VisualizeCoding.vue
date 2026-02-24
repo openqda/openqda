@@ -34,7 +34,7 @@ provide('api', api);
 provide('components', {
   Headline3,
   Button,
-  ActivityIndicator
+  ActivityIndicator,
 });
 </script>
 

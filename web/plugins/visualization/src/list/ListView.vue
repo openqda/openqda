@@ -127,7 +127,7 @@ const runRebuilding = async () => {
   rebuildList();
   await nextTick();
   rebuilding.value = false;
-}
+};
 
 watch(props, runRebuilding, { immediate: true, deep: true });
 

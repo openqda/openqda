@@ -202,7 +202,7 @@ export const useAnalysis = () => {
   };
 };
 
-const toSelection = s => ({
+const toSelection = (s) => ({
   id: s.id,
   start: s.start_position,
   end: s.end_position,
@@ -210,5 +210,5 @@ const toSelection = s => ({
   updatedAt: s.updated_at,
   createdAt: s.created_at,
   source_id: s.source_id,
-  text: s.text
-})
+  text: s.text,
+});
