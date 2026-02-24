@@ -16,6 +16,9 @@
       </ul>
     </component>
     <div class="block w-full">
+      <ActivityIndicator v-if="rebuilding">
+        Building list of selections...
+      </ActivityIndicator>
       <div
         v-for="(source, index) in $props.sources"
         class="my-10 border-l border-l-border"
@@ -85,7 +88,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref, watch, inject } from 'vue';
+import { onMounted, ref, watch, inject, nextTick } from 'vue';
 import { XMarkIcon } from '@heroicons/vue/24/solid';
 
 defineEmits(['remove']);
@@ -100,7 +103,8 @@ const props = defineProps([
 ]);
 const codesList = ref(new Map());
 const API = inject('api');
-const { Headline3 } = inject('components');
+const { Headline3, ActivityIndicator } = inject('components');
+const rebuilding = ref(false);
 const options = ref({
   showEmpty: false,
 });
@@ -115,13 +119,19 @@ const rebuildList = API.debounce(() => {
       codesList.value.delete(source.id);
     }
   });
-}, 100);
+}, 300);
 
-watch(props, rebuildList, { immediate: true, deep: true });
-
-onMounted(() => {
+const runRebuilding = async () => {
+  rebuilding.value = true;
+  await nextTick();
   rebuildList();
-});
+  await nextTick();
+  rebuilding.value = false;
+}
+
+watch(props, runRebuilding, { immediate: true, deep: true });
+
+onMounted(runRebuilding);
 </script>
 
 <style scoped></style>

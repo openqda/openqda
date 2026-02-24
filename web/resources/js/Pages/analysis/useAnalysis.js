@@ -171,7 +171,7 @@ export const useAnalysis = () => {
       const { code_id } = selection;
       (allCodes.value ?? []).forEach((code) => {
         if (code.id === code_id) {
-          code.text.push(selection);
+          code.text.push(toSelection(selection));
         }
       });
     });
@@ -201,3 +201,14 @@ export const useAnalysis = () => {
     checkedCodesSize,
   };
 };
+
+const toSelection = s => ({
+  id: s.id,
+  start: s.start_position,
+  end: s.end_position,
+  createdBy: s.creating_user_id,
+  updatedAt: s.updated_at,
+  createdAt: s.created_at,
+  source_id: s.source_id,
+  text: s.text
+})
