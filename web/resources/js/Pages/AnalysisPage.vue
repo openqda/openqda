@@ -63,12 +63,9 @@
                   :checked="checkedSources.get(source.id)"
                   @change="
                     () => {
+                      const nextValue = !checkedSources.get(source.id);
                       checkSource(source.id);
-                      saveAnalysisVisibility(
-                        'sources',
-                        source.id,
-                        checkedSources.get(source.id)
-                      );
+                      saveAnalysisVisibility('sources', source.id, nextValue);
                     }
                   "
                   class="cursor-pointer"
@@ -129,12 +126,9 @@
                     :checked="checkedCodes.get(code.id)"
                     @change="
                       () => {
+                        const nextValue = !checkedCodes.get(code.id);
                         checkCode(code.id);
-                        saveAnalysisVisibility(
-                          'codes',
-                          code.id,
-                          checkedCodes.get(code.id)
-                        );
+                        saveAnalysisVisibility('codes', code.id, nextValue);
                       }
                     "
                     class="cursor-pointer"

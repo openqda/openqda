@@ -24,31 +24,19 @@ class PreferenceController extends Controller
 
         $data = $request->validated();
 
-        // Merge zoom settings if provided, ensuring we don't overwrite existing ones
-        if (array_key_exists('zoom', $data)) {
-            $prefs->zoom = array_replace_recursive(
-                $prefs->zoom ?? [],
-                $data['zoom'] ?? []
-            );
-            unset($data['zoom']);
-        }
+        foreach (['zoom', 'codebooks', 'analysis'] as $field) {
+            if (array_key_exists($field, $data)) {
+                $prefs->$field = array_replace_recursive(
+                    $prefs->$field ?? [],
+                    $data[$field] ?? []
+                );
 
-        // Merge codebooks so previous codebook visibility map is not overwritten
-        if (array_key_exists('codebooks', $data)) {
-            $prefs->codebooks = array_replace_recursive(
-                $prefs->codebooks ?? [],
-                $data['codebooks'] ?? []
-            );
-            unset($data['codebooks']);
+                unset($data[$field]);
+            }
         }
-
-        // Merge analysis visibility settings
-        if (array_key_exists('analysis', $data)) {
-            $prefs->analysis = array_replace_recursive(
-                $prefs->analysis ?? [],
-                $data['analysis'] ?? []
-            );
-            unset($data['analysis']);
+        if (array_key_exists('sources', $data)) {
+            $prefs->sources = $data['sources']; // REPLACE, not merge
+            unset($data['sources']);
         }
 
         $prefs->fill($data);

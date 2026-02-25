@@ -7,6 +7,7 @@
           :project-id="props.projectId"
           @fileSelected="loadFileIntoEditor($event)"
           @documentDeleted="onDocumentDeleted"
+          @sortChanged="updateSourceSorting"
         />
         <div class="mt-auto">
           <Footer />
@@ -157,6 +158,24 @@ const editorComponent = ref();
 const props = defineProps(['sources', 'newDocument', 'projectId']);
 const documents = ref([]);
 const pageTitle = ref('Preparation');
+
+function updateSourceSorting(sortRules) {
+  router.put(
+    route('preferences.update.project', { project: props.projectId }),
+    {
+      sources: {
+        sort: sortRules,
+      },
+    },
+    {
+      preserveScroll: true,
+      preserveState: true,
+      onSuccess: () => {
+        router.reload({ only: ['sources'] });
+      },
+    }
+  );
+}
 
 watch(
   () => props.newDocument,

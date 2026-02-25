@@ -28,11 +28,11 @@
             <span>
               <ChevronUpIcon
                 class="h-4 w-4 text-foreground/50"
-                v-if="sorter.key === field.key && sorter.ascending === true"
+                v-if="getSortDirection(field.key) === 'asc'"
               />
               <ChevronDownIcon
                 class="h-4 w-4 text-foreground/50"
-                v-if="sorter.key === field.key && sorter.ascending === false"
+                v-if="getSortDirection(field.key) === 'desc'"
               />
             </span>
           </a>
@@ -292,7 +292,7 @@ import { vClickOutside } from '../../utils/vue/clickOutsideDirective.js';
 import { cn } from '../../utils/css/cn.js';
 import ProfileImage from '../user/ProfileImage.vue';
 
-const emit = defineEmits(['select', 'delete']);
+const emit = defineEmits(['select', 'delete', 'sortChanged']);
 const props = defineProps([
   'documents',
   'actions',
@@ -303,7 +303,6 @@ const props = defineProps([
   'focusOnHover',
 ]);
 const docs = computed(() => props.documents.filter(Boolean));
-const sorter = ref({ key: null, ascending: false });
 const openMenuId = ref(null);
 const headerFields = ref([
   {
@@ -411,16 +410,28 @@ function isMenuOpen(id) {
   return openMenuId.value === id;
 }
 
-function sort(name) {
-  // new keys always sort ascending,
-  // existing keys will toggle
-  sorter.value.ascending =
-    sorter.value.key === name ? !sorter.value.ascending : true;
-  sorter.value.key = name;
-  docs.value.sort((a, b) => {
-    const value = String(a[name]).localeCompare(String(b[name]));
-    return sorter.value.ascending ? value : value * -1;
-  });
+const sortRules = ref([]);
+
+function getSortDirection(key) {
+  return sortRules.value.find((r) => r.by === key)?.dir ?? null;
+}
+
+function sort(key) {
+  const existingIndex = sortRules.value.findIndex((r) => r.by === key);
+
+  if (existingIndex !== -1) {
+    // Toggle direction
+    sortRules.value[existingIndex].dir =
+      sortRules.value[existingIndex].dir === 'asc' ? 'desc' : 'asc';
+  } else {
+    // Add new rule at end (lower priority)
+    sortRules.value.push({
+      by: key,
+      dir: 'asc',
+    });
+  }
+
+  emit('sortChanged', [...sortRules.value]);
 }
 </script>
 <style scoped>
