@@ -19,9 +19,10 @@ const state = reactive({
  * Manage projects across pages.
  */
 export const useProjects = () => {
-  const { projects, project, projectId } = usePage().props;
+  const { projects, project, projectId, preferences } = usePage().props;
   const sortedProjects = ref([]);
-  const sortBy = toRef(state.sortBy);
+  // const sortBy = toRef(state.sortBy);
+  const sortBy = toRef(state, 'sortBy');
   const createSchema = Project.create.schema;
   const open = (_projectId) => {
     router.visit(Routes.project.path(_projectId), {
@@ -63,6 +64,22 @@ export const useProjects = () => {
     },
   ];
 
+  const getSorterFromPreferences = () => {
+    const savedSort = preferences?.global?.projects?.sort;
+
+    if (!savedSort) return;
+
+    const matched = sortOptions.find(
+      (option) =>
+        option.field === savedSort.by && option.order === savedSort.dir
+    );
+
+    if (matched) {
+      sortBy.value = matched;
+      state.sortBy = matched;
+    }
+  };
+
   const byConfig = (a, b) => {
     const { field, type, order } = sortBy.value;
     const valA = order === 'asc' ? a[field] : b[field];
@@ -89,12 +106,18 @@ export const useProjects = () => {
    * @return {Promise<void>}
    */
   const updateSorter = async (sorter) => {
-    // update in backend
-    await Preferences.updateSorter({ projectId, sorter });
+    // update in backend (global preference)
+    await Preferences.updateSorter({
+      projects: {
+        sort: {
+          by: sorter.field,
+          dir: sorter.order,
+        },
+      },
+    });
 
     // update in local state
     sortBy.value = sorter;
-    state.sortBy = sorter;
     updateSortOder();
   };
 
@@ -133,6 +156,7 @@ export const useProjects = () => {
     );
 
   // initial / default sort and filter
+  getSorterFromPreferences();
   updateSortOder();
 
   return {

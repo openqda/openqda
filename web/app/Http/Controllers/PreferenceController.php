@@ -23,7 +23,6 @@ class PreferenceController extends Controller
         ]);
 
         $data = $request->validated();
-
         foreach (['zoom', 'codebooks', 'analysis'] as $field) {
             if (array_key_exists($field, $data)) {
                 $prefs->$field = array_replace_recursive(
@@ -53,15 +52,11 @@ class PreferenceController extends Controller
 
         $data = $request->validated();
 
-        // Merge project sorting
+        // do not merge project sorting
         if (array_key_exists('projects', $data)) {
-            $prefs->projects = array_replace_recursive(
-                $prefs->projects ?? [],
-                $data['projects'] ?? []
-            );
+            $prefs->projects = $data['projects'];
             unset($data['projects']);
         }
-
         // Theme saved as a separate field, not merged, as it's a single value
         if (array_key_exists('theme', $data)) {
             $prefs->theme = $data['theme'];

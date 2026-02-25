@@ -142,6 +142,7 @@ import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
 import Footer from '../Layouts/Footer.vue';
 import { useZoom } from '../editor/useZoom.js';
+import { Preferences } from '@/domain/user/Preferences.js';
 
 const editorSourceRef = ref({
   content: 'select to display',
@@ -159,23 +160,12 @@ const props = defineProps(['sources', 'newDocument', 'projectId']);
 const documents = ref([]);
 const pageTitle = ref('Preparation');
 
-function updateSourceSorting(sortRules) {
-  router.put(
-    route('preferences.update.project', { project: props.projectId }),
-    {
-      sources: {
-        sort: sortRules,
-      },
-    },
-    {
-      preserveScroll: true,
-      preserveState: true,
-      onSuccess: () => {
-        router.reload({ only: ['sources'] });
-      },
-    }
-  );
-}
+const updateSourceSorting = async (sortRules) => {
+  await Preferences.updateSourceSorter({
+    projectId: props.projectId,
+    sortRules,
+  });
+};
 
 watch(
   () => props.newDocument,
