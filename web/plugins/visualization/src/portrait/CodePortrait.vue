@@ -185,7 +185,7 @@ const rgba2hex = (color) => {
           </h3>
           <div class="flex flex-wrap">
             <span
-              v-for="(entry) in segments.get(source.id)"
+              v-for="entry in segments.get(source.id)"
               :key="`${source.id}-${entry.segment.id}`"
               :title="`${entry.segment.start}-${entry.segment.end};\n\n${entry.segment.text.substring(0, 250)}...`"
               :class="

@@ -156,9 +156,14 @@
           />
           <Button v-if="hasOptions" @click="setShowMenu(true)">Options</Button>
         </div>
-        <ActivityIndicator v-if="loadingVisualization">
-          {{ loadingVisualization }}
-        </ActivityIndicator>
+        <div
+          v-if="loadingVisualization"
+          class="p-2 border border-secondary rounded"
+        >
+          <ActivityIndicator>
+            {{ loadingVisualization }}
+          </ActivityIndicator>
+        </div>
         <div
           v-if="!visualizerName && selectionsCount >= 5000"
           class="block rounded border border-destructive p-4"
