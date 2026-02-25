@@ -165,12 +165,12 @@
           </ActivityIndicator>
         </div>
         <div
-          v-if="!visualizerName && selectionsCount >= 5000"
-          class="block rounded border border-destructive p-4"
+          v-if="!visualizerName && selectionsCount >= 1"
+          class="block rounded border border-destructive p-4 text-sm"
         >
           <div class="flex gap-2 items-center mb-2">
             <ExclamationTriangleIcon class="w-6 h-6 text-destructive" />
-            <div class="font-semibold">Attention</div>
+            <div class="font-semibold">Large dataset detected</div>
           </div>
           <p>
             You have large amounts of data ({{ selectionsCount }} selections) in
