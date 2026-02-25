@@ -55,7 +55,6 @@ trait BuildsNestedCode
 
         // For source-specific counts, fall back to querying the scoped relation
         return $code->selectionsForSource($sourceId)->count();
-
     }
 
     /**
