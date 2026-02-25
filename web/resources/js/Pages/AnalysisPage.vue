@@ -165,7 +165,7 @@
           </ActivityIndicator>
         </div>
         <div
-          v-if="!visualizerName && selectionsCount >= 1"
+          v-if="!visualizerName && selectionsCount >= 5000"
           class="block rounded border border-destructive p-4 text-sm"
         >
           <div class="flex gap-2 items-center mb-2">
@@ -205,7 +205,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import Button from '../Components/interactive/Button.vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
@@ -257,6 +257,7 @@ const {
   checkedSourcesSize,
   checkedCodesSize,
   loadSelections,
+  leaveAnalysis,
 } = useAnalysis();
 const selectionsCount = computed(() => {
   return codes.value.reduce((acc, code) => {
@@ -273,6 +274,7 @@ const {
   hasOptions,
   setShowMenu,
   selectVisualizerPlugin,
+  disposeVisualizerPlugin,
 } = useVisualizerPlugins();
 
 //------------------------------------------------------------------------
@@ -327,11 +329,12 @@ const onVisualizationSelectChange = async (event) => {
 //------------------------------------------------------------------------
 const { exportToCSV } = useExport();
 
-onMounted(() => {
+onMounted(async () => {
   if (checkedSources.value.size === 0) checkSource('all');
   if (checkedCodes.value.size === 0) checkCode('all');
-  if (visualizerName.value) {
-    selectVisualizerPlugin({ value: visualizerName.value });
-  }
+});
+onUnmounted(() => {
+  disposeVisualizerPlugin();
+  leaveAnalysis();
 });
 </script>

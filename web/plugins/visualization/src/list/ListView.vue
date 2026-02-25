@@ -44,6 +44,14 @@
                 sourcesCollapsed[source.id] = !sourcesCollapsed[source.id]
               "
             >
+              <ChevronRightIcon
+                :class="
+                  API.cn(
+                    'w-4 h-4 transition-all duration-300 transform',
+                    sourcesCollapsed[source.id] && 'rotate-90'
+                  )
+                "
+              />
               <span>{{ source.name }}</span>
             </button>
             <button

@@ -40,9 +40,9 @@ export const useVisualizerPlugins = () => {
   };
 
   const disposeVisualizerPlugin = () => {
-    visualizerName.value = null;
-    visualizerComponent.value = null;
-    hasOptions.value = null;
+    state.visualizerName = null;
+    state.visualizerComponent = null;
+    state.hasOptions = null;
   };
 
   return {
