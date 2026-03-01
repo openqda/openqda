@@ -1,7 +1,7 @@
 -i https://pypi.org/simple
 aiofiles==23.2.1
 anyio==4.4.0; python_version >= '3.8'
-certifi==2026.1.4; python_version >= '3.6'
+certifi==2026.2.25; python_version >= '3.6'
 click==8.1.7; python_version >= '3.7'
 dacite==1.8.1
 docx==0.2.4
