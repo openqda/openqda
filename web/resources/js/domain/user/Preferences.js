@@ -31,6 +31,46 @@ Preferences.updateZoom = async ({ projectId, sourceId, level }) => {
   return router.put(endpoint(projectId), data, routeOptions);
 };
 
+//update codebooks visibility
+Preferences.updateCodeVisibility = async ({
+  projectId,
+  codebookId,
+  codeId,
+  visible,
+}) => {
+  const data = {
+    codebooks: {
+      [codebookId]: {
+        visibility: {
+          [codeId]: visible,
+        },
+      },
+    },
+  };
+
+  return router.put(endpoint(projectId), data, routeOptions);
+};
+
+//Update analysis visibility
+Preferences.updateAnalysisVisibility = async ({
+  projectId,
+  type,
+  id,
+  value,
+}) => {
+  const data = {
+    analysis: {
+      visibility: {
+        [type]: {
+          [id]: value,
+        },
+      },
+    },
+  };
+
+  return router.put(endpoint(projectId), data, routeOptions);
+};
+
 //update theme preference
 Preferences.updateTheme = async (options) => {
   return router.put(endpoint(), options, routeOptions);

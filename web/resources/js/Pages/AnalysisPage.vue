@@ -196,29 +196,18 @@ import SelectField from '../form/SelectField.vue';
 import ContrastText from '../Components/text/ContrastText.vue';
 import { useUsers } from '../domain/teams/useUsers.js';
 import Footer from '../Layouts/Footer.vue';
-import { router } from '@inertiajs/vue3';
+import { Preferences } from '../domain/user/Preferences.js';
 
-function saveAnalysisVisibility(type, id, value) {
-  const projectId = props.project.id;
-  if (!projectId || !id) return;
+const saveAnalysisVisibility = async (type, id, value) => {
+  if (!props.project?.id || !id) return;
 
-  router.put(
-    route('preferences.update.project', { project: projectId }),
-    {
-      analysis: {
-        visibility: {
-          [type]: {
-            [id]: value,
-          },
-        },
-      },
-    },
-    {
-      preserveScroll: true,
-      preserveState: true,
-    }
-  );
-}
+  await Preferences.updateAnalysisVisibility({
+    projectId: props.project.id,
+    type,
+    id,
+    value,
+  });
+};
 
 //------------------------------------------------------------------------
 // DATA / PROPS

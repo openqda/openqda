@@ -139,24 +139,17 @@ import Link from '../Components/Link.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
 import { useInvivoText } from './coding/useInvivoText.js';
-
-function saveCodeVisibilityToDb({ codebookId, codeId, visible }) {
-  router.put(
-    route('preferences.update.project', { project: props.projectId }),
-    {
-      codebooks: {
-        [codebookId]: {
-          visibility: {
-            [codeId]: visible,
-          },
-        },
-      },
-    },
-    { preserveScroll: true, preserveState: true }
-  );
-}
-
+import { Preferences } from '../domain/user/Preferences.js';
 const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
+
+const saveCodeVisibilityToDb = async ({ codebookId, codeId, visible }) => {
+  await Preferences.updateCodeVisibility({
+    projectId: props.projectId,
+    codebookId,
+    codeId,
+    visible,
+  });
+};
 //------------------------------------------------------------------------
 // SOURCES
 //------------------------------------------------------------------------
