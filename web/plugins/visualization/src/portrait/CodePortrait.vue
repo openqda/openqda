@@ -3,6 +3,7 @@ import { onMounted, ref, watch, inject } from 'vue';
 import {
   XMarkIcon,
   EllipsisHorizontalCircleIcon,
+  ChevronRightIcon,
 } from '@heroicons/vue/24/solid';
 
 defineEmits(['remove']);
@@ -17,23 +18,26 @@ const props = defineProps([
 ]);
 
 const API = inject('api');
+const { Headline3, Collapse } = inject('components');
 const segments = ref(new Map());
 const currentSources = ref([]);
 const gridSize = ref(1);
 const scale = ref(1);
 const gap = ref(1);
 const radius = ref(0);
+const hoverPortrait = ref({});
+const sourcesCollapse = ref({});
 
-const getSegmentsForFile = (file) => {
+const getSelectionssFor = (source) => {
   const codes = props.codes.filter(
     (code) =>
       !!props.checkedCodes.get(code.id) &&
-      (code.text ?? []).some((t) => t.source_id === file.id)
+      (code.text ?? []).some((t) => t.source_id === source.id)
   );
   return codes
     .flatMap((code) => {
       return code.text
-        .filter((t) => t.source_id === file.id)
+        .filter((t) => t.source_id === source.id)
         .map((segment) => ({ segment, color: rgba2hex(code.color) }));
     })
     .sort((a, b) => a.segment.start - b.segment.start);
@@ -59,7 +63,7 @@ const getColumns = (gridSize) => {
 const filterFilesBySegments = () => {
   const updatedSources = [];
   props.sources.forEach((source) => {
-    const c = getSegmentsForFile(source);
+    const c = getSelectionssFor(source);
     if (c.length) {
       segments.value.set(source.id, c);
     } else {
@@ -171,57 +175,88 @@ const rgba2hex = (color) => {
       <div :class="API.cn(`grid gap-3 my-5`, getColumns(gridSize))">
         <div
           v-for="source in currentSources"
-          class="border border-silver-300 p-2 col-span-1"
           :key="source.id"
+          :class="
+            API.cn(
+              'border p-2 col-span-1 shadow',
+              hoverPortrait[source.id] ? 'border-primary' : 'border-border'
+            )
+          "
+          @mouseenter="hoverPortrait[source.id] = true"
+          @mouseleave="hoverPortrait[source.id] = false"
         >
-          <h3 class="font-semibold tracking-wide flex">
-            <span class="truncate flex-grow">
-              {{ source.name }}
-            </span>
-            <XMarkIcon
-              class="float-right h-5 w-5 text-silver-300 hover:text-porsche-400 cursor-pointer"
-              @click="$emit('remove', source.id)"
-            />
-          </h3>
-          <div class="flex flex-wrap">
-            <span
-              v-for="(entry, index) in segments.get(source.id)"
-              :key="`${source.id}-${index}`"
-              :title="`${entry.segment.start}-${entry.segment.end};\n\n${entry.segment.text.substring(0, 250)}...`"
-              :class="
-                API.cn(
-                  gap == 1 && 'm-1',
-                  gap == 2 && 'm-2',
-                  gap == 3 && 'm-3',
-                  gap == 4 && 'm-4',
-                  gap == 5 && 'm-5'
-                )
-              "
+          <Headline3
+            :class="
+              API.cn(
+                'flex items-center justify-between',
+                gap == 1 && 'mx-1',
+                gap == 2 && 'mx-2',
+                gap == 3 && 'mx-3',
+                gap == 4 && 'mx-4',
+                gap == 5 && 'mx-5'
+              )
+            "
+          >
+            <button
+              @click="sourcesCollapse[source.id] = !sourcesCollapse[source.id]"
+              class="truncate flex-grow flex items-center"
             >
-              <EllipsisHorizontalCircleIcon
+              <ChevronRightIcon
                 :class="
                   API.cn(
-                    radius == 1 && 'rounded-sm',
-                    radius == 2 && 'rounded-md',
-                    radius == 3 && 'rounded-xl',
-                    radius == 4 && 'rounded-2xl',
-                    radius == 5 && 'rounded-full'
+                    'w-4 h-4 transition-all duration-300 transform',
+                    sourcesCollapse[source.id] && 'rotate-90'
                   )
                 "
-                :style="{
-                  color: entry.color,
-                  backgroundColor: entry.color,
-                  height: `${scale}rem`,
-                }"
               />
-            </span>
-          </div>
-          <div
-            v-if="!segments.has(source.id)"
-            class="ml-2 mt-2 p-2 bg-silver-100"
-          >
-            No codes
-          </div>
+              <span>{{ source.name }}</span>
+            </button>
+            <XMarkIcon
+              class="h-5 w-5 cursor-pointer"
+              @click="$emit('remove', source.id)"
+            />
+          </Headline3>
+          <Collapse :when="sourcesCollapse[source.id]">
+            <div v-if="sourcesCollapse[source.id]" class="flex flex-wrap">
+              <span
+                v-for="entry in segments.get(source.id)"
+                :key="`${source.id}-${entry.segment.id}`"
+                :title="`${entry.segment.start}-${entry.segment.end};\n\n${entry.segment.text.substring(0, 250)}...`"
+                :class="
+                  API.cn(
+                    gap == 1 && 'm-1',
+                    gap == 2 && 'm-2',
+                    gap == 3 && 'm-3',
+                    gap == 4 && 'm-4',
+                    gap == 5 && 'm-5'
+                  )
+                "
+              >
+                <EllipsisHorizontalCircleIcon
+                  :class="
+                    API.cn(
+                      radius == 1 && 'rounded-sm',
+                      radius == 2 && 'rounded-md',
+                      radius == 3 && 'rounded-xl',
+                      radius == 4 && 'rounded-2xl',
+                      radius == 5 && 'rounded-full'
+                    )
+                  "
+                  :style="{
+                    color: entry.color,
+                    backgroundColor: entry.color,
+                    height: `${scale}rem`,
+                  }"
+                />
+              </span>
+            </div>
+            <div
+              v-if="!segments.has(source.id)"
+              class="ml-2 mt-2 p-2 bg-silver-100"
+            >
+              No codes
+            </div>
+          </Collapse>
         </div>
       </div>
     </div>

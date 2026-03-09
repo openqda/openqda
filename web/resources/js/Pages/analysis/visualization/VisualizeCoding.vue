@@ -7,7 +7,8 @@ import { useUsers } from '../../../domain/teams/useUsers';
 import Headline3 from '../../../Components/layout/Headline3.vue';
 import Button from '../../../Components/interactive/Button.vue';
 import SideOverlay from '../../../Components/layout/SideOverlay.vue';
-
+import ActivityIndicator from '../../../Components/ActivityIndicator.vue';
+import { Collapse } from 'vue-collapsed';
 const {
   sources,
   codes,
@@ -33,6 +34,8 @@ provide('api', api);
 provide('components', {
   Headline3,
   Button,
+  ActivityIndicator,
+  Collapse,
 });
 </script>
 
