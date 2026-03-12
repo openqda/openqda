@@ -15,8 +15,8 @@ export const useCodes = () => {
   const page = usePage();
   const { allCodes, codebooks, projectId, source } = page.props;
   const sourceId = source?.id;
-  const key = `${projectId}-${sourceId}`;
-  const codeStore = Codes.by(projectId);
+  const key = sourceId ? `${projectId}-${sourceId}` : projectId;
+  const codeStore = Codes.by(key);
   const codebookStore = Codebooks.by(projectId);
   const selectionStore = Selections.by(key);
 
@@ -207,7 +207,9 @@ export const useCodes = () => {
   };
 
   const computedCodes = computed(() => {
-    return codeStore.all().filter((c) => !c.parent);
+      const all = codeStore.all()
+      console.debug('computed codes', all, allCodes)
+    return all.filter((c) => !c.parent);
   });
 
   const computedCodebooks = computed(() => {
