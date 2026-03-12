@@ -207,8 +207,7 @@ export const useCodes = () => {
   };
 
   const computedCodes = computed(() => {
-      const all = codeStore.all()
-      console.debug('computed codes', all, allCodes)
+    const all = codeStore.all();
     return all.filter((c) => !c.parent);
   });
 
