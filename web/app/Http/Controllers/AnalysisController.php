@@ -100,9 +100,8 @@ class AnalysisController extends Controller
     public function getSelections(ShowAnalysisPage $request, Project $project)
     {
         try {
-            $selections = Selection::with(['code', 'source'])
-                ->where('project_id', $project->id)
-                ->get()
+            $selections = Selection::where('project_id', $project->id)
+                ->get(['id', 'code_id', 'source_id', 'text', 'start_position', 'end_position', 'creating_user_id', 'created_at', 'updated_at'])
                 ->toArray();
 
             return response()->json([

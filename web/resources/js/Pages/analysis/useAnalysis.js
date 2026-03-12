@@ -207,6 +207,7 @@ export const useAnalysis = () => {
 
 const toSelection = (s) => ({
   id: s.id,
+  code_id: s.code_id,
   start: s.start_position,
   end: s.end_position,
   createdBy: s.creating_user_id,
