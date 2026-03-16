@@ -15,7 +15,7 @@ export const useCodes = () => {
   const page = usePage();
   const { allCodes, codebooks, projectId, source, preferences } = page.props;
   const sourceId = source?.id;
-  const key = `${projectId}-${sourceId}`;
+  const key = sourceId ? `${projectId}-${sourceId}` : projectId;
   const codeStore = Codes.by(key);
   const codebookStore = Codebooks.by(projectId);
   const selectionStore = Selections.by(key);
@@ -123,11 +123,21 @@ export const useCodes = () => {
   const deleteCode = async (code) => {
     // here we do not optistic UI, because
     // adding-back will destroy the code-order
-    const { response, error } = await Codes.delete({ projectId, source, code });
+    const { response, error } = await Codes.delete({ projectId, code });
     if (error) throw error;
     if (response?.status >= 400) throw new Error(response.data.message);
 
     codeStore.remove(code.id);
+
+    // ui side clean-up: remove code from parent and mark selections to update
+    if (code.parent) {
+      const parent = code.parent;
+      parent.children.splice(
+        parent.children.findIndex((c) => c.id === code.id),
+        1
+      );
+    }
+
     const selections = selectionStore
       .all()
       .filter((selection) => selection.code.id === code.id);
@@ -197,7 +207,8 @@ export const useCodes = () => {
   };
 
   const computedCodes = computed(() => {
-    return codeStore.all().filter((c) => !c.parent);
+    const all = codeStore.all();
+    return all.filter((c) => !c.parent);
   });
 
   const computedCodebooks = computed(() => {

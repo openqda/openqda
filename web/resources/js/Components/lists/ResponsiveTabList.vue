@@ -69,6 +69,18 @@ const setCurrent = (value) => {
             :aria-current="current === tab.value ? 'page' : undefined"
           >
             <span>{{ tab.label }}</span>
+            <span
+              v-if="tab.count"
+              :class="
+                cn(
+                  'ms-1 inline-flex items-center rounded-md px-1.5 py-0.5 text-xs font-medium',
+                  current === tab.value
+                    ? 'bg-secondary  text-secondary-foreground'
+                    : 'bg-foreground/60 text-surface'
+                )
+              "
+              >{{ tab.count }}</span
+            >
           </a>
         </nav>
       </div>

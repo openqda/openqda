@@ -9,6 +9,7 @@
   "author": "Jan Küster",
   "license": "MIT",
   "dependencies": {
+    "@vueuse/core": "^14.2.1",
     "d3": "^7.8.5",
     "d3-cloud": "^1.2.7",
     "plotly.js-basic-dist-min": "^3.0.0"

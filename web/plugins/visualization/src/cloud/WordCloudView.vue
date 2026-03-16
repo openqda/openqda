@@ -105,10 +105,12 @@
         </li>
         <li>
           <Button @click="rebuild" :disabled="generating">
-            <Cog6ToothIcon
+            <ActivityIndicator
               v-if="generating"
-              class="animate-spin h-6 w-6 text-cerulean-700"
-            />
+              class="text-secondary-foreground"
+            >
+              refreshing
+            </ActivityIndicator>
             <span v-else>Force Refresh</span>
           </Button>
         </li>
@@ -132,10 +134,12 @@
       </ul>
     </component>
     <div class="w-full block">
-      <Cog6ToothIcon
+      <div
         v-if="generating"
-        class="animate-spin h-6 w-6 text-cerulean-700"
-      />
+        class="w-full rounded border border-secondary p-2 my-2"
+      >
+        <ActivityIndicator> Generating new word cloud </ActivityIndicator>
+      </div>
       <div
         ref="resizeRef"
         class="cloud-root border border-border"
@@ -160,10 +164,9 @@
 import { onMounted, ref, watch, watchEffect, inject } from 'vue';
 import * as d3Module from 'd3';
 import * as cloudModule from 'd3-cloud';
-import { Cog6ToothIcon } from '@heroicons/vue/20/solid';
 
 const API = inject('api');
-const { Button } = inject('components');
+const { ActivityIndicator, Button } = inject('components');
 const d3 = d3Module.default ?? d3Module;
 const cloud = cloudModule.default ?? cloudModule;
 const props = defineProps([

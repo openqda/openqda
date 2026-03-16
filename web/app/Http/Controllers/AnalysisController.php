@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ShowAnalysisPage;
 use App\Models\Code;
 use App\Models\Project;
+use App\Models\Selection;
 use App\Models\Source;
 use App\Traits\BuildsNestedCode;
 use App\Traits\SourceExists;
@@ -54,7 +55,7 @@ class AnalysisController extends Controller
                 ->whereIn('codebook_id', $codebooks->pluck('id'))
                 ->get();
 
-            $allCodes = $rootCodes->map(fn ($code) => $this->buildNestedCode($code));
+            $allCodes = $rootCodes->map(fn ($code) => $this->buildNestedCode($code, null, false));
             // collaboration
             if ($project->team) {
                 $team = $project->team->load('users');
@@ -93,6 +94,26 @@ class AnalysisController extends Controller
             return Inertia::render('Error', [
                 'message' => 'Failed to load analysis page. Please try again.',
             ]);
+        }
+    }
+
+    public function getSelections(ShowAnalysisPage $request, Project $project)
+    {
+        try {
+            $selections = Selection::where('project_id', $project->id)
+                ->get(['id', 'code_id', 'source_id', 'text', 'start_position', 'end_position', 'creating_user_id', 'created_at', 'updated_at'])
+                ->toArray();
+
+            return response()->json([
+                'selections' => $selections,
+            ]);
+        } catch (Throwable $e) {
+            Log::error('Error loading analysis page selections', [
+                'project_id' => $project->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json(['error' => 'Failed to get segments: '.$e->getMessage()], 500);
         }
     }
 }

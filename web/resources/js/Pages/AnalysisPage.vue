@@ -104,18 +104,18 @@
                 <td class="tracking-wide border-0 rounded-md">
                   <label
                     :for="code.id"
-                    class="cursor-pointer select-none line-clamp-1 rounded-md p-2 my-2 flex"
+                    class="cursor-pointer select-none line-clamp-1 rounded-md p-2 my-2 flex justify-between"
                     :style="{
                       backgroundColor: code.color,
                       opacity: checkedCodes.get(code.id) ? 1 : 0.3,
                     }"
                   >
-                    <ContrastText class="grow line-clamp-1">{{
+                    <ContrastText class="line-clamp-1 px-1 rounded">{{
                       code.name
                     }}</ContrastText>
-                    <span class="flex items-center">
-                      <BarsArrowDownIcon class="w-4 h-4 me-1" />
-                      {{ code.text.length }}
+                    <span class="flex items-center min-w-16 justify-between">
+                      <BarsArrowDownIcon class="w-4 h-4 mx-1" />
+                      {{ code.selectionsCount }}
                     </span>
                   </label>
                 </td>
@@ -154,12 +154,10 @@
               id="location"
               name="location"
               class="text-foreground"
+              emptyOptionTitle="(Select a visualization)"
               :options="availablePlugins"
-              :value="visualizerName ?? 'list'"
-              @change="
-                selectVisualizerPlugin($event.target);
-                setShowMenu(false);
-              "
+              :value="visualizerName ?? ''"
+              @change="onVisualizationSelectChange"
             />
           </div>
           <ResponsiveTabList
@@ -170,8 +168,48 @@
           />
           <Button v-if="hasOptions" @click="setShowMenu(true)">Options</Button>
         </div>
-        <div v-if="contentView === 'visualize'" class="h-full w-full">
+        <div
+          v-if="loadingVisualization"
+          class="p-2 border border-secondary rounded"
+        >
+          <ActivityIndicator>
+            {{ loadingVisualization }}
+          </ActivityIndicator>
+        </div>
+        <div
+          v-if="!visualizerName && selectionsCount >= 5000"
+          class="block rounded border border-destructive p-4 text-sm"
+        >
+          <div class="flex gap-2 items-center mb-2">
+            <ExclamationTriangleIcon class="w-6 h-6 text-destructive" />
+            <div class="font-semibold">Large dataset detected</div>
+          </div>
+          <p>
+            You have large amounts of data ({{ selectionsCount }} selections) in
+            this project. Expect longer loading times and potential performance
+            issues when running visualizations. We recommend to narrow down your
+            selection of sources and codes to reduce the amount of data to
+            analyze.
+          </p>
+        </div>
+        <div
+          v-if="contentView === 'visualize' && visualizerName"
+          class="h-full w-full"
+        >
           <VisualizeCoding />
+        </div>
+        <div
+          class="flex-col lg:flex items-center justify-center h-full text-foreground/50 p-2 md:p-4 lg:p-8"
+          v-else-if="!loadingVisualization"
+        >
+          <div>
+            <Headline2>Analysis</Headline2>
+            <div class="my-4 block">
+              Here you can run different visualizations on your created
+              selections.
+            </div>
+            <HelpResources class="flex flex-col gap-4" />
+          </div>
         </div>
       </BaseContainer>
     </template>
@@ -179,7 +217,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import Button from '../Components/interactive/Button.vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
@@ -191,12 +229,17 @@ import { BarsArrowDownIcon } from '@heroicons/vue/24/solid/index.js';
 import { useAnalysis } from './analysis/useAnalysis.js';
 import VisualizeCoding from './analysis/visualization/VisualizeCoding.vue';
 import { useVisualizerPlugins } from './analysis/visualization/useVisualizerPlugins.js';
-
+import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline/index.js';
 import SelectField from '../form/SelectField.vue';
 import ContrastText from '../Components/text/ContrastText.vue';
 import { useUsers } from '../domain/teams/useUsers.js';
 import Footer from '../Layouts/Footer.vue';
 import { Preferences } from '../domain/user/Preferences.js';
+import Headline2 from '../Components/layout/Headline2.vue';
+import HelpResources from '../Components/HelpResources.vue';
+import ActivityIndicator from '../Components/ActivityIndicator.vue';
+import { attemptAsync } from '../Components/notification/attemptAsync.js';
+import { asyncTimeout } from '../utils/asyncTimeout.js';
 
 const saveAnalysisVisibility = async (type, id, value) => {
   if (!props.project?.id || !id) return;
@@ -209,26 +252,12 @@ const saveAnalysisVisibility = async (type, id, value) => {
   });
 };
 
+
 //------------------------------------------------------------------------
 // DATA / PROPS
 //------------------------------------------------------------------------
 const props = defineProps(['codebooks', 'project']);
 const { allUsers } = useUsers();
-
-//------------------------------------------------------------------------
-// VIEWS / TABS
-//------------------------------------------------------------------------
-const menuTabs = [
-  { value: 'sources', label: 'Sources' },
-  { value: 'codes', label: 'Codes' },
-  { value: 'export', label: 'Export' },
-];
-const menuView = ref(menuTabs[0].value);
-const contentTabs = [
-  { value: 'visualize', label: 'Visualize' },
-  { value: 'analyze', label: 'Analyze' },
-];
-const contentView = ref(contentTabs[0].value);
 
 //------------------------------------------------------------------------
 // PAGE
@@ -249,7 +278,20 @@ const {
   checkSource,
   hasSelections,
   selection,
+  selectionsLoaded,
+  checkedSourcesSize,
+  checkedCodesSize,
+  loadSelections,
+  leaveAnalysis,
 } = useAnalysis();
+const selectionsCount = computed(() => {
+  return codes.value.reduce((acc, code) => {
+    if (checkedCodes.value.get(code.id)) {
+      return acc + code.selectionsCount;
+    }
+    return acc;
+  }, 0);
+});
 
 const {
   availablePlugins,
@@ -257,7 +299,55 @@ const {
   hasOptions,
   setShowMenu,
   selectVisualizerPlugin,
+  disposeVisualizerPlugin,
 } = useVisualizerPlugins();
+
+//------------------------------------------------------------------------
+// VIEWS / TABS
+//------------------------------------------------------------------------
+
+const menuTabs = computed(() => {
+  const sourceCount = checkedSourcesSize();
+  const codeCount = checkedCodesSize();
+  const maxSources = checkedSources.value.size;
+  const maxCodes = checkedCodes.value.size;
+  return [
+    {
+      value: 'sources',
+      label: 'Sources',
+      count: `${sourceCount}/${maxSources}`,
+    },
+    { value: 'codes', label: 'Codes', count: `${codeCount}/${maxCodes}` },
+    { value: 'export', label: 'Export' },
+  ];
+});
+const menuView = ref(menuTabs.value[0].value);
+const contentTabs = [
+  { value: 'visualize', label: 'Visualize' },
+  { value: 'analyze', label: 'Analyze' },
+];
+const contentView = ref(contentTabs[0].value);
+
+//------------------------------------------------------------------------
+// VISUALIZATIONS
+//------------------------------------------------------------------------
+const loadingVisualization = ref(false);
+
+const onVisualizationSelectChange = async (event) => {
+  const pluginName = event.target.value;
+  if (!selectionsLoaded.value) {
+    const info =
+      selectionsCount.value > 5000
+        ? 'Please be patient, this may take a while...'
+        : '';
+    loadingVisualization.value = `Loading up to [${selectionsCount.value}] selections. ${info}`;
+    await attemptAsync(() => loadSelections());
+  }
+  loadingVisualization.value = `Loading visualizer plugin... [${pluginName}]`;
+  await asyncTimeout(300);
+  await selectVisualizerPlugin({ value: pluginName });
+  loadingVisualization.value = null;
+};
 
 //------------------------------------------------------------------------
 // EXPORTS
@@ -265,8 +355,11 @@ const {
 const { exportToCSV } = useExport();
 
 onMounted(async () => {
-  selectVisualizerPlugin({ value: 'list', unlessExists: true });
   if (checkedSources.value.size === 0) checkSource('all');
   if (checkedCodes.value.size === 0) checkCode('all');
+});
+onUnmounted(() => {
+  disposeVisualizerPlugin();
+  leaveAnalysis();
 });
 </script>
