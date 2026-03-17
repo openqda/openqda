@@ -8,9 +8,6 @@
         "php": "^8.2",
         "ext-dom": "*",
         "ext-simplexml": "*",
-        "filament/filament": "^3.2",
-        "filament/forms": "^v3.2.117",
-        "filipfonal/filament-log-manager": "^2.0",
         "grantholle/laravel-altcha": "2.1.1",
         "guzzlehttp/guzzle": "^7.2",
         "henck/rtf-to-html": "^1.2",
@@ -26,7 +23,6 @@
         "predis/predis": "^2.2",
         "pusher/pusher-php-server": "^7.2",
         "react/promise": "3.*",
-        "spatie/laravel-ray": "^1.33",
         "tightenco/ziggy": "^1.0"
     },
     "require-dev": {
@@ -55,8 +51,7 @@
     "scripts": {
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
-            "@php artisan package:discover --ansi",
-            "@php artisan filament:upgrade"
+            "@php artisan package:discover --ansi"
         ],
         "post-update-cmd": [
             "@php artisan vendor:publish --tag=laravel-assets --ansi --force"

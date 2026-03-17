@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Enums\ModelType;
 use App\Services\AuditService;
 use App\Traits\AuditableServiceTrait;
-use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -19,7 +18,7 @@ use Laravel\Sanctum\HasApiTokens;
 use OwenIt\Auditing\Auditable as AuditableTrait;
 use OwenIt\Auditing\Contracts\Auditable;
 
-class User extends Authenticatable implements Auditable, FilamentUser, MustVerifyEmail
+class User extends Authenticatable implements Auditable, MustVerifyEmail
 {
     use AuditableServiceTrait, AuditableTrait, HasApiTokens, HasFactory, HasProfilePhoto, HasTeams, Notifiable, TwoFactorAuthenticatable;
 
@@ -30,13 +29,6 @@ class User extends Authenticatable implements Auditable, FilamentUser, MustVerif
     public const AUDIT_RESEARCH_CONSENTED = 'user.research_consent_confirmed';
 
     public const AUDIT_RESEARCH_WITHDRAWN = 'user.research_consent_withdrawn';
-
-    public function canAccessPanel(Panel|\Filament\Panel $panel): bool
-    {
-        $allowedEmails = config('filament.admin_panel.allowed_emails');
-
-        return in_array($this->email, $allowedEmails);
-    }
 
     /**
      * The attributes that are mass assignable.

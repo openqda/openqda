@@ -540,7 +540,7 @@ class SourceController extends Controller
     /**
      * @throws Exception
      */
-    private function getHtmlContent(string $path, mixed $projectId, Source $source, bool $fromAdminPanel = false): string|false
+    private function getHtmlContent(string $path, mixed $projectId, Source $source): string|false
     {
 
         // Existing conversion logic
@@ -550,14 +550,6 @@ class SourceController extends Controller
         } else {
             $htmlContent = $this->convertFileToHtmlLocally($path, $projectId);
             event(new ConversionCompleted($projectId, $source->id));
-        }
-
-        if ($fromAdminPanel) {
-            // Logic to handle the call from the admin panel
-            $extension = pathinfo($source->upload_path, PATHINFO_EXTENSION);
-            $newPath = Str::replaceLast($extension, '.html', $source->upload_path);
-            $source->converted->path = $newPath;
-            $source->save();
         }
 
         return $htmlContent ?? true;

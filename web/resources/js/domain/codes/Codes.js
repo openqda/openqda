@@ -88,6 +88,7 @@ export const Codes = createStoreRepository({
 
 Codes.create = async ({
   projectId,
+  sourceId,
   title,
   name,
   description,
@@ -95,7 +96,8 @@ Codes.create = async ({
   parentId,
   color,
 }) => {
-  const store = Codes.by(`${projectId}`);
+  const key = sourceId ? `${projectId}-${sourceId}` : `${projectId}`;
+  const store = Codes.by(key);
   const code = {
     id: randomUUID(),
     text: [],
