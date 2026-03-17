@@ -36,7 +36,6 @@ export default defineConfig({
         items: [
           {text: 'Preparations', link: '/installation/preparations'},
           {text: 'Docker', link: '/installation/docker'},
-      {text: 'Laravel 12 Migration Guide', link: '/installation/docker#migration-guide-laravel-11-to-laravel-12'},
           {text: 'Manual', link: '/installation/manual'}
         ]
       },
