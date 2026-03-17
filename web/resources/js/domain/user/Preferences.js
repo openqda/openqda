@@ -1,14 +1,26 @@
-// import { request } from '../../utils/http/BackendRequest.js'
 import { router } from '@inertiajs/vue3';
 
 export const Preferences = {};
 
-//update project sorting
+/**
+ * update project sorting
+ * @param options {object}
+ * @param options.pojects {object}
+ * @param options.pojects.sort {object}
+ * @param options.pojects.sort.by {string}
+ * @param options.pojects.sort.dir {string}
+ * @return {Promise<void>}
+ */
 Preferences.updateSorter = async (options) => {
   return router.put(endpoint(), options, routeOptions);
 };
 
-//update source sorting
+/**
+ * Update sources sorting for a project
+ * @param projectId {string}
+ * @param sortRules {object}
+ * @return {Promise<void>}
+ */
 Preferences.updateSourceSorter = async ({ projectId, sortRules }) => {
   const data = {
     sources: {
@@ -47,7 +59,6 @@ Preferences.updateCodeVisibility = async ({
       },
     },
   };
-
   return router.put(endpoint(projectId), data, routeOptions);
 };
 
@@ -81,4 +92,8 @@ const endpoint = (project) =>
     ? route('preferences.update.project', { project })
     : route('preferences.update.global');
 
-const routeOptions = { preserveScroll: true, preserveState: true };
+const routeOptions = {
+  preserveScroll: true,
+  preserveState: true,
+  only: ['preferences'],
+};

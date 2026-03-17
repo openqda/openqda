@@ -57,7 +57,6 @@
           :codebook="codebook"
           :codes="codes.filter((code) => code.codebook === codebook.id)"
           v-if="codesView === 'codes'"
-          @save-code-visibility="saveCodeVisibilityToDb"
         />
         <FilesList
           v-if="codesView === 'sources'"
@@ -140,20 +139,13 @@ import Link from '../Components/Link.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
 import { useInvivoText } from './coding/useInvivoText.js';
-import { Preferences } from '../domain/user/Preferences.js';
 const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
 
-const saveCodeVisibilityToDb = async ({ codebookId, codeId, visible }) => {
-  await Preferences.updateCodeVisibility({
-    projectId: props.projectId,
-    codebookId,
-    codeId,
-    visible,
-  });
-};
 //------------------------------------------------------------------------
 // SOURCES
 //------------------------------------------------------------------------
+
+// TODO move to composable!
 const sourceDocuments = ref(
   props.sources
     .filter((source) => {

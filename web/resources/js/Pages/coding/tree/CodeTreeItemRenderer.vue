@@ -96,7 +96,7 @@ const sortedTexts = computed(() => {
 //------------------------------------------------------------------------
 const toggling = reactive({});
 const handleCodeToggle = async (code) => {
-  const nextVisible = code.active === false ? true : false;
+  const nextVisible = code.active === false;
   emit('save-code-visibility', {
     codebookId: code.codebook,
     codeId: code.id,

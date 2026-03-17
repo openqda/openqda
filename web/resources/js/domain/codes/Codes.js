@@ -54,7 +54,9 @@ class CodeStore extends AbstractStore {
               ],
             });
           } else {
-            code.active = preferences?.visibility?.[code.id] ?? true;
+            const prefActive =
+              preferences?.[code.codebook]?.visibility?.[code.id];
+            code.active = prefActive ?? true;
             code.parent = parent;
             code.order = getOrder(code.codebook);
             code.order = getOrder(code.codebook);

@@ -287,7 +287,7 @@ import {
   QuestionMarkCircleIcon,
   SpeakerWaveIcon,
 } from '@heroicons/vue/24/outline/index.js';
-import { computed, ref } from 'vue';
+import { computed, ref, toRaw } from 'vue';
 import { vClickOutside } from '../../utils/vue/clickOutsideDirective.js';
 import { cn } from '../../utils/css/cn.js';
 import ProfileImage from '../user/ProfileImage.vue';
@@ -302,7 +302,26 @@ const props = defineProps([
   'colspan',
   'focusOnHover',
 ]);
-const docs = computed(() => props.documents.filter(Boolean));
+const docs = computed(() =>
+  props.documents.filter(Boolean).toSorted((a, b) => {
+    for (const rule of sortRules.value) {
+      const aValue = a[rule.by] ?? a.variables?.[rule.by] ?? '';
+      const bValue = b[rule.by] ?? b.variables?.[rule.by] ?? '';
+
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        const comparison = aValue.localeCompare(bValue);
+        if (comparison !== 0) {
+          return rule.dir === 'asc' ? comparison : -comparison;
+        }
+        continue; // If equal, move to next rule
+      }
+
+      if (aValue < bValue) return rule.dir === 'asc' ? -1 : 1;
+      if (aValue > bValue) return rule.dir === 'asc' ? 1 : -1;
+    }
+    return 0;
+  })
+);
 const openMenuId = ref(null);
 const headerFields = ref([
   {
@@ -431,7 +450,7 @@ function sort(key) {
     });
   }
 
-  emit('sortChanged', [...sortRules.value]);
+  emit('sortChanged', [...toRaw(sortRules.value)]);
 }
 </script>
 <style scoped>

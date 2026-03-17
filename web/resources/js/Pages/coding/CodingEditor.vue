@@ -244,8 +244,7 @@ onMounted(() => {
 
 watch(
   () => props.source,
-  async (newValue /*, oldValue*/) => {
-    //quillInstance.setText(newValue)
+  async (newValue /*, oldValue */) => {
     loadingDocument.value = true;
     await asyncTimeout(300);
     quillInstance.clipboard.dangerouslyPasteHTML(newValue.content);
