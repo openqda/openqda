@@ -29,8 +29,11 @@ class UpdateProjectPreferenceRequest extends FormRequest
             'sources.sort.*.by' => 'nullable|string',
             'sources.sort.*.dir' => 'nullable|in:asc,desc',
             'zoom' => 'sometimes|array',
+            'zoom.*' => 'nullable',
             'codebooks' => 'sometimes|array',
+            'codebooks.*' => 'nullable',
             'analysis' => 'sometimes|array',
+            'analysis.*' => 'nullable',
         ];
     }
 }

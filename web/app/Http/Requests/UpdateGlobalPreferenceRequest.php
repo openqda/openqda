@@ -22,12 +22,12 @@ class UpdateGlobalPreferenceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'projects' => ['nullable', 'array'],
-            'projects.sort' => ['nullable', 'array'],
+            'projects' => ['sometimes', 'array'],
+            'projects.sort' => ['sometimes', 'array'],
             'projects.sort.by' => ['nullable', 'string'],
             'projects.sort.dir' => ['nullable', 'in:asc,desc'],
 
-            'theme' => ['nullable', 'string'],
+            'theme' => ['sometimes', 'string'],
         ];
     }
 }

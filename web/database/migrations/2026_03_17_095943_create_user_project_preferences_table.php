@@ -11,14 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_global_preferences', function (Blueprint $table) {
+        Schema::create('user_project_preferences', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')
                 ->constrained()
                 ->cascadeOnDelete();
-            $table->json('projects')->nullable();
-            $table->string('theme')->nullable(); // dark / light
+            $table->foreignId('project_id')
+                ->constrained()
+                ->cascadeOnDelete();
+            $table->json('sources')->nullable();
+            $table->json('zoom')->nullable();
+            $table->json('codebooks')->nullable();
+            $table->json('analysis')->nullable();
             $table->timestamps();
+            $table->unique(['user_id', 'project_id']);
         });
     }
 
@@ -27,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('user_global_preferences');
+        Schema::dropIfExists('user_project_preferences');
     }
 };
