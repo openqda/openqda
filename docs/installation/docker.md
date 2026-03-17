@@ -191,7 +191,7 @@ E-Mails sent to the dev-users (password-reset etc.).
 
 - Project files are "uploaded" to the storage under `/web/storage/app/projects/<project-id>`.
 
-### Troubleshooting
+## Troubleshooting
 
 
 #### Connection issues with Websocket Server
@@ -213,7 +213,7 @@ Alternatively you may want to issue your own ssl certificate for local developme
 Depending on your platform it might be necessary to change in `docker-compose.yml` the entry under ports `"127.0.0.1:{REVERB_PORT:-8080}:8080"`
 to `'${REVERB_PORT:-8080}:8080'`
 
-If you still have issues connecting to the Websocket server then you can make use 
+If you still have issues connecting to the Websocket server then you can make use
 of the global debug function in the client.
 Open the **browser** console and enter the following command:
 
