@@ -17,6 +17,12 @@ export const safeStringify = (obj = {}, space = 0) => {
     if (type === 'function') {
       return '$$function';
     }
+    if (type === 'bigint') {
+      return Number(value);
+    }
+    if (value === null) {
+      return null;
+    }
     if (type !== 'object') {
       return value;
     }
