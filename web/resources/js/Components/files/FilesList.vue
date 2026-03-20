@@ -28,11 +28,11 @@
             <span>
               <ChevronUpIcon
                 class="h-4 w-4 text-foreground/50"
-                v-if="sorter.key === field.key && sorter.ascending === true"
+                v-if="getSortDirection(field.key) === 'asc'"
               />
               <ChevronDownIcon
                 class="h-4 w-4 text-foreground/50"
-                v-if="sorter.key === field.key && sorter.ascending === false"
+                v-if="getSortDirection(field.key) === 'desc'"
               />
             </span>
           </a>
@@ -287,12 +287,12 @@ import {
   QuestionMarkCircleIcon,
   SpeakerWaveIcon,
 } from '@heroicons/vue/24/outline/index.js';
-import { computed, ref } from 'vue';
+import { computed, ref, toRaw } from 'vue';
 import { vClickOutside } from '../../utils/vue/clickOutsideDirective.js';
 import { cn } from '../../utils/css/cn.js';
 import ProfileImage from '../user/ProfileImage.vue';
 
-const emit = defineEmits(['select', 'delete']);
+const emit = defineEmits(['select', 'delete', 'sortChanged']);
 const props = defineProps([
   'documents',
   'actions',
@@ -302,8 +302,26 @@ const props = defineProps([
   'colspan',
   'focusOnHover',
 ]);
-const docs = computed(() => props.documents.filter(Boolean));
-const sorter = ref({ key: null, ascending: false });
+const docs = computed(() =>
+  props.documents.filter(Boolean).toSorted((a, b) => {
+    for (const rule of sortRules.value) {
+      const aValue = a[rule.by] ?? a.variables?.[rule.by] ?? '';
+      const bValue = b[rule.by] ?? b.variables?.[rule.by] ?? '';
+
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        const comparison = aValue.localeCompare(bValue);
+        if (comparison !== 0) {
+          return rule.dir === 'asc' ? comparison : -comparison;
+        }
+        continue; // If equal, move to next rule
+      }
+
+      if (aValue < bValue) return rule.dir === 'asc' ? -1 : 1;
+      if (aValue > bValue) return rule.dir === 'asc' ? 1 : -1;
+    }
+    return 0;
+  })
+);
 const openMenuId = ref(null);
 const headerFields = ref([
   {
@@ -411,16 +429,28 @@ function isMenuOpen(id) {
   return openMenuId.value === id;
 }
 
-function sort(name) {
-  // new keys always sort ascending,
-  // existing keys will toggle
-  sorter.value.ascending =
-    sorter.value.key === name ? !sorter.value.ascending : true;
-  sorter.value.key = name;
-  docs.value.sort((a, b) => {
-    const value = String(a[name]).localeCompare(String(b[name]));
-    return sorter.value.ascending ? value : value * -1;
-  });
+const sortRules = ref([]);
+
+function getSortDirection(key) {
+  return sortRules.value.find((r) => r.by === key)?.dir ?? null;
+}
+
+function sort(key) {
+  const existingIndex = sortRules.value.findIndex((r) => r.by === key);
+
+  if (existingIndex !== -1) {
+    // Toggle direction
+    sortRules.value[existingIndex].dir =
+      sortRules.value[existingIndex].dir === 'asc' ? 'desc' : 'asc';
+  } else {
+    // Add new rule at end (lower priority)
+    sortRules.value.push({
+      by: key,
+      dir: 'asc',
+    });
+  }
+
+  emit('sortChanged', [...toRaw(sortRules.value)]);
 }
 </script>
 <style scoped>

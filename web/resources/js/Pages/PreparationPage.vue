@@ -7,6 +7,7 @@
           :project-id="props.projectId"
           @fileSelected="loadFileIntoEditor($event)"
           @documentDeleted="onDocumentDeleted"
+          @sortChanged="updateSourceSorting"
         />
         <div class="mt-auto">
           <Footer />
@@ -39,7 +40,7 @@
             :CanUnlock="editorSourceRef.CanUnlock"
             :viewerZoom="zoom"
             :useViewZoom="true"
-            @update:zoom="setZoom"
+            @update:zoom="(action) => setZoom(action, editorSourceRef.id)"
             @autosave="saveQuillContent"
           >
             <template #status>
@@ -119,7 +120,7 @@
 </template>
 
 <script setup>
-import { defineProps, onMounted, provide, ref, watch } from 'vue';
+import { computed, defineProps, onMounted, provide, ref, watch } from 'vue';
 import PreparationsEditor from '../editor/PreparationsEditor.vue';
 import FilesManager from '../Components/files/FilesManager.vue';
 import Button from '../Components/interactive/Button.vue';
@@ -141,6 +142,7 @@ import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
 import Footer from '../Layouts/Footer.vue';
 import { useZoom } from '../editor/useZoom.js';
+import { Preferences } from '@/domain/user/Preferences.js';
 
 const editorSourceRef = ref({
   content: 'select to display',
@@ -157,6 +159,13 @@ const editorComponent = ref();
 const props = defineProps(['sources', 'newDocument', 'projectId']);
 const documents = ref([]);
 const pageTitle = ref('Preparation');
+
+const updateSourceSorting = async (sortRules) => {
+  await Preferences.updateSourceSorter({
+    projectId: props.projectId,
+    sortRules,
+  });
+};
 
 watch(
   () => props.newDocument,
@@ -206,7 +215,8 @@ const unlockSource = async () => {
 /*---------------------------------------------------------------------------*/
 // ZOOM
 /*---------------------------------------------------------------------------*/
-const { zoom, setZoom } = useZoom();
+const { getZoom, setZoom } = useZoom();
+const zoom = computed(() => getZoom(editorSourceRef.value?.id));
 
 /*---------------------------------------------------------------------------*/
 // EDITING

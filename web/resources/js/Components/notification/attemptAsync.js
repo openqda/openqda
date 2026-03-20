@@ -13,6 +13,18 @@ export const attemptAsync = async (fn, successMessage) => {
     if (successMessage) {
       flashMessage(successMessage, { type: 'success' });
     }
+
+    // special case for backend request
+    if (value?.error) {
+      throw value.error;
+    }
+    if (value?.response?.status >= 400) {
+      throw new Error(
+        value.response.data?.message ??
+          'An error occurred while processing your request!'
+      );
+    }
+
     return value;
   } catch (e) {
     flashMessage(e.message, { type: 'error' });
