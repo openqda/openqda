@@ -36,7 +36,7 @@ export default defineConfig({
         items: [
           {text: 'Preparations', link: '/installation/preparations'},
           {text: 'Docker', link: '/installation/docker'},
-          {text: 'Import/Export Concept', link: '/installation/preparations#import-export-architecture-concept'},
+          {text: 'Import/Export Concept', link: '/installation/preparations#import-and-export-architecture-concept'},
           {text: 'Manual', link: '/installation/manual'}
         ]
       },

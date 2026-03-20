@@ -50,7 +50,7 @@ cp .env.example .env
 
 ---
 
-# Import / Export Architecture Concept
+# Import and Export Architecture Concept
 
 > **Audience:** Senior software engineers who will implement or review this feature.
 > **Status:** Concept / proposal — no UI, no implementation details yet.
