@@ -136,10 +136,15 @@ const zoomStyle = computed(() => {
     width: z === 1 ? '100%' : `calc(100% / ${z})`,
   };
 });
-Quill.register('modules/lineNumber', LineNumber, true);
-Quill.register('modules/selectionHash', SelectionHash, true);
-Quill.register('modules/cursors', QuillCursors);
-Quill.register('modules/highlight', SelectionHighlightBG);
+const quillRegistryFlag = '__openqdaQuillModulesRegistered';
+
+if (!globalThis[quillRegistryFlag]) {
+  Quill.register('modules/lineNumber', LineNumber, true);
+  Quill.register('modules/selectionHash', SelectionHash, true);
+  Quill.register('modules/cursors', QuillCursors, true);
+  Quill.register('modules/highlight', SelectionHighlightBG, true);
+  globalThis[quillRegistryFlag] = true;
+}
 
 const props = defineProps({
   project: Object,

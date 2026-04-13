@@ -58,7 +58,14 @@ export class SelectionHighlightBG extends Module {
     }));
     const segments = segmentize(selected);
     segments.forEach((segment) => {
-      const activeCodes = segment.c.reduce(
+      // Segmentization can produce non-renderable gaps; ignore them quietly.
+      if (!Number.isFinite(segment?.x) || !Number.isFinite(segment?.y)) return;
+      if (segment.y <= segment.x) return;
+
+      const codes = Array.isArray(segment.c) ? segment.c.filter(Boolean) : [];
+      if (!codes.length) return;
+
+      const activeCodes = codes.reduce(
         (acc, cur) => acc + (cur.active !== false ? 1 : 0),
         0
       );
@@ -66,17 +73,14 @@ export class SelectionHighlightBG extends Module {
         const format = this.quill.getFormat(segment.x, segment.y - segment.x);
         format.class = cn(format.class, 'border border-primary');
         format.background = 'transparent';
-        format.title = `${segment.c.length} overlapping codes: ${segment.c.map((c) => c.name).join(',')} [${segment.x}:${segment.y}]. Right-click to open menu`;
+        format.title = `${codes.length} overlapping codes: ${codes.map((c) => c.name).join(',')} [${segment.x}:${segment.y}]. Right-click to open menu`;
         this.quill.formatText(segment.x, segment.y - segment.x, format);
       } else {
         // XXX: there might be inactive codes in the list, so we need to search
         // for it and fall back to the first code, of none is found
         const code =
-          segment.c.find((code) => code.active !== false) ?? segment.c[0];
-        if (!code)
-          return console.warn(
-            `Expected code linked to segment ${segment.x}:${segment.y}, got ${segment.c}`
-          );
+          codes.find((code) => code.active !== false) ?? codes[0];
+        if (!code) return;
         this.highlight({
           id: code.id,
           title: code.name,
