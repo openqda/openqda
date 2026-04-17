@@ -8,6 +8,8 @@ import CodeTreeItem from './CodeTreeItem.vue';
 import CodebookRenderer from './CodebookRenderer.vue';
 import FormDialog from '../../../dialogs/FormDialog.vue';
 
+defineEmits(['update:modelValue', 'save-code-visibility']);
+
 const props = defineProps({
   codes: Array,
   codebook: Object,

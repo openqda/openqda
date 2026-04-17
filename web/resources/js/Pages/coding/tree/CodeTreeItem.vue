@@ -61,7 +61,7 @@ const props = defineProps({
   showDetails: Boolean,
 });
 
-const emits = defineEmits(['update:modelValue']);
+const emits = defineEmits(['update:modelValue', 'save-code-visibility']);
 const list = computed({
   get: () => props.modelValue,
   set: (value) => {

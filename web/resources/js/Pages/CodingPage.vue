@@ -139,11 +139,13 @@ import Link from '../Components/Link.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
 import { useInvivoText } from './coding/useInvivoText.js';
-
 const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
+
 //------------------------------------------------------------------------
 // SOURCES
 //------------------------------------------------------------------------
+
+// TODO move to composable!
 const sourceDocuments = ref(
   props.sources
     .filter((source) => {
