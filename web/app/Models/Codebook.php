@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Events\CodebookDeleting;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use OwenIt\Auditing\Contracts\Auditable;
 
 class Codebook extends Model implements Auditable
@@ -35,18 +38,18 @@ class Codebook extends Model implements Auditable
     protected $withCount = ['codes'];
 
     protected $dispatchesEvents = [
-        'deleting' => \App\Events\CodebookDeleting::class,
+        'deleting' => CodebookDeleting::class,
     ];
 
     /**
      * Get the project to which the source belongs.
      */
-    public function project(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class, 'project_id');
     }
 
-    public function codes(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function codes(): HasMany
     {
         return $this->hasMany(Code::class);
     }
@@ -54,7 +57,7 @@ class Codebook extends Model implements Auditable
     /**
      * Get the user who created the codebook.
      */
-    public function creatingUser(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function creatingUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'creating_user_id');
     }

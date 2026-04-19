@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\SourceController;
+use App\Http\Middleware\VerifyCsrfToken;
 use App\Jobs\ConvertFileToHtmlJob;
 use App\Jobs\TranscriptionJob;
 use App\Models\Project;
@@ -117,7 +119,7 @@ class SourceControllerTest extends TestCase
         // Act as the authenticated user and make the request
         $response = $this->actingAs($this->user)
             ->post(route('source.store'), [
-                'file' => new \Illuminate\Http\UploadedFile($filePath, $fileName, null, null, true),
+                'file' => new UploadedFile($filePath, $fileName, null, null, true),
                 'projectId' => $this->project->id,
             ]);
 
@@ -420,7 +422,7 @@ class SourceControllerTest extends TestCase
 
         $rtf = UploadedFile::fake()->create(Str::random(6).'.md', 8, 'text/plain');
 
-        $response = $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
+        $response = $this->withoutMiddleware(VerifyCsrfToken::class)
             ->actingAs($this->user)
             ->post(route('source.store'), [
                 'file' => $rtf,
@@ -435,7 +437,7 @@ class SourceControllerTest extends TestCase
 
     public function test_convert_txt_to_html_converts_non_utf_content()
     {
-        $controller = app(\App\Http\Controllers\SourceController::class);
+        $controller = app(SourceController::class);
         $dir = storage_path('app/projects/'.$this->project->id.'/sources');
         if (! file_exists($dir)) {
             mkdir($dir, 0755, true);
@@ -452,7 +454,7 @@ class SourceControllerTest extends TestCase
 
     public function test_convert_txt_to_html_handles_missing_file()
     {
-        $controller = app(\App\Http\Controllers\SourceController::class);
+        $controller = app(SourceController::class);
         $missingPath = $this->testFilePath.'/missing.txt';
 
         $previousHandler = set_error_handler(fn () => true);
@@ -487,7 +489,7 @@ class SourceControllerTest extends TestCase
             'path' => $this->testFilePath.'/admin_panel_old.html',
         ]);
 
-        $response = $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
+        $response = $this->withoutMiddleware(VerifyCsrfToken::class)
             ->actingAs($this->user)
             ->post("/projects/{$this->project->id}/sources/{$source->id}/gethtmlcontent");
 
@@ -642,7 +644,7 @@ class SourceControllerTest extends TestCase
             'path' => $this->testFilePath.'/convert_me.html',
         ]);
 
-        $response = $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
+        $response = $this->withoutMiddleware(VerifyCsrfToken::class)
             ->actingAs($this->user)
             ->post("/projects/{$this->project->id}/sources/{$source->id}/gethtmlcontent");
 
@@ -666,7 +668,7 @@ class SourceControllerTest extends TestCase
         ]);
         file_put_contents($source->upload_path, '{\rtf1 deny}');
 
-        $response = $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
+        $response = $this->withoutMiddleware(VerifyCsrfToken::class)
             ->actingAs($unauthorized)
             ->post("/projects/{$this->project->id}/sources/{$source->id}/gethtmlcontent");
 

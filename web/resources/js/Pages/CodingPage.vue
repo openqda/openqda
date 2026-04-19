@@ -22,7 +22,7 @@
               >
                 <PlusIcon class="w-4 h-4 me-1" />
                 <span v-if="codesView === 'codes' && range?.length">
-                  Create In-Vivo
+                  In-Vivo
                 </span>
                 <span v-else>Create</span>
               </Button>
@@ -139,6 +139,7 @@ import Link from '../Components/Link.vue';
 import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
 import { useInvivoText } from './coding/useInvivoText.js';
+import { useNotes } from '../domain/notes/useNotes.js';
 
 const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
 //------------------------------------------------------------------------
@@ -255,6 +256,10 @@ const createCodeHandler = async (formData) => {
 };
 
 //------------------------------------------------------------------------
+// NOTES
+//------------------------------------------------------------------------
+const { initNotes } = useNotes();
+//------------------------------------------------------------------------
 // CLEANUP
 //------------------------------------------------------------------------
 const CleanupCtx = useCleanup();
@@ -274,15 +279,19 @@ onMounted(async () => {
     onSourceSelected(props.source);
     await asyncTimeout(100);
   }
+
   const result = await attemptAsync(() => initCoding());
   if (result?.clean?.length) {
     result.clean.forEach((entry) => CleanupCtx.add(entry));
     flashMessage('Unresolved references found. Please run cleanup.', {
       type: 'error',
     });
+  } else {
+    codesTabs.pop();
   }
-
   codingInitialized.value = true;
+
+  await attemptAsync(() => initNotes());
 });
 
 const onSourceSelected = (file) => {

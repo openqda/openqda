@@ -3,6 +3,7 @@ import { computed, reactive, ref } from 'vue';
 import { cn } from '../../../utils/css/cn';
 import { useCodeTree } from './useCodeTree';
 import { useCodes } from '../../../domain/codes/useCodes';
+import { useNotes } from '../../../domain/notes/useNotes';
 import {
   ArrowPathIcon,
   BarsArrowDownIcon,
@@ -13,6 +14,7 @@ import {
   PencilIcon,
   PlusIcon,
 } from '@heroicons/vue/24/solid';
+import { ChatBubbleLeftEllipsisIcon } from '@heroicons/vue/24/outline';
 import Button from '../../../Components/interactive/Button.vue';
 import { TrashIcon } from '@heroicons/vue/24/outline';
 import DropdownLink from '../../../Components/DropdownLink.vue';
@@ -30,8 +32,10 @@ import { useRange } from '../useRange';
 import { rgbToHex } from '../../../utils/color/toHex';
 import { useSelections } from '../selections/useSelections';
 import FormDialog from '../../../dialogs/FormDialog.vue';
+import NoteList from './NoteList.vue';
 
 const { createCode, toggleCode, createCodeSchema, getCodebook } = useCodes();
+const { createNote, createNoteSchema } = useNotes();
 const { collapsed, toggleCollapse } = useCodeTree();
 const { getMemberBy } = useUsers();
 const Selections = useSelections();
@@ -91,6 +95,38 @@ const sortedTexts = computed(() => {
 });
 
 //------------------------------------------------------------------------
+// NOTES (Memos)
+//------------------------------------------------------------------------
+const showNotes = ref(false);
+const notesCount = ref(0);
+const textNotesCount = (code) => {
+  let count = code.notes?.length ?? 0;
+  if (code.children?.length) {
+    code.children.forEach((child) => {
+      count += textNotesCount(child);
+    });
+  }
+
+  return count;
+};
+notesCount.value = computed(() => {
+  return textNotesCount(props.code);
+});
+const openNotes = () => {
+  showNotes.value = true;
+};
+const closeNotes = () => {
+  showNotes.value = false;
+};
+const sortedNotes = computed(() => {
+  if (!props.code.notes?.length) return [];
+  return props.code.notes.map((note) => {
+    note.user = getMemberBy(note.creating_user_id);
+    return note;
+  });
+});
+
+//------------------------------------------------------------------------
 // VISIBILITY
 //------------------------------------------------------------------------
 const toggling = reactive({});
@@ -134,6 +170,15 @@ const openCreateSubcodeDialog = (parent) => {
   createNewCodeSchema.value = schema;
 };
 
+// CREATE NOTE
+const createNewNoteSchema = ref();
+const openCreateNoteDialog = (code) => {
+  createNewNoteSchema.value = createNoteSchema({
+    target: code.id,
+    type: 'code',
+  });
+};
+
 //------------------------------------------------------------------------
 // Range
 //------------------------------------------------------------------------
@@ -156,7 +201,7 @@ const { range } = useRange();
         <ChevronRightIcon
           :class="
             cn(
-              'w-4 h-4 transition-all duration-300 transform',
+              'w-3 h-3 transition-all duration-300 transform',
               open && 'rotate-90'
             )
           "
@@ -168,7 +213,7 @@ const { range } = useRange();
       <div
         :class="
           cn(
-            'w-full tracking-wide rounded-md px-2 py-1 text-sm text-foreground dark:text-background group hover:shadow-sm',
+            'w-full tracking-wide rounded-md px-2 py-1 text-sm text-foreground dark:text-background group hover:shadow',
             sorting && 'cursor-grab'
           )
         "
@@ -180,26 +225,24 @@ const { range } = useRange();
           :title="`Assign ${code.name} to selection ${range.start}:${range.end}`"
           :class="
             cn(
-              'w-full h-full text-left flex',
+              'w-full h-full text-left flex items-center',
               code.active
                 ? 'hover:font-semibold'
                 : 'cursor-not-allowed text-foreground/20'
             )
           "
         >
-          <ContrastText class="line-clamp-1 grow">{{ code.name }}</ContrastText>
+          <ContrastText>{{ code.name }}</ContrastText>
           <ContrastText
             class="text-xs ms-auto font-normal hidden group-hover:inline"
             >Assign to {{ range.start }}:{{ range.end }}</ContrastText
           >
         </button>
-        <ContrastText v-else class="line-clamp-1 grow items-center"
-          >{{ code.name }}
-        </ContrastText>
+        <ContrastText v-else>{{ code.name }}</ContrastText>
         <ContrastText
           v-if="props.showDetails && code.description"
-          class="text-xs block"
-          >{{ code.description }}</ContrastText
+          class="block my-1 text-xs"
+          >Description: {{ code.description }}</ContrastText
         >
       </div>
 
@@ -221,6 +264,26 @@ const { range } = useRange();
           <BarsArrowDownIcon class="w-4 -h-4" />
           <span class="text-xs">{{
             open ? (code.text?.length ?? 0) : textCount
+          }}</span>
+        </Button>
+
+        <!-- show notes -->
+        <Button
+          :title="showNotes ? 'Hide notes' : 'Show notes'"
+          variant="ghost"
+          size="sm"
+          :class="
+            cn(
+              'px-1! py-1! my-0! w-8 text-xs hover:text-secondary',
+              showNotes && 'text-secondary'
+            )
+          "
+          :disabled="!code.notes?.length"
+          @click.prevent="showNotes ? closeNotes() : openNotes()"
+        >
+          <ChatBubbleLeftEllipsisIcon class="w-4 -h-4" />
+          <span class="text-xs">{{
+            open ? (code.notes?.length ?? 0) : notesCount
           }}</span>
         </Button>
 
@@ -252,7 +315,7 @@ const { range } = useRange();
               :disabled="sorting"
               :class="
                 cn(
-                  'p-2 md:p-1 lg:p-0 m-0',
+                  'p-2 md:p-1 lg:p-0 m-0 text-foreground rounded hover:bg-foreground/10',
                   sorting && 'cursor-not-allowed text-foreground/50'
                 )
               "
@@ -284,6 +347,33 @@ const { range } = useRange();
                 </template>
               </FormDialog>
             </DropdownLink>
+            <DropdownLink as="button">
+              <FormDialog
+                :schema="createNewNoteSchema"
+                :title="`Create a new note for ${code.name}`"
+                :submit="(data) => createNote(data, code)"
+              >
+                <template #trigger="{ trigger }">
+                  <div
+                    @click="trigger(() => openCreateNoteDialog(code))"
+                    class="flex items-center"
+                  >
+                    <ChatBubbleLeftEllipsisIcon class="w-4 h-4 me-2" />
+                    <span>Add Note</span>
+                  </div>
+                </template>
+                <template #intro>
+                  <div
+                    class="w-full tracking-wide rounded-md px-1 py-1 text-sm text-foreground dark:text-background group hover:shadow-sm mb-4"
+                    :style="`background: ${changeOpacity(code.color ?? 'rgba(0,0,0,1)', 1)};`"
+                  >
+                    <span class="bg-surface text-foreground px-1 rounded">{{
+                      code.name
+                    }}</span>
+                  </div>
+                </template>
+              </FormDialog>
+            </DropdownLink>
             <DropdownLink
               as="button"
               @click.prevent="
@@ -305,18 +395,37 @@ const { range } = useRange();
       </div>
     </div>
 
-    <!-- TEXT Selections -->
-    <Collapse :when="code && textCount && showTexts">
-      <div
-        :style="`border-color: ${changeOpacity(code.color ?? 'rgba(0,0,0,1)', 1)};`"
-        class="bg-surface border text-sm ms-4 me-16 my-1 rounded"
-      >
-        <SelectionList
-          :texts="sortedTexts"
-          :color="code.color ?? 'rgba(0,0,0,1)'"
-        />
-      </div>
-    </Collapse>
+    <div
+      :class="cn('me-2', (showTexts || showNotes) && 'border-r')"
+      :style="`border-color: ${changeOpacity(code.color ?? 'rgba(0,0,0,1)', 1)};`"
+    >
+      <!-- TEXT Selections -->
+      <Collapse :when="code && textCount && showTexts">
+        <div
+          :style="`border-color: ${changeOpacity(code.color ?? 'rgba(0,0,0,1)', 1)};`"
+          class="bg-surface border text-sm ms-4 me-4 my-1 rounded"
+        >
+          <SelectionList
+            :texts="sortedTexts"
+            :color="code.color ?? 'rgba(0,0,0,1)'"
+          />
+        </div>
+      </Collapse>
+
+      <!-- Notes -->
+      <Collapse :when="code && notesCount && showNotes">
+        <div
+          :style="`border-color: ${changeOpacity(code.color ?? 'rgba(0,0,0,1)', 1)};`"
+          class="bg-surface border text-sm ms-4 me-4 my-1 rounded"
+        >
+          <NoteList
+            :notes="sortedNotes"
+            :code="code"
+            :color="code.color ?? 'rgba(0,0,0,1)'"
+          />
+        </div>
+      </Collapse>
+    </div>
   </div>
 </template>
 

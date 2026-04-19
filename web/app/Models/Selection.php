@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use OwenIt\Auditing\Contracts\Auditable;
 
 class Selection extends Model implements Auditable
@@ -38,7 +39,7 @@ class Selection extends Model implements Auditable
     /**
      * Get the code that contains the variable.
      */
-    public function code(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function code(): BelongsTo
     {
         return $this->belongsTo(Code::class, 'code_id');
     }
@@ -46,7 +47,7 @@ class Selection extends Model implements Auditable
     /**
      * Get the code that contains the variable.
      */
-    public function project(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function project(): BelongsTo
     {
         return $this->belongsTo(Code::class, 'project_id');
     }
@@ -54,7 +55,7 @@ class Selection extends Model implements Auditable
     /**
      * Get the source that owns the variable.
      */
-    public function source(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    public function source(): BelongsTo
     {
         return $this->belongsTo(Source::class, 'source_id');
     }

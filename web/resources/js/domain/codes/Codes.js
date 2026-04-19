@@ -32,9 +32,18 @@ class CodeStore extends AbstractStore {
     return codes;
   }
 
-  init(docs) {
+  init(docs, notes) {
     const codeList = [];
     const toClean = [];
+    const notesByCodeId = {};
+    notes.forEach((note) => {
+      if (note.type === 'code') {
+        if (!notesByCodeId[note.target]) {
+          notesByCodeId[note.target] = [];
+        }
+        notesByCodeId[note.target].push(note);
+      }
+    });
     if (this.size.value === 0 && docs.length > 0) {
       const parseCodes = (codes, parent = null) => {
         codes.forEach((code) => {
@@ -58,7 +67,7 @@ class CodeStore extends AbstractStore {
             code.parent = parent;
             code.order = getOrder(code.codebook);
             code.order = getOrder(code.codebook);
-
+            code.notes = notesByCodeId[code.id] ?? [];
             codeList.push(code);
             if (code.children?.length) {
               parseCodes(code.children, code);

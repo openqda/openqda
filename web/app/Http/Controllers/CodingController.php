@@ -8,6 +8,7 @@ use App\Http\Requests\StoreCodeRequest;
 use App\Http\Requests\UpdateCodeRequest;
 use App\Models\Code;
 use App\Models\Codebook;
+use App\Models\Note;
 use App\Models\Project;
 use App\Models\Source;
 use App\Traits\BuildsNestedCode;
@@ -66,6 +67,7 @@ class CodingController extends Controller
                     'userPicture' => $source->creatingUser->profile_photo_url,
                     'date' => $source->created_at->toDateString(),
                     'selectionsCount' => $source->selections()->count(),
+                    // TODO - notes
                     'variables' => $source->transformVariables(),
                     'converted' => (bool) $converted,
                     'exists' => $exists,
@@ -103,6 +105,11 @@ class CodingController extends Controller
                 ->latest('created_at')
                 ->first();
 
+        // loading notes for this project, codes, selections, and sources
+        $notes = Note::where('project_id', $project->id)
+            ->whereIn('type', ['project', 'code', 'selection', 'source'])
+            ->get();
+
         // Build nested codes structure
         $withSelections = (bool) $source?->id;
         $sourceId = $source ? $source->id : null;
@@ -124,6 +131,7 @@ class CodingController extends Controller
             'codebooks' => $codebooks,
             'allCodes' => $allCodes,
             'projectId' => $projectId,
+            'notes' => $notes,
             'teamMembers' => $teamMembers ? $teamMembers->map(function ($user) {
                 return [
                     'id' => $user->id,

@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Codebook;
+use App\Models\Project;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CodebookFactory extends Factory
@@ -19,7 +20,7 @@ class CodebookFactory extends Factory
         return [
             'name' => $this->faker->word,
             'description' => $this->faker->sentence,
-            'project_id' => \App\Models\Project::factory(),
+            'project_id' => Project::factory(),
         ];
     }
 }

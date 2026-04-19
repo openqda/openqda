@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -48,7 +49,7 @@ class HandleInertiaRequests extends Middleware
         // Now that we have the project ID, we can find the project and its team
         $team = null;
         if ($projectId && is_numeric($projectId)) {
-            $project = \App\Models\Project::find($projectId);
+            $project = Project::find($projectId);
             $team = $project?->team;
         }
 

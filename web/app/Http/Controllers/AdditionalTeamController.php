@@ -6,6 +6,8 @@ use App\Http\Requests\ChangeTeamOwnerRequest;
 use App\Models\Project;
 use App\Models\Team;
 use App\Models\User;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -33,8 +35,8 @@ class AdditionalTeamController extends TeamController
      *
      * @param  ChangeTeamOwnerRequest  $request  Validated request containing user_id, project_id, and team_id
      *
-     * @throws \Illuminate\Auth\Access\AuthorizationException If user is not authorized to change team ownership
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException If models are not found
+     * @throws AuthorizationException If user is not authorized to change team ownership
+     * @throws ModelNotFoundException If models are not found
      */
     public function makeOwner(ChangeTeamOwnerRequest $request): RedirectResponse
     {

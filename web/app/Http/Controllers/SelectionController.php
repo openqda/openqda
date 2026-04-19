@@ -10,6 +10,7 @@ use App\Models\Code;
 use App\Models\Project;
 use App\Models\Selection;
 use App\Models\Source;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -21,7 +22,7 @@ class SelectionController extends Controller
      * Store a newly created selection.
      *
      * @param  Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function store(StoreSelectionRequest $request, Project $project, Source $source, Code $code)
     {
@@ -40,7 +41,7 @@ class SelectionController extends Controller
     /**
      * Edit the selection to a new code.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function changeCode(ChangeCodeRequest $request, Project $project, Source $source, Code $code, Selection $selection)
     {
@@ -60,7 +61,7 @@ class SelectionController extends Controller
     /**
      * Remove the specified selection.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function destroy(DeleteSelectionRequest $request, Project $project, Source $source, Code $code, Selection $selection)
     {
@@ -83,7 +84,7 @@ class SelectionController extends Controller
     /**
      * Remove the specified selection if there is no code found for it.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function destroyOrphan(DeleteOrphanSelectionRequest $request, Project $project, Source $source, Selection $selection)
     {

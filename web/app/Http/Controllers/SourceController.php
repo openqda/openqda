@@ -22,6 +22,7 @@ use App\Traits\ValidatesStoragePath;
 use DB;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
@@ -210,7 +211,7 @@ class SourceController extends Controller
     }
 
     /**
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     private function fetchAndTransformSources($projectId)
     {

@@ -8,7 +8,10 @@ use App\Models\Code;
 use App\Models\Codebook;
 use App\Models\Project;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use SimpleXMLElement;
@@ -18,7 +21,7 @@ class CodebookCodesController extends Controller
     /**
      * Imports a codebook and its codes from an XML file.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function import(Project $project, ImportCodebookRequest $request)
     {
@@ -199,7 +202,7 @@ class CodebookCodesController extends Controller
     /**
      * Exports a codebook and its codes to an XML file.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response
      */
     public function export(Project $project, Codebook $codebook, Request $request)
     {
@@ -219,7 +222,7 @@ class CodebookCodesController extends Controller
      * Helper function to recursively add codes to an XML element.
      *
      * @param  SimpleXMLElement  $codesXml
-     * @param  \Illuminate\Database\Eloquent\Collection  $codes
+     * @param  Collection  $codes
      * @param  string|null  $parentId
      * @return void
      */
@@ -243,10 +246,10 @@ class CodebookCodesController extends Controller
     /**
      * Update the code order of a codebook without affecting other properties.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  Request  $request
      * @param  string  $project
      * @param  string  $codebookId
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function updateCodeOrder(UpdateCodebookRequest $request, $project, $codebookId)
     {

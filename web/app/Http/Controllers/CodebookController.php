@@ -8,11 +8,13 @@ use App\Http\Requests\UpdateCodebookRequest;
 use App\Models\Code;
 use App\Models\Codebook;
 use App\Models\Project;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class CodebookController extends Controller
 {
     /**
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function store(StoreCodebookRequest $request, Project $project)
     {
@@ -77,7 +79,7 @@ class CodebookController extends Controller
     }
 
     /**
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function update(UpdateCodebookRequest $request, $project, $codebookId)
     {
@@ -118,7 +120,7 @@ class CodebookController extends Controller
     /**
      * Delete a codebook
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function destroy($project, $codebook, DestroyCodebookRequest $request)
     {
@@ -137,9 +139,9 @@ class CodebookController extends Controller
     /**
      * Get paginated public codebooks
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function getPublicCodebooks(\Illuminate\Http\Request $request)
+    public function getPublicCodebooks(Request $request)
     {
         $perPage = $request->get('per_page', 10); // Default 10, allow 15/20
         $allowedPerPage = [10, 15, 20];
@@ -177,9 +179,9 @@ class CodebookController extends Controller
     /**
      * Search public codebooks by name or user email
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
-    public function searchPublicCodebooks(\Illuminate\Http\Request $request)
+    public function searchPublicCodebooks(Request $request)
     {
         $query = $request->get('q');
 
@@ -223,7 +225,7 @@ class CodebookController extends Controller
     /**
      * Get a single codebook with its codes
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function getCodebookWithCodes($codebookId)
     {

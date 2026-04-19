@@ -215,10 +215,8 @@
           v-show="$props.actions?.length"
           class="py-2 text-center tracking-wider justify-center align-middle items-center relative"
         >
-          <span>
+          <button @click="toggleMenu(document.id)" title="Open actions menu">
             <EllipsisVerticalIcon
-              @click="toggleMenu(document.id)"
-              title="Open actions menu"
               :class="
                 cn(
                   'w-4 h-4 menu-toggle z-0',
@@ -226,7 +224,7 @@
                 )
               "
             ></EllipsisVerticalIcon>
-          </span>
+          </button>
           <div
             v-show="isMenuOpen(document.id)"
             v-click-outside="{ callback: handleOutsideClick }"
