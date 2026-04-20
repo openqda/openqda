@@ -158,7 +158,9 @@ const editCode = (target) => {
   openRenameDialog({ id: `edit-code-${target.id}`, target, schema });
 };
 
-// CRATE SUBCODE
+//------------------------------------------------------------------------
+// CREATE SUBCODE
+//------------------------------------------------------------------------
 const createNewCodeSchema = ref();
 const openCreateSubcodeDialog = (parent) => {
   const schema = createCodeSchema({
@@ -170,7 +172,9 @@ const openCreateSubcodeDialog = (parent) => {
   createNewCodeSchema.value = schema;
 };
 
-// CREATE NOTE
+//------------------------------------------------------------------------
+// CRATE NOTE
+//------------------------------------------------------------------------
 const createNewNoteSchema = ref();
 const openCreateNoteDialog = (code) => {
   createNewNoteSchema.value = createNoteSchema({
@@ -351,7 +355,13 @@ const { range } = useRange();
               <FormDialog
                 :schema="createNewNoteSchema"
                 :title="`Create a new note for ${code.name}`"
-                :submit="(data) => createNote(data, code)"
+                :submit="
+                  (data) =>
+                    attemptAsync(
+                      () => createNote(data, code),
+                      'Note successfully created'
+                    )
+                "
               >
                 <template #trigger="{ trigger }">
                   <div

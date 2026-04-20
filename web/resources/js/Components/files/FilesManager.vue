@@ -13,6 +13,7 @@ import {
   PencilSquareIcon,
   XCircleIcon,
 } from '@heroicons/vue/24/solid';
+import { ChatBubbleLeftEllipsisIcon } from '@heroicons/vue/24/outline';
 import { inject, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
@@ -397,6 +398,16 @@ async function fetchAndRenderDocument(document) {
         },
       },
       {
+        id: 'add-note',
+        title: 'Add note',
+        class: 'text-primary',
+        icon: ChatBubbleLeftEllipsisIcon,
+        onClick({ document }) {},
+        visible(document) {
+          return document.converted;
+        },
+      },
+      {
         id: 'rename-document',
         title: 'Rename this document',
         class: 'text-secondary',
@@ -427,6 +438,7 @@ async function fetchAndRenderDocument(document) {
   <p v-else class="text-sm text-foreground/60">
     You have not added any files. Best is to do it now.
   </p>
+
   <RenameDialog
     title="Rename File"
     :target="toRename"

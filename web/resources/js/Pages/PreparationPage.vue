@@ -58,7 +58,7 @@
               </div>
             </template>
             <template #actions>
-              <div class="flex items-center gap-2 me-2">
+              <div class="">
                 <Button
                   v-if="
                     editorSourceRef.CanUnlock && !editorSourceRef.hasSelections
@@ -79,6 +79,7 @@
                     !editorSourceRef.CanUnlock && !editorSourceRef.hasSelections
                   "
                   variant="outline-secondary"
+                  title="Lock this source at its current state to start coding."
                   :icon="LockClosedIcon"
                   @click="
                     toConfirm({
@@ -86,7 +87,7 @@
                       fn: lockAndCode,
                     })
                   "
-                  class="px-1 py-2 mx-3 rounded-xl w-full md:w-auto"
+                  class="px-1 py-2 rounded-lg w-full md:w-auto"
                   >Lock for coding
                 </Button>
                 <Button
@@ -99,7 +100,7 @@
                   :icon="QrCodeIcon"
                   @click="codeThisFile"
                   class="px-1"
-                  >Code
+                  >Start Coding
                 </Button>
                 <ConfirmDialog
                   :text="confirm.text"
@@ -110,6 +111,9 @@
                   @cancelled="toConfirm(null)"
                 />
               </div>
+            </template>
+            <template #options>
+              <Button type="primary"> Options </Button>
             </template>
           </PreparationsEditor>
         </div>

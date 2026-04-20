@@ -96,7 +96,6 @@ const onSubmit = async (data) => {
           show-submit
           show-cancel
           @close="editNote = false"
-          @error="alert()"
           @submit="onSubmit"
           @cancel="editNote = false"
         />

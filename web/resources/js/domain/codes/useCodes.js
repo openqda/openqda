@@ -30,7 +30,7 @@ export const useCodes = () => {
     toResults(codebookStore.init(codebooks, notes));
     toResults(codeStore.init(allCodes, notes));
     toResults(
-      selectionStore.init(initialSelections, (id) => {
+      selectionStore.init(initialSelections, notes, (id) => {
         try {
           return codeStore.entry(id);
         } catch (e) {

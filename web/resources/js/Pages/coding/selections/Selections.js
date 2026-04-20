@@ -3,6 +3,7 @@ import { request } from '../../../utils/http/BackendRequest.js';
 import { createStoreRepository } from '../../../state/StoreRepository.js';
 import { getIntersection, isOverlapping } from './overlapping.js';
 import { AbstractStore } from '../../../state/AbstractStore.js';
+import { toRaw } from 'vue';
 
 class SelectionsStore extends AbstractStore {
   // returns list of coordinates
@@ -67,10 +68,25 @@ class SelectionsStore extends AbstractStore {
     }
   }
 
-  init(selections, getCode) {
+  init(selections, notes, getCode) {
     const selectionsToClean = [];
     const selectionsToAdd = [];
+    const notesByCodeId = {};
+    notes.forEach((note) => {
+      if (note.type === 'selection') {
+        if (!notesByCodeId[note.target]) {
+          notesByCodeId[note.target] = [];
+        }
 
+        const [start, end] = note.scope.split(':');
+        note.scope = { start, end };
+
+        // we use toRaw here, because
+        // we will otherwise get the "cannot clone proxy object"
+        // error when we try to navigate away
+        notesByCodeId[note.target].push(toRaw(note));
+      }
+    });
     if (this.size.value === 0 && selections.length !== 0) {
       selections.forEach((selection) => {
         const code = getCode(selection.code_id);
@@ -81,6 +97,7 @@ class SelectionsStore extends AbstractStore {
           selection.end = end;
           selection.length = selection.end - selection.start;
           selection.code = code;
+          selection.notes = notesByCodeId[selection.id] ?? [];
           selectionsToAdd.push(selection);
         } else {
           selectionsToClean.push({

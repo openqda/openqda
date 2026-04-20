@@ -32,7 +32,7 @@ class CodeStore extends AbstractStore {
     return codes;
   }
 
-  init(docs, notes) {
+  init(docs, notes = []) {
     const codeList = [];
     const toClean = [];
     const notesByCodeId = {};
@@ -41,7 +41,10 @@ class CodeStore extends AbstractStore {
         if (!notesByCodeId[note.target]) {
           notesByCodeId[note.target] = [];
         }
-        notesByCodeId[note.target].push(note);
+        // we use toRaw here, because
+        // we will otherwise get the "cannot clone proxy object"
+        // error when we try to navigate away
+        notesByCodeId[note.target].push(toRaw(note));
       }
     });
     if (this.size.value === 0 && docs.length > 0) {
@@ -135,7 +138,11 @@ Codes.create = async ({
   if (!error && response?.status < 400) {
     code.id = response.data.id;
     if (parentId) {
-      code.parent = store.entry(parentId);
+      const parent = store.entry(parentId);
+      // we use toRaw here, because
+      // we will otherwise get the "cannot clone proxy object"
+      // error when we try to navigate away
+      code.parent = parent ? toRaw(parent) : null;
       code.active = code.parent.active;
       code.parent.children.push(code);
     }

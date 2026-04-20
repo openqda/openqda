@@ -22,6 +22,14 @@ class Note extends Model implements Auditable
         'creating_user_id',
     ];
 
+    public const AUDIT_CONTENT_UPDATED = 'note.content_updated';
+
+    public const AUDIT_CREATED = 'note.created';
+
+    public const AUDIT_UPDATED = 'note.updated';
+
+    public const AUDIT_DELETED = 'note.deleted';
+
     /**
      * Scope constants for target resolution.
      */
