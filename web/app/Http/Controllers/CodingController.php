@@ -105,11 +105,6 @@ class CodingController extends Controller
                 ->latest('created_at')
                 ->first();
 
-        // loading notes for this project, codes, selections, and sources
-        $notes = Note::where('project_id', $project->id)
-            ->whereIn('type', ['project', 'code', 'selection', 'source'])
-            ->get();
-
         // Build nested codes structure
         $withSelections = (bool) $source?->id;
         $sourceId = $source ? $source->id : null;
@@ -124,6 +119,16 @@ class CodingController extends Controller
             }
             $source->variables = $source->transformVariables();
         }
+
+        // loading notes for this project and codes
+        // for selections and source only load those, which are related to the source
+        $selectionIds = $source ? $source->selections()->pluck('id')->toArray() : [];
+        $notes = Note::where('project_id', $project->id)
+            ->whereIn('type', ['project', 'code', 'selection'])
+            ->where(function ($query) use ($selectionIds) {
+                $query->whereIn('target', $selectionIds);
+            })
+            ->get();
 
         return Inertia::render('CodingPage', [
             'source' => $source,

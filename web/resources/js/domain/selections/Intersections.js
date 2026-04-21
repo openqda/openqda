@@ -12,6 +12,7 @@ Intersections.sort = (list) => list.sort((a, b) => a[0] - b[0]);
  * @property x {number} start index of this selection
  * @property y {number} end index of this selection
  * @property c {any} the linked code; the actual type is not relevant for operation
+ * @property n {number} linked notes count; the actual type is not relevant for operation
  */
 
 /**
@@ -66,8 +67,8 @@ export const segmentize = (seg) => {
   let points = new Array(m);
 
   for (let i = 0; i < n; i++) {
-    points[i * 2] = [seg[i].x, false, seg[i].c];
-    points[i * 2 + 1] = [seg[i].y, true, seg[i].c];
+    points[i * 2] = [seg[i].x, false, seg[i].c, seg[i].n];
+    points[i * 2 + 1] = [seg[i].y, true, seg[i].c, seg[i].n];
   }
 
   // Sorting all points by point value
@@ -86,6 +87,7 @@ export const segmentize = (seg) => {
   let value = null;
   let code = null;
   let prev = null;
+  let notes = 0;
 
   // tp keep track of, whether we are in a state
   // of open-ness, we need to check if there is
@@ -103,6 +105,7 @@ export const segmentize = (seg) => {
   for (let i = 0; i < m; i++) {
     value = points[i][0];
     code = points[i][2];
+    notes = points[i][3];
     prev = result[result.length - 1];
 
     // --------------------------------------------------------
@@ -115,6 +118,7 @@ export const segmentize = (seg) => {
       if (typeof current.x !== 'undefined') {
         current.y = value;
         current.c = [...codes];
+        current.n = notes;
         result.push(current);
       }
       // however, there might be closing
@@ -129,6 +133,7 @@ export const segmentize = (seg) => {
           current.x = prev.y;
           current.y = value;
           current.c = [...codes];
+          current.n = notes;
           result.push(current);
         }
       }
@@ -177,7 +182,7 @@ export const segmentize = (seg) => {
 
       // start new segment
       // and assign new x
-      current = {};
+      current = { n: notes };
       current.x = value;
 
       // always add code to the set

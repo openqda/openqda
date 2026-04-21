@@ -52,6 +52,7 @@ export class LineNumber extends Module {
 
     for (let i = 1; i < lines.length + 1; i++) {
       const prev = lines[i - 1].domNode;
+      const notesCount = prev.querySelector('[data-notes]');
       const height = getComputedStyle(prev).height;
 
       // if layout / computations are not finished, once the editor
@@ -63,12 +64,26 @@ export class LineNumber extends Module {
       }
 
       const node = document.createElement('p');
+      node.classList.add(
+        'pe-1',
+        'border-right',
+        'border-foreground/20',
+        'text-right',
+        'select-none'
+      );
 
       // showcase - empty lines
       if (prev.innerHTML === '<br>' || prev.innerText === '\n') {
-        node.style.color = 'grey';
+        node.classList.add('text-foreground/40');
+      } else {
+        node.classList.add('text-foreground');
       }
-      node.style.borderWidth = '0px';
+
+      if (notesCount) {
+        node.title = `This paragraph has linked notes (see underlined text)`;
+        node.classList.add('bg-foreground', 'text-surface', 'cursor-pointer');
+      }
+
       node.style.lineHeight = `${height}`;
       node.innerHTML = `${i}`;
       this.container.appendChild(node);

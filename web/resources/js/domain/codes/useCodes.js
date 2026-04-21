@@ -5,6 +5,7 @@ import { Codes } from './Codes.js';
 import { Selections } from '../../Pages/coding/selections/Selections.js';
 import { CodeList } from './CodeList.js';
 import { createCodeSchema } from './createCodeSchema.js';
+import { Notes } from '../notes/NoteStore.js';
 
 const state = reactive({
   details: {}, // code ids
@@ -19,6 +20,7 @@ export const useCodes = () => {
   const codeStore = Codes.by(key);
   const codebookStore = Codebooks.by(projectId);
   const selectionStore = Selections.by(key);
+  const noteStore = Notes.by(key);
 
   const initCoding = async () => {
     const initialSelections = source?.selections ?? [];
@@ -38,6 +40,7 @@ export const useCodes = () => {
         }
       })
     );
+    noteStore.init(notes);
     return results;
   };
 
@@ -297,6 +300,8 @@ export const useCodes = () => {
         return codebookStore.observe(callbacks);
       case selectionStore.key:
         return selectionStore.observe(callbacks);
+      case noteStore.key:
+        return noteStore.observe(callbacks);
       default:
         throw new Error(`Unknown observe name: ${name}`);
     }

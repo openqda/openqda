@@ -10,9 +10,11 @@ const state = reactive({
 export const useNotes = () => {
   const { loading } = toRefs(state);
   const page = usePage();
-  const { projectId, notes, auth, teamMembers } = page.props;
+  const { projectId, notes, auth, teamMembers, source } = page.props;
   const allUsers = [auth.user].concat(teamMembers);
-  const noteStore = Notes.by(projectId);
+  const sourceId = source?.id;
+  const key = sourceId ? `${projectId}-${sourceId}` : projectId;
+  const noteStore = Notes.by(key);
 
   const initNotes = () => {
     return noteStore.init(notes, allUsers);

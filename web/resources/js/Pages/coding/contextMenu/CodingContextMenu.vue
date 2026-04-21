@@ -166,6 +166,7 @@ const createInVivo = () => {
               <button
                 v-if="toDeleteSize > 0"
                 @click.prevent="startManageNotes(selection)"
+                class="flex items-center gap-0.5 text-sm hover:text-primary"
                 :title="
                   manageNotes
                     ? 'Cancel managing notes'
@@ -175,8 +176,11 @@ const createInVivo = () => {
                 <XMarkIcon v-show="selection === manageNotes" class="w-4 h-4" />
                 <ChatBubbleLeftEllipsisIcon
                   v-show="selection !== manageNotes"
-                  class="w-4 h-4 hover:text-primary"
+                  class="w-4 h-4"
                 />
+                <span v-show="selection !== manageNotes">{{
+                  selection.notes?.length ?? 0
+                }}</span>
               </button>
               <button
                 v-if="toDeleteSize > 0"
@@ -226,6 +230,12 @@ const createInVivo = () => {
         class="my-2 border-b"
       >
         <NoteRenderer :note="note" :target="manageNotes" />
+      </div>
+      <div
+        v-if="!manageNotes.notes?.length && !addNote"
+        class="text-sm italic text-foreground/80"
+      >
+        There are no notes for this selection yet.
       </div>
 
       <div v-if="addNote">

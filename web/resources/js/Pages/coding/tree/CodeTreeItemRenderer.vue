@@ -273,7 +273,11 @@ const { range } = useRange();
 
         <!-- show notes -->
         <Button
-          :title="showNotes ? 'Hide notes' : 'Show notes'"
+          :title="
+            showNotes
+              ? 'Hide notes attached this code'
+              : 'Show notes attached to this code'
+          "
           variant="ghost"
           size="sm"
           :class="

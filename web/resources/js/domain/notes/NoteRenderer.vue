@@ -43,7 +43,9 @@ const props = defineProps({
         </span>
         <span class="flex">
           <a
-            v-if="note.scope"
+            v-if="
+              note.scope?.start !== undefined && note.scope?.end !== undefined
+            "
             href="#"
             @click.prevent="focusSelection(note.scope)"
             class="font-mono hover:underline"
@@ -90,7 +92,7 @@ const props = defineProps({
     </div>
     <p
       v-else
-      class="cursor-text overflow-x-scroll py-4 md:py-2 lg:py-0 text-sm"
+      class="cursor-text overflow-x-scroll py-4 md:py-2 lg:py-0 px-0.5 text-sm"
     >
       {{ note.content }}
     </p>
