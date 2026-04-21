@@ -107,32 +107,6 @@ export class SelectionHighlightBG extends Module {
     });
   }
 
-  update(selections) {
-    if (!selections || !selections.length) return;
-    selections.forEach((selection) => {
-      const { start, end } = selection;
-      const length = end - start;
-      const format = this.quill.getFormat(start, length);
-      if (format.id) {
-        const codeId = format.id;
-        const codeName = format.title?.split(' [')[0] ?? 'Unknown code';
-        const notesCount = selection.notes?.length ?? 0;
-        const active = selection.code?.active ?? true;
-        this.highlight({
-          id: codeId,
-          title: codeName,
-          color: selection.code?.color ?? '#000000',
-          start,
-          length,
-          active,
-          notes: notesCount,
-        });
-      } else {
-        this.remove(selection);
-      }
-    });
-  }
-
   /** @deprecated */
   highlight(
     { id, title, color, start, length, active, notes },

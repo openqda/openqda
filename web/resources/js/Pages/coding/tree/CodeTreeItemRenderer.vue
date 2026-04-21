@@ -272,11 +272,12 @@ const { range } = useRange();
         </Button>
 
         <!-- show notes -->
+          <span :title="!code.notes?.length ? 'No notes linked to this code.' : ''">
         <Button
           :title="
             showNotes
-              ? 'Hide notes attached this code'
-              : 'Show notes attached to this code'
+              ? 'Hide notes linked this code'
+              : 'Show notes linked to this code'
           "
           variant="ghost"
           size="sm"
@@ -294,7 +295,7 @@ const { range } = useRange();
             open ? (code.notes?.length ?? 0) : notesCount
           }}</span>
         </Button>
-
+        </span>
         <!-- visibility -->
         <button
           class="p-0 m-0 text-foreground/80"
