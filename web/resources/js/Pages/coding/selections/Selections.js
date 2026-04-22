@@ -78,8 +78,10 @@ class SelectionsStore extends AbstractStore {
           notesByCodeId[note.target] = [];
         }
 
-        const [start, end] = note.scope.split(':');
-        note.scope = { start, end };
+        if (typeof note.scope === 'string') {
+          const [start, end] = note.scope.split(':');
+          note.scope = { start, end };
+        }
 
         // we use toRaw here, because
         // we will otherwise get the "cannot clone proxy object"

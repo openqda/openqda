@@ -12,8 +12,9 @@ export const useNotes = () => {
   const { allUsers } = useUsers();
   const { loading } = toRefs(state);
   const page = usePage();
-  const { projectId, notes, source } = page.props;
+  const { projectId: rawProjectId, notes, source, project } = page.props;
   const sourceId = source?.id;
+  const projectId = rawProjectId ? rawProjectId : project.id;
   const key = sourceId ? `${projectId}-${sourceId}` : projectId;
   const noteStore = Notes.by(key);
 

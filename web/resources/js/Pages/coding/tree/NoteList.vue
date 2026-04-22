@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+  Bars3BottomLeftIcon,
   PencilIcon,
   TrashIcon,
   ChatBubbleLeftEllipsisIcon,
@@ -35,6 +36,10 @@ const props = defineProps({
   size: {
     type: String,
     default: 'sm',
+  },
+  readMode: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -116,49 +121,23 @@ const resolveText = variantAuthority(textStyle);
       <div
         :class="
           cn(
-            'w-full flex items-center justify-between tracking-wider font-semibold',
+            'w-full flex items-center justify-between tracking-wider font-semibold ',
             resolveText({ size })
           )
         "
       >
         <div class="flex items-center gap-2">
-          <span class="font-semibold">
-            <ChatBubbleLeftEllipsisIcon class="w-3 h-3 inline-block" />
+          <span class="">
+            <ChatBubbleLeftEllipsisIcon class="w-4 h-4 inline-block" />
             Note
-          </span>
-          <span class="flex items-center gap-0">
-            <ProfileImage
-              v-if="note.user"
-              :src="note.user.profile_photo_url"
-              :name="note.user.name"
-              size="full"
-              class="w-3 h-3 ms-1 text-xs"
-            >
-              <template #before>by</template>
-            </ProfileImage>
-            <span
-              v-if="note.visibility === 0"
-              class="p-2"
-              title="Only I can see this note"
-            >
-              <UserIcon class="w-4 h-4" />
-            </span>
-            <span
-              v-if="note.visibility === 1"
-              class="p-2"
-              title="All team members can see this note"
-            >
-              <UsersIcon v-if="note.visibility === 1" class="w-4 h-4" />
-            </span>
           </span>
         </div>
         <!-- Buttons -->
-        <div class="flex items-center">
+        <div class="flex items-center gap-2">
           <button
-            v-if="isOwnNote(note)"
+            v-if="!readMode && isOwnNote(note)"
             :class="
               cn(
-                'p-2 me-1',
                 action === 'edit' &&
                   targetNote.id === note.id &&
                   'text-destructive'
@@ -170,10 +149,9 @@ const resolveText = variantAuthority(textStyle);
             <PencilIcon class="w-4 h-4 hover:text-primary" />
           </button>
           <button
-            v-if="isOwnNote(note)"
+            v-if="!readMode && isOwnNote(note)"
             :class="
               cn(
-                'p-2 me-1',
                 action === 'delete' &&
                   targetNote.id === note.id &&
                   'text-destructive'
@@ -186,7 +164,34 @@ const resolveText = variantAuthority(textStyle);
           </button>
         </div>
       </div>
-      <div v-if="action === 'edit' && targetNote.id === note.id">
+
+      <div class="flex justify-between items-center my-1">
+        <span class="flex items-center gap-1">
+          <span v-if="note.visibility === 0" title="Only I can see this note">
+            <UserIcon class="w-4 h-4" />
+          </span>
+          <span
+            v-if="note.visibility === 1"
+            title="All team members can see this note"
+          >
+            <UsersIcon v-if="note.visibility === 1" class="w-4 h-4" />
+          </span>
+          <ProfileImage
+            v-if="note.user"
+            :src="note.user.profile_photo_url"
+            :name="note.user.name"
+            size="full"
+            class="text-xs"
+          >
+            <template #before>by</template>
+          </ProfileImage>
+        </span>
+        <span class="italic text-foreground/60 text-xs">
+          {{ new Date(note.updated_at ?? note.created_at).toLocaleString() }}
+        </span>
+      </div>
+
+      <div v-if="!readMode && action === 'edit' && targetNote.id === note.id">
         <AutoForm
           id="editNoteForm"
           :schema="schema"
@@ -204,19 +209,14 @@ const resolveText = variantAuthority(textStyle);
           @cancel="action = 'view'"
         />
       </div>
-      <p
-        v-else
-        :class="
-          cn(
-            'cursor-text overflow-x-scroll mt-1 py-4 md:py-2 lg:py-0',
-            resolveText({ size })
-          )
-        "
-      >
-        {{ note.content }}
-      </p>
+      <div v-else class="flex items-start gap-1 py-4 md:py-2 lg:py-0">
+        <Bars3BottomLeftIcon class="w-4 h-4" />
+        <p :class="cn('cursor-text', resolveText({ size }))">
+          {{ note.content }}
+        </p>
+      </div>
       <div
-        v-if="action === 'delete' && targetNote.id === note.id"
+        v-if="!readMode && action === 'delete' && targetNote.id === note.id"
         :class="
           cn('border border-destructive p-2 rounded-md', resolveText({ size }))
         "
@@ -245,7 +245,7 @@ const resolveText = variantAuthority(textStyle);
         </div>
       </div>
     </li>
-    <li v-if="action === 'add'">
+    <li v-if="!readMode && action === 'add'">
       <AutoForm
         id="addNoteForm"
         :schema="schema"
@@ -263,7 +263,7 @@ const resolveText = variantAuthority(textStyle);
         @cancel="action = 'view'"
       />
     </li>
-    <li v-if="action === 'view'">
+    <li v-if="!readMode && action === 'view'">
       <Button
         variant="outline-secondary"
         size="sm"
