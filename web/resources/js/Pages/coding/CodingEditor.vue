@@ -44,6 +44,7 @@
             <circle cx="9" cy="9" r="6"></circle>
           </svg>
         </Button>
+        <slot name="actions" />
       </div>
     </div>
     <!-- editor content -->

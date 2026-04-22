@@ -3,7 +3,6 @@ import {
   ArrowsRightLeftIcon,
   QueueListIcon,
   TrashIcon,
-  XMarkIcon,
 } from '@heroicons/vue/24/solid';
 import { ChatBubbleLeftEllipsisIcon } from '@heroicons/vue/24/outline';
 import Button from '../../../Components/interactive/Button.vue';
@@ -21,6 +20,7 @@ import { useUsers } from '../../../domain/teams/useUsers';
 import { useInvivoText } from '../useInvivoText';
 import ProfileImage from '../../../Components/user/ProfileImage.vue';
 import NoteList from '../tree/NoteList.vue';
+import { attemptAsync } from '../../../Components/notification/attemptAsync';
 
 const { getMemberBy } = useUsers();
 const { prevRange, range, text: rangeText } = useRange();
@@ -47,7 +47,7 @@ const selections = computed(() => {
   const list = toDelete.value ?? [];
   return list.filter((s) => {
     if (deleteTarget.value) {
-        return deleteTarget.value === s;
+      return deleteTarget.value === s;
     }
     if (reassign.value) {
       return reassign.value === s;
@@ -65,7 +65,7 @@ const selections = computed(() => {
 const reassign = ref(null);
 const startReassign = (selection) => {
   manageNotes.value = null;
-    deleteTarget.value = null;
+  deleteTarget.value = null;
   reassign.value = reassign.value === selection ? null : selection;
 };
 
@@ -74,9 +74,9 @@ const startReassign = (selection) => {
 // ---------------------------------------------
 const deleteTarget = ref(null);
 const startDeleting = (selection) => {
-    manageNotes.value = null;
-    reassign.value = null;
-    deleteTarget.value = deleteTarget.value === selection ? null : selection;
+  manageNotes.value = null;
+  reassign.value = null;
+  deleteTarget.value = deleteTarget.value === selection ? null : selection;
 };
 
 // ---------------------------------------------
@@ -113,7 +113,13 @@ const onClose = () => {
     emit('close');
   }
 };
-
+const onDeleteSelection = async () => {
+  await attemptAsync(
+    () => deleteSelection(deleteTarget),
+    'Selection successfully deleted'
+  );
+  close();
+};
 const createInVivo = () => {
   const txt = rangeText?.value;
   if (!txt?.length) return;
@@ -175,14 +181,32 @@ const createInVivo = () => {
               <button
                 v-if="toDeleteSize > 0"
                 @click.prevent="startManageNotes(selection)"
-                :class="cn('flex items-center gap-0.5 text-sm hover:text-primary', selection === manageNotes ? 'text-primary' : 'hover:text-primary')"
-                :title="manageNotes ? 'Cancel managing notes' : 'Manage notes for this selection'">
+                :class="
+                  cn(
+                    'flex items-center gap-0.5 text-sm hover:text-primary',
+                    selection === manageNotes
+                      ? 'text-primary'
+                      : 'hover:text-primary'
+                  )
+                "
+                :title="
+                  manageNotes
+                    ? 'Cancel managing notes'
+                    : 'Manage notes for this selection'
+                "
+              >
                 <ChatBubbleLeftEllipsisIcon :class="'w-4 h-4'" />
-                <span>{{selection.notes?.length ?? 0 }}</span>
+                <span>{{ selection.notes?.length ?? 0 }}</span>
               </button>
               <button
                 v-if="toDeleteSize > 0"
-                :class="cn(selection === reassign ? 'text-primary' : 'hover:text-primary')"
+                :class="
+                  cn(
+                    selection === reassign
+                      ? 'text-primary'
+                      : 'hover:text-primary'
+                  )
+                "
                 :title="
                   reassign
                     ? 'Cancel reassign for this selection'
@@ -195,7 +219,13 @@ const createInVivo = () => {
               <button
                 size="sm"
                 title="Delete this selection"
-                :class="cn(selection === deleteTarget ? 'text-destructive' : 'hover:text-destructive')"
+                :class="
+                  cn(
+                    selection === deleteTarget
+                      ? 'text-destructive'
+                      : 'hover:text-destructive'
+                  )
+                "
                 @click.prevent="startDeleting(selection)"
               >
                 <TrashIcon class="w-4 h-4" />
@@ -217,24 +247,32 @@ const createInVivo = () => {
       You seem to have no codes created yet.
     </div>
 
-      <div v-if="manageNotes">
-          <div class="font-semibold">Manage noes for this selection</div>
-        <NoteList
-          :notes="manageNotes.notes"
-          :target="manageNotes"
-          type="selection"
-          :scope="manageNotes.scope"
-        />
-      </div>
+    <div v-if="manageNotes">
+      <div class="font-semibold">Manage noes for this selection</div>
+      <NoteList
+        :notes="manageNotes.notes"
+        :target="manageNotes"
+        type="selection"
+        :scope="manageNotes.scope"
+      />
+    </div>
 
-      <div v-else-if="deleteTarget" class="p-3 border border-destructive rounded-md text-sm">
-          <p>You are about to delete this selection.
-              This action cannot be undone.</p>
-          <div class="flex items-center justify-between">
-              <Button variant="outline" size="sm" @click="deleteTarget = null">Cancel</Button>
-              <Button variant="destructive" size="sm" @click="deleteSelection(deleteTarget) && close()">Delete</Button>
-          </div>
+    <div
+      v-else-if="deleteTarget"
+      class="p-3 border border-destructive rounded-md text-sm"
+    >
+      <p>
+        You are about to delete this selection. This action cannot be undone.
+      </p>
+      <div class="flex items-center justify-between">
+        <Button variant="outline" size="sm" @click="deleteTarget = null"
+          >Cancel</Button
+        >
+        <Button variant="destructive" size="sm" @click="onDeleteSelection"
+          >Delete</Button
+        >
       </div>
+    </div>
 
     <div
       v-else-if="

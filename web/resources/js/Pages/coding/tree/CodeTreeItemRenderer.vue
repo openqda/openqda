@@ -424,6 +424,7 @@ const { range } = useRange();
         >
           <SelectionList
             :texts="sortedTexts"
+            :code="code"
             :color="code.color ?? 'rgba(0,0,0,1)'"
           />
         </div>

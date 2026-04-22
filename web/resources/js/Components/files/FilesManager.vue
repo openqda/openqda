@@ -13,7 +13,6 @@ import {
   PencilSquareIcon,
   XCircleIcon,
 } from '@heroicons/vue/24/solid';
-import { ChatBubbleLeftEllipsisIcon } from '@heroicons/vue/24/outline';
 import { inject, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
@@ -396,16 +395,6 @@ async function fetchAndRenderDocument(document) {
         onClick({ document }) {
           downloadSource(document);
         },
-        visible(document) {
-          return document.converted;
-        },
-      },
-      {
-        id: 'add-note',
-        title: 'Add note',
-        class: 'text-primary',
-        icon: ChatBubbleLeftEllipsisIcon,
-        onClick({ document }) {},
         visible(document) {
           return document.converted;
         },

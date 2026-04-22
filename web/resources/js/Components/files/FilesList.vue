@@ -142,8 +142,12 @@
           v-if="fieldsVisible.name"
           :class="
             cn(
-              'py-4 w-auto rounded-xl',
-              hover === index ? 'break-all' : 'truncate',
+              'py-4 pe-1 w-auto rounded-xl',
+              hover === index
+                ? 'break-all'
+                : props.fullTitle !== true
+                  ? 'truncate'
+                  : '',
               openMenuId === document.id ? 'font-semibold' : 'font-normal'
             )
           "
@@ -302,6 +306,7 @@ const props = defineProps([
   'notes',
   'colspan',
   'focusOnHover',
+  'fullTitle',
 ]);
 const docs = computed(() => {
   return props.documents.filter(Boolean).map((doc) => {

@@ -82,13 +82,40 @@
       </BaseContainer>
     </template>
     <template #main>
-      <CodingEditor
-        v-if="$props.source"
-        :project="{ id: props.projectId }"
-        :source="$props.source"
-        :codes="$props.allCodes"
-        class="overflow-y-auto overflow-x-hidden w-full h-full"
-      />
+      <div v-if="$props.source">
+        <CodingEditor
+          :project="{ id: props.projectId }"
+          :source="$props.source"
+          :codes="$props.allCodes"
+          class="overflow-y-auto overflow-x-hidden w-full h-full"
+        >
+          <template #actions>
+            <Button
+              v-if="props.source"
+              @click="showSourceNotes = true"
+              type="primary"
+              >Notes</Button
+            >
+          </template>
+        </CodingEditor>
+        <SideOverlay
+          v-if="props.source"
+          title="Manage Notes"
+          :show="showSourceNotes"
+          @close="showSourceNotes = false"
+        >
+          <div class="p-2">
+            <Headline3 class="mb-2 p-2"
+              >Notes linked to {{ props.source.name }}</Headline3
+            >
+            <NoteList
+              :notes="notesForSource"
+              :target="props.source"
+              type="source"
+            />
+          </div>
+        </SideOverlay>
+      </div>
       <div
         class="flex-col lg:flex items-center justify-center h-full text-foreground/50 p-2 md:p-4 lg:p-8"
         v-else
@@ -112,7 +139,7 @@
 
 <script setup>
 import { PlusIcon } from '@heroicons/vue/24/solid';
-import { onMounted, ref, useTemplateRef, watch } from 'vue';
+import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import CodeTree from './coding/tree/CodeTree.vue';
 import CodingEditor from './coding/CodingEditor.vue';
@@ -140,6 +167,9 @@ import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
 import { useInvivoText } from './coding/useInvivoText.js';
 import { useNotes } from '../domain/notes/useNotes.js';
+import SideOverlay from '../Components/layout/SideOverlay.vue';
+import NoteList from './coding/tree/NoteList.vue';
+import Headline3 from '../Components/layout/Headline3.vue';
 
 const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
 //------------------------------------------------------------------------
@@ -258,7 +288,17 @@ const createCodeHandler = async (formData) => {
 //------------------------------------------------------------------------
 // NOTES
 //------------------------------------------------------------------------
-const { initNotes } = useNotes();
+const { initNotes, notes: storedNotes } = useNotes();
+const showSourceNotes = ref(false);
+const notesForSource = computed(() => {
+  if (!storedNotes?.value?.length || !props.source?.id) {
+    return [];
+  }
+  return storedNotes.value.filter(
+    (note) => note.type === 'source' && note.target === props.source.id
+  );
+});
+
 //------------------------------------------------------------------------
 // CLEANUP
 //------------------------------------------------------------------------
@@ -291,7 +331,7 @@ onMounted(async () => {
   }
   codingInitialized.value = true;
 
-  await attemptAsync(() => initNotes());
+  initNotes();
 });
 
 const onSourceSelected = (file) => {

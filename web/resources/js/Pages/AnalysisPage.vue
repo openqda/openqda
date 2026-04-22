@@ -31,7 +31,7 @@
           </Button>
         </div>
 
-        <div v-show="menuView === 'sources'" class="flex flex-col gap-4">
+        <div v-show="menuView === 'sources'" class="">
           <FilesList
             :focus-on-hover="false"
             :fields="{
@@ -42,7 +42,8 @@
               user: false,
             }"
             :documents="sources"
-            :fixed="false"
+            :fixed="true"
+            :fullTitle="true"
             @select="(doc) => checkSource(doc.id)"
           >
             <template #custom-head>

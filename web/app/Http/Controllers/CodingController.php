@@ -118,7 +118,7 @@ class CodingController extends Controller
         $selectionIds = $source ? $source->selections()->pluck('id')->toArray() : [];
         $userId = Auth::id();
         $notes = Note::where('project_id', $project->id)
-            ->where(function ($query) use ($selectionIds, $userId) {
+            ->where(function ($query) use ($selectionIds, $userId, $sourceId) {
                 // 1. all project and code level notes...
                 $query->whereIn('type', ['project', 'code'])
                     ->where(function ($query) use ($userId) {
@@ -139,6 +139,21 @@ class CodingController extends Controller
                                 // 2.2.. ...visible for all team members
                                 $query->where('visibility', 1)
                                       // 2.3. ...or my own notes
+                                    ->orWhere(function ($query) use ($userId) {
+                                        $query->where('visibility', 0)
+                                            ->where('creating_user_id', $userId);
+                                    });
+                            });
+                    })
+                    ->orWhere(function ($query) use ($sourceId, $userId) {
+                        // 3. source level notes...
+                        $query->where('type', 'source')
+                            // 3.1. ... but only those related to the source
+                            ->where('target', $sourceId)
+                            ->where(function ($query) use ($userId) {
+                                // 3.2.. ...visible for all team members
+                                $query->where('visibility', 1)
+                                      // 3.3. ...or my own notes
                                     ->orWhere(function ($query) use ($userId) {
                                         $query->where('visibility', 0)
                                             ->where('creating_user_id', $userId);
