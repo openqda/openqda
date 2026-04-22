@@ -201,8 +201,6 @@
         >
           <div>
             <ProfileImage
-              v-if="document.userPicture"
-              class="w-4 h-4"
               :name="document.user"
               :email="document.userEmail"
               :src="document.userPicture"

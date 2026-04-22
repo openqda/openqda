@@ -217,4 +217,14 @@ class User extends Authenticatable implements Auditable, MustVerifyEmail
             ];
         });
     }
+
+    /**
+     * Overrides the default photo url which was sending requests to a foreign service.
+     *
+     * @return string
+     */
+    protected function defaultProfilePhotoUrl()
+    {
+        return '';
+    }
 }

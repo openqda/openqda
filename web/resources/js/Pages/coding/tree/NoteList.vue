@@ -4,17 +4,19 @@ import {
   TrashIcon,
   ChatBubbleLeftEllipsisIcon,
   PlusIcon,
+  UsersIcon,
+  UserIcon,
 } from '@heroicons/vue/24/outline';
 import { ref } from 'vue';
 import ProfileImage from '../../../Components/user/ProfileImage.vue';
 import AutoForm from '../../../form/AutoForm.vue';
 import { attemptAsync } from '../../../Components/notification/attemptAsync';
 import { useNotes } from '../../../domain/notes/useNotes';
-import { useCodingEditor } from '../useCodingEditor';
 import { rgbToHex } from '../../../utils/color/toHex';
 import Button from '../../../Components/interactive/Button.vue';
 import { variantAuthority } from '../../../utils/css/variantAuthority';
 import { cn } from '../../../utils/css/cn';
+import { useUsers } from '../../../domain/teams/useUsers';
 
 /*------------------------------------------------------------------------------
  | NoteList.vue
@@ -32,7 +34,7 @@ const props = defineProps({
   type: String,
   size: {
     type: String,
-    default: 'default',
+    default: 'sm',
   },
 });
 
@@ -44,11 +46,16 @@ const hexCol = props.color
 
 const action = ref('view');
 const targetNote = ref(null);
+const { getOwnUser } = useUsers();
+const isOwnNote = (note) => {
+  const ownUser = getOwnUser();
+  return (
+    ownUser && note.creating_user_id && note.creating_user_id === ownUser.id
+  );
+};
 const { createNoteSchema, createNote, editNoteSchema, updateNote, deleteNote } =
   useNotes();
-const { focusSelection } = useCodingEditor();
 const schema = ref();
-
 const actions = {
   add() {
     schema.value = createNoteSchema({
@@ -80,6 +87,7 @@ const textStyle = {
     size: {
       xs: 'text-sm',
       default: 'text-sm',
+      sm: 'text-sm',
       md: 'text-base',
       lg: 'text-lg',
     },
@@ -118,34 +126,59 @@ const resolveText = variantAuthority(textStyle);
             <ChatBubbleLeftEllipsisIcon class="w-3 h-3 inline-block" />
             Note
           </span>
-          <span class="flex">
-            <a
-              v-if="note.type === 'selection' && note.scope"
-              href=""
-              @click.prevent="focusSelection(note)"
-              class="font-mono hover:underline"
-              >scope: {{ note.scope.start }}:{{ note.scope.end }}</a
-            >
+          <span class="flex items-center gap-0">
             <ProfileImage
               v-if="note.user"
               :src="note.user.profile_photo_url"
               :name="note.user.name"
-              class="w-3 h-3 ms-1"
-            />
+              size="full"
+              class="w-3 h-3 ms-1 text-xs"
+            >
+              <template #before>by</template>
+            </ProfileImage>
+            <span
+              v-if="note.visibility === 0"
+              class="p-2"
+              title="Only I can see this note"
+            >
+              <UserIcon class="w-4 h-4" />
+            </span>
+            <span
+              v-if="note.visibility === 1"
+              class="p-2"
+              title="All team members can see this note"
+            >
+              <UsersIcon v-if="note.visibility === 1" class="w-4 h-4" />
+            </span>
           </span>
         </div>
         <!-- Buttons -->
         <div class="flex items-center">
           <button
-            v-if="action !== 'edit' || targetNote.id !== note.id"
-            class="p-2 me-1"
+            v-if="isOwnNote(note)"
+            :class="
+              cn(
+                'p-2 me-1',
+                action === 'edit' &&
+                  targetNote.id === note.id &&
+                  'text-destructive'
+              )
+            "
             @click="actions.edit(note)"
             title="Edit this note"
           >
             <PencilIcon class="w-4 h-4 hover:text-primary" />
           </button>
           <button
-            class="p-2 me-1"
+            v-if="isOwnNote(note)"
+            :class="
+              cn(
+                'p-2 me-1',
+                action === 'delete' &&
+                  targetNote.id === note.id &&
+                  'text-destructive'
+              )
+            "
             @click="actions.delete(note)"
             title="Delete this note"
           >
@@ -153,13 +186,13 @@ const resolveText = variantAuthority(textStyle);
           </button>
         </div>
       </div>
-
       <div v-if="action === 'edit' && targetNote.id === note.id">
         <AutoForm
           id="editNoteForm"
           :schema="schema"
           show-submit
           show-cancel
+          :size="props.size"
           @submit="
             (data) =>
               onSubmit({
@@ -175,7 +208,7 @@ const resolveText = variantAuthority(textStyle);
         v-else
         :class="
           cn(
-            'cursor-text overflow-x-scroll py-4 md:py-2 lg:py-0',
+            'cursor-text overflow-x-scroll mt-1 py-4 md:py-2 lg:py-0',
             resolveText({ size })
           )
         "
@@ -194,12 +227,12 @@ const resolveText = variantAuthority(textStyle);
           undone.
         </p>
         <div class="flex items-center justify-between">
-          <Button variant="outline" size="sm" @click="action = 'view'"
+          <Button variant="outline" :size="props.size" @click="action = 'view'"
             >Cancel</Button
           >
           <Button
             variant="destructive"
-            size="sm"
+            :size="props.size"
             @click="
               onSubmit({
                 data: note,
@@ -216,6 +249,7 @@ const resolveText = variantAuthority(textStyle);
       <AutoForm
         id="addNoteForm"
         :schema="schema"
+        :size="props.size"
         show-submit
         show-cancel
         @submit="
@@ -234,7 +268,7 @@ const resolveText = variantAuthority(textStyle);
         variant="outline-secondary"
         size="sm"
         class="w-full"
-        @click="actions.add()"
+        @click.stop="actions.add()"
       >
         <PlusIcon class="w-4 h-4" /> Add Note
       </Button>

@@ -32,6 +32,10 @@ const props = defineProps({
     type: String,
     required: false,
   },
+  size: {
+    type: String,
+    default: 'default',
+  },
 });
 const emit = defineEmits(['cancel', 'submit']);
 const fields = ref(null);
@@ -57,7 +61,9 @@ const validateForm = (e) => {
     // result: key, value, valid, error
     validation[key] = result;
     // if one field fails, fail form
-    if (!result.valid) isValid = false;
+    if (!result.valid) {
+      isValid = false;
+    }
   });
 
   if (!isValid) {
@@ -83,16 +89,26 @@ const validateForm = (e) => {
       :key="index"
       :is="component"
       v-bind="data"
+      :size="props.size"
       :value="data.defaultValue"
       :required="data.required"
       :validation="validationErrors[data.name]"
     ></component>
-    <div v-if="showSubmit !== false || showCancel !== false" class="w-100">
-      <Button variant="outline" @click="$emit('cancel')">Cancel</Button>
-      <Button type="submit" class="float-right">Submit</Button>
-    </div>
+
     <div class="block w-full text-center" v-if="submitFailed">
       <InputError message="Form could not be submitted" />
+    </div>
+
+    <div
+      v-if="showSubmit !== false || showCancel !== false"
+      class="flex items-center justify-between mt-2"
+    >
+      <Button variant="outline" :size="props.size" @click="$emit('cancel')"
+        >Cancel</Button
+      >
+      <Button type="submit" :size="props.size" class="float-right"
+        >Submit</Button
+      >
     </div>
   </form>
 </template>

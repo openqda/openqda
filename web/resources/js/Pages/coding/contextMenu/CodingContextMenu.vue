@@ -20,12 +20,9 @@ import { whitespace } from '../../../utils/regex';
 import { useUsers } from '../../../domain/teams/useUsers';
 import { useInvivoText } from '../useInvivoText';
 import ProfileImage from '../../../Components/user/ProfileImage.vue';
-import AutoForm from '../../../form/AutoForm.vue';
-import { useNotes } from '../../../domain/notes/useNotes';
-import NoteRenderer from '../../../domain/notes/NoteRenderer.vue';
-import { attemptAsync } from '../../../Components/notification/attemptAsync';
+import NoteList from '../tree/NoteList.vue';
+
 const { getMemberBy } = useUsers();
-const { createNoteSchema, createNote } = useNotes();
 const { prevRange, range, text: rangeText } = useRange();
 const { close, isOpen, top, left, width, maxHeight } = useContextMenu();
 const { codes } = useCodes();
@@ -70,17 +67,10 @@ const startReassign = (selection) => {
 // ---------------------------------------------
 // NOTES MANAGEMENT
 // ---------------------------------------------
-const addNote = ref(false);
 const manageNotes = ref(null);
-const newNoteSchema = ref(null);
 const startManageNotes = (selection) => {
   reassign.value = null;
   manageNotes.value = manageNotes.value === selection ? null : selection;
-  newNoteSchema.value = createNoteSchema({
-    target: selection.id,
-    type: 'selection',
-    scope: `${selection.start}:${selection.end}`,
-  });
 };
 
 const filteredCodes = computed(() => {
@@ -156,13 +146,15 @@ const createInVivo = () => {
                 <QueueListIcon class="w-3 h-3" />
                 <span>Selection</span>
                 <span> {{ selection.start }}:{{ selection.end }} </span>
+                <ProfileImage
+                  v-if="getMemberBy(selection.creating_user_id)"
+                  size="compact"
+                  :name="getMemberBy(selection.creating_user_id)?.name"
+                  :src="
+                    getMemberBy(selection.creating_user_id)?.profile_photo_url
+                  "
+                />
               </div>
-              <ProfileImage
-                v-if="getMemberBy(selection.creating_user_id)"
-                class="w-4 h-4"
-                :name="`by ${getMemberBy(selection.creating_user_id).name}`"
-                :src="getMemberBy(selection.creating_user_id).profile_photo_url"
-              />
               <button
                 v-if="toDeleteSize > 0"
                 @click.prevent="startManageNotes(selection)"
@@ -223,56 +215,13 @@ const createInVivo = () => {
       You seem to have no codes created yet.
     </div>
 
-    <div v-if="manageNotes">
-      <div
-        v-for="note in manageNotes.notes ?? []"
-        :key="note.id"
-        class="my-2 border-b"
-      >
-        <NoteRenderer :note="note" :target="manageNotes" />
-      </div>
-      <div
-        v-if="!manageNotes.notes?.length && !addNote"
-        class="text-sm italic text-foreground/80"
-      >
-        There are no notes for this selection yet.
-      </div>
-
-      <div v-if="addNote">
-        <div class="text-sm font-semibold">
-          Add new note for selection {{ manageNotes.start }}:{{
-            manageNotes.end
-          }}
-        </div>
-        <AutoForm
-          id="createNoteForm"
-          :schema="newNoteSchema"
-          @submit="
-            (data) =>
-              attemptAsync(
-                () => createNote(data, manageNotes),
-                'Note successfully created'
-              )
-          "
-          @cancel="
-            manageNotes = null;
-            addNote = null;
-          "
-          @close="
-            addNote = null;
-            manageNotes = null;
-          "
-        />
-      </div>
-      <Button
-        v-else
-        variant="outline-secondary"
-        class="mt-2 w-full"
-        @click.stop="addNote = true"
-      >
-        Add Note
-      </Button>
-    </div>
+    <NoteList
+      v-if="manageNotes"
+      :notes="manageNotes.notes"
+      :target="manageNotes"
+      type="selection"
+      :scope="manageNotes.scope"
+    />
 
     <div
       v-else-if="

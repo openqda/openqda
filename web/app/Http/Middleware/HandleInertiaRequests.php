@@ -53,6 +53,27 @@ class HandleInertiaRequests extends Middleware
             $team = $project?->team;
         }
 
+        // We always need to load the team
+        if ($team) {
+            $team = $project->team->load('users');
+            $teamMembers = $team->users;
+            // add owner if not added
+            if (! $teamMembers->contains($team->owner_id)) {
+                $teamMembers->push($team->owner);
+            }
+            $teamMembers = $teamMembers->map(function ($user) use ($team) {
+                return [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'isOwner' => $user->id === $team->owner->id,
+                    'email' => $user->email,
+                    'profile_photo_url' => $user->profile_photo_url,
+                ];
+            });
+        } else {
+            $teamMembers = [];
+        }
+
         $privacyFile = resource_path('markdown/privacy.md');
         $termsFile = resource_path('markdown/terms.md');
         $privacy = file_exists($privacyFile) ? date('c', filemtime($privacyFile)) : null;
@@ -70,6 +91,7 @@ class HandleInertiaRequests extends Middleware
             'projectId' => session('projectId'),
             'sharedTeam' => $team?->only('id', 'name'),
             'usersInPages' => [],
+            'teamMembers' => $teamMembers,
             // Lazily...
             'auth.user' => fn () => $request->user()
                 ? $request->user()->only('id', 'name', 'email', 'profile_photo_url', 'research_requested', 'research_consent', 'privacy_consent', 'terms_consent', 'email_verified_at')

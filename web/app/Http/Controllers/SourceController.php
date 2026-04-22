@@ -53,6 +53,15 @@ class SourceController extends Controller
         $userId = Auth::id();
         $notes = Note::where('project_id', $projectId)
             ->whereIn('type', ['project', 'source'])
+            ->where(function ($query) use ($userId) {
+                // get visible notes from members
+                $query->where('visibility', 1)
+                      // or my own notes
+                    ->orWhere(function ($query) use ($userId) {
+                        $query->where('visibility', 0)
+                            ->where('creating_user_id', $userId);
+                    });
+            })
             ->get();
 
         return Inertia::render('PreparationPage', [

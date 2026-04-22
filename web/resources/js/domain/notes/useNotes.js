@@ -2,16 +2,17 @@ import { usePage } from '@inertiajs/vue3';
 import { computed, reactive, toRefs } from 'vue';
 import { request } from '../../utils/http/BackendRequest.js';
 import { Notes } from './NoteStore.js';
+import { useUsers } from '../teams/useUsers.js';
 
 const state = reactive({
   loading: false,
 });
 
 export const useNotes = () => {
+  const { allUsers } = useUsers();
   const { loading } = toRefs(state);
   const page = usePage();
-  const { projectId, notes, auth, teamMembers, source } = page.props;
-  const allUsers = [auth.user].concat(teamMembers);
+  const { projectId, notes, source } = page.props;
   const sourceId = source?.id;
   const key = sourceId ? `${projectId}-${sourceId}` : projectId;
   const noteStore = Notes.by(key);

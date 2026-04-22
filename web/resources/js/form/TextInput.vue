@@ -6,6 +6,10 @@ import InputError from '../../../vendor/laravel/jetstream/stubs/inertia/resource
 const props = defineProps({
   label: String,
   validation: Object,
+  size: {
+    type: String,
+    default: 'default',
+  },
 });
 </script>
 

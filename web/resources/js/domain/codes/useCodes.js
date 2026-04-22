@@ -6,6 +6,7 @@ import { Selections } from '../../Pages/coding/selections/Selections.js';
 import { CodeList } from './CodeList.js';
 import { createCodeSchema } from './createCodeSchema.js';
 import { Notes } from '../notes/NoteStore.js';
+import { useUsers } from '../teams/useUsers.js';
 
 const state = reactive({
   details: {}, // code ids
@@ -14,6 +15,7 @@ const state = reactive({
 export const useCodes = () => {
   const { details } = toRefs(state);
   const page = usePage();
+  const { allUsers } = useUsers();
   const { allCodes, codebooks, projectId, source, notes } = page.props;
   const sourceId = source?.id;
   const key = sourceId ? `${projectId}-${sourceId}` : projectId;
@@ -40,7 +42,7 @@ export const useCodes = () => {
         }
       })
     );
-    noteStore.init(notes);
+    noteStore.init(notes, allUsers);
     return results;
   };
 
