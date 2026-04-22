@@ -20,7 +20,7 @@ class StoreNoteRequest extends FormRequest
         return [
             'content' => 'required|string',
             'target' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
+            'type' => 'required|string|in:project,source,selection,code,case',
             'scope' => 'nullable|string|max:255',
             'visibility' => 'integer|in:0,1',
         ];

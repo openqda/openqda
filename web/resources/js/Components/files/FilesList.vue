@@ -187,13 +187,10 @@
         </td>
 
         <!-- notes -->
-        <td
-          class="py-2 text-start text-xs"
-          v-if="fieldsVisible.notes && hover !== index"
-        >
-          <div v-show="documents.notes?.length" class="flex items-center gap-0">
+        <td class="py-2 text-start text-xs" v-if="hover !== index">
+          <div v-show="document.notes?.length" class="flex items-center gap-0">
             <ChatBubbleLeftEllipsisIcon class="w-4 h-4" />
-            {{ document.notes?.length ?? 0 }}
+            {{ document.notes?.length }}
           </div>
         </td>
 
@@ -292,7 +289,7 @@ import {
   QuestionMarkCircleIcon,
   SpeakerWaveIcon,
 } from '@heroicons/vue/24/outline/index.js';
-import { computed, ref } from 'vue';
+import { computed, ref, toRaw } from 'vue';
 import { vClickOutside } from '../../utils/vue/clickOutsideDirective.js';
 import { cn } from '../../utils/css/cn.js';
 import ProfileImage from '../user/ProfileImage.vue';
@@ -304,10 +301,18 @@ const props = defineProps([
   'rowClass',
   'fields',
   'fixed',
+  'notes',
   'colspan',
   'focusOnHover',
 ]);
-const docs = computed(() => props.documents.filter(Boolean));
+const docs = computed(() => {
+  return props.documents.filter(Boolean).map((doc) => {
+    doc.notes = (props.notes ?? [])
+      .filter((note) => note.type === 'source' && note.target === doc.id)
+      .map((n) => toRaw(n)); // prevent "proxy object could not be cloned error"
+    return doc;
+  });
+});
 const sorter = ref({ key: null, ascending: false });
 const openMenuId = ref(null);
 const headerFields = ref([

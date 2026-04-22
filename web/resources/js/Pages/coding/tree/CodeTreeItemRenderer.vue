@@ -272,29 +272,31 @@ const { range } = useRange();
         </Button>
 
         <!-- show notes -->
-          <span :title="!code.notes?.length ? 'No notes linked to this code.' : ''">
-        <Button
-          :title="
-            showNotes
-              ? 'Hide notes linked this code'
-              : 'Show notes linked to this code'
-          "
-          variant="ghost"
-          size="sm"
-          :class="
-            cn(
-              'px-1! py-1! my-0! w-8 text-xs hover:text-secondary',
-              showNotes && 'text-secondary'
-            )
-          "
-          :disabled="!code.notes?.length"
-          @click.prevent="showNotes ? closeNotes() : openNotes()"
+        <span
+          :title="!code.notes?.length ? 'No notes linked to this code.' : ''"
         >
-          <ChatBubbleLeftEllipsisIcon class="w-4 -h-4" />
-          <span class="text-xs">{{
-            open ? (code.notes?.length ?? 0) : notesCount
-          }}</span>
-        </Button>
+          <Button
+            :title="
+              showNotes
+                ? 'Hide notes linked this code'
+                : 'Show notes linked to this code'
+            "
+            variant="ghost"
+            size="sm"
+            :class="
+              cn(
+                'px-1! py-1! my-0! w-8 text-xs hover:text-secondary',
+                showNotes && 'text-secondary'
+              )
+            "
+            :disabled="!code.notes?.length"
+            @click.prevent="showNotes ? closeNotes() : openNotes()"
+          >
+            <ChatBubbleLeftEllipsisIcon class="w-4 -h-4" />
+            <span class="text-xs">{{
+              open ? (code.notes?.length ?? 0) : notesCount
+            }}</span>
+          </Button>
         </span>
         <!-- visibility -->
         <button
@@ -435,7 +437,8 @@ const { range } = useRange();
         >
           <NoteList
             :notes="sortedNotes"
-            :code="code"
+            :target="code"
+            type="code"
             :color="code.color ?? 'rgba(0,0,0,1)'"
           />
         </div>

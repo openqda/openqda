@@ -1,5 +1,5 @@
 import { usePage } from '@inertiajs/vue3';
-import { reactive, toRefs } from 'vue';
+import { computed, reactive, toRefs } from 'vue';
 import { request } from '../../utils/http/BackendRequest.js';
 import { Notes } from './NoteStore.js';
 
@@ -19,6 +19,10 @@ export const useNotes = () => {
   const initNotes = () => {
     return noteStore.init(notes, allUsers);
   };
+
+  const allNotes = computed(() => {
+    return noteStore.all();
+  });
 
   const onError = ({ response, error, message }) => {
     if (response.status >= 400 || error) {
@@ -76,6 +80,7 @@ export const useNotes = () => {
     if (idx > -1) {
       target.notes[idx] = response.data.note;
     }
+    noteStore.update(data.id, response.data.note);
     return { response, error };
   };
 
@@ -86,24 +91,19 @@ export const useNotes = () => {
       type: 'DELETE',
     });
 
-    if (response.status >= 400 || error) {
-      throw new Error(
-        `${response.status} Failed to create note. ${response.error.message}`
-      );
-    } else {
-      target.notes = target.notes ?? [];
-      target.notes.splice(
-        target.notes.findIndex((n) => n.id === noteId),
-        1
-      );
-      noteStore.remove(noteId);
-    }
+    onError({ response, error, message: 'Failed to delete notes.' });
+    target.notes = target.notes ?? [];
+    target.notes.splice(
+      target.notes.findIndex((n) => n.id === noteId),
+      1
+    );
+    noteStore.remove(noteId);
 
     return { error, response };
   };
 
   return {
-    notes,
+    notes: allNotes,
     loading,
     initNotes,
     createNoteSchema,
@@ -115,35 +115,43 @@ export const useNotes = () => {
   };
 };
 
-const createNoteSchema = ({ target, type, scope }) => {
+const createNoteSchema = ({ target, type, scope, labels }) => {
+  const showLabels = labels !== false;
   return {
     type: {
       type: String,
       formType: 'hidden',
       label: null,
+      optional: false,
       defaultValue: type,
     },
     target: {
       type: String,
       formType: 'hidden',
       label: null,
+      optional: false,
       defaultValue: target,
     },
     scope: {
       type: String,
       label: null,
       formType: 'hidden',
+      optional: true,
       defaultValue: scope,
     },
     content: {
       type: String,
+      label: showLabels ? undefined : null,
       formType: 'textarea',
+      autofocus: true,
+      optional: false,
       placeholder: '...write your note here',
     },
     visibility: {
       type: Number,
-      label: 'Visibility of this note',
+      label: showLabels ? 'Visibility of this note' : null,
       formType: 'select',
+      optional: false,
       defaultValue: 0,
       options: [
         {
@@ -159,7 +167,8 @@ const createNoteSchema = ({ target, type, scope }) => {
   };
 };
 
-const editNoteSchema = ({ id, content, visibility }) => {
+const editNoteSchema = ({ id, content, visibility, labels }) => {
+  const showLabels = labels !== false;
   return {
     id: {
       type: String,
@@ -170,13 +179,14 @@ const editNoteSchema = ({ id, content, visibility }) => {
     content: {
       type: String,
       formType: 'textarea',
+      label: showLabels ? undefined : null,
       defaultValue: content,
       autofocus: true,
       placeholder: '...write your note here',
     },
     visibility: {
       type: Number,
-      label: 'Visibility of this note',
+      label: showLabels ? 'Visibility of this note' : null,
       formType: 'select',
       defaultValue: visibility,
       options: [

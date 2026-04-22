@@ -1,5 +1,6 @@
 import { FormElements } from './FormElements.js';
 import { markRaw } from 'vue';
+import { isDefined } from '@vueuse/core';
 
 /**
  * Transforms a given schema into a normalized
@@ -34,7 +35,13 @@ export const transformSchema = (value, name) => {
   };
 };
 
-const getFormType = ({ formType, type, options, allowedValues }) => {
+// =====================================================
+// INTERNAL
+// -----------------------------------------------------
+// the following functions are only exported for tests
+// =====================================================
+
+export const getFormType = ({ formType, type, options, allowedValues }) => {
   if (formType) return formType;
 
   if (options || allowedValues) {
@@ -55,7 +62,7 @@ const getFormType = ({ formType, type, options, allowedValues }) => {
   }
 };
 
-const getLabel = ({ label, name }) => {
+export const getLabel = ({ label, name }) => {
   if (label || label === null) return label;
   return (
     name
@@ -70,7 +77,7 @@ const getLabel = ({ label, name }) => {
   );
 };
 
-const getOptions = ({ formType, options, allowedValues }) => {
+export const getOptions = ({ formType, options, allowedValues }) => {
   if (options) return options;
   if (allowedValues) {
     return;
@@ -90,6 +97,43 @@ const getOptions = ({ formType, options, allowedValues }) => {
   }
 };
 
-const getValidator = () => {
-  return () => ({ valid: true, errors: [] });
+export const getValidator = (schema) => {
+  return (key, value) => {
+    const validation = { key, value, valid: true, errors: [] };
+    const addError = ({ message }) => {
+      validation.valid = false;
+      validation.errors.push(message);
+    };
+    if (!schema) {
+      addError({ message: `${key} is not defined in schema` });
+      return validation;
+    }
+
+    const { label } = schema;
+    const name = label || key;
+
+    if (schema.required && !requiredValueDefined(value)) {
+      addError({ message: `${name} is required` });
+    }
+
+    return validation;
+  };
+};
+
+export const requiredValueDefined = (value) => {
+  if (!isDefined(value)) {
+    return false;
+  }
+  if (Array.isArray(value)) {
+    return value.length > 0 && value.every(isDefined);
+  }
+
+  switch (typeof value) {
+    case 'string':
+      return value?.length > 0;
+    case 'number':
+      return !Number.isNaN(value) && Number.isFinite(value);
+    default:
+      return true;
+  }
 };

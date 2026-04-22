@@ -31,6 +31,7 @@ import { useFiles } from './useFiles.js';
 import { useConversion } from '../../live/useConversion.js';
 import { attemptAsync } from '../notification/attemptAsync.js';
 import { useDebug } from '../../utils/useDebug.js';
+import { useNotes } from '../../domain/notes/useNotes.js';
 
 /*---------------------------------------------------------------------------*/
 // DATA / PROPS
@@ -43,6 +44,7 @@ const props = defineProps({
   projectId: String,
 });
 
+const { notes } = useNotes();
 const { projectId } = props;
 const allSources = inject('sources');
 const documents = reactive(allSources);
@@ -359,6 +361,7 @@ async function fetchAndRenderDocument(document) {
     :fixed="true"
     :focus-on-hover="true"
     :documents="documents"
+    :notes="notes"
     :actions="[
       {
         id: 'retry-atrain',

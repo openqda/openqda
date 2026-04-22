@@ -124,9 +124,9 @@ class CodingController extends Controller
         // for selections and source only load those, which are related to the source
         $selectionIds = $source ? $source->selections()->pluck('id')->toArray() : [];
         $notes = Note::where('project_id', $project->id)
-            ->whereIn('type', ['project', 'code', 'selection'])
             ->where(function ($query) use ($selectionIds) {
-                $query->whereIn('target', $selectionIds);
+                $query->whereIn('type', ['project', 'code'])
+                    ->orWhereIn('target', $selectionIds);
             })
             ->get();
 

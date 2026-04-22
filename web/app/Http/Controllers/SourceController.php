@@ -13,6 +13,7 @@ use App\Http\Requests\TranscribeSourceRequest;
 use App\Http\Requests\UpdateSourceRequest;
 use App\Jobs\ConvertFileToHtmlJob;
 use App\Jobs\TranscriptionJob;
+use App\Models\Note;
 use App\Models\Project;
 use App\Models\Source;
 use App\Models\SourceStatus;
@@ -47,9 +48,16 @@ class SourceController extends Controller
      */
     public function index(IndexSourceRequest $request, $projectId)
     {
+        // load my own notes, plus those from team members,
+        // which were explicitly made visible
+        $userId = Auth::id();
+        $notes = Note::where('project_id', $projectId)
+            ->whereIn('type', ['project', 'source'])
+            ->get();
 
         return Inertia::render('PreparationPage', [
             'sources' => $this->fetchAndTransformSources($projectId),
+            'notes' => $notes,
             'projectId' => $projectId,
         ]);
     }
