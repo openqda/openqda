@@ -1,11 +1,11 @@
 <template>
   <!-- editor toolbar -->
   <div
-    class="block xl:flex xl:items-center xl:justify-between sticky top-0 py-0 md:py-2 z-40 bg-surface mx-0 md:mx-2"
+    class="block 2xl:flex 2xl:items-center 2xl:justify-between sticky top-0 py-0 md:py-2 z-40 bg-surface mx-0 md:mx-2"
   >
     <div
       id="toolbar"
-      class="rounded-none mb-3 xl:mb-0 lg:rounded-md border-2 bg-surface z-150 shadow-lg border-foreground/20 py-0 md:py-2 px-4 inline-flex text-foreground/60! text-center"
+      class="rounded-none mb-3 2xl:mb-0 lg:rounded-md border-0 bg-surface z-150 shadow-lg border-foreground/20 py-0 md:py-2 px-4 inline-flex text-foreground/60! text-center"
     >
       <EditorToolbar :useViewZoom="useViewZoom" @update:zoom="onToolbarZoom" />
     </div>

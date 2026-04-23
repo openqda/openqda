@@ -17,12 +17,14 @@ export const transformSchema = (value, name) => {
   }
   schema.name = name;
 
-  // every field is required by default unless
+  // every field is optional by default unless
   // explicitly made optional by intent
-  schema.required = true;
+  let required = true;
   if (schema.optional === true || schema.required === false) {
-    schema.required = false;
+    required = false;
   }
+
+  schema.required = required;
 
   delete schema.optional;
   schema.formType = getFormType(schema);

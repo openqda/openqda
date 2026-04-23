@@ -115,7 +115,7 @@ const onClose = () => {
 };
 const onDeleteSelection = async () => {
   await attemptAsync(
-    () => deleteSelection(deleteTarget),
+    () => deleteSelection(deleteTarget.value),
     'Selection successfully deleted'
   );
   close();
@@ -248,7 +248,7 @@ const createInVivo = () => {
     </div>
 
     <div v-if="manageNotes">
-      <div class="font-semibold">Manage noes for this selection</div>
+      <div class="font-semibold">Manage notes for this selection</div>
       <NoteList
         :notes="manageNotes.notes"
         :target="manageNotes"

@@ -60,9 +60,7 @@
             <template #actions>
               <div class="">
                 <Button
-                  v-if="
-                    editorSourceRef.CanUnlock && !editorSourceRef.hasSelections
-                  "
+                  v-if="editorSourceRef.CanUnlock"
                   variant="outline-secondary"
                   :icon="LockOpenIcon"
                   @click="
@@ -116,9 +114,11 @@
               <Button
                 v-if="editorSourceRef"
                 @click="showOptions = true"
-                type="primary"
-                >Notes</Button
+                :title="`Manage notes for source '${editorSourceRef?.name}'`"
+                variant="outline"
               >
+                <ChatBubbleLeftEllipsisIcon class="w-4 h-4" />
+              </Button>
             </template>
           </PreparationsEditor>
           <SideOverlay
@@ -171,6 +171,7 @@ import { useNotes } from '../domain/notes/useNotes.js';
 import SideOverlay from '../Components/layout/SideOverlay.vue';
 import NoteList from './coding/tree/NoteList.vue';
 import Headline3 from '../Components/layout/Headline3.vue';
+import { ChatBubbleLeftEllipsisIcon } from '@heroicons/vue/24/outline/index.js';
 
 const showOptions = ref(false);
 const editorSourceRef = ref({

@@ -34,23 +34,6 @@ export const useNotes = () => {
     }
   };
 
-  const fetchNotes = async ({ types }) => {
-    loading.value = true;
-    let body = undefined;
-    if (types) {
-      body = { types };
-    }
-
-    const { error, response } = await request({
-      url: `/projects/${projectId}/notes`,
-      type: 'GET',
-      body,
-    });
-
-    onError({ response, error, message: 'Failed to load notes.' });
-    return { error, response };
-  };
-
   const createNote = async (data, target) => {
     const payload = {
       ...data,
@@ -95,12 +78,13 @@ export const useNotes = () => {
 
     onError({ response, error, message: 'Failed to delete notes.' });
     target.notes = target.notes ?? [];
-    target.notes.splice(
-      target.notes.findIndex((n) => n.id === noteId),
-      1
-    );
-    noteStore.remove(noteId);
 
+    const index = target.notes.findIndex((n) => n.id === noteId);
+    if (index > -1) {
+      target.notes.splice(index, 1);
+    }
+
+    noteStore.remove(noteId);
     return { error, response };
   };
 
@@ -110,7 +94,6 @@ export const useNotes = () => {
     initNotes,
     createNoteSchema,
     editNoteSchema,
-    fetchNotes,
     createNote,
     updateNote,
     deleteNote,

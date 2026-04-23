@@ -203,7 +203,7 @@ const resolveText = variantAuthority(textStyle);
               onSubmit({
                 data,
                 fn: updateNote,
-                message: 'Note successfully created',
+                message: 'Note successfully updated',
               })
           "
           @cancel="action = 'view'"

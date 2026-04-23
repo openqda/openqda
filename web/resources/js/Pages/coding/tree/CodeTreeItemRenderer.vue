@@ -64,9 +64,8 @@ const toggle = () => {
 // TEXTS (SELECTIONS)
 //------------------------------------------------------------------------
 const showTexts = ref(false);
-const textCount = ref(0);
 const textSelectionsCount = (code) => {
-  let count = code.text?.length ?? 0;
+  let count = code?.text?.length ?? 0;
   if (code.children?.length) {
     code.children.forEach((child) => {
       count += textSelectionsCount(child);
@@ -75,7 +74,7 @@ const textSelectionsCount = (code) => {
 
   return count;
 };
-textCount.value = computed(() => {
+const textCount = computed(() => {
   return textSelectionsCount(props.code);
 });
 const openTexts = () => {
@@ -98,9 +97,8 @@ const sortedTexts = computed(() => {
 // NOTES (Memos)
 //------------------------------------------------------------------------
 const showNotes = ref(false);
-const notesCount = ref(0);
 const textNotesCount = (code) => {
-  let count = code.notes?.length ?? 0;
+  let count = code?.notes?.length ?? 0;
   if (code.children?.length) {
     code.children.forEach((child) => {
       count += textNotesCount(child);
@@ -109,7 +107,7 @@ const textNotesCount = (code) => {
 
   return count;
 };
-notesCount.value = computed(() => {
+const notesCount = computed(() => {
   return textNotesCount(props.code);
 });
 const openNotes = () => {
@@ -173,7 +171,7 @@ const openCreateSubcodeDialog = (parent) => {
 };
 
 //------------------------------------------------------------------------
-// CRATE NOTE
+// CREATE NOTE
 //------------------------------------------------------------------------
 const createNewNoteSchema = ref();
 const openCreateNoteDialog = (code) => {
@@ -265,7 +263,7 @@ const { range } = useRange();
           :disabled="!code.text?.length"
           @click.prevent="showTexts ? closeTexts() : openTexts()"
         >
-          <BarsArrowDownIcon class="w-4 -h-4" />
+          <BarsArrowDownIcon class="w-4 h-4" />
           <span class="text-xs">{{
             open ? (code.text?.length ?? 0) : textCount
           }}</span>
@@ -292,7 +290,7 @@ const { range } = useRange();
             :disabled="!code.notes?.length"
             @click.prevent="showNotes ? closeNotes() : openNotes()"
           >
-            <ChatBubbleLeftEllipsisIcon class="w-4 -h-4" />
+            <ChatBubbleLeftEllipsisIcon class="w-4 h-4" />
             <span class="text-xs">{{
               open ? (code.notes?.length ?? 0) : notesCount
             }}</span>

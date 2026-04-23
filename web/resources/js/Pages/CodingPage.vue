@@ -93,9 +93,11 @@
             <Button
               v-if="props.source"
               @click="showSourceNotes = true"
-              type="primary"
-              >Notes</Button
+              :title="`Manage notes for source '${props.source?.name}'`"
+              variant="outline"
             >
+              <ChatBubbleLeftEllipsisIcon class="w-4 h-4" />
+            </Button>
           </template>
         </CodingEditor>
         <SideOverlay
@@ -139,6 +141,7 @@
 
 <script setup>
 import { PlusIcon } from '@heroicons/vue/24/solid';
+import { ChatBubbleLeftEllipsisIcon } from '@heroicons/vue/24/outline';
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import CodeTree from './coding/tree/CodeTree.vue';

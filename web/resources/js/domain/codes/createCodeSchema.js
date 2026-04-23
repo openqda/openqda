@@ -17,6 +17,7 @@ export const createCodeSchema = ({
     description: {
       type: String,
       placeholder: 'Code description, optional',
+      optional: true,
       formType: 'textarea',
       defaultValue: description,
     },

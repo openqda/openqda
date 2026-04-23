@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import InputError from './InputError.vue';
 import InputLabel from './InputLabel.vue';
 import { cn } from '../utils/css/cn.js';
@@ -27,16 +27,17 @@ const props = defineProps({
 defineEmits(['update:modelValue']);
 
 const input = ref(null);
-const errors = ref([]);
 const value = ref(props.value ?? props.defaultValue ?? '');
+const errors = computed(() => {
+  return props.validation?.valid === false && props.validation?.errors?.length
+    ? props.validation.errors
+    : [];
+});
+
 onMounted(() => {
   if (input.value.hasAttribute('autofocus')) {
     input.value.focus();
   }
-  errors.value =
-    props.validation?.valid === false && props.validation?.errors?.length
-      ? props.validation.errors
-      : [];
 });
 
 defineExpose({ focus: () => input.value.focus() });
