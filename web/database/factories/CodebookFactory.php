@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Codebook;
 use App\Models\Project;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CodebookFactory extends Factory
@@ -21,6 +22,7 @@ class CodebookFactory extends Factory
             'name' => $this->faker->word,
             'description' => $this->faker->sentence,
             'project_id' => Project::factory(),
+            'creating_user_id' => User::factory(),
         ];
     }
 }

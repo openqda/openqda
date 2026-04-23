@@ -17,13 +17,17 @@ class NoteFactory extends Factory
             'content' => fake()->paragraph(),
             'project_id' => Project::factory(),
             'target' => fake()->uuid(),
-            'visibility' => fake()->randomElement([0, 1, 2]),
-            'type' => fake()->randomElement(['memo', 'comment', 'annotation']),
-            'scope' => fake()->randomElement([
+            'visibility' => fake()->randomElement([0, 1]),
+            'type' => fake()->randomElement([
                 Note::SCOPE_SELECTION,
                 Note::SCOPE_SOURCE,
                 Note::SCOPE_CODE,
                 Note::SCOPE_PROJECT,
+            ]),
+            'scope' => fake()->randomElement([
+                '100:1250',
+                '',
+                '1:1',
             ]),
             'creating_user_id' => User::factory(),
         ];
