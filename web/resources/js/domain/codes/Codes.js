@@ -139,12 +139,16 @@ Codes.create = async ({
     code.id = response.data.id;
     if (parentId) {
       const parent = store.entry(parentId);
+      // push the code to the reactive parent before
+      // it is converted to raw or we loose the reactive update
+      // reflected in the code tree
+      parent.children.push(code);
+
       // we use toRaw here, because
       // we will otherwise get the "cannot clone proxy object"
       // error when we try to navigate away
       code.parent = parent ? toRaw(parent) : null;
       code.active = code.parent.active;
-      code.parent.children.push(code);
     }
 
     store.add(code);

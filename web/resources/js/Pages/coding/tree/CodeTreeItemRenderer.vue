@@ -170,6 +170,10 @@ const openCreateSubcodeDialog = (parent) => {
   createNewCodeSchema.value = schema;
 };
 
+const createCodeHandler = async (data) => {
+  return attemptAsync(() => createCode(data), 'Subcode successfully created');
+};
+
 //------------------------------------------------------------------------
 // CREATE NOTE
 //------------------------------------------------------------------------
@@ -343,7 +347,7 @@ const { range } = useRange();
               <FormDialog
                 :schema="createNewCodeSchema"
                 :title="`Create a subcode for ${code.name}`"
-                :submit="createCode"
+                :submit="createCodeHandler"
               >
                 <template #trigger="{ trigger }">
                   <div
