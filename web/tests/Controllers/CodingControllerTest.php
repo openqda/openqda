@@ -526,50 +526,52 @@ class CodingControllerTest extends TestCase
         );
     }
 
-    public function test_show_coding_page_with_team_members()
-    {
-        $user = User::factory()->create();
-        $team = Team::factory()->create(['user_id' => $user->id]);
-        $project = Project::factory()->create([
-            'creating_user_id' => $user->id,
-            'team_id' => $team->id,
-        ]);
-        $source = Source::factory()->create(['project_id' => $project->id]);
-
-        // Add team members
-        $member1 = User::factory()->create();
-        $member2 = User::factory()->create();
-        $team->users()->attach($member1, ['role' => 'editor']);
-        $team->users()->attach($member2, ['role' => 'editor']);
-
-        // Lock the source
-        Variable::create([
-            'source_id' => $source->id,
-            'name' => 'isLocked',
-            'type_of_variable' => 'boolean',
-            'boolean_value' => true,
-        ]);
-
-        // Create converted file
-        $htmlPath = $this->testFilePath.'/test.html';
-        file_put_contents($htmlPath, '<p>Test content</p>');
-
-        SourceStatus::create([
-            'source_id' => $source->id,
-            'status' => 'converted:html',
-            'path' => $htmlPath,
-        ]);
-
-        $response = $this->actingAs($user)->get(route('coding.show', ['project' => $project->id]));
-
-        $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => $page
-            ->component('CodingPage')
-            ->has('teamMembers', 2)
-            ->where('teamMembers.0.id', $member1->id)
-            ->where('teamMembers.1.id', $member2->id)
-        );
-    }
+    //     XXX: this is no longer applicable, as we have moved the team logic to
+    //     the inertia request
+    //     public function test_show_coding_page_with_team_members()
+    //     {
+    //         $user = User::factory()->create();
+    //         $team = Team::factory()->create(['user_id' => $user->id]);
+    //         $project = Project::factory()->create([
+    //             'creating_user_id' => $user->id,
+    //             'team_id' => $team->id,
+    //         ]);
+    //         $source = Source::factory()->create(['project_id' => $project->id]);
+    //
+    //         // Add team members
+    //         $member1 = User::factory()->create();
+    //         $member2 = User::factory()->create();
+    //         $team->users()->attach($member1, ['role' => 'editor']);
+    //         $team->users()->attach($member2, ['role' => 'editor']);
+    //
+    //         // Lock the source
+    //         Variable::create([
+    //             'source_id' => $source->id,
+    //             'name' => 'isLocked',
+    //             'type_of_variable' => 'boolean',
+    //             'boolean_value' => true,
+    //         ]);
+    //
+    //         // Create converted file
+    //         $htmlPath = $this->testFilePath.'/test.html';
+    //         file_put_contents($htmlPath, '<p>Test content</p>');
+    //
+    //         SourceStatus::create([
+    //             'source_id' => $source->id,
+    //             'status' => 'converted:html',
+    //             'path' => $htmlPath,
+    //         ]);
+    //
+    //         $response = $this->actingAs($user)->get(route('coding.show', ['project' => $project->id]));
+    //
+    //         $response->assertStatus(200);
+    //         $response->assertInertia(fn ($page) => $page
+    //             ->component('CodingPage')
+    //             ->has('teamMembers', 2)
+    //             ->where('teamMembers.0.id', $member1->id)
+    //             ->where('teamMembers.1.id', $member2->id)
+    //         );
+    //     }
 
     public function test_show_coding_page_without_team()
     {
