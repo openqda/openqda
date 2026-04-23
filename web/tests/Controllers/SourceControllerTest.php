@@ -6,6 +6,7 @@ use App\Http\Controllers\SourceController;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Jobs\ConvertFileToHtmlJob;
 use App\Jobs\TranscriptionJob;
+use App\Models\Note;
 use App\Models\Project;
 use App\Models\Source;
 use App\Models\SourceStatus;
@@ -762,6 +763,77 @@ class SourceControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson(['message' => 'Conversion has finished', 'status' => 'finished']);
+    }
+
+    // -------------------------------------------------------------------------
+    // Notes integration
+    // -------------------------------------------------------------------------
+
+    public function test_index_includes_project_and_source_notes_visible_to_all(): void
+    {
+        $other = User::factory()->create();
+        $note = Note::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $other->id,
+            'type' => 'project',
+            'scope' => Note::SCOPE_PROJECT,
+            'target' => (string) $this->project->id,
+            'visibility' => 1,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->get(route('source.index', ['project' => $this->project->id]));
+
+        $response->assertStatus(200)
+            ->assertInertia(fn ($page) => $page
+                ->component('PreparationPage')
+                ->has('notes', 1)
+                ->where('notes.0.id', $note->id)
+            );
+    }
+
+    public function test_index_includes_own_private_notes(): void
+    {
+        $note = Note::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+            'type' => 'source',
+            'scope' => Note::SCOPE_SOURCE,
+            'target' => '1',
+            'visibility' => 0,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->get(route('source.index', ['project' => $this->project->id]));
+
+        $response->assertStatus(200)
+            ->assertInertia(fn ($page) => $page
+                ->component('PreparationPage')
+                ->has('notes', 1)
+                ->where('notes.0.id', $note->id)
+            );
+    }
+
+    public function test_index_excludes_private_notes_from_others(): void
+    {
+        $other = User::factory()->create();
+        Note::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $other->id,
+            'type' => 'project',
+            'scope' => Note::SCOPE_PROJECT,
+            'target' => (string) $this->project->id,
+            'visibility' => 0,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->get(route('source.index', ['project' => $this->project->id]));
+
+        $response->assertStatus(200)
+            ->assertInertia(fn ($page) => $page
+                ->component('PreparationPage')
+                ->has('notes', 0)
+            );
     }
 
     protected function tearDown(): void
