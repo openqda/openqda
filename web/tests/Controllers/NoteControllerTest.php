@@ -143,7 +143,24 @@ class NoteControllerTest extends TestCase
             'visibility' => 0,
         ]);
 
+        // NotePolicy::view: owner is a project member but not the note creator, and visibility = 0 → 403.
         $this->actingAs($owner)
+            ->getJson(route('notes.show', [$project, $note]))
+            ->assertForbidden();
+    }
+
+    public function test_show_returns_403_for_non_project_member(): void
+    {
+        $owner = User::factory()->create();
+        $outsider = User::factory()->create();
+        $project = Project::factory()->create(['creating_user_id' => $owner->id]);
+        $note = Note::factory()->create([
+            'project_id' => $project->id,
+            'creating_user_id' => $owner->id,
+            'visibility' => 1,
+        ]);
+
+        $this->actingAs($outsider)
             ->getJson(route('notes.show', [$project, $note]))
             ->assertForbidden();
     }
@@ -265,10 +282,7 @@ class NoteControllerTest extends TestCase
             'creating_user_id' => $owner->id,
         ]);
 
-        // other is not the creator, but we need them to pass the policy gate;
-        // UpdateNoteRequest uses Gate::allows('update', $note) which checks creating_user_id,
-        // so acting as 'other' will hit the 403 in the controller before the Gate check
-        // since $note->creating_user_id !== Auth::id()
+        // NotePolicy::update requires the user to be both a project member AND the note creator.
         $this->actingAs($other)
             ->patchJson(route('notes.update', [$project, $note]), ['content' => 'X'])
             ->assertForbidden();
