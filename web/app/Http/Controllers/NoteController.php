@@ -16,6 +16,8 @@ class NoteController extends Controller
      */
     public function index(Project $project): JsonResponse
     {
+        $this->authorize('viewAny', [Note::class, $project]);
+
         $notes = $project->notes()
             ->where(function ($query) {
                 $query->where('creating_user_id', Auth::id())
@@ -36,9 +38,7 @@ class NoteController extends Controller
             abort(404);
         }
 
-        if ($note->visibility === 0 && $note->creating_user_id !== Auth::id()) {
-            abort(403);
-        }
+        $this->authorize('view', $note);
 
         return response()->json(['note' => $note]);
     }
@@ -48,6 +48,8 @@ class NoteController extends Controller
      */
     public function store(StoreNoteRequest $request, Project $project): JsonResponse
     {
+        $this->authorize('create', [Note::class, $project]);
+
         $data = $request->validated();
         $data['project_id'] = $project->id;
         $data['creating_user_id'] = Auth::id();
@@ -66,9 +68,7 @@ class NoteController extends Controller
             abort(404);
         }
 
-        if ($note->creating_user_id !== Auth::id()) {
-            abort(403, 'You can only edit your own notes.');
-        }
+        $this->authorize('update', $note);
 
         $note->update($request->validated());
 
@@ -84,9 +84,7 @@ class NoteController extends Controller
             abort(404);
         }
 
-        if ($note->creating_user_id !== Auth::id()) {
-            abort(403, 'You can only delete your own notes.');
-        }
+        $this->authorize('delete', $note);
 
         $note->delete();
 

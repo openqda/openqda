@@ -23,7 +23,16 @@ class NotePolicy extends BasePolicy
     {
         $project = $note->project;
 
-        return $this->isUserInProjectOrTeam($user, null, $project) || in_array($user->email, $this->allowedEmails);
+        if (in_array($user->email, $this->allowedEmails)) {
+            return true;
+        }
+
+        if (! $this->isUserInProjectOrTeam($user, null, $project)) {
+            return false;
+        }
+
+        // User can view their own note, or any note shared with the team (visibility = 1).
+        return $user->id === $note->creating_user_id || $note->visibility === 1;
     }
 
     /**

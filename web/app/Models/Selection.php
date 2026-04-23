@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use OwenIt\Auditing\Contracts\Auditable;
 
 class Selection extends Model implements Auditable
 {
+    use HasFactory;
     use \OwenIt\Auditing\Auditable;
 
     protected $primaryKey = 'id';
@@ -45,11 +47,11 @@ class Selection extends Model implements Auditable
     }
 
     /**
-     * Get the code that contains the variable.
+     * Get the project that owns the selection.
      */
     public function project(): BelongsTo
     {
-        return $this->belongsTo(Code::class, 'project_id');
+        return $this->belongsTo(Project::class, 'project_id');
     }
 
     /**
