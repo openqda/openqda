@@ -2,7 +2,10 @@
 
 namespace Tests\Controllers;
 
+use App\Models\Codebook;
 use App\Models\Project;
+use App\Models\Source;
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -126,7 +129,7 @@ class ProjectControllerTest extends TestCase
     public function test_show_includes_sources()
     {
         $project = Project::factory()->create(['creating_user_id' => $this->user->id]);
-        \App\Models\Source::factory()->create([
+        Source::factory()->create([
             'project_id' => $project->id,
             'creating_user_id' => $this->user->id,
         ]);
@@ -143,7 +146,7 @@ class ProjectControllerTest extends TestCase
     public function test_show_includes_codebooks()
     {
         $project = Project::factory()->create(['creating_user_id' => $this->user->id]);
-        \App\Models\Codebook::factory()->create([
+        Codebook::factory()->create([
             'project_id' => $project->id,
             'creating_user_id' => $this->user->id,
         ]);
@@ -175,7 +178,7 @@ class ProjectControllerTest extends TestCase
 
     public function test_get_team_data_with_team()
     {
-        $team = \App\Models\Team::factory()->create(['user_id' => $this->user->id]);
+        $team = Team::factory()->create(['user_id' => $this->user->id]);
         $project = Project::factory()->create([
             'creating_user_id' => $this->user->id,
             'team_id' => $team->id,
@@ -198,7 +201,7 @@ class ProjectControllerTest extends TestCase
 
     public function test_get_team_data_with_team_members()
     {
-        $team = \App\Models\Team::factory()->create(['user_id' => $this->user->id]);
+        $team = Team::factory()->create(['user_id' => $this->user->id]);
         $member = User::factory()->create();
         $team->users()->attach($member, ['role' => 'editor']);
 
@@ -231,7 +234,7 @@ class ProjectControllerTest extends TestCase
 
     public function test_index_shows_collaborative_projects()
     {
-        $team = \App\Models\Team::factory()->create(['user_id' => $this->user->id]);
+        $team = Team::factory()->create(['user_id' => $this->user->id]);
         $project = Project::factory()->create([
             'creating_user_id' => $this->user->id,
             'team_id' => $team->id,

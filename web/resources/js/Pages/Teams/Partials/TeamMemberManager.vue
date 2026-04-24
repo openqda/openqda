@@ -165,7 +165,9 @@ onMounted(() => {
 
       <div class="flex items-center mt-5">
         <ProfileImage
-          class="w-12 h-12 rounded-full object-cover"
+          class="w-12 h-12 text-lg rounded-full object-cover"
+          size="compact"
+          :name="team.owner.name"
           :src="team.owner.profile_photo_url"
           :email="team.owner.email"
           :alt="team.owner.name"
@@ -201,9 +203,12 @@ onMounted(() => {
               class="block md:flex items-center justify-between"
             >
               <div class="flex items-center">
-                <img
-                  class="w-8 h-8 rounded-full object-cover"
+                <ProfileImage
+                  class="w-12 h-12 text-lg rounded-full object-cover"
+                  size="compact"
+                  :name="user.name"
                   :src="user.profile_photo_url"
+                  :email="user.email"
                   :alt="user.name"
                 />
                 <div class="ml-4 leading-tight">

@@ -44,6 +44,7 @@
             <circle cx="9" cy="9" r="6"></circle>
           </svg>
         </Button>
+        <slot name="actions" />
       </div>
     </div>
     <!-- editor content -->
@@ -157,7 +158,7 @@ let quillInstance;
 onMounted(() => {
   quillInstance = new Quill('#editor', {
     theme: 'snow',
-    formats: formats.concat(['id', 'title', 'class']),
+    formats: formats.concat(['id', 'title', 'class', 'notes']),
     placeholder: 'Start writing or paste content...',
     modules: {
       syntax: false,
@@ -187,6 +188,7 @@ onMounted(() => {
     setRange(data, text);
   });
   const hl = quillInstance.getModule('highlight');
+  const ln = quillInstance.getModule('lineNumber');
   window.quill = quillInstance;
 
   const disposeSelectionObserver = observe('store/selections', {
@@ -215,6 +217,32 @@ onMounted(() => {
   });
 
   disposables.add(disposeSelectionObserver);
+
+  // if we observe notes, we can trigger a re-render of the editor
+  // when notes are added or removed which is necessary to update the note markers in the editor
+  // and the line numbers
+  const selectionsByNotes = (notes) => {
+    const linkedSelections = [];
+    notes.forEach((note) => {
+      if (note.type === 'selection') {
+        const linked = selections.value.filter((sel) => sel.id === note.target);
+        linkedSelections.push(...linked);
+      }
+    });
+    return linkedSelections;
+  };
+  const notesObserver = observe('store/notes', {
+    added: (docs) => {
+      hl.add(selectionsByNotes(docs));
+      ln._update();
+    },
+    removed: (docs) => {
+      hl.removeAll(selectionsByNotes(docs));
+      hl.add(selectionsByNotes(docs));
+      ln._update();
+    },
+  });
+  disposables.add(notesObserver);
 
   const addSelections = (entries) => {
     hl.add(entries);
@@ -395,7 +423,6 @@ const contextMenuClosed = () => {
 
 defineExpose({ editorContent });
 </script>
-
 <style scoped>
 .ql-container.ql-snow {
   line-height: 18.4667;

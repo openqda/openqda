@@ -6,6 +6,7 @@ use App\Http\Controllers\AuditsController;
 use App\Http\Controllers\CodebookCodesController;
 use App\Http\Controllers\CodebookController;
 use App\Http\Controllers\CodingController;
+use App\Http\Controllers\NoteController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SelectionController;
 use App\Http\Controllers\SettingsController;
@@ -145,6 +146,15 @@ Route::middleware([
         ->name('source.code');
     Route::post('/sources/{sourceId}/linenumbers', [SourceController::class, 'saveLineNumbers'])->name('sources.linenumbers');
     Route::post('/sources/{sourceId}/download', [SourceController::class, 'download'])->name('sources.download');
+
+    /**
+     * Notes
+     */
+    Route::get('/projects/{project}/notes', [NoteController::class, 'index'])->name('notes.index');
+    Route::post('/projects/{project}/notes', [NoteController::class, 'store'])->name('notes.store');
+    Route::get('/projects/{project}/notes/{note}', [NoteController::class, 'show'])->name('notes.show');
+    Route::patch('/projects/{project}/notes/{note}', [NoteController::class, 'update'])->name('notes.update');
+    Route::delete('/projects/{project}/notes/{note}', [NoteController::class, 'destroy'])->name('notes.destroy');
 
     /**
      * Others

@@ -3,7 +3,7 @@
     <Dialog
       as="div"
       :unmount="false"
-      class="relative z-10"
+      class="relative z-200"
       @close="
         open = false;
         emit('close');
@@ -21,14 +21,14 @@
           >
             <TransitionChild
               as="template"
-              enter="transform transition ease-in-out duration-500 sm:duration-700"
+              enter="transform transition ease-in-out duration-300 sm:duration-500"
               :enter-from="
                 props.position === 'left'
                   ? '-translate-x-full'
                   : 'translate-x-full'
               "
               enter-to="translate-x-0"
-              leave="transform transition ease-in-out duration-500 sm:duration-700"
+              leave="transform transition ease-in-out duration-300 sm:duration-500"
               leave-from="translate-x-0"
               :leave-to="
                 props.position === 'left'

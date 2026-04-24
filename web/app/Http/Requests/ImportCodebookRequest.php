@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Project;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ImportCodebookRequest extends FormRequest
@@ -12,7 +14,7 @@ class ImportCodebookRequest extends FormRequest
     public function authorize(): bool
     {
         $projectId = $this->input('project_id');
-        $project = \App\Models\Project::find($projectId);
+        $project = Project::find($projectId);
 
         // If you need to check for specific permissions, you can use Gate
         // return $project && Gate::allows('importCodebook', $project);
@@ -24,7 +26,7 @@ class ImportCodebookRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules()
     {

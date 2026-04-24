@@ -13,6 +13,7 @@ use App\Http\Requests\TranscribeSourceRequest;
 use App\Http\Requests\UpdateSourceRequest;
 use App\Jobs\ConvertFileToHtmlJob;
 use App\Jobs\TranscriptionJob;
+use App\Models\Note;
 use App\Models\Project;
 use App\Models\Source;
 use App\Models\SourceStatus;
@@ -22,6 +23,7 @@ use App\Traits\ValidatesStoragePath;
 use DB;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
@@ -46,9 +48,25 @@ class SourceController extends Controller
      */
     public function index(IndexSourceRequest $request, $projectId)
     {
+        // load my own notes, plus those from team members,
+        // which were explicitly made visible
+        $userId = Auth::id();
+        $notes = Note::where('project_id', $projectId)
+            ->whereIn('type', ['project', 'source'])
+            ->where(function ($query) use ($userId) {
+                // get visible notes from members
+                $query->where('visibility', 1)
+                      // or my own notes
+                    ->orWhere(function ($query) use ($userId) {
+                        $query->where('visibility', 0)
+                            ->where('creating_user_id', $userId);
+                    });
+            })
+            ->get();
 
         return Inertia::render('PreparationPage', [
             'sources' => $this->fetchAndTransformSources($projectId),
+            'notes' => $notes,
             'projectId' => $projectId,
         ]);
     }
@@ -210,7 +228,7 @@ class SourceController extends Controller
     }
 
     /**
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
     private function fetchAndTransformSources($projectId)
     {

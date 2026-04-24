@@ -8,6 +8,7 @@ use App\Http\Requests\StoreCodeRequest;
 use App\Http\Requests\UpdateCodeRequest;
 use App\Models\Code;
 use App\Models\Codebook;
+use App\Models\Note;
 use App\Models\Project;
 use App\Models\Source;
 use App\Traits\BuildsNestedCode;
@@ -15,6 +16,7 @@ use App\Traits\SourceExists;
 use App\Traits\ValidatesStoragePath;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class CodingController extends Controller
@@ -66,6 +68,7 @@ class CodingController extends Controller
                     'userPicture' => $source->creatingUser->profile_photo_url,
                     'date' => $source->created_at->toDateString(),
                     'selectionsCount' => $source->selections()->count(),
+                    // TODO - notes
                     'variables' => $source->transformVariables(),
                     'converted' => (bool) $converted,
                     'exists' => $exists,
@@ -83,14 +86,6 @@ class CodingController extends Controller
             ->whereIn('codebook_id', $codebooks->pluck('id'))
             ->whereNull('parent_id')
             ->get();
-
-        // collaboration
-        if ($project->team) {
-            $team = $project->team->load('users');
-            $teamMembers = $team->users;
-        } else {
-            $teamMembers = [];
-        }
 
         // Get source (either from request or latest locked one)
         $source = $request->has('source') && $request->source
@@ -118,20 +113,63 @@ class CodingController extends Controller
             $source->variables = $source->transformVariables();
         }
 
+        // loading notes for this project and codes
+        // for selections and source only load those, which are related to the source
+        $selectionIds = $source ? $source->selections()->pluck('id')->toArray() : [];
+        $userId = Auth::id();
+        $notes = Note::where('project_id', $project->id)
+            ->where(function ($query) use ($selectionIds, $userId, $sourceId) {
+                // 1. all project and code level notes...
+                $query->whereIn('type', ['project', 'code'])
+                    ->where(function ($query) use ($userId) {
+                        // 1.1. ...visible for all team members
+                        $query->where('visibility', 1)
+                              // 1.2. ...or my own notes
+                            ->orWhere(function ($query) use ($userId) {
+                                $query->where('visibility', 0)
+                                    ->where('creating_user_id', $userId);
+                            });
+                    })
+                    ->orWhere(function ($query) use ($selectionIds, $userId) {
+                        // 2. selection level notes...
+                        $query->where('type', 'selection')
+                            // 2.1. ... but only those related to the source
+                            ->whereIn('target', $selectionIds)
+                            ->where(function ($query) use ($userId) {
+                                // 2.2.. ...visible for all team members
+                                $query->where('visibility', 1)
+                                      // 2.3. ...or my own notes
+                                    ->orWhere(function ($query) use ($userId) {
+                                        $query->where('visibility', 0)
+                                            ->where('creating_user_id', $userId);
+                                    });
+                            });
+                    })
+                    ->orWhere(function ($query) use ($sourceId, $userId) {
+                        // 3. source level notes...
+                        $query->where('type', 'source')
+                            // 3.1. ... but only those related to the source
+                            ->where('target', $sourceId)
+                            ->where(function ($query) use ($userId) {
+                                // 3.2.. ...visible for all team members
+                                $query->where('visibility', 1)
+                                      // 3.3. ...or my own notes
+                                    ->orWhere(function ($query) use ($userId) {
+                                        $query->where('visibility', 0)
+                                            ->where('creating_user_id', $userId);
+                                    });
+                            });
+                    });
+            })
+            ->get();
+
         return Inertia::render('CodingPage', [
             'source' => $source,
             'sources' => $allSources,
             'codebooks' => $codebooks,
             'allCodes' => $allCodes,
             'projectId' => $projectId,
-            'teamMembers' => $teamMembers ? $teamMembers->map(function ($user) {
-                return [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'profile_photo_url' => $user->profile_photo_url,
-                ];
-            }) : [],
+            'notes' => $notes,
         ]);
     }
 

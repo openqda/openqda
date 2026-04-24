@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\SourceService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -12,7 +13,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind('App\Services\SourceService', function ($app) {
-            return new \App\Services\SourceService;
+            return new SourceService;
         });
     }
 

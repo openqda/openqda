@@ -15,6 +15,11 @@ const ClassAttributor = new Attributor('class', 'class', {
   scope: Scope.INLINE,
 });
 
+const NotesAttributor = new Attributor('notes', 'data-notes', {
+  scope: Scope.INLINE,
+});
+
+Quill.register(NotesAttributor, true);
 Quill.register(IdAttributor, true);
 Quill.register(TitleAttributor, true);
 Quill.register(ClassAttributor, true);
@@ -55,18 +60,30 @@ export class SelectionHighlightBG extends Module {
       x: e.start,
       y: e.end,
       c: e.code,
+      n: e.notes?.length ?? 0,
     }));
+
+    // all entries are split into overalapping segments, which are then highlighted according to the linked codes
+    // and where a segment might contain multiple codes,
+    // which are then highlighted with a border and a tooltip listing all linked codes
     const segments = segmentize(selected);
     segments.forEach((segment) => {
+      const notes = segment.n || 0;
+      const hasNotes = segment.n > 0;
       const activeCodes = segment.c.reduce(
         (acc, cur) => acc + (cur.active !== false ? 1 : 0),
         0
       );
       if (activeCodes > 1) {
         const format = this.quill.getFormat(segment.x, segment.y - segment.x);
-        format.class = cn(format.class, 'border border-primary');
+        format.class = cn(format.class, overlapClasses());
         format.background = 'transparent';
         format.title = `${segment.c.length} overlapping codes: ${segment.c.map((c) => c.name).join(',')} [${segment.x}:${segment.y}]. Right-click to open menu`;
+        if (hasNotes) {
+          format.class = cn(format.class, notesClass());
+          format.title = `${format.title};${notes} linked notes`;
+          format.notes = notes;
+        }
         this.quill.formatText(segment.x, segment.y - segment.x, format);
       } else {
         // XXX: there might be inactive codes in the list, so we need to search
@@ -84,30 +101,36 @@ export class SelectionHighlightBG extends Module {
           start: segment.x,
           length: segment.y - segment.x,
           active: code.active ?? true,
+          notes,
         });
       }
     });
   }
 
   /** @deprecated */
-  highlight({ id, title, color, start, length, active }, { opacity } = {}) {
+  highlight(
+    { id, title, color, start, length, active, notes },
+    { opacity } = {}
+  ) {
+    const format = this.quill.getFormat(start, length);
     if (!active) {
-      const format = this.quill.getFormat(start, length);
       delete format.title;
       delete format.id;
       format.background = 'transparent';
       format.class = clearClasses(format.class);
-      this.quill.formatText(start, length, format);
     } else {
-      const selectionTitle = `${title} [${start}:${start + length}]. Right-click to open menu`;
-      const background = changeOpacity(color, opacity);
-      const format = this.quill.getFormat(start, length);
       format.class = cn(format.class, 'my-0 py-0');
-      format.background = background;
-      format.title = selectionTitle;
+      format.background = changeOpacity(color, opacity);
+      format.title = `${title} [${start}:${start + length}]. Right-click to open menu`;
       format.id = id;
-      this.quill.formatText(start, length, format);
+      if (notes) {
+        format.class = cn(format.class, notesClass());
+        format.title = `${format.title};${notes} linked notes`;
+        format.notes = notes;
+      }
     }
+
+    this.quill.formatText(start, length, format);
   }
 
   remove({ start, end }) {
@@ -125,7 +148,11 @@ export class SelectionHighlightBG extends Module {
   }
 }
 
-const classList = 'my-0 py-0 border border-primary'.split(' ');
+const overlapClasses = () =>
+  'outline outline-offset-0 outline-1 px-0.5 outline-primary';
+const notesClass = () =>
+  'border-b-2  border-foreground cursor-vertical-text has-notes';
+const classList = `my-0 py-0 ${overlapClasses()} ${notesClass()}`.split(' ');
 const classes = new RegExp(classList.join('|'), 'gi');
 const clearClasses = (c) => {
   if (!c) return c;

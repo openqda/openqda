@@ -32,6 +32,10 @@ const props = defineProps({
     type: String,
     required: false,
   },
+  size: {
+    type: String,
+    default: 'default',
+  },
 });
 const emit = defineEmits(['cancel', 'submit']);
 const fields = ref(null);
@@ -53,9 +57,13 @@ const validateForm = (e) => {
   let isValid = true;
   data.forEach(([key, value]) => {
     const schema = fields.value.find((s) => s.data.name === key);
-    const result = schema.data.validate(value);
+    const result = schema.data.validate(key, value);
+    // result: key, value, valid, error
     validation[key] = result;
-    isValid = result.valid;
+    // if one field fails, fail form
+    if (!result.valid) {
+      isValid = false;
+    }
   });
 
   if (!isValid) {
@@ -80,20 +88,27 @@ const validateForm = (e) => {
       v-for="({ component, data }, index) in fields"
       :key="index"
       :is="component"
-      :type="data.type"
-      :label="data.label"
-      :name="data.name"
+      v-bind="data"
+      :size="props.size"
       :value="data.defaultValue"
-      :options="data.options"
+      :required="data.required"
       :validation="validationErrors[data.name]"
-      class="mb-4"
     ></component>
-    <div v-if="showSubmit !== false || showCancel !== false" class="w-100">
-      <Button variant="outline" @click="$emit('cancel')">Cancel</Button>
-      <Button type="submit" class="float-right">Submit</Button>
-    </div>
+
     <div class="block w-full text-center" v-if="submitFailed">
       <InputError message="Form could not be submitted" />
+    </div>
+
+    <div
+      v-if="showSubmit !== false || showCancel !== false"
+      class="flex items-center justify-between mt-2"
+    >
+      <Button variant="outline" :size="props.size" @click="$emit('cancel')"
+        >Cancel</Button
+      >
+      <Button type="submit" :size="props.size" class="float-right"
+        >Submit</Button
+      >
     </div>
   </form>
 </template>

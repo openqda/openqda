@@ -9,12 +9,14 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Jetstream\HasTeams;
 use Laravel\Sanctum\HasApiTokens;
+use LaravelIdea\Helper\App\Models\_IH_Project_C;
 use OwenIt\Auditing\Auditable as AuditableTrait;
 use OwenIt\Auditing\Contracts\Auditable;
 
@@ -84,7 +86,7 @@ class User extends Authenticatable implements Auditable, MustVerifyEmail
         'remember_token',
     ];
 
-    public function projects(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function projects(): HasMany
     {
         return $this->hasMany(Project::class, 'creating_user_id');
     }
@@ -98,7 +100,7 @@ class User extends Authenticatable implements Auditable, MustVerifyEmail
     /**
      * Get all projects where the user is part of the team or the creator.
      */
-    public function allRelatedProjects($withAudits = false): Collection|array|\LaravelIdea\Helper\App\Models\_IH_Project_C
+    public function allRelatedProjects($withAudits = false): Collection|array|_IH_Project_C
     {
         // Get the ids of all the teams the user belongs to
         $teamIds = $this->teams->pluck('id');
@@ -180,7 +182,7 @@ class User extends Authenticatable implements Auditable, MustVerifyEmail
         return $allAudits->sortByDesc('created_at_timestamp')->values();
     }
 
-    public function codebooks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function codebooks(): HasMany
     {
         return $this->hasMany(Codebook::class, 'creating_user_id');
     }
@@ -214,5 +216,15 @@ class User extends Authenticatable implements Auditable, MustVerifyEmail
                 'creatingUserEmail' => $codebook->creatingUser->email ?? '', // Include the creating user's email
             ];
         });
+    }
+
+    /**
+     * Overrides the default photo url which was sending requests to a foreign service.
+     *
+     * @return string
+     */
+    protected function defaultProfilePhotoUrl()
+    {
+        return '';
     }
 }

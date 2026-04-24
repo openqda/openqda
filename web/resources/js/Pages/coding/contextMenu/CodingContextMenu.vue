@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import {
-  TrashIcon,
   ArrowsRightLeftIcon,
-  XMarkIcon,
+  QueueListIcon,
+  TrashIcon,
 } from '@heroicons/vue/24/solid';
+import { ChatBubbleLeftEllipsisIcon } from '@heroicons/vue/24/outline';
 import Button from '../../../Components/interactive/Button.vue';
 import { cn } from '../../../utils/css/cn';
 import { ref, computed, watch } from 'vue';
@@ -18,6 +19,8 @@ import { whitespace } from '../../../utils/regex';
 import { useUsers } from '../../../domain/teams/useUsers';
 import { useInvivoText } from '../useInvivoText';
 import ProfileImage from '../../../Components/user/ProfileImage.vue';
+import NoteList from '../tree/NoteList.vue';
+import { attemptAsync } from '../../../Components/notification/attemptAsync';
 
 const { getMemberBy } = useUsers();
 const { prevRange, range, text: rangeText } = useRange();
@@ -31,14 +34,61 @@ const emit = defineEmits([
   'close',
   'code-to-create',
 ]);
+
 const query = ref('');
 const toDeleteSize = ref(0);
+
 watch(toDelete, (entries) => {
   const len = entries?.length;
   toDeleteSize.value = len ?? 0;
 });
 
+const selections = computed(() => {
+  const list = toDelete.value ?? [];
+  return list.filter((s) => {
+    if (deleteTarget.value) {
+      return deleteTarget.value === s;
+    }
+    if (reassign.value) {
+      return reassign.value === s;
+    }
+    if (manageNotes.value) {
+      return manageNotes.value === s;
+    }
+    return true;
+  });
+});
+
+// ---------------------------------------------
+// REASSIGN CODE TO SELECTION
+// ---------------------------------------------
 const reassign = ref(null);
+const startReassign = (selection) => {
+  manageNotes.value = null;
+  deleteTarget.value = null;
+  reassign.value = reassign.value === selection ? null : selection;
+};
+
+// ---------------------------------------------
+// DELETING SELECTION#
+// ---------------------------------------------
+const deleteTarget = ref(null);
+const startDeleting = (selection) => {
+  manageNotes.value = null;
+  reassign.value = null;
+  deleteTarget.value = deleteTarget.value === selection ? null : selection;
+};
+
+// ---------------------------------------------
+// NOTES MANAGEMENT
+// ---------------------------------------------
+const manageNotes = ref(null);
+const startManageNotes = (selection) => {
+  reassign.value = null;
+  deleteTarget.value = null;
+  manageNotes.value = manageNotes.value === selection ? null : selection;
+};
+
 const filteredCodes = computed(() => {
   const searchQuery = query.value.toLowerCase().replace(whitespace, '');
   if (searchQuery.length < 2) return codes.value;
@@ -52,15 +102,24 @@ const filteredCodes = computed(() => {
 
   return codes.value.filter(filterFn);
 });
+
 const onClose = () => {
   if (isOpen.value) {
     reassign.value = null;
+    toDelete.value = null;
+    manageNotes.value = null;
     query.value = '';
     close();
     emit('close');
   }
 };
-
+const onDeleteSelection = async () => {
+  await attemptAsync(
+    () => deleteSelection(deleteTarget.value),
+    'Selection successfully deleted'
+  );
+  close();
+};
 const createInVivo = () => {
   const txt = rangeText?.value;
   if (!txt?.length) return;
@@ -85,7 +144,7 @@ const createInVivo = () => {
       top: `${top}px`,
       left: `${left}px`,
       width: `${width}px`,
-      maxHeight: `${maxHeight}px`,
+      maxHeight: maxHeight ? `${maxHeight}px` : `100vh`,
     }"
   >
     <div v-if="range?.length" class="mb-6">
@@ -100,57 +159,82 @@ const createInVivo = () => {
       </div>
       <div
         class="text-sm flex flex-col gap-2"
-        v-for="selection in toDelete"
+        v-for="selection in selections"
         :key="selection.id"
       >
-        <div class="contents" v-if="reassign ? reassign === selection : true">
+        <div class="contents">
           <div class="border-border border-t">
-            <div class="flex items-baseline my-2">
-              <span class="text-xs font-semibold font-mono grow">
-                {{ selection.start }}:{{ selection.end }}
-              </span>
-              <ProfileImage
-                v-if="getMemberBy(selection.creating_user_id)"
-                class="w-4 h-4"
-                :name="`by ${getMemberBy(selection.creating_user_id).name}`"
-                :src="getMemberBy(selection.creating_user_id).profile_photo_url"
-              />
-              <Button
+            <div class="flex items-baseline my-2 gap-2">
+              <div class="flex items-center text-xs font-semibold grow gap-2">
+                <QueueListIcon class="w-3 h-3" />
+                <span>Selection</span>
+                <span> {{ selection.start }}:{{ selection.end }} </span>
+                <ProfileImage
+                  v-if="getMemberBy(selection.creating_user_id)"
+                  size="compact"
+                  :name="getMemberBy(selection.creating_user_id)?.name"
+                  :src="
+                    getMemberBy(selection.creating_user_id)?.profile_photo_url
+                  "
+                />
+              </div>
+              <button
                 v-if="toDeleteSize > 0"
-                size="sm"
+                @click.prevent="startManageNotes(selection)"
+                :class="
+                  cn(
+                    'flex items-center gap-0.5 text-sm hover:text-primary',
+                    selection === manageNotes
+                      ? 'text-primary'
+                      : 'hover:text-primary'
+                  )
+                "
+                :title="
+                  manageNotes
+                    ? 'Cancel managing notes'
+                    : 'Manage notes for this selection'
+                "
+              >
+                <ChatBubbleLeftEllipsisIcon :class="'w-4 h-4'" />
+                <span>{{ selection.notes?.length ?? 0 }}</span>
+              </button>
+              <button
+                v-if="toDeleteSize > 0"
+                :class="
+                  cn(
+                    selection === reassign
+                      ? 'text-primary'
+                      : 'hover:text-primary'
+                  )
+                "
                 :title="
                   reassign
                     ? 'Cancel reassign for this selection'
                     : 'Reassign another code to this selection'
                 "
-                variant="outline"
-                class="p-2"
-                @click.prevent="
-                  () => {
-                    reassign = reassign === selection ? null : selection;
-                  }
-                "
+                @click.prevent="startReassign(selection)"
               >
-                <XMarkIcon v-show="selection === reassign" class="w-4 h-4" />
-                <ArrowsRightLeftIcon
-                  v-show="selection !== reassign"
-                  class="w-4 h-4"
-                />
-              </Button>
-              <Button
+                <ArrowsRightLeftIcon class="w-4 h-4" />
+              </button>
+              <button
                 size="sm"
                 title="Delete this selection"
-                variant="destructive"
-                class="p-2"
-                @click.prevent="deleteSelection(selection) && close()"
+                :class="
+                  cn(
+                    selection === deleteTarget
+                      ? 'text-destructive'
+                      : 'hover:text-destructive'
+                  )
+                "
+                @click.prevent="startDeleting(selection)"
               >
                 <TrashIcon class="w-4 h-4" />
-              </Button>
+              </button>
             </div>
             <p class="line-clamp-2">{{ selection.text }}</p>
           </div>
           <div
-            class="w-full p-2 my-1 rounded-md line-clamp-1"
+            class="p-1 my-1 rounded text-xs"
             :style="`background: ${selection.code.color};`"
           >
             {{ selection.code.name }}
@@ -163,8 +247,37 @@ const createInVivo = () => {
       You seem to have no codes created yet.
     </div>
 
+    <div v-if="manageNotes">
+      <div class="font-semibold">Manage notes for this selection</div>
+      <NoteList
+        :notes="manageNotes.notes"
+        :target="manageNotes"
+        type="selection"
+        :scope="manageNotes.scope"
+      />
+    </div>
+
     <div
-      v-if="codes?.length && (!toDeleteSize || reassign || prevRange?.length)"
+      v-else-if="deleteTarget"
+      class="p-3 border border-destructive rounded-md text-sm"
+    >
+      <p>
+        You are about to delete this selection. This action cannot be undone.
+      </p>
+      <div class="flex items-center justify-between">
+        <Button variant="outline" size="sm" @click="deleteTarget = null"
+          >Cancel</Button
+        >
+        <Button variant="destructive" size="sm" @click="onDeleteSelection"
+          >Delete</Button
+        >
+      </div>
+    </div>
+
+    <div
+      v-else-if="
+        codes?.length && (!toDeleteSize || reassign || prevRange?.length)
+      "
     >
       <div class="block w-full text-xs font-semibold">
         {{

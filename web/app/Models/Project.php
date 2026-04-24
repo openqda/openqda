@@ -2,9 +2,13 @@
 
 namespace App\Models;
 
+use App\Events\ProjectDeleting;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use LaravelIdea\Helper\App\Models\_IH_Source_QB;
 use OwenIt\Auditing\Contracts\Auditable;
 
 class Project extends Model implements Auditable
@@ -45,7 +49,7 @@ class Project extends Model implements Auditable
             }
 
             // Dispatch the event manually if not prevented
-            event(new \App\Events\ProjectDeleting($project));
+            event(new ProjectDeleting($project));
         });
     }
 
@@ -68,7 +72,7 @@ class Project extends Model implements Auditable
     /**
      * get the team that has this project shared with
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function team()
     {
@@ -78,7 +82,7 @@ class Project extends Model implements Auditable
     /**
      * get documents that are related to this project
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function sources()
     {
@@ -88,7 +92,7 @@ class Project extends Model implements Auditable
     /**
      * get all codebooks related to this project
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function codebooks()
     {
@@ -98,7 +102,7 @@ class Project extends Model implements Auditable
     /**
      * get all selections related to this project
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function selections()
     {
@@ -108,11 +112,21 @@ class Project extends Model implements Auditable
     /**
      * Get all the project, including the deleted ones
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany|\LaravelIdea\Helper\App\Models\_IH_Source_QB
+     * @return HasMany|_IH_Source_QB
      */
     public function trashedSources()
     {
         return $this->sources()->withTrashed();
+    }
+
+    /**
+     * Get all notes related to this project.
+     *
+     * @return HasMany
+     */
+    public function notes()
+    {
+        return $this->hasMany(Note::class, 'project_id');
     }
 
     public function getAllCodesAttribute()
