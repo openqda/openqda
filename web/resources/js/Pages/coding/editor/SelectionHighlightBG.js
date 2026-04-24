@@ -78,8 +78,7 @@ export class SelectionHighlightBG extends Module {
       } else {
         // XXX: there might be inactive codes in the list, so we need to search
         // for it and fall back to the first code, of none is found
-        const code =
-          codes.find((code) => code.active !== false) ?? codes[0];
+        const code = codes.find((code) => code.active !== false) ?? codes[0];
         if (!code) return;
         this.highlight({
           id: code.id,
