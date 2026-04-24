@@ -208,7 +208,7 @@ Selections.deleteOrphan = async ({ projectId, sourceId, selection }) => {
   });
   if (!error && response.status < 400) {
     try {
-      Selections.by(`${projectId}-${sourceId}`).ha(selectionId);
+      Selections.by(`${projectId}-${sourceId}`).remove(selectionId);
     } catch {
       // might not exist so its not an error actually
     }
