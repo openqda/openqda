@@ -76,7 +76,7 @@ export class SelectionHighlightBG extends Module {
       if (!codes.length) return;
 
       const notes = segment.n || 0;
-      const hasNotes = segment.n > 0;      
+      const hasNotes = segment.n > 0;
       const activeCodes = codes.reduce(
         (acc, cur) => acc + (cur.active !== false ? 1 : 0),
         0
