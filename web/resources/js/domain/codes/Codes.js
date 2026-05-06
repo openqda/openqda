@@ -32,9 +32,21 @@ class CodeStore extends AbstractStore {
     return codes;
   }
 
-  init(docs) {
+  init(docs, notes = []) {
     const codeList = [];
     const toClean = [];
+    const notesByCodeId = {};
+    notes.forEach((note) => {
+      if (note.type === 'code') {
+        if (!notesByCodeId[note.target]) {
+          notesByCodeId[note.target] = [];
+        }
+        // we use toRaw here, because
+        // we will otherwise get the "cannot clone proxy object"
+        // error when we try to navigate away
+        notesByCodeId[note.target].push(toRaw(note));
+      }
+    });
     if (this.size.value === 0 && docs.length > 0) {
       const parseCodes = (codes, parent = null) => {
         codes.forEach((code) => {
@@ -58,7 +70,7 @@ class CodeStore extends AbstractStore {
             code.parent = parent;
             code.order = getOrder(code.codebook);
             code.order = getOrder(code.codebook);
-
+            code.notes = notesByCodeId[code.id] ?? [];
             codeList.push(code);
             if (code.children?.length) {
               parseCodes(code.children, code);
@@ -126,9 +138,17 @@ Codes.create = async ({
   if (!error && response?.status < 400) {
     code.id = response.data.id;
     if (parentId) {
-      code.parent = store.entry(parentId);
+      const parent = store.entry(parentId);
+      // push the code to the reactive parent before
+      // it is converted to raw or we loose the reactive update
+      // reflected in the code tree
+      parent.children.push(code);
+
+      // we use toRaw here, because
+      // we will otherwise get the "cannot clone proxy object"
+      // error when we try to navigate away
+      code.parent = parent ? toRaw(parent) : null;
       code.active = code.parent.active;
-      code.parent.children.push(code);
     }
 
     store.add(code);

@@ -4,6 +4,7 @@ import { debounce } from '../../utils/dom/debounce.js';
 import { unfoldCodes } from './unfoldCodes.js';
 import { createByPropertySorter } from '../../utils/array/createByPropertySorter.js';
 import { request } from '../../utils/http/BackendRequest.js';
+import { useUsers } from '../../domain/teams/useUsers.js';
 
 const state = reactive({
   checkedSources: new Map(),
@@ -18,7 +19,18 @@ const state = reactive({
 const byName = createByPropertySorter('name');
 
 export const useAnalysis = () => {
-  const { sources, codes, codebooks, project } = usePage().props;
+  const {
+    sources,
+    codes,
+    codebooks,
+    project,
+    notes: rawNotes,
+  } = usePage().props;
+  const { allUsers } = useUsers();
+  const notes = rawNotes.map((n) => {
+    n.user = allUsers[n.creating_user_id];
+    return n;
+  });
   const projectId = String(project.id);
   const {
     hasSelections,
@@ -187,6 +199,7 @@ export const useAnalysis = () => {
   };
 
   return {
+    notes,
     checkedSources,
     checkedCodes,
     allCodesChecked,

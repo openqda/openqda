@@ -9,10 +9,7 @@ const emit = defineEmits(['update:zoom']);
 </script>
 
 <template>
-  <div
-    id="toolbar"
-    class="editor-toolbar block lg:inline-flex items-center gap-1"
-  >
+  <div class="editor-toolbar block border-0">
     <span class="ql-formats">
       <select class="ql-font" title="Font family">
         <option value="arial" selected>Arial</option>

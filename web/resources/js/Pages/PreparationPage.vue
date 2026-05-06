@@ -58,11 +58,9 @@
               </div>
             </template>
             <template #actions>
-              <div class="flex items-center gap-2 me-2">
+              <div class="">
                 <Button
-                  v-if="
-                    editorSourceRef.CanUnlock && !editorSourceRef.hasSelections
-                  "
+                  v-if="editorSourceRef.CanUnlock"
                   variant="outline-secondary"
                   :icon="LockOpenIcon"
                   @click="
@@ -79,6 +77,7 @@
                     !editorSourceRef.CanUnlock && !editorSourceRef.hasSelections
                   "
                   variant="outline-secondary"
+                  title="Lock this source at its current state to start coding."
                   :icon="LockClosedIcon"
                   @click="
                     toConfirm({
@@ -86,7 +85,7 @@
                       fn: lockAndCode,
                     })
                   "
-                  class="px-1 py-2 mx-3 rounded-xl w-full md:w-auto"
+                  class="px-1 py-2 rounded-lg w-full md:w-auto"
                   >Lock for coding
                 </Button>
                 <Button
@@ -99,7 +98,7 @@
                   :icon="QrCodeIcon"
                   @click="codeThisFile"
                   class="px-1"
-                  >Code
+                  >Start Coding
                 </Button>
                 <ConfirmDialog
                   :text="confirm.text"
@@ -111,7 +110,34 @@
                 />
               </div>
             </template>
+            <template #options>
+              <Button
+                v-if="editorSourceRef"
+                @click="showOptions = true"
+                :title="`Manage notes for source '${editorSourceRef?.name}'`"
+                variant="outline"
+              >
+                <ChatBubbleLeftEllipsisIcon class="w-4 h-4" />
+              </Button>
+            </template>
           </PreparationsEditor>
+          <SideOverlay
+            v-if="editorSourceRef"
+            title="Manage Notes"
+            :show="showOptions"
+            @close="showOptions = false"
+          >
+            <div class="p-2">
+              <Headline3 class="mb-2 p-2"
+                >Notes linked to {{ editorSourceRef.name }}</Headline3
+              >
+              <NoteList
+                :notes="notesForSource"
+                :target="editorSourceRef"
+                type="source"
+              />
+            </div>
+          </SideOverlay>
         </div>
       </div>
     </template>
@@ -119,7 +145,7 @@
 </template>
 
 <script setup>
-import { defineProps, onMounted, provide, ref, watch } from 'vue';
+import { computed, defineProps, onMounted, provide, ref, watch } from 'vue';
 import PreparationsEditor from '../editor/PreparationsEditor.vue';
 import FilesManager from '../Components/files/FilesManager.vue';
 import Button from '../Components/interactive/Button.vue';
@@ -141,7 +167,13 @@ import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
 import Footer from '../Layouts/Footer.vue';
 import { useZoom } from '../editor/useZoom.js';
+import { useNotes } from '../domain/notes/useNotes.js';
+import SideOverlay from '../Components/layout/SideOverlay.vue';
+import NoteList from './coding/tree/NoteList.vue';
+import Headline3 from '../Components/layout/Headline3.vue';
+import { ChatBubbleLeftEllipsisIcon } from '@heroicons/vue/24/outline/index.js';
 
+const showOptions = ref(false);
 const editorSourceRef = ref({
   content: 'select to display',
   selected: false,
@@ -153,8 +185,17 @@ const editorSourceRef = ref({
   charsXLine: 80,
 });
 
+const { notes: storedNotes, initNotes } = useNotes();
+const notesForSource = computed(() => {
+  if (!storedNotes?.value?.length || !editorSourceRef.value.id) {
+    return [];
+  }
+  return storedNotes.value.filter(
+    (note) => note.type === 'source' && note.target === editorSourceRef.value.id
+  );
+});
 const editorComponent = ref();
-const props = defineProps(['sources', 'newDocument', 'projectId']);
+const props = defineProps(['sources', 'newDocument', 'projectId', 'notes']);
 const documents = ref([]);
 const pageTitle = ref('Preparation');
 
@@ -280,6 +321,7 @@ onMounted(() => {
   const fileId = new URLSearchParams(window.location.search).get('file');
   const file = fileId && props.sources.find((f) => f.id === fileId);
   initialFile.value = file?.id ?? null;
+  initNotes();
 });
 
 provide('sources', props.sources ?? []);

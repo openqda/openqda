@@ -10,6 +10,7 @@
         'outline outline-0 px-0.5',
         'focus:outline-0 focus:ring-0 rounded-none focus:border-b-foreground/80',
         'text-foreground placeholder-foreground/50 active:text-foreground',
+        resolveText({ size: $props.size }),
         $props.class
       )
     "
@@ -22,6 +23,7 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { cn } from '../utils/css/cn.js';
+import { variantAuthority } from '../utils/css/variantAuthority.js';
 
 const input = ref(null);
 
@@ -36,6 +38,10 @@ defineProps({
   label: String,
   class: String,
   name: String,
+  size: {
+    type: String,
+    default: 'default',
+  },
 });
 
 onMounted(() => {
@@ -45,6 +51,22 @@ onMounted(() => {
 });
 
 defineExpose({ focus: () => input.value.focus() });
+const textStyle = {
+  class: '',
+  variants: {
+    size: {
+      xs: 'text-sm',
+      default: 'text-base',
+      sm: 'text-sm',
+      md: 'text-base',
+      lg: 'text-lg',
+    },
+  },
+  defaultVariants: {
+    size: 'default',
+  },
+};
+const resolveText = variantAuthority(textStyle);
 </script>
 
 <style scoped>

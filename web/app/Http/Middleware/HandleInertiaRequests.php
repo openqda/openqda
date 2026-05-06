@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\ProjectTeamResolverService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -15,6 +16,11 @@ class HandleInertiaRequests extends Middleware
      * @var string
      */
     protected $rootView = 'app';
+
+    public function __construct(private readonly ProjectTeamResolverService $teamResolver)
+    {
+        // parent Inertia\Middleware has no constructor arguments
+    }
 
     /**
      * Determines the current asset version.
@@ -33,24 +39,10 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-
-        // Get the current URL
-        $currentUrl = $request->fullUrl();
-
-        // Parse the URL to get the path segments
-        $path = parse_url($currentUrl, PHP_URL_PATH);
-        $segments = explode('/', $path);
-
-        // Find the project ID segment in the URL - assuming the URL structure is fixed
-        $projectIdIndex = array_search('projects', $segments) + 1;
-        $projectId = $segments[$projectIdIndex] ?? null;
-
-        // Now that we have the project ID, we can find the project and its team
-        $team = null;
-        if ($projectId && is_numeric($projectId)) {
-            $project = \App\Models\Project::find($projectId);
-            $team = $project?->team;
-        }
+        // Due to the collaborative setting,
+        // we need to resolve the team and team members for nearly every request.
+        // If no team exists or the user is not part of any team, these will simply be null/empty.
+        ['team' => $team, 'teamMembers' => $teamMembers] = $this->teamResolver->resolveFromRequest($request);
 
         $privacyFile = resource_path('markdown/privacy.md');
         $termsFile = resource_path('markdown/terms.md');
@@ -69,6 +61,7 @@ class HandleInertiaRequests extends Middleware
             'projectId' => session('projectId'),
             'sharedTeam' => $team?->only('id', 'name'),
             'usersInPages' => [],
+            'teamMembers' => $teamMembers,
             // Lazily...
             'auth.user' => fn () => $request->user()
                 ? $request->user()->only('id', 'name', 'email', 'profile_photo_url', 'research_requested', 'research_consent', 'privacy_consent', 'terms_consent', 'email_verified_at')

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\UserNavigated;
 use App\Http\Requests\SendFeedbackRequest;
 use App\Mail\UserFeedback;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -15,7 +16,7 @@ class UserNavigationController extends Controller
     /**
      * Update the location of the user by sending an event
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function update(Request $request)
     {
@@ -33,7 +34,7 @@ class UserNavigationController extends Controller
     /**
      * submit feedback to the team
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      *
      * @throws \Exception
      */

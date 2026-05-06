@@ -1,4 +1,4 @@
-import { reactive, readonly, toRefs } from 'vue';
+import { reactive, readonly, toRaw, toRefs } from 'vue';
 import { debounce } from '../../../utils/dom/debounce.js';
 import { cn } from '../../../utils/css/cn.js';
 import { useResizeObserver } from '../resizeObserver.js';
@@ -21,6 +21,7 @@ const state = reactive({
  * @param sources {object[]}
  * @param checkedSources {Map}
  * @param codes {object[]}
+ * @param notes {object[]}
  * @param checkedCodes {Map}
  * @return {{optionsSchema: ToRef<(UnwrapNestedRefs<{schema: null, optionsFormData: null}> & {})["schema"]>, api: {codes: DeepReadonly<UnwrapNestedRefs<object>>, debounce: ((function(Function, number, boolean=): ((function(): void)|*))|*), eachCheckedCodes: eachCheckedCodes, eachCheckedSources: eachCheckedSources, useResizeObserver: ((function(): {resizeRef: React.Ref<*>, resizeState: Reactive<{dimensions: {}}>})|*), defineOptions: ((function(*): never)|*), sources: DeepReadonly<UnwrapNestedRefs<object>>, getCodesForSource: (function(*): *), cn: ((function(...[*]): string)|*), getAllSelections: (function(): *[])}}}
  */
@@ -29,8 +30,16 @@ export const createVisualizationAPI = ({
   checkedSources,
   codes,
   checkedCodes,
+  notes,
 }) => {
   const { schema: optionsSchema } = toRefs(state);
+  const notesById = {};
+  notes.forEach((note) => {
+    if (!notesById[note.target]) {
+      notesById[note.target] = [];
+    }
+    notesById[note.target].push(toRaw(note));
+  });
 
   /**
    * Allows to iterate all sources that are currently "checked"
@@ -106,6 +115,18 @@ export const createVisualizationAPI = ({
         code.text.some((t) => t.source_id === source.id)
     );
   };
+
+  codes.value.forEach((code) => {
+    code.notes = code.notes ?? notesById[code.id] ?? [];
+    if (code.text) {
+      code.text.forEach((selection) => {
+        selection.notes = selection.notes ?? notesById[selection.id] ?? [];
+      });
+    }
+  });
+  sources.value.forEach((source) => {
+    source.notes = source.notes ?? notesById[source.id] ?? [];
+  });
 
   return {
     api: {

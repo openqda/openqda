@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Team;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
 
@@ -13,7 +15,7 @@ class ChangeTeamOwnerRequest extends FormRequest
     public function authorize(): bool
     {
         $teamId = $this->input('teamId');
-        $team = \App\Models\Team::findOrFail($teamId);
+        $team = Team::findOrFail($teamId);
 
         // Check if the user is authorized to change the owner
         return Gate::forUser(auth()->user())->allows('changeOwner', $team);
@@ -22,7 +24,7 @@ class ChangeTeamOwnerRequest extends FormRequest
     /**
      * Get the validation rules that apply to the request.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {

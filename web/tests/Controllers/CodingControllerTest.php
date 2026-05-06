@@ -4,6 +4,7 @@ namespace Tests\Controllers;
 
 use App\Models\Code;
 use App\Models\Codebook;
+use App\Models\Note;
 use App\Models\Project;
 use App\Models\Source;
 use App\Models\SourceStatus;
@@ -526,50 +527,52 @@ class CodingControllerTest extends TestCase
         );
     }
 
-    public function test_show_coding_page_with_team_members()
-    {
-        $user = User::factory()->create();
-        $team = Team::factory()->create(['user_id' => $user->id]);
-        $project = Project::factory()->create([
-            'creating_user_id' => $user->id,
-            'team_id' => $team->id,
-        ]);
-        $source = Source::factory()->create(['project_id' => $project->id]);
-
-        // Add team members
-        $member1 = User::factory()->create();
-        $member2 = User::factory()->create();
-        $team->users()->attach($member1, ['role' => 'editor']);
-        $team->users()->attach($member2, ['role' => 'editor']);
-
-        // Lock the source
-        Variable::create([
-            'source_id' => $source->id,
-            'name' => 'isLocked',
-            'type_of_variable' => 'boolean',
-            'boolean_value' => true,
-        ]);
-
-        // Create converted file
-        $htmlPath = $this->testFilePath.'/test.html';
-        file_put_contents($htmlPath, '<p>Test content</p>');
-
-        SourceStatus::create([
-            'source_id' => $source->id,
-            'status' => 'converted:html',
-            'path' => $htmlPath,
-        ]);
-
-        $response = $this->actingAs($user)->get(route('coding.show', ['project' => $project->id]));
-
-        $response->assertStatus(200);
-        $response->assertInertia(fn ($page) => $page
-            ->component('CodingPage')
-            ->has('teamMembers', 2)
-            ->where('teamMembers.0.id', $member1->id)
-            ->where('teamMembers.1.id', $member2->id)
-        );
-    }
+    //     XXX: this is no longer applicable, as we have moved the team logic to
+    //     the inertia request
+    //     public function test_show_coding_page_with_team_members()
+    //     {
+    //         $user = User::factory()->create();
+    //         $team = Team::factory()->create(['user_id' => $user->id]);
+    //         $project = Project::factory()->create([
+    //             'creating_user_id' => $user->id,
+    //             'team_id' => $team->id,
+    //         ]);
+    //         $source = Source::factory()->create(['project_id' => $project->id]);
+    //
+    //         // Add team members
+    //         $member1 = User::factory()->create();
+    //         $member2 = User::factory()->create();
+    //         $team->users()->attach($member1, ['role' => 'editor']);
+    //         $team->users()->attach($member2, ['role' => 'editor']);
+    //
+    //         // Lock the source
+    //         Variable::create([
+    //             'source_id' => $source->id,
+    //             'name' => 'isLocked',
+    //             'type_of_variable' => 'boolean',
+    //             'boolean_value' => true,
+    //         ]);
+    //
+    //         // Create converted file
+    //         $htmlPath = $this->testFilePath.'/test.html';
+    //         file_put_contents($htmlPath, '<p>Test content</p>');
+    //
+    //         SourceStatus::create([
+    //             'source_id' => $source->id,
+    //             'status' => 'converted:html',
+    //             'path' => $htmlPath,
+    //         ]);
+    //
+    //         $response = $this->actingAs($user)->get(route('coding.show', ['project' => $project->id]));
+    //
+    //         $response->assertStatus(200);
+    //         $response->assertInertia(fn ($page) => $page
+    //             ->component('CodingPage')
+    //             ->has('teamMembers', 2)
+    //             ->where('teamMembers.0.id', $member1->id)
+    //             ->where('teamMembers.1.id', $member2->id)
+    //         );
+    //     }
 
     public function test_show_coding_page_without_team()
     {
@@ -699,5 +702,134 @@ class CodingControllerTest extends TestCase
 
         $response->assertStatus(200);
         $this->assertDatabaseMissing('codes', ['id' => $childCode->id]);
+    }
+
+    // -------------------------------------------------------------------------
+    // Notes integration
+    // -------------------------------------------------------------------------
+
+    private function createLockedSourceWithHtml(int $projectId): Source
+    {
+        $source = Source::factory()->create(['project_id' => $projectId]);
+        Variable::create([
+            'source_id' => $source->id,
+            'name' => 'isLocked',
+            'type_of_variable' => 'boolean',
+            'boolean_value' => true,
+        ]);
+        $htmlPath = $this->testFilePath.'/test_note.html';
+        file_put_contents($htmlPath, '<p>Test</p>');
+        SourceStatus::create([
+            'source_id' => $source->id,
+            'status' => 'converted:html',
+            'path' => $htmlPath,
+        ]);
+
+        return $source;
+    }
+
+    public function test_show_includes_project_and_code_notes_visible_to_team(): void
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create(['creating_user_id' => $user->id]);
+        $this->createLockedSourceWithHtml($project->id);
+
+        $other = User::factory()->create();
+        $note = Note::factory()->create([
+            'project_id' => $project->id,
+            'creating_user_id' => $other->id,
+            'type' => 'project',
+            'scope' => Note::SCOPE_PROJECT,
+            'target' => (string) $project->id,
+            'visibility' => 1,
+        ]);
+
+        $response = $this->actingAs($user)
+            ->get(route('coding.show', ['project' => $project->id]));
+
+        $response->assertStatus(200)
+            ->assertInertia(fn ($page) => $page
+                ->component('CodingPage')
+                ->has('notes', 1)
+                ->where('notes.0.id', $note->id)
+            );
+    }
+
+    public function test_show_excludes_private_notes_from_other_users(): void
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create(['creating_user_id' => $user->id]);
+        $this->createLockedSourceWithHtml($project->id);
+
+        $other = User::factory()->create();
+        Note::factory()->create([
+            'project_id' => $project->id,
+            'creating_user_id' => $other->id,
+            'type' => 'project',
+            'scope' => Note::SCOPE_PROJECT,
+            'target' => (string) $project->id,
+            'visibility' => 0,
+        ]);
+
+        $response = $this->actingAs($user)
+            ->get(route('coding.show', ['project' => $project->id]));
+
+        $response->assertStatus(200)
+            ->assertInertia(fn ($page) => $page
+                ->component('CodingPage')
+                ->has('notes', 0)
+            );
+    }
+
+    public function test_show_includes_own_private_notes(): void
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create(['creating_user_id' => $user->id]);
+        $this->createLockedSourceWithHtml($project->id);
+
+        $note = Note::factory()->create([
+            'project_id' => $project->id,
+            'creating_user_id' => $user->id,
+            'type' => 'code',
+            'scope' => Note::SCOPE_CODE,
+            'target' => '1',
+            'visibility' => 0,
+        ]);
+
+        $response = $this->actingAs($user)
+            ->get(route('coding.show', ['project' => $project->id]));
+
+        $response->assertStatus(200)
+            ->assertInertia(fn ($page) => $page
+                ->component('CodingPage')
+                ->has('notes', 1)
+                ->where('notes.0.id', $note->id)
+            );
+    }
+
+    public function test_show_includes_source_notes_for_current_source(): void
+    {
+        $user = User::factory()->create();
+        $project = Project::factory()->create(['creating_user_id' => $user->id]);
+        $source = $this->createLockedSourceWithHtml($project->id);
+
+        $note = Note::factory()->create([
+            'project_id' => $project->id,
+            'creating_user_id' => $user->id,
+            'type' => 'source',
+            'scope' => Note::SCOPE_SOURCE,
+            'target' => (string) $source->id,
+            'visibility' => 1,
+        ]);
+
+        $response = $this->actingAs($user)
+            ->get(route('coding.show', ['project' => $project->id]));
+
+        $response->assertStatus(200)
+            ->assertInertia(fn ($page) => $page
+                ->component('CodingPage')
+                ->has('notes', 1)
+                ->where('notes.0.id', $note->id)
+            );
     }
 }

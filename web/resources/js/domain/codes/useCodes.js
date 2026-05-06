@@ -5,6 +5,8 @@ import { Codes } from './Codes.js';
 import { Selections } from '../../Pages/coding/selections/Selections.js';
 import { CodeList } from './CodeList.js';
 import { createCodeSchema } from './createCodeSchema.js';
+import { Notes } from '../notes/NoteStore.js';
+import { useUsers } from '../teams/useUsers.js';
 
 const state = reactive({
   details: {}, // code ids
@@ -13,12 +15,14 @@ const state = reactive({
 export const useCodes = () => {
   const { details } = toRefs(state);
   const page = usePage();
-  const { allCodes, codebooks, projectId, source } = page.props;
+  const { allUsers } = useUsers();
+  const { allCodes, codebooks, projectId, source, notes } = page.props;
   const sourceId = source?.id;
   const key = sourceId ? `${projectId}-${sourceId}` : projectId;
   const codeStore = Codes.by(key);
   const codebookStore = Codebooks.by(projectId);
   const selectionStore = Selections.by(key);
+  const noteStore = Notes.by(key);
 
   const initCoding = async () => {
     const initialSelections = source?.selections ?? [];
@@ -27,10 +31,10 @@ export const useCodes = () => {
       results.added.push(...res.added);
       results.clean.push(...res.clean);
     };
-    toResults(codebookStore.init(codebooks));
-    toResults(codeStore.init(allCodes));
+    toResults(codebookStore.init(codebooks, notes));
+    toResults(codeStore.init(allCodes, notes));
     toResults(
-      selectionStore.init(initialSelections, (id) => {
+      selectionStore.init(initialSelections, notes, (id) => {
         try {
           return codeStore.entry(id);
         } catch (e) {
@@ -38,6 +42,7 @@ export const useCodes = () => {
         }
       })
     );
+    noteStore.init(notes, allUsers);
     return results;
   };
 
@@ -297,6 +302,8 @@ export const useCodes = () => {
         return codebookStore.observe(callbacks);
       case selectionStore.key:
         return selectionStore.observe(callbacks);
+      case noteStore.key:
+        return noteStore.observe(callbacks);
       default:
         throw new Error(`Unknown observe name: ${name}`);
     }
