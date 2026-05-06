@@ -1,7 +1,9 @@
 <template>
   <div class="contents">
-    <!-- editor header with zoom controls -->
-    <div class="px-3 py-6 block md:flex items-center justify-between">
+    <!-- editor header with zoom controls, sticky on top -->
+    <div
+      class="sticky top-0 z-10 px-3 py-6 block shadow lg:shadow-none lg:flex items-center justify-between bg-surface"
+    >
       <Headline1 class="hidden md:block m-0">{{
         props.source?.name
       }}</Headline1>
@@ -12,6 +14,8 @@
             variant="outline-secondary"
             @click="showContextMenu"
             class="hidden"
+            :data-x="rangeX"
+            :data-y="rangeY"
             >Menu</Button
           >
         </Transition>
@@ -155,6 +159,9 @@ const disposables = new Set();
 const contentHash = ref('');
 
 let quillInstance;
+const rangeX = ref(-1);
+const rangeY = ref(-1);
+
 onMounted(() => {
   quillInstance = new Quill('#editor', {
     theme: 'snow',
@@ -184,6 +191,14 @@ onMounted(() => {
    * Update selected range to shared state
    */
   quillInstance.on('selection-change', (data) => {
+    const selection = window.getSelection();
+    const parentNode = selection?.anchorNode?.parentElement;
+    if (parentNode) {
+      // get parent absolute position
+      const rect = parentNode.getBoundingClientRect();
+      rangeY.value = rect.top + window.scrollY + rect.height;
+      rangeX.value = rect.left + window.scrollX;
+    }
     const text = data ? quillInstance.getText(data) : '';
     setRange(data, text);
   });
@@ -334,6 +349,7 @@ const showContextMenu = (event) => {
     // Allow the browser's context menu to appear
     return;
   }
+
   const isMobile = event.pointerType === 'touch' || event.type === 'touchstart';
 
   event.preventDefault();
@@ -395,10 +411,17 @@ const showContextMenu = (event) => {
   //
   // // Force a slight layout update so we can measure the contextMenu's dimensions
   contextMenuElement.offsetHeight;
-  const offsetY =
-    event.clientY + contextMenuElement.offsetHeight > windowHeight
-      ? windowHeight - contextMenuElement.offsetHeight
-      : event.clientY + 20;
+  let offsetY;
+
+  if (isMobile) {
+    offsetY = event.target?.dataset?.y || 0;
+  } else {
+    offsetY =
+      event.clientY + contextMenuElement.offsetHeight > windowHeight
+        ? windowHeight - contextMenuElement.offsetHeight
+        : event.clientY + 20;
+  }
+
   //
   // if (event.clientY + contextMenuElement.offsetHeight > windowHeight) {
   //   // If the context menu would go out of bounds, adjust its top position
@@ -409,7 +432,7 @@ const showContextMenu = (event) => {
 
   contextMenu.open(null, {
     left: menuX,
-    top: isMobile ? 0 : offsetY,
+    top: offsetY,
     width: menuWidth,
     maxHeight: windowHeight < 720 ? windowHeight / 1.5 : windowHeight / 3,
   });
