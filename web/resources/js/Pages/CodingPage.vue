@@ -249,7 +249,7 @@ const {
 //------------------------------------------------------------------------
 const { range, text, prevRange } = useRange();
 const { createSelection } = useSelections();
-const hasSelectedRange = computed(() => range.value?.length);
+const hasSelectedRange = computed(() => !!range.value?.length);
 //------------------------------------------------------------------------
 // CODES / CODEBOOKS
 //------------------------------------------------------------------------
