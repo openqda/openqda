@@ -40,7 +40,7 @@
     "pusher-js": "^8.4.0-rc2",
     "tailwindcss": "^4.0.13",
     "tailwindcss-animate": "^1.0.7",
-    "vite": "^8.0.11",
+    "vite": "^8.0.12",
     "vitest": "^3.0.5",
     "vue": "^3.5.13"
   },
