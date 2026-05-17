@@ -147,10 +147,10 @@ const createInVivo = () => {
       maxHeight: maxHeight ? `${maxHeight}px` : `100vh`,
     }"
   >
-    <div v-if="range?.length" class="mb-6">
-      <Button variant="outline-secondary" @click="createInVivo"
-        >Create In-Vivo Code</Button
-      >
+    <div v-if="range?.length" class="hidden lg:inline-block mb-6">
+      <Button variant="outline-secondary" @click="createInVivo">
+        Create In-Vivo Code
+      </Button>
     </div>
 
     <div v-if="toDeleteSize" class="mb-6 flex flex-col gap-2">
