@@ -231,17 +231,11 @@ const { range } = useRange();
           :class="
             cn(
               'w-full h-full text-left flex items-center',
-              code.active
-                ? 'hover:font-semibold'
-                : 'cursor-not-allowed text-foreground/20'
+              !code.active && 'cursor-not-allowed text-foreground/20'
             )
           "
         >
-          <ContrastText>{{ code.name }}</ContrastText>
-          <ContrastText
-            class="text-xs ms-auto font-normal hidden group-hover:inline"
-            >Assign to {{ range.start }}:{{ range.end }}</ContrastText
-          >
+          <ContrastText :class="cn(code.active && 'hover:text-primary-foreground hover:bg-primary')">{{ code.name }}</ContrastText>
         </button>
         <ContrastText v-else>{{ code.name }}</ContrastText>
         <ContrastText
