@@ -50,7 +50,7 @@ const props = defineProps({
 //------------------------------------------------------------------------
 // Collapse
 //------------------------------------------------------------------------
-const open = computed(() => props.sorting || collapsed.value[props.code.id]);
+const open = computed(() => collapsed.value[props.code.id]);
 const toggle = () => {
   const newState = toggleCollapse(props.code.id);
   // if collapse closed then also close
@@ -200,7 +200,6 @@ const { range } = useRange();
         :title="open ? 'Hide children' : 'Show children'"
         variant="default"
         size="sm"
-        :disabled="sorting"
         class="bg-transparent text-foreground! hover:text-background w-4 p-0! rounded"
         @click="toggle()"
       >

@@ -23,7 +23,7 @@
         class="w-full"
       />
       <Collapse
-        :when="sorting === groupId || !el.children?.length || collapsed[el.id]"
+        :when="!el.children?.length || collapsed[el.id]"
         class="v-collapse"
       >
         <CodeTreeItem
@@ -87,7 +87,7 @@ const draggable = useDraggable(el, list, {
   swapThreshold: 0.5,
   scroll: true,
   immediate: false,
-  scrollSensitivity: 100,
+  scrollSensitivity: 300,
   onStart(event) {
     const codeId = event.item.getAttribute('data-id');
     setDragging(codeId);
