@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ChevronRightIcon } from '@heroicons/vue/24/solid/index.js';
-import { computed, ref } from 'vue';
+import { ref } from 'vue';
 import { cn } from '../../../utils/css/cn';
 import { changeOpacity } from '../../../utils/color/changeOpacity';
 import { useSelections } from '../selections/useSelections';
@@ -13,11 +13,10 @@ const props = defineProps({
   parent: Object,
   reassign: Object,
   liClass: String,
+  children: Array,
+  query: String,
 });
 
-const children = computed(
-  () => props.code && props.code.children.filter((child) => child.active)
-);
 const open = ref(false);
 const handle = async ({ code, parent }) => {
   if (props.reassign) {
@@ -40,12 +39,12 @@ const handle = async ({ code, parent }) => {
     "
   >
     <button
-      v-if="code.children.length"
+      v-if="children.length"
       title="Toggle children"
       class="p-0 my-2 me-2 bg-transparent text-foreground"
       @click.prevent="open = !open"
     >
-      <ChevronRightIcon :class="cn('w-4 h-4', open && 'rotate-90')" />
+      <ChevronRightIcon :class="cn('w-4 h-4', open || query?.length && 'rotate-90')" />
     </button>
     <span class="w-4 h-4 my-2 me-2" v-else></span>
     <button
@@ -59,13 +58,15 @@ const handle = async ({ code, parent }) => {
     </button>
   </li>
 
-  <ul v-if="code.children?.length && open">
+  <ul v-if="children?.length && (open || query?.length)" class="ps-3">
     <CodingContextMenuItem
-      v-for="child in children"
+      v-for="entry in children"
       :reassign="props.reassign"
-      :key="child.id"
-      :code="child"
+      :key="entry.code?.id"
+      :code="entry.code"
+      :children="entry.children"
       :parent="code"
+      :query="query"
       li-class="ps-3"
     />
   </ul>

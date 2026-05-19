@@ -90,17 +90,28 @@ const startManageNotes = (selection) => {
 };
 
 const filteredCodes = computed(() => {
-  const searchQuery = query.value.toLowerCase().replace(whitespace, '');
-  if (searchQuery.length < 2) return codes.value;
-  const filterFn = (code) => {
-    if (!code) return false;
-    if (code.name.toLowerCase().replace(whitespace, '').includes(searchQuery)) {
-      return true;
+  const searchQuery = query.value.toLowerCase().replace(whitespace, ' ').trim();
+  const hasQuery = searchQuery?.length > 2;
+  const filterFn = (list) => {
+    const out = []
+    if (!list?.length) return out;
+    for (const code of list) {
+      if (!code || !code.active) continue;
+
+      const includeCode = hasQuery
+        ? code.name.toLowerCase().includes(searchQuery)
+        : true;
+
+      const children = filterFn(code.children ?? []);
+
+      if (includeCode || children.length) {
+        out.push({ code, children });
+      }
     }
-    return (code.children ?? []).some(filterFn);
+    return out;
   };
 
-  return codes.value.filter(filterFn);
+  return filterFn(codes.value);
 });
 
 const onClose = () => {
@@ -118,6 +129,7 @@ const onDeleteSelection = async () => {
     () => deleteSelection(deleteTarget.value),
     'Selection successfully deleted'
   );
+  deleteTarget.value = null;
   close();
 };
 const createInVivo = () => {
@@ -295,10 +307,12 @@ const createInVivo = () => {
       />
       <ul>
         <CodingContextMenuItem
-          v-for="code in filteredCodes"
+          v-for="entry in filteredCodes"
           :reassign="reassign"
-          :key="code.id"
-          :code="code"
+          :query="query"
+          :key="entry.code.id"
+          :code="entry.code"
+          :children="entry.children"
           :parent="null"
         />
       </ul>
