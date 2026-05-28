@@ -13,6 +13,8 @@ class Variable extends Model
 
     protected $fillable = [
         'source_id',
+        'project_id',
+        'guid',
         'name',
         'type_of_variable',
         'description',
