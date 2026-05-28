@@ -13,6 +13,7 @@ use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SourceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserNavigationController;
+use App\Http\Controllers\VariableController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -177,5 +178,10 @@ Route::middleware([
      */
     Route::resource('settings', SettingsController::class);
     Route::patch('settings/{setting}/value', [SettingsController::class, 'updateValue'])->name('settings.update-value');
+
+    /**
+     * Variables
+     */
+    Route::post('/projects/{project}/variables', [VariableController::class, 'store'])->name('variables.store');
 
 });
