@@ -183,6 +183,8 @@ Route::middleware([
      * Variables
      */
     Route::post('/projects/{project}/variables', [VariableController::class, 'store'])->name('variables.store');
+    Route::get('/projects/{project}/variables/{variable}', [VariableController::class, 'show'])->name('variables.show');
+    Route::put('/projects/{project}/variables/{variable}', [VariableController::class, 'update'])->name('variables.update');
     Route::delete('/projects/{project}/variables/{variable}', [VariableController::class, 'destroy'])->name('variables.destroy');
 
 });

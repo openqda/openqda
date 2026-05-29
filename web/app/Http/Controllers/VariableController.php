@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DeleteVariableRequest;
 use App\Http\Requests\StoreVariableRequest;
+use App\Models\Project;
 use App\Models\Variable;
 use Illuminate\Support\Str;
 
 class VariableController extends Controller
 {
-    public function store(StoreVariableRequest $request, string $project)
+    public function store(StoreVariableRequest $request, Project $project)
     {
         $variable = new Variable($request->validated());
 
@@ -23,7 +24,34 @@ class VariableController extends Controller
         ], 201);
     }
 
-    public function destroy(DeleteVariableRequest $request, string $project, string $variable)
+    public function show(Project $project, Variable $variable)
+    {
+        if ((string) $variable->project_id !== (string) $project->id) {
+            abort(404);
+        }
+
+        return response()->json([
+            'variable' => $variable,
+        ]);
+    }
+
+    public function update(UpdateVariableRequest $request, Project $project, Variable $variable)
+    {
+        if ((string) $variable->project_id !== (string) $project->id) {
+            abort(404);
+        }
+
+        $variable->fill($request->validated());
+
+        $variable->save();
+
+        return response()->json([
+            'message' => 'Variable successfully updated',
+            'variable' => $variable,
+        ]);
+    }
+
+    public function destroy(DeleteVariableRequest $request, Project $project, Variable $variable)
     {
         if ((string) $variable->project_id !== (string) $project->id) {
             abort(404);
