@@ -7,11 +7,11 @@
       @close="API.setShowMenu(false)"
     >
       <ul class="p-4 flex flex-col gap-4">
-        <li class="flex justify-between items-center">
-          <label class="text-left text-xs font-medium uppercase">
+        <li>
+          <label class="text-left text-xs font-medium uppercase w-full">
             Group By
           </label>
-          <select v-model="options.groupBy" class="border p-1 text-sm rounded bg-surface">
+          <select v-model="options.groupBy" class="w-full">
             <option value="sources">Sources</option>
             <option value="codes">Codes</option>
           </select>
