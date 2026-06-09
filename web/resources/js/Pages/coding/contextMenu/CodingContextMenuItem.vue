@@ -44,7 +44,9 @@ const handle = async ({ code, parent }) => {
       class="p-0 my-2 me-2 bg-transparent text-foreground"
       @click.prevent="open = !open"
     >
-      <ChevronRightIcon :class="cn('w-4 h-4', open || query?.length && 'rotate-90')" />
+      <ChevronRightIcon
+        :class="cn('w-4 h-4', open || (query?.length && 'rotate-90'))"
+      />
     </button>
     <span class="w-4 h-4 my-2 me-2" v-else></span>
     <button

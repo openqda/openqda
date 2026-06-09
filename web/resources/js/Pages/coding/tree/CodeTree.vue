@@ -10,7 +10,7 @@ import FormDialog from '../../../dialogs/FormDialog.vue';
 const props = defineProps({
   codes: Array,
   codebook: Object,
-  editable: Boolean
+  editable: Boolean,
 });
 
 const { observe, showDetails } = useCodes();
@@ -32,7 +32,6 @@ const bySortOrder = getSortOrderBy(props.codebook);
 const codeList = ref(props.codes ?? []);
 
 const sortCodes = (list = []) => {
-  console.debug(list.length)
   list.sort(bySortOrder);
   list.forEach((entry) => {
     if (entry.children?.length > 0) {

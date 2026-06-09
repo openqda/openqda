@@ -151,7 +151,9 @@
               :key="codebook.id"
               :codebook="codebook"
               :editable="false"
-              :codes="topLevelCodes.filter((code) => code.codebook === codebook.id)"
+              :codes="
+                topLevelCodes.filter((code) => code.codebook === codebook.id)
+              "
             />
           </div>
         </div>

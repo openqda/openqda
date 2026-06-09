@@ -20,7 +20,6 @@ const codesCount = computed(() => {
   };
   return countCodes(props.codes);
 });
-
 </script>
 
 <template>

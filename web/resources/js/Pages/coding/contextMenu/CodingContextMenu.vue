@@ -93,7 +93,7 @@ const filteredCodes = computed(() => {
   const searchQuery = query.value.toLowerCase().replace(whitespace, ' ').trim();
   const hasQuery = searchQuery?.length > 2;
   const filterFn = (list) => {
-    const out = []
+    const out = [];
     if (!list?.length) return out;
     for (const code of list) {
       if (!code || !code.active) continue;

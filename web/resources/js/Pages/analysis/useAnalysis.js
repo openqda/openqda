@@ -1,4 +1,4 @@
-import { computed, reactive, ref, toRaw, toRefs } from 'vue';
+import { reactive, ref, toRefs } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import { debounce } from '../../utils/dom/debounce.js';
 import { unfoldCodes } from './unfoldCodes.js';
@@ -20,13 +20,7 @@ const byName = createByPropertySorter('name');
 
 export const useAnalysis = () => {
   const page = usePage();
-  const {
-    sources,
-    codes,
-    codebooks,
-    project,
-    notes: rawNotes,
-  } = page.props;
+  const { sources, codes, codebooks, project, notes: rawNotes } = page.props;
   const { allUsers } = useUsers();
   const notes = rawNotes.map((n) => {
     n.user = allUsers[n.creating_user_id];
@@ -50,11 +44,11 @@ export const useAnalysis = () => {
   });
 
   const getToplevelCodes = (list) => {
-    const flagged = new Map()
+    const flagged = new Map();
     for (const code of list) {
       if (code.children?.length) {
         for (const child of code.children) {
-          flagged.set(child.id, code.id)
+          flagged.set(child.id, code.id);
         }
       }
     }
@@ -63,21 +57,20 @@ export const useAnalysis = () => {
         code.parent = flagged.get(code.id);
       }
     }
-    return list.filter(code => !code.parent)
-  }
+    return list.filter((code) => !code.parent);
+  };
 
   const unfoldedCodes = unfoldCodes(codes);
-  const codeMap = new Map()
-  unfoldedCodes.forEach(code => {
+  const codeMap = new Map();
+  unfoldedCodes.forEach((code) => {
     codeMap.set(code.id, code);
-  })
+  });
   const topLevelCodes = getToplevelCodes(unfoldedCodes, codeMap);
-
-  console.debug({ unfoldedCodes, topLevelCodes });
   const allCodes = ref(
     unfoldedCodes
       .filter((code) => activeCodebooks[code.codebook])
-      .toSorted(byName));
+      .toSorted(byName)
+  );
 
   const allSources = ref(
     sources

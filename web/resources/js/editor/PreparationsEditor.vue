@@ -67,7 +67,7 @@ import { SelectionHighlightBG } from '../Pages/coding/editor/SelectionHighlightB
 const props = defineProps({
   source: String,
   locked: Boolean,
-  CanUnlock: Boolean,
+  canUnlock: Boolean,
   viewerZoom: { type: Number, default: 1.0 },
   useViewZoom: { type: Boolean, default: true },
 });

@@ -52,7 +52,10 @@
       </div>
     </div>
     <!-- editor content -->
-    <div :style="zoomStyle" :class="cn('flex pb-24', loadingDocument && 'hidden')">
+    <div
+      :style="zoomStyle"
+      :class="cn('flex pb-24', loadingDocument && 'hidden')"
+    >
       <div id="lineNumber"></div>
       <div
         id="editor"

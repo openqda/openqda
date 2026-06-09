@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { useCodeTree } from '../coding/tree/useCodeTree';
 import { BarsArrowDownIcon, ChevronRightIcon } from '@heroicons/vue/24/solid';
 import Button from '../../Components/interactive/Button.vue';
 import { cn } from '../../utils/css/cn';
 import ContrastText from '../../Components/text/ContrastText.vue';
 import { changeOpacity } from '../../utils/color/changeOpacity';
-import { useAnalysis  } from './useAnalysis';
 const { collapsed, toggleCollapse } = useCodeTree();
 const props = defineProps({
   code: Object,
@@ -26,7 +25,6 @@ const toggle = () => {
 //------------------------------------------------------------------------
 // TEXTS (SELECTIONS)
 //------------------------------------------------------------------------
-const showTexts = ref(false);
 const textSelectionsCount = (code) => {
   let count = code?.text?.length ?? 0;
   if (code.children?.length) {
@@ -39,20 +37,6 @@ const textSelectionsCount = (code) => {
 };
 const textCount = computed(() => {
   return textSelectionsCount(props.code);
-});
-
-const textNotesCount = (code) => {
-  let count = code?.notes?.length ?? 0;
-  if (code.children?.length) {
-    code.children.forEach((child) => {
-      count += textNotesCount(child);
-    });
-  }
-
-  return count;
-};
-const notesCount = computed(() => {
-  return textNotesCount(props.code);
 });
 </script>
 
@@ -117,15 +101,13 @@ const notesCount = computed(() => {
         >
         <!-- input -->
         <div class="flex justify-end items-center gap-2">
-          <span class="flex gap-1"><BarsArrowDownIcon class="w-4 h-4" /> {{ textCount }}</span>
-          <input
-            :id="code.id"
-            type="checkbox"
-            class="cursor-pointer"
-          />
+          <span class="flex gap-1"
+            ><BarsArrowDownIcon class="w-4 h-4" /> {{ textCount }}</span
+          >
+          <input :id="code.id" type="checkbox" class="cursor-pointer" />
         </div>
       </div>
-      </div>
+    </div>
   </div>
 </template>
 

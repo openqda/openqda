@@ -235,7 +235,14 @@ const { range } = useRange();
             )
           "
         >
-          <ContrastText :class="cn(code.active && 'hover:text-primary-foreground hover:bg-primary')">{{ code.name }}</ContrastText>
+          <ContrastText
+            :class="
+              cn(
+                code.active && 'hover:text-primary-foreground hover:bg-primary'
+              )
+            "
+            >{{ code.name }}</ContrastText
+          >
         </button>
         <ContrastText v-else>{{ code.name }}</ContrastText>
         <ContrastText
