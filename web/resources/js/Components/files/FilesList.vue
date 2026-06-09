@@ -2,7 +2,7 @@
   <table :class="cn('w-full border-collapse', props.fixed && 'table-fixed')">
     <thead>
       <tr class="align-middle" :class="props.rowClass">
-        <th class="w-5">
+        <th class="w-5 text-start">
           <button @click="search = !search">
             <MagnifyingGlassIcon class="w-4 h-4" />
           </button>

@@ -12,30 +12,22 @@
 
         <div
           v-if="menuView === 'export'"
-          class="p-3 rounded-md border border-border flex items-center"
+          class="p-3 rounded-md border border-border"
         >
           <p class="text-sm text-foreground/60 me-3">
             You can export your data to a table in csv format. Note, that data
             is filtered, based on selected sources and codes.
           </p>
-          <Button
-            @click="exportToCSV({ contents: selection, users: allUsers })"
-            :disabled="!hasSelections"
-            :title="
-              hasSelections
-                ? 'Export to CSV'
-                : 'Select at least one File and Code to export'
-            "
-          >
-            Export to CSV
-          </Button>
+          <div class="flex items-center justify-end mt-4">
+            <Button @click="exportData"> Export to CSV </Button>
+          </div>
         </div>
 
         <div v-show="menuView === 'sources'" class="">
           <FilesList
             :focus-on-hover="false"
             :fields="{
-              lock: false,
+              lock: true,
               file: true,
               type: true,
               date: false,
@@ -269,6 +261,14 @@ const props = defineProps(['codebooks', 'project']);
 const { allUsers } = useUsers();
 provide('codeTreeItemRenderer', AnalysisCodeTreeItemRenderer);
 provide('codeBookRenderer', AnalysisCodebookRenderer);
+
+const exportData = async () => {
+  if (!hasSelections.value) await loadSelections();
+  await asyncTimeout(300);
+  const contents = selection.value;
+  const users = allUsers;
+  await exportToCSV({ contents, users });
+};
 
 //------------------------------------------------------------------------
 // PAGE
