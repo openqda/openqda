@@ -6,13 +6,26 @@ import Button from '../../Components/interactive/Button.vue';
 import { cn } from '../../utils/css/cn';
 import ContrastText from '../../Components/text/ContrastText.vue';
 import { changeOpacity } from '../../utils/color/changeOpacity';
+import { useAnalysis  } from './useAnalysis';
 const { collapsed, toggleCollapse } = useCodeTree();
+const { checkedCodes } = useAnalysis()
 const props = defineProps({
   code: Object,
   class: String,
   sorting: Boolean,
   showDetails: Boolean,
 });
+
+const updateCodesRecursive = (code, value) => {
+  checkedCodes.value.set(code.id, value)
+  for (const child of code.children ?? []) {
+    updateCodesRecursive(child, value);
+  }
+}
+const updateCodeCheck = code => {
+  const checked = checkedCodes.value.get(code.id);
+  updateCodesRecursive(code, !checked);
+}
 
 //------------------------------------------------------------------------
 // Collapse
@@ -104,7 +117,9 @@ const textCount = computed(() => {
           <span class="flex gap-1"
             ><BarsArrowDownIcon class="w-4 h-4" /> {{ textCount }}</span
           >
-          <input :id="code.id" type="checkbox" class="cursor-pointer" />
+          <input :id="code.id" type="checkbox" class="cursor-pointer"
+                 :checked="checkedCodes.get(code.id)"
+                 @change="updateCodeCheck(code)" />
         </div>
       </div>
     </div>
