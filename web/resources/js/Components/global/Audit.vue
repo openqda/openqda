@@ -1,5 +1,5 @@
 <template>
-  <div class="flow-root w-full ml-auto mr-auto">
+  <div class="flow-root w-full ml-auto mr-auto pb-16">
     <div class="pb-1.5 mt-2 rounded-md">
       <!-- Search Input with loading indicator -->
       <div class="flex items-center gap-x-1.5 mb-2 relative my-6 md:my-0">

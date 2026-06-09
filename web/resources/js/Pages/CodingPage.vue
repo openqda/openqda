@@ -54,6 +54,7 @@
         <CodeTree
           v-for="codebook in codebooks"
           :key="codebook.id"
+          :editable="true"
           :codebook="codebook"
           :codes="codes.filter((code) => code.codebook === codebook.id)"
           v-if="codesView === 'codes'"
@@ -142,9 +143,11 @@
 <script setup>
 import { PlusIcon } from '@heroicons/vue/24/solid';
 import { ChatBubbleLeftEllipsisIcon } from '@heroicons/vue/24/outline';
-import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
+import { computed, onMounted, ref, useTemplateRef, watch, provide } from 'vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import CodeTree from './coding/tree/CodeTree.vue';
+import CodeTreeItemRenderer from './coding/tree/CodeTreeItemRenderer.vue';
+import CodebookRenderer from './coding/tree/CodebookRenderer.vue';
 import CodingEditor from './coding/CodingEditor.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
 import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue';
@@ -249,6 +252,8 @@ const codesTabs = [
   { value: 'cleanup', label: 'Cleanup' },
 ];
 const codesView = ref(codesTabs[0].value);
+provide('codeTreeItemRenderer', CodeTreeItemRenderer);
+provide('codeBookRenderer', CodebookRenderer);
 
 // IN-VIVO CODE CREATION
 const createDialogRef = useTemplateRef('createDialogRef');

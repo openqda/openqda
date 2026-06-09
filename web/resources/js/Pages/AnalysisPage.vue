@@ -71,7 +71,17 @@
         </div>
 
         <div v-if="menuView === 'codes'">
-          <table class="w-full border-collapse border-0">
+          <SelectField
+            :value="sortCode"
+            size="sm"
+            :options="sortCodeOptions"
+            @change="updateCodeSortMode"
+            :default-option="alpha"
+          />
+          <table
+            v-if="sortCode === 'alpha'"
+            class="w-full border-collapse border-0"
+          >
             <thead>
               <tr class="border-0">
                 <th
@@ -102,7 +112,7 @@
                     class="cursor-pointer select-none line-clamp-1 rounded-md p-2 my-2 flex justify-between"
                     :style="{
                       backgroundColor: code.color,
-                      opacity: checkedCodes.get(code.id) ? 1 : 0.3,
+                      opacity: checkedCodes.get(code.id) ? 1 : 0.4,
                     }"
                   >
                     <ContrastText class="line-clamp-1 px-1 rounded">{{
@@ -126,6 +136,24 @@
               </tr>
             </tbody>
           </table>
+          <div v-if="sortCode === 'hierarchy'">
+            <div class="flex justify-between mt-4">
+              <label>Select all</label>
+              <input
+                id="all_codes"
+                type="checkbox"
+                :checked="allCodesChecked"
+                @change="checkCode('all')"
+              />
+            </div>
+            <CodeTree
+              v-for="codebook in codebooks"
+              :key="codebook.id"
+              :codebook="codebook"
+              :editable="false"
+              :codes="topLevelCodes.filter((code) => code.codebook === codebook.id)"
+            />
+          </div>
         </div>
         <div class="mt-auto">
           <Footer />
@@ -206,7 +234,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, provide, ref } from 'vue';
 import Button from '../Components/interactive/Button.vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
@@ -228,12 +256,17 @@ import HelpResources from '../Components/HelpResources.vue';
 import ActivityIndicator from '../Components/ActivityIndicator.vue';
 import { attemptAsync } from '../Components/notification/attemptAsync.js';
 import { asyncTimeout } from '../utils/asyncTimeout.js';
+import AnalysisCodeTreeItemRenderer from './analysis/AnalysisCodeTreeItemRenderer.vue';
+import AnalysisCodebookRenderer from './analysis/AnalysisCodebookRenderer.vue';
+import CodeTree from './coding/tree/CodeTree.vue';
 
 //------------------------------------------------------------------------
 // DATA / PROPS
 //------------------------------------------------------------------------
 const props = defineProps(['codebooks', 'project']);
 const { allUsers } = useUsers();
+provide('codeTreeItemRenderer', AnalysisCodeTreeItemRenderer);
+provide('codeBookRenderer', AnalysisCodebookRenderer);
 
 //------------------------------------------------------------------------
 // PAGE
@@ -245,6 +278,7 @@ const pageTitle = ref(`Analysis - ${trunc(props.project.name, 50)}`);
 //------------------------------------------------------------------------
 const {
   codes,
+  topLevelCodes,
   checkedCodes,
   allCodesChecked,
   checkCode,
@@ -260,6 +294,7 @@ const {
   loadSelections,
   leaveAnalysis,
 } = useAnalysis();
+
 const selectionsCount = computed(() => {
   return codes.value.reduce((acc, code) => {
     if (checkedCodes.value.get(code.id)) {
@@ -277,7 +312,14 @@ const {
   selectVisualizerPlugin,
   disposeVisualizerPlugin,
 } = useVisualizerPlugins();
-
+const sortCode = ref('hierarchy');
+const sortCodeOptions = [
+  { value: 'hierarchy', label: 'Hierarchical' },
+  { value: 'alpha', label: 'Alphabetical' },
+];
+const updateCodeSortMode = (e) => {
+  sortCode.value = e.target.value;
+};
 //------------------------------------------------------------------------
 // VIEWS / TABS
 //------------------------------------------------------------------------

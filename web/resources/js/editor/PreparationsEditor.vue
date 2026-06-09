@@ -18,7 +18,7 @@
   <div
     id="editorPane"
     :style="zoomStyle"
-    :class="cn('flex', loadingDocument && 'hidden')"
+    :class="cn('flex pb-24', loadingDocument && 'hidden')"
   >
     <div id="lineNumber"></div>
     <div id="editor" class="grow"></div>
