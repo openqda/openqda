@@ -77,6 +77,7 @@ trait BuildsNestedCode
                 'text' => $s->text,
                 'start' => $s->start_position,
                 'end' => $s->end_position,
+                'code_id' => $s->code_id,
                 'createdBy' => $s->creating_user_id,
                 'createdAt' => $s->created_at,
                 'updatedAt' => $s->updated_at,

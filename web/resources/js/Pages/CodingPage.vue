@@ -21,7 +21,7 @@
                 @click="createCodeTriggerProps.onClick(openCreateCodeDialog)"
               >
                 <PlusIcon class="w-4 h-4 me-1" />
-                <span v-if="codesView === 'codes' && range?.length">
+                <span v-if="codesView === 'codes' && hasSelectedRange">
                   In-Vivo
                 </span>
                 <span v-else>Create</span>
@@ -99,6 +99,27 @@
             >
               <ChatBubbleLeftEllipsisIcon class="w-4 h-4" />
             </Button>
+            <CreateDialog
+              :schema="createNewCodeSchema"
+              :title="`Create a new ${hasSelectedRange ? 'In-Vivo Code' : 'Code'}`"
+              :submit="createCodeHandler"
+              @cancelled="unsetInvivoText"
+              @created="unsetInvivoText"
+            >
+              <template #trigger="createCodeTriggerProps">
+                <Button
+                  variant="outline-secondary"
+                  class="inline-flex lg:hidden"
+                  @click="createCodeTriggerProps.onClick(openCreateCodeDialog)"
+                >
+                  <PlusIcon class="w-4 h-4 me-1" />
+                  <span v-if="codesView === 'codes' && hasSelectedRange">
+                    In-Vivo
+                  </span>
+                  <span v-else>Create</span>
+                </Button>
+              </template>
+            </CreateDialog>
           </template>
         </CodingEditor>
         <SideOverlay
@@ -231,7 +252,7 @@ const {
 //------------------------------------------------------------------------
 const { range, text, prevRange } = useRange();
 const { createSelection } = useSelections();
-
+const hasSelectedRange = computed(() => !!range.value?.length);
 //------------------------------------------------------------------------
 // CODES / CODEBOOKS
 //------------------------------------------------------------------------
