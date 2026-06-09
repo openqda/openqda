@@ -54,6 +54,7 @@ const handleTogglingCodebook = async (codebook) => {
 <template>
   <div class="flex justify-between items-center">
     <Headline3>{{ codebook.name }}</Headline3>
+
     <!-- codebook options -->
     <span class="flex justify-between items-center gap-2">
       <span class="text-foreground/50 text-xs mx-2">
@@ -98,8 +99,8 @@ const handleTogglingCodebook = async (codebook) => {
         @click="setSorting(sorting === codebook.id ? null : codebook.id)"
         :title="
           sorting === codebook.id
-            ? 'Deactivate code-sorting'
-            : 'Activate code-sorting'
+            ? 'End sorting codes'
+            : 'Start sorting codes'
         "
       >
         <ArrowsUpDownIcon class="w-4 h-4" />
