@@ -78,7 +78,7 @@
         </td>
 
         <!-- type -->
-        <td class="py-2" v-if="fieldsVisible.type && hover !== index">
+        <td class="py-2" v-if="fieldsVisible.type">
           <div
             v-if="document.failed"
             title="There was an error during upload or conversion. Please retry or delete this file."
@@ -164,9 +164,9 @@
               emit('select', document, index)
             "
             :title="
-              hover === index
+              document.selected
                 ? 'File already open'
-                : `Open ${document.name} in editor`
+                : `Open '${document.name}' in editor`
             "
             :class="
               cn(
@@ -314,7 +314,7 @@ const docs = computed(() => {
       .filter((note) => note.type === 'source' && note.target === doc.id)
       .map((n) => toRaw(n)); // prevent "proxy object could not be cloned error"
     return doc;
-  });
+  }).toSorted((a, b) => a.name.localeCompare(b.name));
 });
 const sorter = ref({ key: null, ascending: false });
 const openMenuId = ref(null);
