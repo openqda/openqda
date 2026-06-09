@@ -5,7 +5,10 @@
         <ActivityIndicator v-if="!codingInitialized">
           Loading codes and selections...
         </ActivityIndicator>
-        <div v-else class="sticky top-0 z-10 block  lg:flex items-center justify-between bg-surface mb-4 py-3">
+        <div
+          v-else
+          class="sticky top-0 z-10 block lg:flex items-center justify-between bg-surface mb-4 py-3"
+        >
           <CreateDialog
             ref="createDialogRef"
             :schema="createNewCodeSchema"

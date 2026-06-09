@@ -2,7 +2,11 @@
   <table :class="cn('w-full border-collapse', props.fixed && 'table-fixed')">
     <thead>
       <tr class="align-middle" :class="props.rowClass">
-        <th class="w-5" v-if="fieldsVisible.lock"></th>
+        <th class="w-5">
+          <button @click="search = !search">
+            <MagnifyingGlassIcon class="w-4 h-4" />
+          </button>
+        </th>
         <th
           v-for="field in headerFields.filter(
             (field) => fieldsVisible[field.key]
@@ -13,7 +17,35 @@
             cn('text-xs font-normal text-foreground/50 sm:pl-0', field.class)
           "
         >
+          <div
+            v-if="search && field.search"
+            class="flex items-center w-full pe-3 gap-1"
+          >
+            <input
+              placeholder="filter list..."
+              v-model="filter"
+              class="h-4 text-xs grow"
+              autofocus
+              @keydown="
+                (e) => {
+                  if (e.key === 'Escape') {
+                    search = false;
+                    filter = '';
+                  }
+                }
+              "
+            />
+            <button
+              @click="
+                search = false;
+                filter = '';
+              "
+            >
+              <XMarkIcon class="w-4 h-4" />
+            </button>
+          </div>
           <a
+            v-else
             href
             @click.prevent="() => sort(field.key)"
             :class="
@@ -278,6 +310,8 @@ import {
   ChevronUpIcon,
   EllipsisVerticalIcon,
   LockClosedIcon,
+  MagnifyingGlassIcon,
+  XMarkIcon,
 } from '@heroicons/vue/20/solid/index.js';
 import {
   ChatBubbleLeftEllipsisIcon,
@@ -308,9 +342,16 @@ const props = defineProps([
   'focusOnHover',
   'fullTitle',
 ]);
+const filter = ref();
 const docs = computed(() => {
   return props.documents
-    .filter(Boolean)
+    .filter((doc) => {
+      if (!doc) return false;
+      if (search.value && filter.value?.length >= 2) {
+        return doc.name.toLowerCase().includes(filter.value.toLowerCase());
+      }
+      return true;
+    })
     .map((doc) => {
       doc.notes = (props.notes ?? [])
         .filter((note) => note.type === 'source' && note.target === doc.id)
@@ -320,6 +361,7 @@ const docs = computed(() => {
     .toSorted((a, b) => a.name.localeCompare(b.name));
 });
 const sorter = ref({ key: null, ascending: false });
+const search = ref(false);
 const openMenuId = ref(null);
 const headerFields = ref([
   {
@@ -334,6 +376,7 @@ const headerFields = ref([
     pos: 'start',
     title: 'Sort by name',
     class: 'w-4/6 text-start',
+    search: true,
   },
   {
     label: 'Date',
