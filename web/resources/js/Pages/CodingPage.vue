@@ -5,7 +5,7 @@
         <ActivityIndicator v-if="!codingInitialized">
           Loading codes and selections...
         </ActivityIndicator>
-        <div v-else class="inline md:flex items-center justify-between mb-4">
+        <div v-else class="sticky top-0 z-10 block  lg:flex items-center justify-between bg-surface mb-4 py-3">
           <CreateDialog
             ref="createDialogRef"
             :schema="createNewCodeSchema"
@@ -59,14 +59,6 @@
           :codes="codes.filter((code) => code.codebook === codebook.id)"
           v-if="codesView === 'codes'"
         />
-        <div v-if="codesView === 'sources' && sourceDocuments?.length">
-          <Headline3 class="text-sm text-foreground">
-            Available Sources
-          </Headline3>
-          <p class="text-foreground/60 text-sm mb-1">
-            These sources are available for coding.
-          </p>
-        </div>
         <FilesList
           v-if="codesView === 'sources' && sourceDocuments?.length"
           :documents="sourceDocuments"
