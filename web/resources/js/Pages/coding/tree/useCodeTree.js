@@ -4,21 +4,29 @@ const state = reactive({
   dragging: false,
   collapsed: {},
   sorting: null,
+  query: null,
 });
 
 export const useCodeTree = () => {
-  const { dragging, collapsed, sorting } = toRefs(state);
+  const { query, dragging, collapsed, sorting } = toRefs(state);
 
   return {
     dragging,
     sorting,
+    query,
     collapsed,
+    setQuery: q => {
+      state.query = q.toLocaleLowerCase();
+      return q;
+    },
     setSorting: (codebookId) => {
+      state.query = null;
       state.sorting = codebookId;
       return codebookId;
     },
     setDragging: (value) => {
       state.dragging = value;
+      state.query = null;
       return value;
     },
     collapse: (id, value) => {
