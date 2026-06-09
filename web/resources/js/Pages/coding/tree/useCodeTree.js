@@ -15,7 +15,7 @@ export const useCodeTree = () => {
     sorting,
     query,
     collapsed,
-    setQuery: q => {
+    setQuery: (q) => {
       state.query = q.toLocaleLowerCase();
       return q;
     },

@@ -59,8 +59,16 @@
           :codes="codes.filter((code) => code.codebook === codebook.id)"
           v-if="codesView === 'codes'"
         />
+        <div v-if="codesView === 'sources' && sourceDocuments?.length">
+          <Headline3 class="text-sm text-foreground">
+            Available Sources
+          </Headline3>
+          <p class="text-foreground/60 text-sm mb-1">
+            These sources are available for coding.
+          </p>
+        </div>
         <FilesList
-          v-if="codesView === 'sources'"
+          v-if="codesView === 'sources' && sourceDocuments?.length"
           :documents="sourceDocuments"
           :fixed="true"
           :focus-on-hover="true"
@@ -71,11 +79,11 @@
           v-if="codesView === 'sources' && !sourceDocuments?.length"
           class="p-3 text-foreground/60"
         >
-          No other sources locked for coding. Go to
-          <Link :href="route('source.index', projectId)"
-            >the preparations page</Link
-          >
-          to edit and lock sources for coding.
+          There are no Sources available. Go to
+          <Link :href="route('source.index', projectId)">
+            the preparations page
+          </Link>
+          to create, edit and lock sources for coding.
         </p>
         <div class="mt-auto">
           <Footer />
@@ -205,32 +213,33 @@ const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
 const sourceDocuments = ref(
   props.sources
     .filter((source) => {
-      if (source.id === props.source?.id) return false;
-      if (source.isLocked) return true;
-
-      // backwards compatibility: check raw variables array
-      // TODO: remove 1.2.0
-      if (Array.isArray(source.variables)) {
-        return (source.variables ?? []).find(
-          ({ name, boolean_value }) =>
-            name === 'isLocked' && boolean_value === 1
-        );
-      } else {
-        return !!source.variables?.isLocked;
-      }
+      return props.source?.id && source.id !== props.source?.id;
     })
     .map((source) => {
       const copy = { ...source };
-      copy.date = new Date(source.updated_at).toLocaleDateString();
-      copy.variables = { isLocked: true };
+      const isLocked =
+        copy.isLocked ??
+        source.variables?.isLocked ??
+        (source.variables ?? [])?.find(({ name }) => name === 'isLocked')
+          ?.boolean_value;
+      copy.variables = { isLocked: isLocked };
       copy.isConverting = false;
       copy.failed = false;
       copy.converted = true;
       return copy;
     })
+    .toSorted((a, b) => a.name.localeCompare(b.name))
 );
+
 const switchFile = (file) => {
-  router.get(route('source.code', file.id));
+  if (file.variables?.isLocked) {
+    return router.get(route('source.code', file.id));
+  } else {
+    const projectId = props.projectId ?? props.project?.id;
+    const url = new URL(route('source.index', projectId));
+    url.searchParams.set('file', file.id);
+    return router.get(url.toString());
+  }
 };
 //------------------------------------------------------------------------
 // GENERIC EDIT DIALOG

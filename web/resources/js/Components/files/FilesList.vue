@@ -309,12 +309,15 @@ const props = defineProps([
   'fullTitle',
 ]);
 const docs = computed(() => {
-  return props.documents.filter(Boolean).map((doc) => {
-    doc.notes = (props.notes ?? [])
-      .filter((note) => note.type === 'source' && note.target === doc.id)
-      .map((n) => toRaw(n)); // prevent "proxy object could not be cloned error"
-    return doc;
-  }).toSorted((a, b) => a.name.localeCompare(b.name));
+  return props.documents
+    .filter(Boolean)
+    .map((doc) => {
+      doc.notes = (props.notes ?? [])
+        .filter((note) => note.type === 'source' && note.target === doc.id)
+        .map((n) => toRaw(n)); // prevent "proxy object could not be cloned error"
+      return doc;
+    })
+    .toSorted((a, b) => a.name.localeCompare(b.name));
 });
 const sorter = ref({ key: null, ascending: false });
 const openMenuId = ref(null);

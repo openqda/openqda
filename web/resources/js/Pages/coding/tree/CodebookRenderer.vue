@@ -98,9 +98,7 @@ const handleTogglingCodebook = async (codebook) => {
         "
         @click="setSorting(sorting === codebook.id ? null : codebook.id)"
         :title="
-          sorting === codebook.id
-            ? 'End sorting codes'
-            : 'Start sorting codes'
+          sorting === codebook.id ? 'End sorting codes' : 'Start sorting codes'
         "
       >
         <ArrowsUpDownIcon class="w-4 h-4" />

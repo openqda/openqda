@@ -49,10 +49,6 @@ class CodingController extends Controller
     {
         $projectId = $project->id;
         $allSources = Source::where('project_id', $projectId)->with('variables')
-            ->whereHas('variables', function ($query) {
-                $query->where('name', 'isLocked')
-                    ->where('boolean_value', true);
-            })
             ->get()
             ->map(function ($source) {
                 $converted = $source->converted;
