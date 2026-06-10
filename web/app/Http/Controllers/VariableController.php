@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DeleteVariableRequest;
 use App\Http\Requests\StoreVariableRequest;
+use App\Http\Requests\UpdateVariableRequest;
 use App\Models\Project;
 use App\Models\Variable;
 use Illuminate\Support\Str;

@@ -8,31 +8,21 @@ use Illuminate\Support\Facades\Gate;
 
 class StoreVariableRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
     public function authorize()
     {
-        $projectId = $this->route('project');
+        $project = $this->route('project');
 
-        $project = Project::find($projectId);
+        if (! $project instanceof Project) {
+            $project = Project::find($project);
+        }
 
-        // If the project does not exist, deny authorization
         if (! $project) {
             return false;
         }
 
-        // User must have access to this project
         return Gate::allows('view', $project);
     }
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
     public function rules()
     {
         return [
