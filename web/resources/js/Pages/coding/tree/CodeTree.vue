@@ -3,7 +3,6 @@ import { inject, ref, watch } from 'vue';
 import { useCodes } from '../../../domain/codes/useCodes';
 import { useCodebookOrder } from '../../../domain/codebooks/useCodebookOrder';
 import { attemptAsync } from '../../../Components/notification/attemptAsync';
-import { useCodeTree } from './useCodeTree';
 import CodeTreeItem from './CodeTreeItem.vue';
 import FormDialog from '../../../dialogs/FormDialog.vue';
 
@@ -14,7 +13,6 @@ const props = defineProps({
 });
 
 const { observe, showDetails } = useCodes();
-const { sorting } = useCodeTree();
 //------------------------------------------------------------------------
 // CODEBOOKS
 //------------------------------------------------------------------------
@@ -84,12 +82,6 @@ if (props.editable) {
 <template>
   <div class="w-full">
     <CodeBookRenderer :codebook="codebook" :codes="codes" />
-    <p
-      v-if="sorting === codebook.id"
-      class="w-full text-end text-xs text-secondary"
-    >
-      Deactivate sorting before you continue with coding.
-    </p>
     <CodeTreeItem
       v-model="codeList"
       class="py-4"

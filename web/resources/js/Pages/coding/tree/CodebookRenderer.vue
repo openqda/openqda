@@ -52,9 +52,20 @@ const handleTogglingCodebook = async (codebook) => {
 </script>
 
 <template>
-  <div class="flex justify-between items-center">
-    <Headline3>{{ codebook.name }}</Headline3>
-
+  <div
+    :class="
+      cn(
+        'flex justify-between items-center',
+        sorting && 'sticky top-14 z-50 bg-surface'
+      )
+    "
+  >
+    <div>
+      <Headline3>{{ codebook.name }}</Headline3>
+      <span v-if="sorting" class="text-sm font-semibold text-secondary"
+        >Sorting mode</span
+      >
+    </div>
     <!-- codebook options -->
     <span class="flex justify-between items-center gap-2">
       <span class="text-foreground/50 text-xs mx-2">
