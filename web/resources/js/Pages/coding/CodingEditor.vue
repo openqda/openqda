@@ -7,10 +7,11 @@
       <Headline1 class="hidden md:block m-0">{{
         props.source?.name
       }}</Headline1>
+      <slot name="info" />
       <div class="flex gap-1 justify-end items-center">
         <Transition name="fade">
           <Button
-            v-if="range?.length"
+            v-if="!blocked && range?.length"
             variant="outline-secondary"
             @click="showContextMenu"
             class="hidden"
@@ -20,6 +21,7 @@
           >
         </Transition>
         <Button
+          v-if="!blocked"
           variant="outline"
           class="p-1 md:p-2 rounded hover:bg-foreground/10 transition-colors"
           title="Zoom Out"
@@ -34,6 +36,7 @@
           </svg>
         </Button>
         <Button
+          v-if="!blocked"
           variant="outline"
           class="p-1 md:p-2 rounded hover:bg-foreground/10 transition-colors"
           title="Zoom In"
@@ -72,7 +75,7 @@
     >
       <Transition name="fade">
         <Button
-          v-if="range?.length"
+          v-if="!blocked && range?.length"
           variant="outline-secondary"
           @click="showContextMenu"
           class="inline-flex md:hidden"
@@ -162,6 +165,7 @@ const props = defineProps({
   codes: Array,
   locked: Boolean,
   CanUnlock: Boolean,
+  blocked: Boolean,
 });
 const disposables = new Set();
 const contentHash = ref('');
@@ -353,7 +357,7 @@ watch(selected, async ({ code }) => {
 
 // TODO move to useContextMenu
 const showContextMenu = (event) => {
-  if (event.shiftKey) {
+  if (event.shiftKey || props.blocked) {
     // Allow the browser's context menu to appear
     return;
   }

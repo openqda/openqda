@@ -252,7 +252,7 @@ const { range } = useRange();
         >
       </div>
 
-      <div class="flex justify-between items-center gap-2">
+      <div class="flex justify-between items-center gap-2" v-if="!sorting">
         <!-- show texts -->
         <Button
           :title="showTexts ? 'Hide selections list' : 'Show selections list'"
@@ -322,7 +322,7 @@ const { range } = useRange();
         </button>
 
         <!-- code menu -->
-        <Dropdown :disabled="sorting">
+        <Dropdown>
           <template #trigger>
             <button
               :disabled="sorting"

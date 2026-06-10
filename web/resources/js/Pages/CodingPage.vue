@@ -6,7 +6,7 @@
           Loading codes and selections...
         </ActivityIndicator>
         <div
-          v-else
+          v-else-if="!sorting"
           class="sticky top-0 z-10 block lg:flex items-center justify-between bg-surface mb-4 py-3"
         >
           <CreateDialog
@@ -86,16 +86,23 @@
       </BaseContainer>
     </template>
     <template #main>
-      <div v-if="$props.source">
+      <div v-if="$props.source" class="relative">
         <CodingEditor
+          :blocked="sorting"
           :project="{ id: props.projectId }"
           :source="$props.source"
           :codes="$props.allCodes"
           class="overflow-y-auto overflow-x-hidden w-full h-full"
         >
           <template #actions>
+            <Transition name="fade">
+              <span v-if="sorting" class="text-sm text-foreground/80">
+                Coding is blocked while sorting.
+                <Button @click="setSorting(null)"> End sorting codes </Button>
+              </span>
+            </Transition>
             <Button
-              v-if="props.source"
+              v-if="props.source && !sorting"
               @click="showSourceNotes = true"
               :title="`Manage notes for source '${props.source?.name}'`"
               variant="outline"
@@ -103,6 +110,7 @@
               <ChatBubbleLeftEllipsisIcon class="w-4 h-4" />
             </Button>
             <CreateDialog
+              v-if="!sorting"
               :schema="createNewCodeSchema"
               :title="`Create a new ${hasSelectedRange ? 'In-Vivo Code' : 'Code'}`"
               :submit="createCodeHandler"
@@ -200,6 +208,7 @@ import { useNotes } from '../domain/notes/useNotes.js';
 import SideOverlay from '../Components/layout/SideOverlay.vue';
 import NoteList from './coding/tree/NoteList.vue';
 import Headline3 from '../Components/layout/Headline3.vue';
+import { useCodeTree } from './coding/tree/useCodeTree.js';
 
 const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
 //------------------------------------------------------------------------
@@ -317,6 +326,8 @@ const createCodeHandler = async (formData) => {
   }
   return code;
 };
+
+const { sorting, setSorting } = useCodeTree();
 
 //------------------------------------------------------------------------
 // NOTES
