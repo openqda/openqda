@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Project;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
 
 class UpdateVariableRequest extends FormRequest
 {
@@ -25,10 +26,30 @@ class UpdateVariableRequest extends FormRequest
 
     public function rules(): array
     {
+        $project = $this->route('project');
+
+        $projectId = $project instanceof Project
+            ? $project->id
+            : $project;
+
+        $variable = $this->route('variable');
+
+        $variableId = $variable instanceof Variable
+            ? $variable->id
+            : $variable;
+
         return [
             'source_id' => 'required|uuid|exists:sources,id',
 
-            'name' => 'required|string|max:255',
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('variables', 'name')
+                    ->where('project_id', (string) $projectId)
+                    ->where('source_id', $this->input('source_id'))
+                    ->ignore($variableId),
+            ],
 
             'type_of_variable' => 'required|string|max:255',
 
@@ -45,6 +66,13 @@ class UpdateVariableRequest extends FormRequest
             'date_value' => 'nullable|date',
 
             'datetime_value' => 'nullable|date',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'name.unique' => 'A variable with this name already exists for this project and source.',
         ];
     }
 }
