@@ -6,14 +6,16 @@ const project = { name: 'Test Project' };
 describe('buildNotesCSV', () => {
   test('produces only a header row when there are no notes', () => {
     const result = buildNotesCSV({ notes: [], project });
-    expect(result).toBe('note;attached to;name;created by;created at;visibility\n');
+    expect(result).toBe(
+      'note;attached to;name;created by;created at;visibility\n'
+    );
   });
 
   test('resolves the name of the code a note is attached to', () => {
     const notes = [
       {
         content: 'Interesting quote',
-        scope: 'code',
+        type: 'code',
         target: 'code-1',
         creating_user_id: 'user-1',
         user: { name: 'Alice' },
@@ -31,7 +33,7 @@ describe('buildNotesCSV', () => {
     const notes = [
       {
         content: 'About this file',
-        scope: 'source',
+        type: 'source',
         target: 'src-1',
         creating_user_id: 'user-1',
         user: { name: 'Bob' },
@@ -48,7 +50,7 @@ describe('buildNotesCSV', () => {
     const notes = [
       {
         content: 'Overall thought',
-        scope: 'project',
+        type: 'project',
         target: 'proj-1',
         creating_user_id: 'user-1',
         user: { name: 'Carol' },
@@ -64,7 +66,7 @@ describe('buildNotesCSV', () => {
     const notes = [
       {
         content: 'Private note',
-        scope: 'project',
+        type: 'project',
         target: 'proj-1',
         user: { name: 'Alice' },
         created_at: null,
@@ -72,7 +74,7 @@ describe('buildNotesCSV', () => {
       },
       {
         content: 'Team note',
-        scope: 'project',
+        type: 'project',
         target: 'proj-1',
         user: { name: 'Alice' },
         created_at: null,
@@ -88,7 +90,7 @@ describe('buildNotesCSV', () => {
     const notes = [
       {
         content: 'A note',
-        scope: 'project',
+        type: 'project',
         target: 'proj-1',
         creating_user_id: 'user-42',
         created_at: null,

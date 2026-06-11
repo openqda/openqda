@@ -40,16 +40,14 @@
               @click="
                 exportNotesToCSV({
                   notes,
-                  codes: codes,
-                  sources: sources,
+                  codes,
+                  sources,
                   users: allUsers,
                 })
               "
               :disabled="!notes.length"
               :title="
-                notes.length
-                  ? 'Export Notes to CSV'
-                  : 'No notes to export'
+                notes.length ? 'Export Notes to CSV' : 'No notes to export'
               "
             >
               Export Notes
