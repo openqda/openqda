@@ -175,7 +175,15 @@
 <script setup>
 import { PlusIcon } from '@heroicons/vue/24/solid';
 import { ChatBubbleLeftEllipsisIcon } from '@heroicons/vue/24/outline';
-import { computed, onMounted, ref, useTemplateRef, watch, provide } from 'vue';
+import {
+  computed,
+  onMounted,
+  ref,
+  useTemplateRef,
+  watch,
+  provide,
+  onBeforeUnmount,
+} from 'vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import CodeTree from './coding/tree/CodeTree.vue';
 import CodeTreeItemRenderer from './coding/tree/CodeTreeItemRenderer.vue';
@@ -376,6 +384,10 @@ onMounted(async () => {
   codingInitialized.value = true;
 
   initNotes();
+});
+
+onBeforeUnmount(() => {
+  setSorting(null);
 });
 
 const onSourceSelected = (file) => {

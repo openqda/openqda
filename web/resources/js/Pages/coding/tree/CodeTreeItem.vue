@@ -38,7 +38,7 @@
   </ul>
 </template>
 <script setup lang="ts">
-import { computed, inject, ref, watch } from 'vue';
+import { computed, inject, ref, toRaw, watch } from 'vue';
 import { Collapse } from 'vue-collapsed';
 import { useDraggable } from 'vue-draggable-plus';
 import { cn } from '../../../utils/css/cn';
@@ -130,7 +130,8 @@ const draggable = useDraggable(el, list, {
     return JSON.parse(elementStr, (key, value) => {
       if (typeof value === 'string' && value.startsWith('$el')) {
         const [, id] = value.split('$element-');
-        return getCode(id);
+        // make element raw to prevent proxy object clone error
+        return toRaw(getCode(id));
       }
       return value;
     });
