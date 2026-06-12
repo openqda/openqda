@@ -68,7 +68,11 @@ const resolveText = variantAuthority(textStyle);
       "
       @change="(e) => (current = e.target.value)"
     >
-      <option v-if="props.options || props.defaultOption" :disabled="!emptySelectable" value="">
+      <option
+        v-if="props.options || props.defaultOption"
+        :disabled="!emptySelectable"
+        value=""
+      >
         {{ emptyOptionTitle }}
       </option>
       <option

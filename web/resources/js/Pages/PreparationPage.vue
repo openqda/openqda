@@ -98,7 +98,7 @@
                   :icon="QrCodeIcon"
                   @click="codeThisFile"
                   class="px-1"
-                  >
+                >
                   <DocumentTextIcon class="w-4 h-4 me-1" />
                   <span>Start Coding</span>
                 </Button>
@@ -203,14 +203,14 @@ const overlayOptions = {
   },
   notes: {
     label: 'Manage Source Notes',
-  }
-}
+  },
+};
 const showOptions = ref(false);
 const optionsType = ref('');
 const showOverlay = (type, value) => {
   optionsType.value = type;
   showOptions.value = value;
-}
+};
 
 const editorSourceRef = ref({
   content: 'select to display',
@@ -222,7 +222,6 @@ const editorSourceRef = ref({
   showLineNumbers: false,
   charsXLine: 80,
 });
-
 
 const { notes: storedNotes, initNotes } = useNotes();
 const notesForSource = computed(() => {

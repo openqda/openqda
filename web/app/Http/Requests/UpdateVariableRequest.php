@@ -5,7 +5,6 @@ namespace App\Http\Requests;
 use App\Models\Project;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Validation\Rule;
 
 class UpdateVariableRequest extends FormRequest
 {
@@ -26,53 +25,36 @@ class UpdateVariableRequest extends FormRequest
 
     public function rules(): array
     {
-        $project = $this->route('project');
-
-        $projectId = $project instanceof Project
-            ? $project->id
-            : $project;
-
-        $variable = $this->route('variable');
-
-        $variableId = $variable instanceof Variable
-            ? $variable->id
-            : $variable;
-
         return [
-            'source_id' => 'required|uuid|exists:sources,id',
+            // These fields are NOT allowed during update
+            'id' => 'missing',
+            'project_id' => 'missing',
+            'source_id' => 'missing',
+            'guid' => 'missing',
+            'name' => 'missing',
+            'type_of_variable' => 'missing',
+            'description' => 'missing',
 
-            'name' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('variables', 'name')
-                    ->where('project_id', (string) $projectId)
-                    ->where('source_id', $this->input('source_id'))
-                    ->ignore($variableId),
-            ],
-
-            'type_of_variable' => 'required|string|max:255',
-
-            'description' => 'nullable|string',
-
-            'text_value' => 'nullable|string',
-
-            'boolean_value' => 'nullable|boolean',
-
-            'integer_value' => 'nullable|integer',
-
-            'float_value' => 'nullable|numeric',
-
-            'date_value' => 'nullable|date',
-
-            'datetime_value' => 'nullable|date',
+            // Only these value fields are allowed
+            'text_value' => 'sometimes|nullable|string',
+            'boolean_value' => 'sometimes|nullable|boolean',
+            'integer_value' => 'sometimes|nullable|integer',
+            'float_value' => 'sometimes|nullable|numeric',
+            'date_value' => 'sometimes|nullable|date',
+            'datetime_value' => 'sometimes|nullable|date',
         ];
     }
 
     public function messages(): array
     {
         return [
-            'name.unique' => 'A variable with this name already exists for this project and source.',
+            'id.missing' => 'The variable id cannot be updated.',
+            'project_id.missing' => 'The project cannot be changed.',
+            'source_id.missing' => 'The source cannot be changed.',
+            'guid.missing' => 'The variable GUID cannot be updated.',
+            'name.missing' => 'The variable name cannot be updated.',
+            'type_of_variable.missing' => 'The variable type cannot be updated.',
+            'description.missing' => 'The variable description cannot be updated.',
         ];
     }
 }

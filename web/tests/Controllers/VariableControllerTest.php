@@ -68,9 +68,17 @@ class VariableControllerTest extends TestCase
         $response = $this->postJson(route('variables.store', $project), $data);
 
         $response->assertStatus(201);
+
         $response->assertJsonStructure([
             'message',
-            'id',
+            'variable' => [
+                'source_id',
+                'project_id',
+                'guid',
+                'name',
+                'type_of_variable',
+                'text_value',
+            ],
         ]);
 
         $this->assertDatabaseHas('variables', [
@@ -81,9 +89,13 @@ class VariableControllerTest extends TestCase
             'text_value' => 'Female',
         ]);
 
-        $variable = Variable::where('name', 'Gender')->first();
+        $variable = Variable::where('project_id', (string) $project->id)
+            ->where('source_id', $source->id)
+            ->where('name', 'Gender')
+            ->first();
 
         $this->assertNotNull($variable);
+        $this->assertNotNull($variable->id);
         $this->assertNotNull($variable->guid);
     }
 
@@ -167,7 +179,7 @@ class VariableControllerTest extends TestCase
         $response->assertStatus(404);
     }
 
-    public function test_update_changes_variable()
+    public function test_update_fails_when_trying_to_change_variable_definition_fields()
     {
         $project = Project::factory()->create([
             'creating_user_id' => $this->user->id,
@@ -178,61 +190,83 @@ class VariableControllerTest extends TestCase
             'creating_user_id' => $this->user->id,
         ]);
 
-        $variable = $this->createVariable($project, $source);
-
-        $data = [
-            'source_id' => $source->id,
-            'name' => 'Gender Updated',
+        $variable = $this->createVariable($project, $source, [
+            'name' => 'Gender',
             'type_of_variable' => 'text',
-            'text_value' => 'Female Updated',
-        ];
+            'description' => 'Original description',
+            'text_value' => 'Female',
+        ]);
 
         $response = $this->putJson(route('variables.update', [
             'project' => $project->id,
             'variable' => $variable->id,
-        ]), $data);
+        ]), [
+            'name' => 'GenderUpdateTest',
+            'type_of_variable' => 'boolean',
+            'description' => 'Changed description',
+        ]);
+
+        $response->assertStatus(422);
+
+        $response->assertJsonValidationErrors([
+            'name',
+            'type_of_variable',
+            'description',
+        ]);
+
+        $this->assertDatabaseHas('variables', [
+            'id' => $variable->id,
+            'name' => 'Gender',
+            'type_of_variable' => 'text',
+            'description' => 'Original description',
+            'text_value' => 'Female',
+        ]);
+    }
+
+    public function test_update_changes_variable_value_only()
+    {
+        $project = Project::factory()->create([
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $source = Source::factory()->create([
+            'project_id' => $project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $variable = $this->createVariable($project, $source, [
+            'name' => 'Gender',
+            'type_of_variable' => 'text',
+            'description' => 'Original description',
+            'text_value' => 'Female',
+        ]);
+
+        $response = $this->putJson(route('variables.update', [
+            'project' => $project->id,
+            'variable' => $variable->id,
+        ]), [
+            'text_value' => 'Male',
+        ]);
 
         $response->assertStatus(200);
+
         $response->assertJson([
             'message' => 'Variable successfully updated',
             'variable' => [
                 'id' => $variable->id,
-                'name' => 'Gender Updated',
+                'name' => 'Gender',
                 'type_of_variable' => 'text',
-                'text_value' => 'Female Updated',
+                'description' => 'Original description',
+                'text_value' => 'Male',
             ],
         ]);
 
         $this->assertDatabaseHas('variables', [
             'id' => $variable->id,
-            'name' => 'Gender Updated',
-            'text_value' => 'Female Updated',
-        ]);
-    }
-
-    public function test_update_fails_validation()
-    {
-        $project = Project::factory()->create([
-            'creating_user_id' => $this->user->id,
-        ]);
-
-        $source = Source::factory()->create([
-            'project_id' => $project->id,
-            'creating_user_id' => $this->user->id,
-        ]);
-
-        $variable = $this->createVariable($project, $source);
-
-        $response = $this->putJson(route('variables.update', [
-            'project' => $project->id,
-            'variable' => $variable->id,
-        ]), []);
-
-        $response->assertStatus(422);
-        $response->assertJsonValidationErrors([
-            'source_id',
-            'name',
-            'type_of_variable',
+            'name' => 'Gender',
+            'type_of_variable' => 'text',
+            'description' => 'Original description',
+            'text_value' => 'Male',
         ]);
     }
 
@@ -257,9 +291,6 @@ class VariableControllerTest extends TestCase
         ]);
 
         $data = [
-            'source_id' => $source->id,
-            'name' => 'Updated Name',
-            'type_of_variable' => 'text',
             'text_value' => 'Updated Value',
         ];
 

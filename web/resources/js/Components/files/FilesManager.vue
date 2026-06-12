@@ -65,9 +65,9 @@ const { notes } = useNotes();
 const { uniqueVariables } = useVariables();
 const selectedVariables = ref({});
 const hasVariables = computed(() => {
-  const keys = Object.keys(selectedVariables.value)
-  console.debug(keys)
-  return keys.length > 0
+  const keys = Object.keys(selectedVariables.value);
+  console.debug(keys);
+  return keys.length > 0;
 });
 const selectVariable = (options) => {
   if (selectedVariables.value[options.value]) {

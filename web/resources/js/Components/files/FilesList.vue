@@ -37,10 +37,16 @@
             </span>
           </a>
         </th>
-        <th v-for="extraField in extraFields" :key="extraField.key"
-            :class="
-            cn('text-xs font-normal text-foreground/50 sm:pl-0', extraField.class)
-          ">
+        <th
+          v-for="extraField in extraFields"
+          :key="extraField.key"
+          :class="
+            cn(
+              'text-xs font-normal text-foreground/50 sm:pl-0',
+              extraField.class
+            )
+          "
+        >
           <span>{{ extraField.label }}</span>
         </th>
         <th
@@ -219,11 +225,17 @@
         </td>
 
         <!-- extra fields -->
-        <td v-for="extraField in extraFields" :key="extraField.key"
-            v-if="hover !== index" :class="cn(extraField.cellClass)">
+        <td
+          v-for="extraField in extraFields"
+          :key="extraField.key"
+          v-if="hover !== index"
+          :class="cn(extraField.cellClass)"
+        >
           <span>{{
-              extraField.resolve ? extraField.resolve(document) : document[extraField.key]
-            }}</span>
+            extraField.resolve
+              ? extraField.resolve(document)
+              : document[extraField.key]
+          }}</span>
         </td>
 
         <!-- actions -->
@@ -321,7 +333,7 @@ const props = defineProps([
   'colspan',
   'focusOnHover',
   'fullTitle',
-  'extraFields'
+  'extraFields',
 ]);
 const docs = computed(() => {
   return props.documents.filter(Boolean).map((doc) => {
@@ -376,9 +388,9 @@ const fieldsVisible = computed(() => {
     user: true,
     actions: true,
     notes: true,
-    ...props.fields
-  }
-})
+    ...props.fields,
+  };
+});
 const hover = ref(-1);
 
 function toggleMenu(id) {
