@@ -339,4 +339,34 @@ class VariableControllerTest extends TestCase
             'id' => $variable->id,
         ]);
     }
+
+    public function test_store_fails_if_variable_name_already_exists_for_same_project_and_source()
+    {
+        $project = Project::factory()->create([
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $source = Source::factory()->create([
+            'project_id' => $project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $this->createVariable($project, $source, [
+            'name' => 'Gender',
+            'type_of_variable' => 'text',
+            'text_value' => 'Female',
+        ]);
+
+        $response = $this->postJson(route('variables.store', $project), [
+            'source_id' => $source->id,
+            'name' => 'Gender',
+            'type_of_variable' => 'text',
+            'text_value' => 'Male',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors([
+            'name',
+        ]);
+    }
 }
