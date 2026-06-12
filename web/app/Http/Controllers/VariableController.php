@@ -21,7 +21,7 @@ class VariableController extends Controller
 
         return response()->json([
             'message' => 'Variable created successfully.',
-            'id' => $variable->id,
+            'variable' => $variable,
         ], 201);
     }
 

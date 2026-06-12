@@ -17,7 +17,15 @@ const props = defineProps({
     type: String,
     default: 'default',
   },
+  disabled: {
+    type: Boolean,
+    optional: true,
+  },
   defaultOption: Boolean,
+  emptySelectable: {
+    type: Boolean,
+    default: false,
+  },
   emptyOptionTitle: {
     type: String,
     default: '(Select one)',
@@ -50,16 +58,17 @@ const resolveText = variantAuthority(textStyle);
       :id="props.name"
       v-model="current"
       :name="props.name"
+      :disabled="!!props.disabled"
       :class="
         cn(
-          'block w-full rounded-md focus:border-secondary focus:ring-secondary bg-surface text-foreground',
+          'block w-full rounded-md focus:border-secondary focus:ring-secondary bg-surface text-foreground disabled:cursor-not-allowed disabled:text-foreground/60',
           resolveText({ size: props.size }),
           props.class
         )
       "
       @change="(e) => (current = e.target.value)"
     >
-      <option v-if="props.options || props.defaultOption" disabled value="">
+      <option v-if="props.options || props.defaultOption" :disabled="!emptySelectable" value="">
         {{ emptyOptionTitle }}
       </option>
       <option

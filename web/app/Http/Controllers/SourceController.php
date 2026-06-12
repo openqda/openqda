@@ -66,6 +66,7 @@ class SourceController extends Controller
 
         return Inertia::render('PreparationPage', [
             'sources' => $this->fetchAndTransformSources($projectId),
+            'variables' => Variable::where('project_id', $projectId)->get(),
             'notes' => $notes,
             'projectId' => $projectId,
         ]);

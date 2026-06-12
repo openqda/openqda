@@ -98,7 +98,9 @@
                   :icon="QrCodeIcon"
                   @click="codeThisFile"
                   class="px-1"
-                  >Start Coding
+                  >
+                  <DocumentTextIcon class="w-4 h-4 me-1" />
+                  <span>Start Coding</span>
                 </Button>
                 <ConfirmDialog
                   :text="confirm.text"
@@ -113,29 +115,43 @@
             <template #options>
               <Button
                 v-if="editorSourceRef"
-                @click="showOptions = true"
+                @click="showOverlay('notes', true)"
                 :title="`Manage notes for source '${editorSourceRef?.name}'`"
                 variant="outline"
               >
                 <ChatBubbleLeftEllipsisIcon class="w-4 h-4" />
               </Button>
+              <Button
+                v-if="editorSourceRef"
+                @click="showOverlay('variables', true)"
+                :title="`Manage Variables for source '${editorSourceRef?.name}'`"
+                variant="outline"
+              >
+                <VariableIcon class="w-4 h-4" />
+              </Button>
             </template>
           </PreparationsEditor>
           <SideOverlay
             v-if="editorSourceRef"
-            title="Manage Notes"
+            :title="overlayOptions[optionsType]?.label"
             :show="showOptions"
             @close="showOptions = false"
           >
-            <div class="p-2">
-              <Headline3 class="mb-2 p-2"
-                >Notes linked to {{ editorSourceRef.name }}</Headline3
-              >
+            <div class="p-2" v-if="optionsType === 'notes'">
+              <Headline3 class="mb-2 p-2">
+                Notes linked to {{ editorSourceRef.name }}
+              </Headline3>
               <NoteList
                 :notes="notesForSource"
                 :target="editorSourceRef"
                 type="source"
               />
+            </div>
+            <div class="p-2" v-if="optionsType === 'variables'">
+              <Headline3 class="mb-2 p-2">
+                Variables linked to {{ editorSourceRef.name }}
+              </Headline3>
+              <VariablesList :source="editorSourceRef" />
             </div>
           </SideOverlay>
         </div>
@@ -150,11 +166,13 @@ import PreparationsEditor from '../editor/PreparationsEditor.vue';
 import FilesManager from '../Components/files/FilesManager.vue';
 import Button from '../Components/interactive/Button.vue';
 import {
+  ArrowPathIcon,
+  CheckIcon,
+  DocumentTextIcon,
   LockClosedIcon,
   LockOpenIcon,
   QrCodeIcon,
-  ArrowPathIcon,
-  CheckIcon,
+  VariableIcon,
 } from '@heroicons/vue/20/solid';
 import { router } from '@inertiajs/vue3';
 import { flashMessage } from '../Components/notification/flashMessage.js';
@@ -168,12 +186,32 @@ import HelpResources from '../Components/HelpResources.vue';
 import Footer from '../Layouts/Footer.vue';
 import { useZoom } from '../editor/useZoom.js';
 import { useNotes } from '../domain/notes/useNotes.js';
+import { useVariables } from '../domain/variables/useVariables.js';
 import SideOverlay from '../Components/layout/SideOverlay.vue';
 import NoteList from './coding/tree/NoteList.vue';
 import Headline3 from '../Components/layout/Headline3.vue';
 import { ChatBubbleLeftEllipsisIcon } from '@heroicons/vue/24/outline/index.js';
+import VariablesList from '../domain/variables/VariablesList.vue';
+import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue';
 
+/*---------------------------------------------------------------------------*/
+// NOTES AND VARIABLES
+/*---------------------------------------------------------------------------*/
+const overlayOptions = {
+  variables: {
+    label: 'Manage Source Variables',
+  },
+  notes: {
+    label: 'Manage Source Notes',
+  }
+}
 const showOptions = ref(false);
+const optionsType = ref('');
+const showOverlay = (type, value) => {
+  optionsType.value = type;
+  showOptions.value = value;
+}
+
 const editorSourceRef = ref({
   content: 'select to display',
   selected: false,
@@ -185,6 +223,7 @@ const editorSourceRef = ref({
   charsXLine: 80,
 });
 
+
 const { notes: storedNotes, initNotes } = useNotes();
 const notesForSource = computed(() => {
   if (!storedNotes?.value?.length || !editorSourceRef.value.id) {
@@ -194,6 +233,8 @@ const notesForSource = computed(() => {
     (note) => note.type === 'source' && note.target === editorSourceRef.value.id
   );
 });
+
+const { initVariables } = useVariables();
 const editorComponent = ref();
 const props = defineProps(['sources', 'newDocument', 'projectId', 'notes']);
 const documents = ref([]);
@@ -256,6 +297,8 @@ function loadFileIntoEditor(source) {
   if (!source?.content) {
     return;
   }
+
+  // TODO use spread operator appropriately
   editorSourceRef.value.content = source.content;
   editorSourceRef.value.selected = true;
   editorSourceRef.value.id = source.id;
@@ -265,6 +308,7 @@ function loadFileIntoEditor(source) {
   editorSourceRef.value.hasSelections = source.hasSelections;
   editorSourceRef.value.showLineNumbers = source.showLineNumbers ?? false;
   editorSourceRef.value.charsXLine = source.charsXLine;
+  editorSourceRef.value.variables = source.variables;
 
   const url = new URL(location.href);
   if (url.searchParams.get('file') !== source.id) {
@@ -322,6 +366,7 @@ onMounted(() => {
   const file = fileId && props.sources.find((f) => f.id === fileId);
   initialFile.value = file?.id ?? null;
   initNotes();
+  initVariables();
 });
 
 provide('sources', props.sources ?? []);
