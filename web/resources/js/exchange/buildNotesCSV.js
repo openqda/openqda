@@ -38,11 +38,11 @@ export const buildNotesCSV = ({
 
   notes.forEach((note) => {
     let targetName = '';
-    if (note.scope === 'code') {
+    if (note.type === 'code') {
       targetName = codeMap[note.target] ?? note.target ?? '';
-    } else if (note.scope === 'source') {
+    } else if (note.type === 'source') {
       targetName = sourceMap[note.target] ?? note.target ?? '';
-    } else if (note.scope === 'project') {
+    } else if (note.type === 'project') {
       targetName = project?.name ?? '';
     } else {
       targetName = note.target ?? '';
@@ -51,7 +51,7 @@ export const buildNotesCSV = ({
     const user = note.user ?? users[note.creating_user_id];
     csv.addRow([
       note.content ?? '',
-      note.scope ?? '',
+      note.type ?? '',
       targetName,
       user?.name ?? '',
       toLocaleDateString(note.created_at),
