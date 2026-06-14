@@ -2,8 +2,10 @@
 
 namespace Tests\Controllers;
 
+use App\Models\Code;
 use App\Models\Codebook;
 use App\Models\Project;
+use App\Models\Team;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -241,7 +243,7 @@ class CodebookControllerTest extends TestCase
         ]);
 
         // Create some codes for the codebook
-        $codes = \App\Models\Code::factory()->count(3)->create([
+        $codes = Code::factory()->count(3)->create([
             'codebook_id' => $codebook->id,
         ]);
 
@@ -293,7 +295,7 @@ class CodebookControllerTest extends TestCase
         ]);
 
         // Create some codes for the codebook
-        $codes = \App\Models\Code::factory()->count(2)->create([
+        $codes = Code::factory()->count(2)->create([
             'codebook_id' => $codebook->id,
         ]);
 
@@ -323,7 +325,7 @@ class CodebookControllerTest extends TestCase
         $projectMember = User::factory()->create();
 
         // Create a project with team
-        $team = \App\Models\Team::factory()->create(['user_id' => $creator->id]);
+        $team = Team::factory()->create(['user_id' => $creator->id]);
         $project = Project::factory()->create([
             'creating_user_id' => $creator->id,
             'team_id' => $team->id,
@@ -342,7 +344,7 @@ class CodebookControllerTest extends TestCase
         ]);
 
         // Create some codes for the codebook
-        $codes = \App\Models\Code::factory()->count(2)->create([
+        $codes = Code::factory()->count(2)->create([
             'codebook_id' => $codebook->id,
         ]);
 
@@ -446,7 +448,7 @@ class CodebookControllerTest extends TestCase
         ]);
 
         // Create some codes for the codebook
-        $codes = \App\Models\Code::factory()->count(2)->create([
+        $codes = Code::factory()->count(2)->create([
             'codebook_id' => $codebook->id,
         ]);
 
@@ -690,7 +692,7 @@ class CodebookControllerTest extends TestCase
         ]);
 
         // Create some codes for the codebook
-        \App\Models\Code::factory()->count(3)->create([
+        Code::factory()->count(3)->create([
             'codebook_id' => $codebook->id,
         ]);
 
@@ -891,13 +893,13 @@ class CodebookControllerTest extends TestCase
             'creating_user_id' => $user->id,
         ]);
 
-        $code1 = \App\Models\Code::factory()->create([
+        $code1 = Code::factory()->create([
             'codebook_id' => $originalCodebook->id,
             'name' => 'Parent Code',
             'parent_id' => null,
         ]);
 
-        $code2 = \App\Models\Code::factory()->create([
+        $code2 = Code::factory()->create([
             'codebook_id' => $originalCodebook->id,
             'name' => 'Child Code',
             'parent_id' => $code1->id,
@@ -951,25 +953,25 @@ class CodebookControllerTest extends TestCase
         ]);
 
         // Create a complex hierarchy
-        $parent = \App\Models\Code::factory()->create([
+        $parent = Code::factory()->create([
             'codebook_id' => $originalCodebook->id,
             'name' => 'Level 1',
             'parent_id' => null,
         ]);
 
-        $child1 = \App\Models\Code::factory()->create([
+        $child1 = Code::factory()->create([
             'codebook_id' => $originalCodebook->id,
             'name' => 'Level 2-A',
             'parent_id' => $parent->id,
         ]);
 
-        $child2 = \App\Models\Code::factory()->create([
+        $child2 = Code::factory()->create([
             'codebook_id' => $originalCodebook->id,
             'name' => 'Level 2-B',
             'parent_id' => $parent->id,
         ]);
 
-        $grandchild = \App\Models\Code::factory()->create([
+        $grandchild = Code::factory()->create([
             'codebook_id' => $originalCodebook->id,
             'name' => 'Level 3',
             'parent_id' => $child1->id,

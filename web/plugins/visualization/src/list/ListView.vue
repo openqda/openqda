@@ -14,6 +14,28 @@
           <input type="checkbox" v-model="options.showEmpty" />
         </li>
       </ul>
+
+      <Headline3 class="px-4">Show notes</Headline3>
+      <ul class="p-4 flex flex-col gap-4">
+        <li class="flex justify-between items-center">
+          <label class="text-left text-xs font-medium uppercase">
+            linked to sources
+          </label>
+          <input type="checkbox" v-model="options.showNotesSources" />
+        </li>
+        <li class="flex justify-between items-center">
+          <label class="text-left text-xs font-medium uppercase">
+            linked to codes
+          </label>
+          <input type="checkbox" v-model="options.showNotesCodes" />
+        </li>
+        <li class="flex justify-between items-center">
+          <label class="text-left text-xs font-medium uppercase">
+            to selections
+          </label>
+          <input type="checkbox" v-model="options.showNotesSelections" />
+        </li>
+      </ul>
     </component>
     <div class="block w-full">
       <ActivityIndicator v-if="rebuilding">
@@ -54,15 +76,62 @@
               />
               <span>{{ source.name }}</span>
             </button>
-            <button
-              title="Hide this source"
-              @click="$emit('remove', source.id)"
-            >
-              <XMarkIcon class="h-5 w-5" />
-            </button>
+
+            <span class="flex items-center gap-2">
+              <button
+                v-if="options.showNotesSources && source.notes.length"
+                class="flex items-center gap-1"
+                @click="
+                  sourcesCollapsed[source.id] = true;
+                  notesCollaped[source.id] = !notesCollaped[source.id];
+                "
+              >
+                <ChatBubbleLeftEllipsisIcon class="h-5 w-5" />
+                <span>{{ source.notes.length }}</span>
+              </button>
+              <button
+                title="Hide this source"
+                @click="$emit('remove', source.id)"
+              >
+                <XMarkIcon class="h-5 w-5" />
+              </button>
+            </span>
           </Headline3>
           <Collapse :when="sourcesCollapsed[source.id]">
             <div v-if="sourcesCollapsed[source.id]">
+              <div
+                v-if="options.showNotesSources && source.notes.length"
+                class="border rounded ms-2"
+              >
+                <div class="p-1 font-semibold">
+                  <button
+                    class="flex items-center gap-1"
+                    @click="
+                      notesCollaped[source.id] = !notesCollaped[source.id]
+                    "
+                  >
+                    <ChevronRightIcon
+                      :class="
+                        API.cn(
+                          'w-4 h-4 transition-all duration-300 transform',
+                          notesCollaped[source.id] && 'rotate-90'
+                        )
+                      "
+                    />
+                    <span>Notes linked to source</span>
+                  </button>
+                </div>
+                <Collapse :when="notesCollaped[source.id]">
+                  <div v-if="notesCollaped[source.id]" class="p-4">
+                    <NoteList
+                      :notes="source.notes"
+                      :target="source"
+                      type="source"
+                      :read-mode="true"
+                    />
+                  </div>
+                </Collapse>
+              </div>
               <div
                 v-for="code in codesList.get(source.id)"
                 :key="code.id"
@@ -94,6 +163,21 @@
                     }}</span>
                   </button>
                   <div class="flex items-center gap-1">
+                    <span
+                      v-if="options.showNotesCodes && code.notes.length"
+                      class="flex items-center gap-1"
+                    >
+                      <button
+                        @click="
+                          codesCollapsed[`${source.id}-${code.id}`] = true;
+                          notesCollaped[code.id] = !notesCollaped[code.id];
+                        "
+                        class="flex items-center gap-1"
+                      >
+                        <ChatBubbleLeftEllipsisIcon class="h-5 w-5" />
+                        <span>{{ code.notes.length }}</span>
+                      </button>
+                    </span>
                     <BarsArrowDownIcon class="h-5 w-5" />
                     <span>{{
                       selectionCounts[`${source.id}-${code.id}`] ?? 0
@@ -102,6 +186,40 @@
                 </div>
                 <Collapse :when="codesCollapsed[`${source.id}-${code.id}`]">
                   <div v-if="codesCollapsed[`${source.id}-${code.id}`]">
+                    <div
+                      v-if="options.showNotesCodes && code.notes.length"
+                      class="ms-1"
+                    >
+                      <div class="p-1 font-semibold text-sm">
+                        <button
+                          class="flex items-center gap-1"
+                          @click="
+                            notesCollaped[code.id] = !notesCollaped[code.id]
+                          "
+                        >
+                          <ChevronRightIcon
+                            :class="
+                              API.cn(
+                                'w-4 h-4 transition-all duration-300 transform',
+                                notesCollaped[code.id] && 'rotate-90'
+                              )
+                            "
+                          />
+                          <span>Notes linked to code</span>
+                        </button>
+                      </div>
+                      <Collapse :when="notesCollaped[code.id]">
+                        <div v-if="notesCollaped[code.id]" class="p-4">
+                          <NoteList
+                            :notes="code.notes"
+                            :target="code"
+                            type="code"
+                            :read-mode="true"
+                          />
+                        </div>
+                      </Collapse>
+                    </div>
+
                     <div
                       v-for="selection in code.text"
                       :key="selection.source_id"
@@ -133,6 +251,45 @@
                         <div class="px-2 flex-grow overflow-x-scroll text-sm">
                           {{ selection.text }}
                         </div>
+
+                        <div
+                          v-if="
+                            options.showNotesSelections &&
+                            selection.notes.length
+                          "
+                          class="mt-2"
+                        >
+                          <div class="p-1 font-semibold text-sm">
+                            <button
+                              class="flex items-center gap-1"
+                              @click="
+                                notesCollaped[selection.id] =
+                                  !notesCollaped[selection.id]
+                              "
+                            >
+                              <ChevronRightIcon
+                                :class="
+                                  API.cn(
+                                    'w-4 h-4 transition-all duration-300 transform',
+                                    notesCollaped[selection.id] && 'rotate-90'
+                                  )
+                                "
+                              />
+                              <span>Notes linked to selection</span>
+                            </button>
+                          </div>
+                          <Collapse :when="notesCollaped[selection.id]">
+                            <div v-if="notesCollaped[selection.id]" class="p-4">
+                              <NoteList
+                                v-if="selection.notes.length"
+                                :notes="selection.notes"
+                                :target="selection"
+                                type="selection"
+                                :read-mode="true"
+                              />
+                            </div>
+                          </Collapse>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -159,7 +316,7 @@ import {
   ChevronRightIcon,
   XMarkIcon,
 } from '@heroicons/vue/24/solid';
-
+import { ChatBubbleLeftEllipsisIcon } from '@heroicons/vue/24/outline';
 defineEmits(['remove']);
 const props = defineProps([
   'sources',
@@ -172,12 +329,17 @@ const props = defineProps([
 ]);
 const codesList = ref(new Map());
 const API = inject('api');
-const { Headline3, ActivityIndicator, Collapse } = inject('components');
+const { Headline3, ActivityIndicator, Collapse, NoteList } =
+  inject('components');
 const rebuilding = ref(false);
 const options = ref({
   showEmpty: false,
+  showNotesSources: false,
+  showNotesCodes: false,
+  showNotesSelections: false,
 });
 const sourcesCollapsed = ref({});
+const notesCollaped = ref({});
 const codesCollapsed = ref({});
 const selectionCounts = ref({});
 const hoverSources = ref({});

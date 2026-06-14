@@ -8,6 +8,7 @@ import Headline3 from '../../../Components/layout/Headline3.vue';
 import Button from '../../../Components/interactive/Button.vue';
 import SideOverlay from '../../../Components/layout/SideOverlay.vue';
 import ActivityIndicator from '../../../Components/ActivityIndicator.vue';
+import NoteList from '../../coding/tree/NoteList.vue';
 import { Collapse } from 'vue-collapsed';
 const {
   sources,
@@ -15,6 +16,7 @@ const {
   checkedSources,
   checkedCodes,
   hasSelections,
+  notes,
   checkSource,
 } = useAnalysis();
 const { getMemberBy } = useUsers();
@@ -24,6 +26,7 @@ const { api } = createVisualizationAPI({
   codes,
   checkedCodes,
   checkedSources,
+  notes,
 });
 
 // additional functionality attached
@@ -36,6 +39,7 @@ provide('components', {
   Button,
   ActivityIndicator,
   Collapse,
+  NoteList,
 });
 </script>
 
@@ -45,6 +49,7 @@ provide('components', {
     :codes="codes"
     :api="api"
     :sources="sources"
+    :notes="notes"
     :hasSelections="hasSelections"
     :checkedCodes="checkedCodes"
     :menu="SideOverlay"

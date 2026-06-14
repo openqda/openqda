@@ -243,7 +243,7 @@
         </aside>
 
         <main
-          class="h-screen overflow-y-auto bg-surface text-surface-foreground grow p-2 md:p-0"
+          class="h-screen overflow-y-auto bg-surface text-surface-foreground grow md:p-0"
         >
           <Transition>
             <slot name="main" />

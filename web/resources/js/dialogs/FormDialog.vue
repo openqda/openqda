@@ -119,6 +119,7 @@ defineExpose({ start, cancel });
       @keydown="keyDownHandler"
     >
       <template #body>
+        <slot name="intro"></slot>
         <AutoForm
           v-if="props.schema"
           id="create-custom-form"

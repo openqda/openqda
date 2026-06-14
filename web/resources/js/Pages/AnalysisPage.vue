@@ -12,26 +12,50 @@
 
         <div
           v-if="menuView === 'export'"
-          class="p-3 rounded-md border border-border flex items-center"
+          class="p-3 rounded-md border border-border flex flex-col gap-3"
         >
-          <p class="text-sm text-foreground/60 me-3">
-            You can export your data to a table in csv format. Note, that data
-            is filtered, based on selected sources and codes.
-          </p>
-          <Button
-            @click="exportToCSV({ contents: selection, users: allUsers })"
-            :disabled="!hasSelections"
-            :title="
-              hasSelections
-                ? 'Export to CSV'
-                : 'Select at least one File and Code to export'
-            "
-          >
-            Export to CSV
-          </Button>
+          <div class="flex items-center">
+            <p class="text-sm text-foreground/60 me-3">
+              You can export your data to a table in csv format. Note, that data
+              is filtered, based on selected sources and codes.
+            </p>
+            <Button
+              @click="exportToCSV({ contents: selection, users: allUsers })"
+              :disabled="!hasSelections"
+              :title="
+                hasSelections
+                  ? 'Export to CSV'
+                  : 'Select at least one File and Code to export'
+              "
+            >
+              Export to CSV
+            </Button>
+          </div>
+          <div class="flex items-center">
+            <p class="text-sm text-foreground/60 me-3">
+              Export all notes from this project as a CSV file, including what
+              each note is attached to and who wrote it.
+            </p>
+            <Button
+              @click="
+                exportNotesToCSV({
+                  notes,
+                  codes,
+                  sources,
+                  users: allUsers,
+                })
+              "
+              :disabled="!notes.length"
+              :title="
+                notes.length ? 'Export Notes to CSV' : 'No notes to export'
+              "
+            >
+              Export Notes
+            </Button>
+          </div>
         </div>
 
-        <div v-show="menuView === 'sources'" class="flex flex-col gap-4">
+        <div v-show="menuView === 'sources'" class="">
           <FilesList
             :focus-on-hover="false"
             :fields="{
@@ -42,7 +66,8 @@
               user: false,
             }"
             :documents="sources"
-            :fixed="false"
+            :fixed="true"
+            :fullTitle="true"
             @select="(doc) => checkSource(doc.id)"
           >
             <template #custom-head>
@@ -243,6 +268,7 @@ const pageTitle = ref(`Analysis - ${trunc(props.project.name, 50)}`);
 // SOURCES AND CODES
 //------------------------------------------------------------------------
 const {
+  notes,
   codes,
   checkedCodes,
   allCodesChecked,
@@ -327,7 +353,7 @@ const onVisualizationSelectChange = async (event) => {
 //------------------------------------------------------------------------
 // EXPORTS
 //------------------------------------------------------------------------
-const { exportToCSV } = useExport();
+const { exportToCSV, exportNotesToCSV } = useExport();
 
 onMounted(async () => {
   if (checkedSources.value.size === 0) checkSource('all');

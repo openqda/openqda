@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Code;
+use App\Models\Codebook;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class CodeFactory extends Factory
@@ -17,7 +18,7 @@ class CodeFactory extends Factory
             'color' => $this->faker->hexColor,
             'description' => $this->faker->sentence,
             'parent_id' => null, // Default to no parent
-            'codebook_id' => null,
+            'codebook_id' => Codebook::factory(),
         ];
     }
 }

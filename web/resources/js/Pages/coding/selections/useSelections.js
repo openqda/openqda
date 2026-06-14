@@ -1,6 +1,7 @@
 import { reactive, toRaw, toRefs } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import { Selections } from './Selections.js';
+import { Codes } from '../../../domain/codes/Codes.js';
 import { randomUUID } from '../../../utils/random/randomUUID.js';
 
 const state = reactive({
@@ -15,6 +16,7 @@ export const useSelections = () => {
   const key = `${projectId}-${sourceId}`;
   const { selected, toDelete, current } = toRefs(state);
   const selectionStore = Selections.by(key);
+  const codeStore = Codes.by(key);
   const select = ({ code, parent }) => {
     state.selected = { code, parent };
     return true;
@@ -67,7 +69,32 @@ export const useSelections = () => {
   };
   const deleteSelection = async (selection) => {
     const sourceId = source.id;
-    const code = selection.code ?? { id: null, texts: [] };
+    const codeId =
+      selection?.code?.id ??
+      selection?.code_id ??
+      selection?.codeId ??
+      selection?.linkedCodeId ??
+      selection?.code?.code_id ??
+      null;
+
+    if (!codeId) {
+      const { response, error } = await Selections.deleteOrphan({
+        projectId,
+        sourceId,
+        selection,
+      });
+      return !error && response.status < 400;
+    }
+
+    let code = null;
+    try {
+      code = codeStore.entry(codeId);
+    } catch {
+      code = selection.code ?? null;
+    }
+    if (!code) {
+      code = { id: codeId, text: [] };
+    }
 
     const { response, error } = await Selections.delete({
       projectId,
