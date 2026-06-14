@@ -192,7 +192,6 @@ import NoteList from './coding/tree/NoteList.vue';
 import Headline3 from '../Components/layout/Headline3.vue';
 import { ChatBubbleLeftEllipsisIcon } from '@heroicons/vue/24/outline/index.js';
 import VariablesList from '../domain/variables/VariablesList.vue';
-import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue';
 
 /*---------------------------------------------------------------------------*/
 // NOTES AND VARIABLES

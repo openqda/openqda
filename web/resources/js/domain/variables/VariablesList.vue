@@ -41,7 +41,6 @@ const variables = computed(() => {
 const form = ref();
 const forms = {
   create: {
-    successMessage: 'Variable successfully created',
     schema: (doc = {}) => {
       const defaultType = doc.type_of_variable ? doc.type_of_variable : 'text';
       const defaultValueKey = `${doc.type_of_variable}_value`;
@@ -79,24 +78,37 @@ const forms = {
     },
     title: () => `Create a new variable for source "${props.source.name}"`,
     color: 'primary',
-    submit: { label: 'Create', variant: 'secondary', fn: createVariable },
+    submit: {
+      label: 'Create',
+      variant: 'secondary',
+      fn: createVariable,
+      successMessage: 'Variable successfully created',
+    },
   },
   edit: {
     title: ({ name }) =>
       `Update variable "${name}" for source "${props.source.name}"`,
     schema: (doc = {}) => {
-      return forms.create.schema(doc);
+      const schema = forms.create.schema(doc);
+      schema.id = {
+        type: String,
+        defaultValue: doc.id,
+        formType: 'hidden',
+        label: null,
+      };
+      return schema;
     },
     color: 'secondary',
     submit: {
       label: 'Update',
       variant: 'secondary',
-      fn: ({ source, ...doc }) => {
+      fn: ({ source, variable, ...doc }) => {
         const key = `${doc.type_of_variable}_value`;
         const data = { id: doc.id };
         data[key] = doc[key];
         return updateVariable({ source, ...data });
       },
+      successMessage: 'Variable successfully updated',
     },
   },
   delete: {
@@ -110,11 +122,13 @@ const forms = {
       variant: 'destructive',
       fn: ({ source, ...doc }) => {
         const data = { id: doc.id };
-        return updateVariable({ source, ...data });
+        return deleteVariable({ source, ...data });
       },
+      successMessage: 'Variable successfully deleted',
     },
   },
 };
+
 const setForm = (options) => {
   const def = forms[options?.type];
   const schema = def?.schema(options.target);

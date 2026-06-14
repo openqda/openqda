@@ -41,14 +41,9 @@ import { attemptAsync } from '../notification/attemptAsync.js';
 import { useDebug } from '../../utils/useDebug.js';
 import { useNotes } from '../../domain/notes/useNotes.js';
 import { useVariables } from '../../domain/variables/useVariables.js';
-import SelectField from '../../form/SelectField.vue';
 import Dropdown from '../Dropdown.vue';
 import { cn } from '../../utils/css/cn.js';
 import DropdownLink from '../DropdownLink.vue';
-import {
-  EllipsisVerticalIcon,
-  PencilIcon,
-} from '@heroicons/vue/24/solid/index.js';
 
 /*---------------------------------------------------------------------------*/
 // DATA / PROPS
@@ -66,7 +61,6 @@ const { uniqueVariables } = useVariables();
 const selectedVariables = ref({});
 const hasVariables = computed(() => {
   const keys = Object.keys(selectedVariables.value);
-  console.debug(keys);
   return keys.length > 0;
 });
 const selectVariable = (options) => {
@@ -303,13 +297,6 @@ onMounted(async () => {
   });
 });
 
-const view = ref('sources');
-const views = {
-  sources: { value: 'sources', label: 'Sources' },
-  variables: { value: 'variables', label: 'Variables' },
-};
-const viewTabs = Object.values(views);
-
 onUnmounted(() => {
   leaveConversionChannel();
 });
@@ -425,6 +412,7 @@ async function fetchAndRenderDocument(document) {
         <DropdownLink
           as="button"
           v-for="option in variableOptions"
+          :key="option.value"
           @click.stop="selectVariable(option)"
         >
           <div class="flex items-center gap-2">
