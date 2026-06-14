@@ -2,10 +2,11 @@ import { createCSVBuilder } from '../utils/files/createCSVBuilder.js';
 import { saveTextFile } from '../utils/files/saveTextFile.js';
 import { usePage } from '@inertiajs/vue3';
 import { toLocaleDateString } from '../utils/date/toLocaleDateString.js';
+import { buildNotesCSV } from './buildNotesCSV.js';
 
 /**
  * Export hook for exporting project data.
- * @return {{exportToCSV: (function({contents: *, users: *}): Promise<void>)}}
+ * @return {{exportToCSV: (function({contents: *, users: *}): Promise<void>), exportNotesToCSV: (function({notes: *, codes: *, sources: *, users: *}): Promise<void>)}}
  */
 export const useExport = () => {
   const { project } = usePage().props;
@@ -13,7 +14,16 @@ export const useExport = () => {
   return {
     exportToCSV: ({ contents, users }) =>
       exportToCSV({ contents, project, users }),
+    exportNotesToCSV: ({ notes, codes, sources, users }) =>
+      exportNotesToCSV({ notes, codes, sources, project, users }),
   };
+};
+
+const exportNotesToCSV = ({ notes, codes, sources, project, users }) => {
+  const out = buildNotesCSV({ notes, codes, sources, project, users });
+  const date = new Date().toLocaleDateString().replace(/[_.:,\s]+/g, ' ');
+  const name = `OpenQDA ${project.name} Notes ${date}.csv`;
+  return saveTextFile({ text: out, name, type: 'text/csv' });
 };
 
 const exportToCSV = ({ contents, project, users }) => {
