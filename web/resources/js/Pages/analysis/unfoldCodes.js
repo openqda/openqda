@@ -24,7 +24,7 @@ export const unfoldCodes = (
     }
     // we will always unfold children, independent of cache status
     // to make sure we 100% capture every subcode
-    if (code.children && code.children.length > 0) {
+    if (code?.children.length > 0) {
       unfoldCodes(code.children, { destination, cache });
     }
   }

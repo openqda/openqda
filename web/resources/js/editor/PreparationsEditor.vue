@@ -18,7 +18,7 @@
   <div
     id="editorPane"
     :style="zoomStyle"
-    :class="cn('flex', loadingDocument && 'hidden')"
+    :class="cn('flex pb-24', loadingDocument && 'hidden')"
   >
     <div id="lineNumber"></div>
     <div id="editor" class="grow"></div>
@@ -67,7 +67,7 @@ import { SelectionHighlightBG } from '../Pages/coding/editor/SelectionHighlightB
 const props = defineProps({
   source: String,
   locked: Boolean,
-  CanUnlock: Boolean,
+  canUnlock: Boolean,
   viewerZoom: { type: Number, default: 1.0 },
   useViewZoom: { type: Boolean, default: true },
 });

@@ -27,12 +27,12 @@ export const buildNotesCSV = ({
 
   const csv = createCSVBuilder({
     header: [
-      'note',
       'attached to',
       'name',
       'created by',
       'created at',
       'visibility',
+      'note',
     ],
   });
 
@@ -50,12 +50,12 @@ export const buildNotesCSV = ({
 
     const user = note.user ?? users[note.creating_user_id];
     csv.addRow([
-      note.content ?? '',
       note.type ?? '',
       targetName,
       user?.name ?? '',
       toLocaleDateString(note.created_at),
       note.visibility === 1 ? 'team' : 'private',
+      note.content ?? '',
     ]);
   });
 

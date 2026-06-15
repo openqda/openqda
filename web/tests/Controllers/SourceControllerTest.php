@@ -8,6 +8,7 @@ use App\Jobs\ConvertFileToHtmlJob;
 use App\Jobs\TranscriptionJob;
 use App\Models\Note;
 use App\Models\Project;
+use App\Models\Selection;
 use App\Models\Source;
 use App\Models\SourceStatus;
 use App\Models\User;
@@ -209,6 +210,122 @@ class SourceControllerTest extends TestCase
             'name' => 'isLocked',
             'boolean_value' => false,
         ]);
+    }
+
+    public function test_unlock_deletes_all_selections_for_source()
+    {
+        $source = Source::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $selections = Selection::factory()->count(3)->create([
+            'source_id' => $source->id,
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $this->actingAs($this->user)
+            ->post(route('source.unlock', ['sourceId' => $source->id]));
+
+        foreach ($selections as $selection) {
+            $this->assertDatabaseMissing('selections', ['id' => $selection->id]);
+        }
+    }
+
+    public function test_unlock_deletes_notes_linked_to_source_selections()
+    {
+        $source = Source::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $selection = Selection::factory()->create([
+            'source_id' => $source->id,
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $selectionNote = Note::factory()->create([
+            'project_id' => $this->project->id,
+            'type' => Note::SCOPE_SELECTION,
+            'target' => $selection->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $this->actingAs($this->user)
+            ->post(route('source.unlock', ['sourceId' => $source->id]));
+
+        $this->assertDatabaseMissing('notes', ['id' => $selectionNote->id]);
+    }
+
+    public function test_unlock_does_not_delete_notes_linked_to_source()
+    {
+        $source = Source::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $sourceNote = Note::factory()->create([
+            'project_id' => $this->project->id,
+            'type' => Note::SCOPE_SOURCE,
+            'target' => $source->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $this->actingAs($this->user)
+            ->post(route('source.unlock', ['sourceId' => $source->id]));
+
+        $this->assertDatabaseHas('notes', ['id' => $sourceNote->id]);
+    }
+
+    public function test_unlock_does_not_delete_unrelated_selections_or_notes()
+    {
+        $source = Source::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        // A note on the source being unlocked — must survive
+        $ownSourceNote = Note::factory()->create([
+            'project_id' => $this->project->id,
+            'type' => Note::SCOPE_SOURCE,
+            'target' => $source->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $otherSource = Source::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $otherSelection = Selection::factory()->create([
+            'source_id' => $otherSource->id,
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $otherSelectionNote = Note::factory()->create([
+            'project_id' => $this->project->id,
+            'type' => Note::SCOPE_SELECTION,
+            'target' => $otherSelection->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $otherSourceNote = Note::factory()->create([
+            'project_id' => $this->project->id,
+            'type' => Note::SCOPE_SOURCE,
+            'target' => $otherSource->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $this->actingAs($this->user)
+            ->post(route('source.unlock', ['sourceId' => $source->id]));
+
+        $this->assertDatabaseHas('notes', ['id' => $ownSourceNote->id]);
+        $this->assertDatabaseHas('selections', ['id' => $otherSelection->id]);
+        $this->assertDatabaseHas('notes', ['id' => $otherSelectionNote->id]);
+        $this->assertDatabaseHas('notes', ['id' => $otherSourceNote->id]);
     }
 
     public function test_update_source_content()
