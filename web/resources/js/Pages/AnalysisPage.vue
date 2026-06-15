@@ -10,34 +10,43 @@
           />
         </div>
 
-        <div
-          v-if="menuView === 'export'"
-          class="p-3 rounded-md border border-border"
-        >
-          <p class="text-sm text-foreground/60 me-3">
-            You can export your data to a table in csv format. Note, that data
-            is filtered, based on selected sources and codes.
-          </p>
-          <p class="text-sm text-foreground/60 me-3">
+        <div v-if="menuView === 'export'">
+          <div class="p-3 rounded-md border border-border">
+            <p class="text-sm text-foreground/60">
+              You can export your Selections data to a table in csv format.
+              Note, that data is filtered, based on Sources and Codes you have
+              selected in the other two tabs.
+            </p>
+            <div class="flex justify-end my-3">
+              <Button @click="exportData" title="Export to CSV">
+                Export Selections
+              </Button>
+            </div>
+          </div>
+          <div class="p-3 rounded-md border border-border my-2">
+            <p class="text-sm text-foreground/60 me-3">
               Export all notes from this project as a CSV file, including what
               each note is attached to and who wrote it.
-          </p>
-          <Button
-            @click="
-              exportNotesToCSV({
-                notes,
-                codes,
-                sources,
-                users: allUsers,
-              })
-            "
-            :disabled="!notes.length"
-            :title="
-              notes.length ? 'Export Notes to CSV' : 'No notes to export'
-            "
-          >
-            Export Notes
-          </Button>
+            </p>
+            <div class="flex justify-end my-3">
+              <Button
+                @click="
+                  exportNotesToCSV({
+                    notes,
+                    codes,
+                    sources,
+                    users: allUsers,
+                  })
+                "
+                :disabled="notes.length < 1"
+                :title="
+                  notes.length > 0 ? 'Export Notes' : 'No notes to export'
+                "
+              >
+                {{ notes.length > 0 ? 'Export Notes' : 'No notes to export' }}
+              </Button>
+            </div>
+          </div>
         </div>
 
         <div v-show="menuView === 'sources'" class="">
@@ -279,14 +288,6 @@ const { allUsers } = useUsers();
 provide('codeTreeItemRenderer', AnalysisCodeTreeItemRenderer);
 provide('codeBookRenderer', AnalysisCodebookRenderer);
 
-const exportData = async () => {
-  if (!hasSelections.value) await loadSelections();
-  await asyncTimeout(300);
-  const contents = selection.value;
-  const users = allUsers;
-  await exportToCSV({ contents, users });
-};
-
 //------------------------------------------------------------------------
 // PAGE
 //------------------------------------------------------------------------
@@ -392,6 +393,17 @@ const onVisualizationSelectChange = async (event) => {
 //------------------------------------------------------------------------
 const { exportToCSV, exportNotesToCSV } = useExport();
 
+const exportData = async () => {
+  if (!hasSelections.value) await loadSelections();
+  await asyncTimeout(300);
+  const contents = selection.value;
+  const users = allUsers;
+  await exportToCSV({ contents, users });
+};
+
+//------------------------------------------------------------------------
+// LIFECYCLE
+//------------------------------------------------------------------------
 onMounted(async () => {
   if (checkedSources.value.size === 0) checkSource('all');
   if (checkedCodes.value.size === 0) checkCode('all');
