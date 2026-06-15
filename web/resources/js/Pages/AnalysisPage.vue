@@ -18,9 +18,26 @@
             You can export your data to a table in csv format. Note, that data
             is filtered, based on selected sources and codes.
           </p>
-          <div class="flex items-center justify-end mt-4">
-            <Button @click="exportData"> Export to CSV </Button>
-          </div>
+          <p class="text-sm text-foreground/60 me-3">
+              Export all notes from this project as a CSV file, including what
+              each note is attached to and who wrote it.
+          </p>
+          <Button
+            @click="
+              exportNotesToCSV({
+                notes,
+                codes,
+                sources,
+                users: allUsers,
+              })
+            "
+            :disabled="!notes.length"
+            :title="
+              notes.length ? 'Export Notes to CSV' : 'No notes to export'
+            "
+          >
+            Export Notes
+          </Button>
         </div>
 
         <div v-show="menuView === 'sources'" class="">
@@ -279,6 +296,7 @@ const pageTitle = ref(`Analysis - ${trunc(props.project.name, 50)}`);
 // SOURCES AND CODES
 //------------------------------------------------------------------------
 const {
+  notes,
   codes,
   topLevelCodes,
   checkedCodes,
@@ -372,7 +390,7 @@ const onVisualizationSelectChange = async (event) => {
 //------------------------------------------------------------------------
 // EXPORTS
 //------------------------------------------------------------------------
-const { exportToCSV } = useExport();
+const { exportToCSV, exportNotesToCSV } = useExport();
 
 onMounted(async () => {
   if (checkedSources.value.size === 0) checkSource('all');

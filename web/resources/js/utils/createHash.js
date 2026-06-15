@@ -6,7 +6,11 @@
  * @return {Promise<string|null>}
  */
 export const createHash = (data, { alg = 'SHA-256', format = 'hex' } = {}) => {
-  if (!('crypto' in window)) {
+  if (
+    !('crypto' in window) ||
+    !('subtle' in window.crypto) ||
+    typeof TextEncoder === 'undefined'
+  ) {
     return Promise.resolve(null);
   }
 

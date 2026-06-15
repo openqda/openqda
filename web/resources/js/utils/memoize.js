@@ -4,14 +4,21 @@
  * Creates a simple memoization function, supported by a map
  * @function
  * @param fn {function}
+ * @param debug {function=}
  * @return {function(...[*]): any}
  */
-export const memoize = (fn) => {
+export const memoize = (fn, debug = () => {}) => {
   const map = new Map();
   return function memoized(...args) {
     const self = this;
     const str = JSON.stringify(args, replacer, 0);
-    return map.has(str) ? map.get(str) : fn.apply(self, args);
+    debug(args, str, map);
+    if (!map.has(str)) {
+      const value = fn.apply(self, args);
+      map.set(str, value);
+    }
+
+    return map.get(str);
   };
 };
 
