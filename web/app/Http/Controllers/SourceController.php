@@ -279,6 +279,7 @@ class SourceController extends Controller
 
     /**
      * Unlock a source by setting the isLocked variable to false.
+     * Also deletes all Selections and Notes related to this source.
      *
      * @return JsonResponse
      */
@@ -286,6 +287,17 @@ class SourceController extends Controller
     {
         try {
             $source = Source::findOrFail($sourceId);
+
+            // Collect selection IDs before deleting them
+            $selectionIds = $source->selections()->pluck('id');
+
+            // Delete notes linked to the source's selections
+            Note::where('type', 'selection')
+                ->whereIn('target', $selectionIds)
+                ->delete();
+
+            // Delete all selections belonging to this source
+            $source->selections()->delete();
 
             $source->unlock();
             $source->createAudit(Source::AUDIT_UNLOCKED, ['message' => $source->name.' has been unlocked']);

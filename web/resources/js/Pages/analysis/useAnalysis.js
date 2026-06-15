@@ -186,6 +186,7 @@ export const useAnalysis = () => {
 
   const loadSelections = async () => {
     if (selectionsLoaded.value) {
+        console.debug('selections already loaded')
       return true;
     }
     const url = route('analysis.selections', { project: projectId });
@@ -197,6 +198,7 @@ export const useAnalysis = () => {
       throw new Error(`[${response.status}]: Failed to load selections`);
     }
     const { selections } = response.data;
+        console.debug('selections', selections)
     selections.forEach((selection) => {
       const { code_id } = selection;
       (allCodes.value ?? []).forEach((code) => {

@@ -18,8 +18,9 @@
               selected in the other two tabs.
             </p>
             <div class="flex justify-end my-3">
-              <Button @click="exportData" title="Export to CSV">
-                Export Selections
+              <Button @click="exportData" title="Export to CSV" :disabled="exporting">
+                  <ActivityIndicator v-if="exporting" />
+                  <span v-else>Export {{selectionsCount}} Selections</span>
               </Button>
             </div>
           </div>
@@ -392,14 +393,22 @@ const onVisualizationSelectChange = async (event) => {
 // EXPORTS
 //------------------------------------------------------------------------
 const { exportToCSV, exportNotesToCSV } = useExport();
-
+const exporting = ref(false)
 const exportData = async () => {
-  if (!hasSelections.value) await loadSelections();
-  await asyncTimeout(300);
-  const contents = selection.value;
-  const users = allUsers;
-  await exportToCSV({ contents, users });
+    exporting.value = true
+    await attemptAsync(() => _exportData())
+    exporting.value = false
 };
+
+const _exportData = async () => {
+    if (!hasSelections.value) {
+        await loadSelections();
+    }
+    await asyncTimeout(1000);
+    const contents = selection.value;
+    const users = allUsers;
+    await exportToCSV({ contents, users });
+}
 
 //------------------------------------------------------------------------
 // LIFECYCLE
