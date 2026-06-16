@@ -87,7 +87,7 @@ export const useVariables = () => {
     onError({ response, error, message: 'Failed to create variable.' });
     const updated = response.data.variable;
     const index = source.variables.findIndex((v) => v.id === id);
-    source.variables[index] = updated;
+    source.variables.splice(index, 1, updated);
     store.update(id, updated);
     return { response, error };
   };
