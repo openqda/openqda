@@ -40,10 +40,10 @@ export const useVariables = () => {
   });
 
   const onError = ({ response, error, message }) => {
-    if (response.status >= 400 || error) {
-      throw new Error(
-        `${response.status} ${message} ${response.data?.message || error.message}`
-      );
+    if (!response || response.status >= 400 || error) {
+      const status = response?.status ?? 'ERR';
+      const details = response?.data?.message ?? error?.message ?? '';
+      throw new Error(`${status} ${message} ${details}`);
     }
   };
 
