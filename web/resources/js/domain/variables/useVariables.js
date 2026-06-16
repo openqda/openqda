@@ -6,7 +6,13 @@ import { computed } from 'vue';
 import { isDefined } from '@vueuse/core';
 
 export const useVariables = () => {
-  const { variables = [], allUsers, projectId } = usePage().props;
+  const {
+    variables = [],
+    allUsers,
+    project,
+    projectId: rawProjectId,
+  } = usePage().props;
+  const projectId = rawProjectId ?? project.id;
   const store = Variables.by(projectId);
 
   const initVariables = () => {
@@ -25,6 +31,8 @@ export const useVariables = () => {
           name: variable.name,
           description: variable.description,
           type_of_variable: variable.type_of_variable,
+          created_at: variable.created_at,
+          updated_at: variable.updated_at,
         };
       }
     }

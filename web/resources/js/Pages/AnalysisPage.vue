@@ -45,10 +45,46 @@
                 "
                 :disabled="notes.length < 1"
                 :title="
-                  notes.length > 0 ? 'Export Notes' : 'No notes to export'
+                  notes.length > 0
+                    ? `Export ${notes.length} Notes`
+                    : 'No notes to export'
                 "
               >
-                {{ notes.length > 0 ? 'Export Notes' : 'No notes to export' }}
+                {{
+                  notes.length > 0
+                    ? `Export ${notes.length} Notes`
+                    : 'No notes to export'
+                }}
+              </Button>
+            </div>
+          </div>
+          <div class="p-3 rounded-md border border-border my-2">
+            <p class="text-sm text-foreground/60 me-3">
+              Export all variables from this project as a CSV file, including
+              which values have been assigned to respective sources.
+            </p>
+            <div class="flex justify-end my-3">
+              <Button
+                @click="
+                  exportVariables({
+                    sources,
+                    project,
+                    users: allUsers,
+                    variables: uniqueVariables,
+                  })
+                "
+                :disabled="uniqueVariables.length < 1"
+                :title="
+                  uniqueVariables.length > 0
+                    ? `Export ${uniqueVariables.length} Variables`
+                    : 'No Variables to export'
+                "
+              >
+                {{
+                  uniqueVariables.length > 0
+                    ? `Export ${uniqueVariables.length} Variables`
+                    : 'No Variables to export'
+                }}
               </Button>
             </div>
           </div>
@@ -284,6 +320,7 @@ import { asyncTimeout } from '../utils/asyncTimeout.js';
 import AnalysisCodeTreeItemRenderer from './analysis/AnalysisCodeTreeItemRenderer.vue';
 import AnalysisCodebookRenderer from './analysis/AnalysisCodebookRenderer.vue';
 import CodeTree from './coding/tree/CodeTree.vue';
+import { useVariables } from '../domain/variables/useVariables.js';
 
 //------------------------------------------------------------------------
 // DATA / PROPS
@@ -396,7 +433,8 @@ const onVisualizationSelectChange = async (event) => {
 //------------------------------------------------------------------------
 // EXPORTS
 //------------------------------------------------------------------------
-const { exportToCSV, exportNotesToCSV } = useExport();
+const { exportToCSV, exportNotesToCSV, exportVariables } = useExport();
+const { uniqueVariables, initVariables } = useVariables();
 const exporting = ref(false);
 const exportData = async () => {
   exporting.value = true;
@@ -420,6 +458,7 @@ const _exportData = async () => {
 onMounted(async () => {
   if (checkedSources.value.size === 0) checkSource('all');
   if (checkedCodes.value.size === 0) checkCode('all');
+  initVariables();
 });
 onUnmounted(() => {
   disposeVisualizerPlugin();

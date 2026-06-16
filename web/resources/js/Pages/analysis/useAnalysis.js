@@ -75,13 +75,15 @@ export const useAnalysis = () => {
   const allSources = ref(
     sources
       .map((source) => {
-        const isLocked = (source.variables ?? []).some(
-          ({ name, boolean_value }) =>
-            name === 'isLocked' && boolean_value === 1
-        );
+        const isLocked =
+          source.variables.isLocked ??
+          source.variables.some(
+            ({ name, boolean_value }) =>
+              name === 'isLocked' && boolean_value === 1
+          );
         const copy = { ...source };
         copy.date = new Date(source.updated_at).toLocaleDateString();
-        copy.variables = { isLocked };
+        copy.variables = copy.variables ?? { isLocked };
         copy.isConverting = false;
         copy.failed = false;
         copy.converted = true;
