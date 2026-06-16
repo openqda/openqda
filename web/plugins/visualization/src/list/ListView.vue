@@ -51,13 +51,13 @@
       <div class="flex justify-end gap-2 px-2 py-2 mb-2 border-b">
         <button
           @click="toggleAll(true)"
-          class="text-xs font-medium uppercase px-2 py-1 bg-silver-100 hover:bg-silver-200 rounded"
+          class="text-xs font-medium uppercase px-2 py-1 bg-foreground/10 hover:bg-foreground/20 rounded"
         >
           Expand All
         </button>
         <button
           @click="toggleAll(false)"
-          class="text-xs font-medium uppercase px-2 py-1 bg-silver-100 hover:bg-silver-200 rounded"
+          class="text-xs font-medium uppercase px-2 py-1 bg-foreground/10 hover:bg-foreground/20 rounded"
         >
           Collapse All
         </button>
@@ -326,7 +326,7 @@
             </Collapse>
             <div
               v-if="!codesList.has(source.id)"
-              class="ml-2 mt-2 p-2 bg-silver-100"
+              class="ml-2 mt-2 p-2 bg-foreground/10"
             >
               No selections found in this source
             </div>
@@ -433,7 +433,7 @@
                   class="border ml-2 mt-3 rounded-sm"
                 >
                   <div
-                    class="p-2 text-sm flex justify-between items-center bg-silver-100"
+                    class="p-2 text-sm flex justify-between items-center bg-foreground/10"
                   >
                     <button
                       @click="
@@ -545,7 +545,7 @@
             </Collapse>
             <div
               v-if="!sourcesList.has(code.id)"
-              class="ml-2 mt-2 p-2 bg-silver-100"
+              class="ml-2 mt-2 p-2 bg-foreground/10"
             >
               No selections found for this code
             </div>
