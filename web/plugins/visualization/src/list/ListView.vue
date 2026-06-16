@@ -244,10 +244,7 @@
                       </Collapse>
                     </div>
 
-                    <div
-                      v-for="(selection, selIndex) in code.text"
-                      :key="`${selection.source_id}-${selIndex}`"
-                    >
+                    <div v-for="selection in code.text" :key="selection.id">
                       <div
                         v-if="source.id === selection.source_id"
                         class="p-1 border-t"
@@ -586,6 +583,8 @@ const codesCollapsed = ref({});
 const selectionCounts = ref({});
 const hoverSources = ref({});
 const rebuildList = API.debounce(() => {
+  const sourcesById = new Map(props.sources.map((source) => [source.id, source]));
+
   props.sources.forEach((source) => {
     const codes = API.getCodesForSource(source);
     if (codes.length) {
@@ -602,11 +601,12 @@ const rebuildList = API.debounce(() => {
       codesList.value.delete(source.id);
     }
   });
-  
+
+  sourcesList.value.clear();
   props.codes.forEach((code) => {
     const linkedSourcesMap = new Map();
     (code.text ?? []).forEach((selection) => {
-      const source = props.sources.find((s) => s.id === selection.source_id);
+      const source = sourcesById.get(selection.source_id);
       if (source) {
         linkedSourcesMap.set(source.id, source);
       }
@@ -635,19 +635,13 @@ const toggleAll = (state) => {
       if (source.notes?.length) {
         notesCollaped.value[source.id] = state;
       }
-      
+
       const codes = codesList.value.get(source.id) || [];
       codes.forEach(code => {
         codesCollapsed.value[`${source.id}-${code.id}`] = state;
         if (code.notes?.length) {
           notesCollaped.value[code.id] = state;
         }
-        
-        (code.text || []).forEach(selection => {
-          if (selection.notes?.length) {
-            notesCollaped.value[selection.id] = state;
-          }
-        });
       });
     });
   } else {
@@ -656,16 +650,16 @@ const toggleAll = (state) => {
       if (code.notes?.length) {
         notesCollaped.value[code.id] = state;
       }
-      
+
+      (code.text || []).forEach(selection => {
+        if (selection.notes?.length) {
+          notesCollaped.value[selection.id] = state;
+        }
+      });
+
       const sources = sourcesList.value.get(code.id) || [];
       sources.forEach(source => {
         codesCollapsed.value[`${source.id}-${code.id}`] = state;
-        
-        (code.text || []).forEach(selection => {
-          if (selection.notes?.length) {
-            notesCollaped.value[selection.id] = state;
-          }
-        });
       });
     });
   }
