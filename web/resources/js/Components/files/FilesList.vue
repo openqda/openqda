@@ -2,7 +2,11 @@
   <table :class="cn('w-full border-collapse', props.fixed && 'table-fixed')">
     <thead>
       <tr class="align-middle" :class="props.rowClass">
-        <th class="w-5" v-if="fieldsVisible.lock"></th>
+        <th class="w-5 text-start">
+          <button @click="search = !search">
+            <MagnifyingGlassIcon class="w-4 h-4" />
+          </button>
+        </th>
         <th
           v-for="field in headerFields.filter(
             (field) => fieldsVisible[field.key]
@@ -13,7 +17,35 @@
             cn('text-xs font-normal text-foreground/50 sm:pl-0', field.class)
           "
         >
+          <div
+            v-if="search && field.search"
+            class="flex items-center w-full pe-3 gap-1"
+          >
+            <input
+              placeholder="filter list..."
+              v-model="filter"
+              class="h-4 text-xs grow"
+              autofocus
+              @keydown="
+                (e) => {
+                  if (e.key === 'Escape') {
+                    search = false;
+                    filter = '';
+                  }
+                }
+              "
+            />
+            <button
+              @click="
+                search = false;
+                filter = '';
+              "
+            >
+              <XMarkIcon class="w-4 h-4" />
+            </button>
+          </div>
           <a
+            v-else
             href
             @click.prevent="() => sort(field.key)"
             :class="
@@ -90,7 +122,7 @@
         </td>
 
         <!-- type -->
-        <td class="py-2" v-if="fieldsVisible.type && hover !== index">
+        <td class="py-2" v-if="fieldsVisible.type">
           <div
             v-if="document.failed"
             title="There was an error during upload or conversion. Please retry or delete this file."
@@ -176,9 +208,9 @@
               emit('select', document, index)
             "
             :title="
-              hover === index
+              document.selected
                 ? 'File already open'
-                : `Open ${document.name} in editor`
+                : `Open '${document.name}' in editor`
             "
             :class="
               cn(
@@ -304,6 +336,8 @@ import {
   ChevronUpIcon,
   EllipsisVerticalIcon,
   LockClosedIcon,
+  MagnifyingGlassIcon,
+  XMarkIcon,
 } from '@heroicons/vue/20/solid/index.js';
 import {
   ChatBubbleLeftEllipsisIcon,
@@ -335,15 +369,26 @@ const props = defineProps([
   'fullTitle',
   'extraFields',
 ]);
+const filter = ref();
 const docs = computed(() => {
-  return props.documents.filter(Boolean).map((doc) => {
-    doc.notes = (props.notes ?? [])
-      .filter((note) => note.type === 'source' && note.target === doc.id)
-      .map((n) => toRaw(n)); // prevent "proxy object could not be cloned error"
-    return doc;
-  });
+  return props.documents
+    .filter((doc) => {
+      if (!doc) return false;
+      if (search.value && filter.value?.length >= 2) {
+        return doc.name.toLowerCase().includes(filter.value.toLowerCase());
+      }
+      return true;
+    })
+    .map((doc) => {
+      doc.notes = (props.notes ?? [])
+        .filter((note) => note.type === 'source' && note.target === doc.id)
+        .map((n) => toRaw(n)); // prevent "proxy object could not be cloned error"
+      return doc;
+    })
+    .toSorted((a, b) => a.name.localeCompare(b.name));
 });
 const sorter = ref({ key: null, ascending: false });
+const search = ref(false);
 const openMenuId = ref(null);
 const headerFields = ref([
   {
@@ -358,6 +403,7 @@ const headerFields = ref([
     pos: 'start',
     title: 'Sort by name',
     class: 'w-4/6 text-start',
+    search: true,
   },
   {
     label: 'Date',

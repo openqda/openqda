@@ -7,7 +7,7 @@ describe('buildNotesCSV', () => {
   test('produces only a header row when there are no notes', () => {
     const result = buildNotesCSV({ notes: [], project });
     expect(result).toBe(
-      'note;attached to;name;created by;created at;visibility\n'
+      'attached to,name,created by,created at,visibility,note\r\n'
     );
   });
 

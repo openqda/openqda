@@ -36,7 +36,6 @@
             ref="editorComponent"
             :source="editorSourceRef.content"
             :locked="editorSourceRef.locked"
-            :CanUnlock="editorSourceRef.CanUnlock"
             :viewerZoom="zoom"
             :useViewZoom="true"
             @update:zoom="setZoom"
@@ -60,12 +59,13 @@
             <template #actions>
               <div class="">
                 <Button
-                  v-if="editorSourceRef.CanUnlock"
-                  variant="outline-secondary"
+                  v-if="editorSourceRef.locked"
+                  variant="destructive"
                   :icon="LockOpenIcon"
                   @click="
                     toConfirm({
-                      text: 'Are you sure you want to unlock the source? This will affect all codes and analysis, applied to this source.',
+                      text: 'You are about to unlock this Source. This will remove all Selections that you or your team applied. You are then free to edit the Source and lock again for a new attempt of coding.',
+                      destructive: true,
                       fn: unlockSource,
                     })
                   "
@@ -81,7 +81,8 @@
                   :icon="LockClosedIcon"
                   @click="
                     toConfirm({
-                      text: 'Are you sure you want to lock the source and start coding?',
+                      text: 'You are about to lock this Source for coding. This will make future edits impossible unless you unlock it, which will remove all Selections you have made. Are you sure you want to lock the source and start coding?',
+                      destructive: false,
                       fn: lockAndCode,
                     })
                   "
@@ -107,6 +108,8 @@
                   :show="!!confirm.text"
                   :show-confirm="true"
                   :static="true"
+                  :challenge="!!confirm.destructive"
+                  :destructive="confirm.destructive"
                   @confirmed="onConfirm"
                   @cancelled="toConfirm(null)"
                 />

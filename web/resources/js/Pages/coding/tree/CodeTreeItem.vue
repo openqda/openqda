@@ -14,7 +14,7 @@
       "
       :style="{ borderColor: el.color }"
     >
-      <CodeTreeItemRenderer
+      <Renderer
         :code="el"
         :group-id="groupId"
         :open="collapsed[el.id]"
@@ -23,7 +23,7 @@
         class="w-full"
       />
       <Collapse
-        :when="sorting === groupId || !el.children?.length || collapsed[el.id]"
+        :when="!el.children?.length || collapsed[el.id]"
         class="v-collapse"
       >
         <CodeTreeItem
@@ -38,13 +38,12 @@
   </ul>
 </template>
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, inject, ref, toRaw, watch } from 'vue';
 import { Collapse } from 'vue-collapsed';
 import { useDraggable } from 'vue-draggable-plus';
 import { cn } from '../../../utils/css/cn';
 import { useCodes } from '../../../domain/codes/useCodes';
 import { useCodeTree } from './useCodeTree';
-import CodeTreeItemRenderer from './CodeTreeItemRenderer.vue';
 import { attemptAsync } from '../../../Components/notification/attemptAsync';
 import { CodeList } from '../../../domain/codes/CodeList';
 import { useCodebookOrder } from '../../../domain/codebooks/useCodebookOrder';
@@ -53,6 +52,7 @@ defineOptions({
   name: 'CodeTreeItem',
 });
 
+const Renderer = inject('codeTreeItemRenderer');
 const props = defineProps({
   modelValue: Array,
   groupId: [Number, String],
@@ -87,7 +87,7 @@ const draggable = useDraggable(el, list, {
   swapThreshold: 0.5,
   scroll: true,
   immediate: false,
-  scrollSensitivity: 100,
+  scrollSensitivity: 300,
   onStart(event) {
     const codeId = event.item.getAttribute('data-id');
     setDragging(codeId);
@@ -130,7 +130,8 @@ const draggable = useDraggable(el, list, {
     return JSON.parse(elementStr, (key, value) => {
       if (typeof value === 'string' && value.startsWith('$el')) {
         const [, id] = value.split('$element-');
-        return getCode(id);
+        // make element raw to prevent proxy object clone error
+        return toRaw(getCode(id));
       }
       return value;
     });

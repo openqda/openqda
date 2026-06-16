@@ -16,7 +16,8 @@ export const useCodes = () => {
   const { details } = toRefs(state);
   const page = usePage();
   const { allUsers } = useUsers();
-  const { allCodes, codebooks, projectId, source, notes } = page.props;
+  const { allCodes, codebooks, project, source, notes } = page.props;
+  const projectId = page.props.projectId ?? project.id;
   const sourceId = source?.id;
   const key = sourceId ? `${projectId}-${sourceId}` : projectId;
   const codeStore = Codes.by(key);

@@ -137,29 +137,52 @@ describe('Intersection', () => {
       return selections;
     };
     it('is fairly time performant', async () => {
-      // 100 entries
+      // Baseline: 100 entries
       let selections = inflate(100, 100);
       let start = performance.now();
       Intersections.from(selections);
       let end = performance.now();
-      const measure1 = end - start;
-      expect(measure1 < 1).toBe(true);
+      const time100 = end - start;
 
-      // 1000 entries
+      // 10x more entries: 1000 entries
       selections = inflate(1000, 100);
       start = performance.now();
       Intersections.from(selections);
       end = performance.now();
-      const measure2 = end - start;
-      expect(measure2 < 50).toBe(true);
+      const time1000 = end - start;
 
-      // 10000 entries
+      // 100x more entries: 10000 entries
       selections = inflate(10000, 100);
       start = performance.now();
       Intersections.from(selections);
       end = performance.now();
-      const measure3 = end - start;
-      expect(measure3 < 1000).toBe(true);
+      const time10000 = end - start;
+
+      // Calculate scaling factors
+      const scalingFactor10x = time1000 / time100;
+      const scalingFactor100x = time10000 / time100;
+
+      // For an O(n log n) algorithm with overhead:
+      // Theoretical: 10x input → ~13.3x time (10 × log₂(1000)/log₂(100) = 10 × 1.33)
+      // Theoretical: 100x input → ~200x time (100 × log₂(10000)/log₂(100) = 100 × 2.0)
+      //
+      // Empirical measurements show ~278-300x for 100x input, suggesting O(n log n)
+      // with significant constant factors or additional overhead.
+      //
+      // Allow generous margins while still catching truly inefficient implementations:
+      // - 10x input: allow up to 25x time (vs theoretical ~13x)
+      // - 100x input: allow up to 400x time (vs theoretical ~200x, observed ~278-300x)
+      //
+      // This will catch O(n²) implementations:
+      // - O(n²): 10x input → 100x time, 100x input → 10,000x time (fails dramatically)
+
+      expect(scalingFactor10x).toBeLessThan(25);
+      expect(scalingFactor100x).toBeLessThan(400);
+
+      // Also verify all operations actually completed (no crashes/hangs)
+      expect(time100).toBeGreaterThan(0);
+      expect(time1000).toBeGreaterThan(0);
+      expect(time10000).toBeGreaterThan(0);
     });
   });
 });

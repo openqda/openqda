@@ -50,7 +50,7 @@ const props = defineProps({
 //------------------------------------------------------------------------
 // Collapse
 //------------------------------------------------------------------------
-const open = computed(() => props.sorting || collapsed.value[props.code.id]);
+const open = computed(() => collapsed.value[props.code.id]);
 const toggle = () => {
   const newState = toggleCollapse(props.code.id);
   // if collapse closed then also close
@@ -200,7 +200,6 @@ const { range } = useRange();
         :title="open ? 'Hide children' : 'Show children'"
         variant="default"
         size="sm"
-        :disabled="sorting"
         class="bg-transparent text-foreground! hover:text-background w-4 p-0! rounded"
         @click="toggle()"
       >
@@ -232,16 +231,17 @@ const { range } = useRange();
           :class="
             cn(
               'w-full h-full text-left flex items-center',
-              code.active
-                ? 'hover:font-semibold'
-                : 'cursor-not-allowed text-foreground/20'
+              !code.active && 'cursor-not-allowed text-foreground/20'
             )
           "
         >
-          <ContrastText>{{ code.name }}</ContrastText>
           <ContrastText
-            class="text-xs ms-auto font-normal hidden group-hover:inline"
-            >Assign to {{ range.start }}:{{ range.end }}</ContrastText
+            :class="
+              cn(
+                code.active && 'hover:text-primary-foreground hover:bg-primary'
+              )
+            "
+            >{{ code.name }}</ContrastText
           >
         </button>
         <ContrastText v-else>{{ code.name }}</ContrastText>
@@ -252,7 +252,7 @@ const { range } = useRange();
         >
       </div>
 
-      <div class="flex justify-between items-center gap-2">
+      <div class="flex justify-between items-center gap-2" v-if="!sorting">
         <!-- show texts -->
         <Button
           :title="showTexts ? 'Hide selections list' : 'Show selections list'"
@@ -322,7 +322,7 @@ const { range } = useRange();
         </button>
 
         <!-- code menu -->
-        <Dropdown :disabled="sorting">
+        <Dropdown>
           <template #trigger>
             <button
               :disabled="sorting"

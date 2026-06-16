@@ -7,6 +7,7 @@ import {
   InformationCircleIcon,
 } from '@heroicons/vue/24/solid';
 import Headline3 from '../../../Components/layout/Headline3.vue';
+import Button from '../../../Components/interactive/Button.vue';
 import { computed, reactive } from 'vue';
 import { asyncTimeout } from '../../../utils/asyncTimeout';
 import { attemptAsync } from '../../../Components/notification/attemptAsync';
@@ -52,8 +53,26 @@ const handleTogglingCodebook = async (codebook) => {
 </script>
 
 <template>
-  <div class="flex justify-between items-center">
-    <Headline3>{{ codebook.name }}</Headline3>
+  <div
+    :class="
+      cn(
+        'flex justify-between items-center',
+        sorting && 'sticky top-0 z-50 bg-surface'
+      )
+    "
+  >
+    <div>
+      <Headline3>{{ codebook.name }}</Headline3>
+      <Button
+        v-if="sorting"
+        variant="outline-secondary"
+        size="sm"
+        @click="setSorting(null)"
+        class="my-1"
+      >
+        End sorting codes
+      </Button>
+    </div>
     <!-- codebook options -->
     <span class="flex justify-between items-center gap-2">
       <span class="text-foreground/50 text-xs mx-2">
@@ -74,6 +93,7 @@ const handleTogglingCodebook = async (codebook) => {
         <InformationCircleIcon class="w-4 h-4" />
       </button>
       <button
+        v-if="!sorting"
         class="p-0 m-0 text-foreground/80"
         @click="handleTogglingCodebook(codebook)"
         :title="codebook.active ? 'Hide all codes' : 'Show all codes'"
@@ -97,9 +117,7 @@ const handleTogglingCodebook = async (codebook) => {
         "
         @click="setSorting(sorting === codebook.id ? null : codebook.id)"
         :title="
-          sorting === codebook.id
-            ? 'Deactivate code-sorting'
-            : 'Activate code-sorting'
+          sorting === codebook.id ? 'End sorting codes' : 'Start sorting codes'
         "
       >
         <ArrowsUpDownIcon class="w-4 h-4" />

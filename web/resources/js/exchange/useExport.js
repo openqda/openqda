@@ -29,7 +29,7 @@ const exportNotesToCSV = ({ notes, codes, sources, project, users }) => {
 const exportToCSV = ({ contents, project, users }) => {
   const csv = createCSVBuilder({
     header: [
-      'file',
+      'source',
       'code category',
       'created by',
       'created at',

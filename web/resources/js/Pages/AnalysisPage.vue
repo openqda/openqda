@@ -10,48 +10,47 @@
           />
         </div>
 
-        <div
-          v-if="menuView === 'export'"
-          class="p-3 rounded-md border border-border flex flex-col gap-3"
-        >
-          <div class="flex items-center">
-            <p class="text-sm text-foreground/60 me-3">
-              You can export your data to a table in csv format. Note, that data
-              is filtered, based on selected sources and codes.
+        <div v-if="menuView === 'export'">
+          <div class="p-3 rounded-md border border-border">
+            <p class="text-sm text-foreground/60">
+              You can export your Selections data to a table in csv format.
+              Note, that data is filtered, based on Sources and Codes you have
+              selected in the other two tabs.
             </p>
-            <Button
-              @click="exportToCSV({ contents: selection, users: allUsers })"
-              :disabled="!hasSelections"
-              :title="
-                hasSelections
-                  ? 'Export to CSV'
-                  : 'Select at least one File and Code to export'
-              "
-            >
-              Export to CSV
-            </Button>
+            <div class="flex justify-end my-3">
+              <Button
+                @click="exportData"
+                title="Export to CSV"
+                :disabled="exporting"
+              >
+                <ActivityIndicator v-if="exporting" />
+                <span v-else>Export {{ selectionsCount }} Selections</span>
+              </Button>
+            </div>
           </div>
-          <div class="flex items-center">
+          <div class="p-3 rounded-md border border-border my-2">
             <p class="text-sm text-foreground/60 me-3">
               Export all notes from this project as a CSV file, including what
               each note is attached to and who wrote it.
             </p>
-            <Button
-              @click="
-                exportNotesToCSV({
-                  notes,
-                  codes,
-                  sources,
-                  users: allUsers,
-                })
-              "
-              :disabled="!notes.length"
-              :title="
-                notes.length ? 'Export Notes to CSV' : 'No notes to export'
-              "
-            >
-              Export Notes
-            </Button>
+            <div class="flex justify-end my-3">
+              <Button
+                @click="
+                  exportNotesToCSV({
+                    notes,
+                    codes,
+                    sources,
+                    users: allUsers,
+                  })
+                "
+                :disabled="notes.length < 1"
+                :title="
+                  notes.length > 0 ? 'Export Notes' : 'No notes to export'
+                "
+              >
+                {{ notes.length > 0 ? 'Export Notes' : 'No notes to export' }}
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -59,7 +58,7 @@
           <FilesList
             :focus-on-hover="false"
             :fields="{
-              lock: false,
+              lock: true,
               file: true,
               type: true,
               date: false,
@@ -95,7 +94,17 @@
         </div>
 
         <div v-if="menuView === 'codes'">
-          <table class="w-full border-collapse border-0">
+          <SelectField
+            :value="sortCode"
+            size="sm"
+            :options="sortCodeOptions"
+            @change="updateCodeSortMode"
+            :default-option="alpha"
+          />
+          <table
+            v-if="sortCode === 'alpha'"
+            class="w-full border-collapse border-0"
+          >
             <thead>
               <tr class="border-0">
                 <th
@@ -126,7 +135,7 @@
                     class="cursor-pointer select-none line-clamp-1 rounded-md p-2 my-2 flex justify-between"
                     :style="{
                       backgroundColor: code.color,
-                      opacity: checkedCodes.get(code.id) ? 1 : 0.3,
+                      opacity: checkedCodes.get(code.id) ? 1 : 0.4,
                     }"
                   >
                     <ContrastText class="line-clamp-1 px-1 rounded">{{
@@ -150,6 +159,26 @@
               </tr>
             </tbody>
           </table>
+          <div v-if="sortCode === 'hierarchy'">
+            <div class="flex justify-between mt-4">
+              <label>Select all</label>
+              <input
+                id="all_codes"
+                type="checkbox"
+                :checked="allCodesChecked"
+                @change="checkCode('all')"
+              />
+            </div>
+            <CodeTree
+              v-for="codebook in codebooks"
+              :key="codebook.id"
+              :codebook="codebook"
+              :editable="false"
+              :codes="
+                topLevelCodes.filter((code) => code.codebook === codebook.id)
+              "
+            />
+          </div>
         </div>
         <div class="mt-auto">
           <Footer />
@@ -230,7 +259,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, provide, ref } from 'vue';
 import Button from '../Components/interactive/Button.vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
@@ -252,12 +281,17 @@ import HelpResources from '../Components/HelpResources.vue';
 import ActivityIndicator from '../Components/ActivityIndicator.vue';
 import { attemptAsync } from '../Components/notification/attemptAsync.js';
 import { asyncTimeout } from '../utils/asyncTimeout.js';
+import AnalysisCodeTreeItemRenderer from './analysis/AnalysisCodeTreeItemRenderer.vue';
+import AnalysisCodebookRenderer from './analysis/AnalysisCodebookRenderer.vue';
+import CodeTree from './coding/tree/CodeTree.vue';
 
 //------------------------------------------------------------------------
 // DATA / PROPS
 //------------------------------------------------------------------------
 const props = defineProps(['codebooks', 'project']);
 const { allUsers } = useUsers();
+provide('codeTreeItemRenderer', AnalysisCodeTreeItemRenderer);
+provide('codeBookRenderer', AnalysisCodebookRenderer);
 
 //------------------------------------------------------------------------
 // PAGE
@@ -270,6 +304,7 @@ const pageTitle = ref(`Analysis - ${trunc(props.project.name, 50)}`);
 const {
   notes,
   codes,
+  topLevelCodes,
   checkedCodes,
   allCodesChecked,
   checkCode,
@@ -285,6 +320,7 @@ const {
   loadSelections,
   leaveAnalysis,
 } = useAnalysis();
+
 const selectionsCount = computed(() => {
   return codes.value.reduce((acc, code) => {
     if (checkedCodes.value.get(code.id)) {
@@ -302,7 +338,14 @@ const {
   selectVisualizerPlugin,
   disposeVisualizerPlugin,
 } = useVisualizerPlugins();
-
+const sortCode = ref('hierarchy');
+const sortCodeOptions = [
+  { value: 'hierarchy', label: 'Hierarchical' },
+  { value: 'alpha', label: 'Alphabetical' },
+];
+const updateCodeSortMode = (e) => {
+  sortCode.value = e.target.value;
+};
 //------------------------------------------------------------------------
 // VIEWS / TABS
 //------------------------------------------------------------------------
@@ -354,7 +397,26 @@ const onVisualizationSelectChange = async (event) => {
 // EXPORTS
 //------------------------------------------------------------------------
 const { exportToCSV, exportNotesToCSV } = useExport();
+const exporting = ref(false);
+const exportData = async () => {
+  exporting.value = true;
+  await attemptAsync(() => _exportData());
+  exporting.value = false;
+};
 
+const _exportData = async () => {
+  if (!hasSelections.value) {
+    await loadSelections();
+  }
+  await asyncTimeout(1000);
+  const contents = selection.value;
+  const users = allUsers;
+  await exportToCSV({ contents, users });
+};
+
+//------------------------------------------------------------------------
+// LIFECYCLE
+//------------------------------------------------------------------------
 onMounted(async () => {
   if (checkedSources.value.size === 0) checkSource('all');
   if (checkedCodes.value.size === 0) checkCode('all');
