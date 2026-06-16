@@ -6,6 +6,7 @@ import AutoForm from '../../form/AutoForm.vue';
 import { useVariables } from './useVariables';
 import { attemptAsync } from '../../Components/notification/attemptAsync';
 import { cn } from '../../utils/css/cn';
+import { isDefined } from '../../utils/isDefined';
 
 const props = defineProps({
   source: Object,
@@ -50,12 +51,12 @@ const forms = {
           type: String,
           defaultValue: doc.name,
           autofocus: !doc.name,
-          disabled: !!doc.name,
+          readonly: !!doc.name,
         },
         type: {
           type: String,
           defaultValue: defaultType,
-          disabled: !!doc.type_of_variable,
+          readonly: !!doc.type_of_variable,
           options: [
             { value: 'boolean', label: 'Boolean' },
             { value: 'text', label: 'Text' },
@@ -64,15 +65,17 @@ const forms = {
             { value: 'float', label: 'Number' },
           ],
         },
-        value: {
-          type: String,
-          autofocus: !!doc.name,
-          defaultValue,
-        },
         description: {
           type: String,
           formType: 'textarea',
           optional: true,
+          readonly: isDefined(doc.description),
+          defaultValue: doc.description,
+        },
+        value: {
+          type: String,
+          autofocus: !!doc.name,
+          defaultValue,
         },
       };
     },
@@ -103,9 +106,9 @@ const forms = {
       label: 'Update',
       variant: 'secondary',
       fn: ({ source, variable, ...doc }) => {
-        const key = `${doc.type_of_variable}_value`;
+        const key = `${doc.type}_value`;
         const data = { id: doc.id };
-        data[key] = doc[key];
+        data[key] = doc.value;
         return updateVariable({ source, ...data });
       },
       successMessage: 'Variable successfully updated',
@@ -114,6 +117,16 @@ const forms = {
   delete: {
     title: ({ name }) =>
       `Delete variable "${name}"  for source "${props.source.name}"`,
+    schema: (doc = {}) => {
+      return {
+        id: {
+          type: String,
+          defaultValue: doc.id,
+          formType: 'hidden',
+          label: null,
+        },
+      };
+    },
     color: 'destructive',
     preview: true,
     info: 'You are about to delete this variable for this Source. This action cannot be undone and is logged to the audit.',
@@ -144,11 +157,9 @@ const setForm = (options) => {
 
 const submitForm = async (data) => {
   const type = form.value.type;
-  const fn = forms[type].submit.fn;
-  await attemptAsync(
-    () => fn({ source: props.source, ...data }),
-    forms[form.value.type].successMessage
-  );
+  const { submit } = forms[type];
+  const fn = () => submit.fn({ source: props.source, ...data });
+  await attemptAsync(fn, submit.successMessage);
   setForm(null);
 };
 </script>

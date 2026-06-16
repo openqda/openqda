@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import InputLabel from './InputLabel.vue';
 import InputError from '../../../vendor/laravel/jetstream/stubs/inertia/resources/js/Components/InputError.vue';
 import { cn } from '../utils/css/cn';
@@ -18,6 +18,10 @@ const props = defineProps({
     default: 'default',
   },
   disabled: {
+    type: Boolean,
+    optional: true,
+  },
+  readonly: {
     type: Boolean,
     optional: true,
   },
@@ -47,6 +51,12 @@ const textStyle = {
     size: 'default',
   },
 };
+const usableOptions = computed(() => {
+  if (props.readonly) {
+    return props.options.filter((opt) => opt.value == current.value);
+  }
+  return props.options;
+});
 const resolveText = variantAuthority(textStyle);
 </script>
 
@@ -69,7 +79,7 @@ const resolveText = variantAuthority(textStyle);
       @change="(e) => (current = e.target.value)"
     >
       <option
-        v-if="props.options || props.defaultOption"
+        v-if="!props.readonly && (props.options || props.defaultOption)"
         :disabled="!emptySelectable"
         value=""
       >
@@ -77,7 +87,7 @@ const resolveText = variantAuthority(textStyle);
       </option>
       <option
         v-if="props.options"
-        v-for="opt in props.options"
+        v-for="opt in usableOptions"
         :key="opt.value"
         :value="opt.value"
       >

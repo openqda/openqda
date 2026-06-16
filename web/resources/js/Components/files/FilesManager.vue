@@ -64,12 +64,12 @@ const hasVariables = computed(() => {
   return keys.length > 0;
 });
 const selectVariable = (options) => {
-  if (selectedVariables.value[options.value]) {
-    delete selectedVariables.value[options.value];
+  if (selectedVariables.value[options.name]) {
+    delete selectedVariables.value[options.name];
   } else {
-    const name = options.value;
+    const name = options.name;
     selectedVariables.value[name] = {
-      label: options.label,
+      label: options.name,
       key: name,
       resolve: (doc) => {
         return doc.variables?.[name];
@@ -81,15 +81,7 @@ const selectVariable = (options) => {
     };
   }
 };
-const variableOptions = computed(() => {
-  return uniqueVariables.value.map((v) => {
-    return {
-      value: v.name,
-      type: v.type_of_variable,
-      label: v.name,
-    };
-  });
-});
+
 const { projectId } = props;
 const allSources = inject('sources');
 const documents = reactive(allSources);
@@ -394,7 +386,7 @@ async function fetchAndRenderDocument(document) {
       <PlusIcon class="h-4 w-4 mr-2"></PlusIcon>
       <span>Import</span>
     </Button>
-    <Dropdown class="md:ms-auto">
+    <Dropdown class="md:ms-auto" v-if="uniqueVariables?.length">
       <template #trigger>
         <button
           :class="
@@ -411,16 +403,16 @@ async function fetchAndRenderDocument(document) {
         <div class="text-sm px-3 py-2 text-foreground/50">Variables</div>
         <DropdownLink
           as="button"
-          v-for="option in variableOptions"
-          :key="option.value"
+          v-for="option in uniqueVariables"
+          :key="option.name"
           @click.stop="selectVariable(option)"
         >
           <div class="flex items-center gap-2">
             <input
               type="checkbox"
-              :checked="!!selectedVariables[option.value]"
+              :checked="!!selectedVariables[option.name]"
             />
-            <span>{{ option.label }} ({{ option.type }})</span>
+            <span>{{ option.name }} ({{ option.type_of_variable }})</span>
           </div>
         </DropdownLink>
       </template>

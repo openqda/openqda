@@ -94,12 +94,13 @@ export const useVariables = () => {
 
   const deleteVariable = async ({ source, id }) => {
     const { response, error } = await request({
-      url: route('variables.store', { project: projectId, variable: id }),
+      url: route('variables.destroy', { project: projectId, variable: id }),
       type: 'delete',
     });
     onError({ response, error, message: 'Failed to delete variable.' });
     const index = source.variables.findIndex((variable) => variable.id === id);
     source.variables.splice(index, 1);
+    store.remove(id);
     return { response, error };
   };
 

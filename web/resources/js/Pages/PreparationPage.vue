@@ -32,6 +32,88 @@
           </div>
         </div>
         <div v-show="editorSourceRef.selected === true" class="mt-0 md:mt-3">
+          <div
+            class="block lg:flex lg:justify-between items-center px-1 lg:px-3 py-3"
+          >
+            <Headline3
+              class="hidden lg:inline-block text-primary py-3 lg:py-0"
+              >{{ editorSourceRef.name }}</Headline3
+            >
+            <div class="flex gap-1 justify-center">
+              <Button
+                v-if="editorSourceRef"
+                @click="showOverlay('notes', true)"
+                :title="`Manage notes for source '${editorSourceRef?.name}'`"
+                variant="outline"
+              >
+                <ChatBubbleLeftEllipsisIcon class="w-4 h-4" />
+              </Button>
+              <Button
+                v-if="editorSourceRef"
+                @click="showOverlay('variables', true)"
+                :title="`Manage Variables for source '${editorSourceRef?.name}'`"
+                variant="outline"
+              >
+                <VariableIcon class="w-4 h-4" />
+              </Button>
+              <Button
+                v-if="editorSourceRef.locked"
+                variant="destructive"
+                @click="
+                  toConfirm({
+                    text: 'You are about to unlock this Source. This will remove all Selections that you or your team applied. You are then free to edit the Source and lock again for a new attempt of coding.',
+                    destructive: true,
+                    fn: unlockSource,
+                  })
+                "
+                class="px-1 mx-3 rounded-xl"
+              >
+                <LockOpenIcon class="w-4 h-4 me-1" />
+                <span>Unlock</span>
+              </Button>
+              <Button
+                v-if="
+                  !editorSourceRef.CanUnlock && !editorSourceRef.hasSelections
+                "
+                variant="outline-secondary"
+                title="Lock this source at its current state to start coding."
+                @click="
+                  toConfirm({
+                    text: 'You are about to lock this Source for coding. This will make future edits impossible unless you unlock it, which will remove all Selections you have made. Are you sure you want to lock the source and start coding?',
+                    destructive: false,
+                    fn: lockAndCode,
+                  })
+                "
+                class="px-1 py-2 rounded-lg w-auto"
+              >
+                <LockClosedIcon class="w-4 h-4 me-1" />
+                <span>Lock for coding</span>
+              </Button>
+              <Button
+                v-if="
+                  editorSourceRef.CanUnlock ||
+                  (!editorSourceRef.CanUnlock && editorSourceRef.hasSelections)
+                "
+                type="outline-secondary"
+                :icon="QrCodeIcon"
+                @click="codeThisFile"
+                class="px-1"
+              >
+                <DocumentTextIcon class="w-4 h-4 me-1" />
+                <span>Start Coding</span>
+              </Button>
+              <ConfirmDialog
+                :text="confirm.text"
+                :show="!!confirm.text"
+                :show-confirm="true"
+                :static="true"
+                :challenge="!!confirm.destructive"
+                :destructive="confirm.destructive"
+                @confirmed="onConfirm"
+                @cancelled="toConfirm(null)"
+              />
+            </div>
+          </div>
           <PreparationsEditor
             ref="editorComponent"
             :source="editorSourceRef.content"
@@ -55,83 +137,6 @@
                   saved
                 </span>
               </div>
-            </template>
-            <template #actions>
-              <div class="">
-                <Button
-                  v-if="editorSourceRef.locked"
-                  variant="destructive"
-                  :icon="LockOpenIcon"
-                  @click="
-                    toConfirm({
-                      text: 'You are about to unlock this Source. This will remove all Selections that you or your team applied. You are then free to edit the Source and lock again for a new attempt of coding.',
-                      destructive: true,
-                      fn: unlockSource,
-                    })
-                  "
-                  class="px-1 mx-3 rounded-xl"
-                  >Unlock
-                </Button>
-                <Button
-                  v-if="
-                    !editorSourceRef.CanUnlock && !editorSourceRef.hasSelections
-                  "
-                  variant="outline-secondary"
-                  title="Lock this source at its current state to start coding."
-                  :icon="LockClosedIcon"
-                  @click="
-                    toConfirm({
-                      text: 'You are about to lock this Source for coding. This will make future edits impossible unless you unlock it, which will remove all Selections you have made. Are you sure you want to lock the source and start coding?',
-                      destructive: false,
-                      fn: lockAndCode,
-                    })
-                  "
-                  class="px-1 py-2 rounded-lg w-full md:w-auto"
-                  >Lock for coding
-                </Button>
-                <Button
-                  v-if="
-                    editorSourceRef.CanUnlock ||
-                    (!editorSourceRef.CanUnlock &&
-                      editorSourceRef.hasSelections)
-                  "
-                  type="outline-secondary"
-                  :icon="QrCodeIcon"
-                  @click="codeThisFile"
-                  class="px-1"
-                >
-                  <DocumentTextIcon class="w-4 h-4 me-1" />
-                  <span>Start Coding</span>
-                </Button>
-                <ConfirmDialog
-                  :text="confirm.text"
-                  :show="!!confirm.text"
-                  :show-confirm="true"
-                  :static="true"
-                  :challenge="!!confirm.destructive"
-                  :destructive="confirm.destructive"
-                  @confirmed="onConfirm"
-                  @cancelled="toConfirm(null)"
-                />
-              </div>
-            </template>
-            <template #options>
-              <Button
-                v-if="editorSourceRef"
-                @click="showOverlay('notes', true)"
-                :title="`Manage notes for source '${editorSourceRef?.name}'`"
-                variant="outline"
-              >
-                <ChatBubbleLeftEllipsisIcon class="w-4 h-4" />
-              </Button>
-              <Button
-                v-if="editorSourceRef"
-                @click="showOverlay('variables', true)"
-                :title="`Manage Variables for source '${editorSourceRef?.name}'`"
-                variant="outline"
-              >
-                <VariableIcon class="w-4 h-4" />
-              </Button>
             </template>
           </PreparationsEditor>
           <SideOverlay
