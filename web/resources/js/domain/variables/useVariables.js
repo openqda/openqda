@@ -36,7 +36,7 @@ export const useVariables = () => {
         };
       }
     }
-    return Object.values(map);
+    return Object.values(map).toSorted((a, b) => a.name.localeCompare(b.name));
   });
 
   const onError = ({ response, error, message }) => {

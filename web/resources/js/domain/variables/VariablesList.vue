@@ -25,7 +25,9 @@ const variables = computed(() => {
   const current = props.source?.variables ?? [];
   return Object.values(uniqueVariables.value)
     .map((variable) => {
-      const found = current.find((v) => v.name === variable.name);
+      const found = Array.isArray(current)
+        ? current.find((v) => v.name === variable.name)
+        : current[variable.name];
       const hasOwn = !!found;
       return {
         ...variable,
@@ -169,7 +171,7 @@ const submitForm = async (data) => {
     <table v-if="!form || form.preview" class="table table-auto w-full my-4">
       <thead>
         <tr>
-          <th scope="col">Name</th>
+          <th scope="col" class="text-start">Name</th>
           <th scope="col">Type</th>
           <th scope="col">Value</th>
           <th scope="col"></th>
@@ -182,7 +184,7 @@ const submitForm = async (data) => {
           :key="variable.id"
           class="text-center"
         >
-          <td>{{ variable.name }}</td>
+          <td class="text-start">{{ variable.name }}</td>
           <td>{{ variable.type_of_variable }}</td>
           <td>{{ variableValue(variable) }}</td>
           <td class="text-end">
