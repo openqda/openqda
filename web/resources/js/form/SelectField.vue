@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import InputLabel from './InputLabel.vue';
 import InputError from '../../../vendor/laravel/jetstream/stubs/inertia/resources/js/Components/InputError.vue';
 import { cn } from '../utils/css/cn';
@@ -17,7 +17,19 @@ const props = defineProps({
     type: String,
     default: 'default',
   },
+  disabled: {
+    type: Boolean,
+    optional: true,
+  },
+  readonly: {
+    type: Boolean,
+    optional: true,
+  },
   defaultOption: Boolean,
+  emptySelectable: {
+    type: Boolean,
+    default: false,
+  },
   emptyOptionTitle: {
     type: String,
     default: '(Select one)',
@@ -39,6 +51,12 @@ const textStyle = {
     size: 'default',
   },
 };
+const usableOptions = computed(() => {
+  if (props.readonly) {
+    return props.options.filter((opt) => opt.value == current.value);
+  }
+  return props.options;
+});
 const resolveText = variantAuthority(textStyle);
 </script>
 
@@ -50,21 +68,26 @@ const resolveText = variantAuthority(textStyle);
       :id="props.name"
       v-model="current"
       :name="props.name"
+      :disabled="!!props.disabled"
       :class="
         cn(
-          'block w-full rounded-md focus:border-secondary focus:ring-secondary bg-surface text-foreground',
+          'block w-full rounded-md focus:border-secondary focus:ring-secondary bg-surface text-foreground disabled:cursor-not-allowed disabled:text-foreground/60',
           resolveText({ size: props.size }),
           props.class
         )
       "
       @change="(e) => (current = e.target.value)"
     >
-      <option v-if="props.options || props.defaultOption" disabled value="">
+      <option
+        v-if="!props.readonly && (props.options || props.defaultOption)"
+        :disabled="!emptySelectable"
+        value=""
+      >
         {{ emptyOptionTitle }}
       </option>
       <option
         v-if="props.options"
-        v-for="opt in props.options"
+        v-for="opt in usableOptions"
         :key="opt.value"
         :value="opt.value"
       >

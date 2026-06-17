@@ -2,17 +2,23 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Variable extends Model
+class Variable extends Model implements Auditable
 {
+    use HasUuids, \OwenIt\Auditing\Auditable;
+
     protected $primaryKey = 'id';
 
     public $incrementing = false;
 
     protected $fillable = [
         'source_id',
+        'project_id',
+        'guid',
         'name',
         'type_of_variable',
         'description',

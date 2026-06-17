@@ -34,7 +34,7 @@ class AuditFilterRequest extends FormRequest
             'models' => 'sometimes|array',
             'models.*' => [
                 'string',
-                Rule::in(['Source', 'Selection', 'Code', 'Project', 'Codebook']),
+                Rule::in(['Source', 'Selection', 'Code', 'Project', 'Codebook', 'Note', 'Variable']),
             ],
             'project_id' => 'sometimes|exists:projects,id',
         ];

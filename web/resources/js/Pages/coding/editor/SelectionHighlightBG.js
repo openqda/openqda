@@ -5,7 +5,7 @@ import { cn } from '../../../utils/css/cn.js';
 
 const Parchment = Quill.import('parchment');
 const { Attributor, Scope } = Parchment;
-const IdAttributor = new Attributor('id', 'data-code-id', {
+const IdAttributor = new Attributor('id', 'data-codeve-id', {
   scope: Scope.INLINE,
 });
 const TitleAttributor = new Attributor('title', 'title', {

@@ -8,6 +8,7 @@ use App\Models\Note;
 use App\Models\Project;
 use App\Models\Selection;
 use App\Models\Source;
+use App\Models\Variable;
 use App\Traits\BuildsNestedCode;
 use App\Traits\SourceExists;
 use Illuminate\Support\Facades\Auth;
@@ -26,8 +27,7 @@ class AnalysisController extends Controller
      */
     public function show(ShowAnalysisPage $request, Project $project): Response
     {
-        $sources = Source::where('project_id', $project->id)
-            ->get()
+        $sources = Source::where('project_id', $project->id)->with('variables')->get()
             ->map(function ($source) {
                 $converted = $source->converted;
                 $status = $source->sourceStatuses()->latest()->first();
@@ -42,6 +42,7 @@ class AnalysisController extends Controller
                     'userPicture' => $source->creatingUser->profile_photo_url,
                     'date' => $source->created_at->toDateString(),
                     'selectionsCount' => $source->selections()->count(),
+                    'variables' => $source->transformVariables(),
                     'converted' => (bool) $converted,
                     'exists' => $exists,
                     'status' => $status && $status->status ? $status->status : 'unknown',
@@ -74,8 +75,12 @@ class AnalysisController extends Controller
             })
             ->get();
 
+        // get all variables
+        $variables = Variable::where('project_id', $project->id)->get();
+
         return Inertia::render('AnalysisPage', [
             'sources' => $sources,
+            'variables' => $variables,
             'codes' => $allCodes,
             'codebooks' => $codebooks,
             'notes' => $notes,

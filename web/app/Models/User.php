@@ -119,6 +119,8 @@ class User extends Authenticatable implements Auditable, MustVerifyEmail
                 'sources.audits',
                 'sources.selections.audits',
                 'codebooks.codes.audits',
+                'notes.audits',
+                'variables.audits',
             ]);
         }
 
@@ -174,6 +176,20 @@ class User extends Authenticatable implements Auditable, MustVerifyEmail
                     $codeAudits = $auditService->transformAudits($codeAuditsData, 'Code', ['id', 'codebook_id', 'creating_user_id']);
                     $allAudits = $allAudits->concat($codeAudits);
                 }
+            }
+
+            // Transform note audits within the project
+            foreach ($project->notes as $note) {
+                $noteAuditsData = collect($note->audits);
+                $noteAudits = $auditService->transformAudits($noteAuditsData, 'Note', ['id', 'project_id', 'creating_user_id']);
+                $allAudits = $allAudits->concat($noteAudits);
+            }
+
+            // Transform variable audits within the project
+            foreach ($project->variables as $variable) {
+                $variableAuditsData = collect($variable->audits);
+                $variableAudits = $auditService->transformAudits($variableAuditsData, 'Variable', ['id', 'project_id', 'source_id']);
+                $allAudits = $allAudits->concat($variableAudits);
             }
         }
 
