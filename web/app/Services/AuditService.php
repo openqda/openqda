@@ -147,6 +147,17 @@ class AuditService
             }
         }
 
+        // Variable audits
+        foreach ($project->variables as $variable) {
+            $allAudits = $allAudits->concat(
+                $this->transformAudits(
+                    $variable->audits,
+                    'Variable',
+                    ['id', 'project_id', 'source_id', 'guid']
+                )
+            );
+        }
+
         return $allAudits->filter()->sortByDesc('created_at_timestamp')->values();
     }
 

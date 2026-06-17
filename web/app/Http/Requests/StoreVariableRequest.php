@@ -33,7 +33,11 @@ class StoreVariableRequest extends FormRequest
             : $project;
 
         return [
-            'source_id' => 'required|uuid|exists:sources,id',
+            'source_id' => [
+                'required',
+                'uuid',
+                Rule::exists('sources', 'id')->where('project_id', (string) $projectId),
+            ],
 
             'name' => [
                 'required',
@@ -44,7 +48,10 @@ class StoreVariableRequest extends FormRequest
                     ->where('source_id', $this->input('source_id')),
             ],
 
-            'type_of_variable' => 'required|string|max:255',
+            'type_of_variable' => [
+                'required',
+                Rule::in(['text', 'boolean', 'integer', 'float', 'data', 'datetime']),
+            ],
 
             'description' => 'nullable|string',
 
