@@ -23,23 +23,17 @@ const variableValue = (variable) => {
 
 const variables = computed(() => {
   const current = props.source?.variables ?? [];
-  return Object.values(uniqueVariables.value)
-    .map((variable) => {
-      const found = Array.isArray(current)
-        ? current.find((v) => v.name === variable.name)
-        : current[variable.name];
-      const hasOwn = !!found;
-      return {
-        ...variable,
-        ...found,
-        hasOwn,
-      };
-    })
-    .toSorted((a, b) => {
-      const hasOwn = (b.hasOwn ? 1 : -1) - (a.hasOwn ? 1 : -1);
-      const locale = a.name.localeCompare(b.name);
-      return hasOwn + locale;
-    });
+  return Object.values(uniqueVariables.value).map((variable) => {
+    const found = Array.isArray(current)
+      ? current.find((v) => v.name === variable.name)
+      : current[variable.name];
+    const hasOwn = !!found;
+    return {
+      ...variable,
+      ...found,
+      hasOwn,
+    };
+  });
 });
 const form = ref();
 const forms = {
@@ -182,7 +176,7 @@ const submitForm = async (data) => {
           v-for="variable in variables"
           v-show="!form || form.target?.id === variable.id"
           :key="variable.id"
-          class="text-center"
+          class="text-center h-8"
         >
           <td class="text-start">{{ variable.name }}</td>
           <td>{{ variable.type_of_variable }}</td>

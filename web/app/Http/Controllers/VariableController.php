@@ -32,6 +32,7 @@ class VariableController extends Controller
         if ((string) $variable->project_id !== (string) $project->id) {
             abort(404);
         }
+
         return response()->json([
             'variable' => $variable,
         ]);
