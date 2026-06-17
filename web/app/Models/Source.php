@@ -63,6 +63,7 @@ class Source extends Model implements Auditable
                 'name' => 'isLocked',
             ],
             [
+                'project_id' => $this->project_id,
                 'type_of_variable' => 'boolean',
                 'boolean_value' => true,
             ]
@@ -80,6 +81,7 @@ class Source extends Model implements Auditable
                 'name' => 'isLocked',
             ],
             [
+                'project_id' => $this->project_id,
                 'type_of_variable' => 'boolean',
                 'boolean_value' => false,
             ]

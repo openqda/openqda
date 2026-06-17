@@ -26,7 +26,17 @@ return new class extends Migration
             $table->unique('guid');
         });
 
-        // Optional: generate guid for old rows
+        // Backfill project_id from the owning source so existing variables
+        // (including lock variables created via Source::lock()) remain visible
+        // in controllers and UI that query by project_id.
+        DB::statement('
+            UPDATE variables v
+            JOIN sources s ON v.source_id = s.id
+            SET v.project_id = s.project_id
+            WHERE v.project_id IS NULL
+        ');
+
+        // Generate guid for old rows
         DB::statement('
             UPDATE variables
             SET guid = UUID()
