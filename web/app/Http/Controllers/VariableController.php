@@ -27,10 +27,11 @@ class VariableController extends Controller
 
     public function show(Project $project, Variable $variable)
     {
+        $this->authorize('view', $project);
+
         if ((string) $variable->project_id !== (string) $project->id) {
             abort(404);
         }
-
         return response()->json([
             'variable' => $variable,
         ]);
