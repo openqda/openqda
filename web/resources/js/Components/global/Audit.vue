@@ -337,7 +337,15 @@ const props = defineProps({
 const { audits, auditCounts, loadAudits, forProjectId } = useAudit();
 
 // Constants
-const modelTypes = ['Source', 'Selection', 'Code', 'Project', 'Codebook'];
+const modelTypes = [
+  'Source',
+  'Selection',
+  'Code',
+  'Project',
+  'Codebook',
+  'Note',
+  'Variable',
+];
 const PER_PAGE = 20;
 
 // State

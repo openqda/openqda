@@ -90,6 +90,7 @@ const validateForm = (e) => {
       :is="component"
       v-bind="data"
       :size="props.size"
+      :disabled="!!data.disabled"
       :value="data.defaultValue"
       :required="data.required"
       :validation="validationErrors[data.name]"

@@ -70,6 +70,18 @@
           </a>
         </th>
         <th
+          v-for="extraField in extraFields"
+          :key="extraField.key"
+          :class="
+            cn(
+              'text-xs font-normal text-foreground/50 sm:pl-0',
+              extraField.class
+            )
+          "
+        >
+          <span>{{ extraField.label }}</span>
+        </th>
+        <th
           scope="col"
           v-if="fieldsVisible.actions"
           v-show="$props.actions?.length"
@@ -244,6 +256,20 @@
           </div>
         </td>
 
+        <!-- extra fields -->
+        <td
+          v-for="extraField in extraFields"
+          :key="extraField.key"
+          v-if="hover !== index"
+          :class="cn(extraField.cellClass)"
+        >
+          <span>{{
+            extraField.resolve
+              ? extraField.resolve(document)
+              : document[extraField.key]
+          }}</span>
+        </td>
+
         <!-- actions -->
         <td
           v-if="hover !== index"
@@ -341,6 +367,7 @@ const props = defineProps([
   'colspan',
   'focusOnHover',
   'fullTitle',
+  'extraFields',
 ]);
 const filter = ref();
 const docs = computed(() => {
@@ -398,15 +425,17 @@ const headerFields = ref([
     class: 'w-6',
   },
 ]);
-const fieldsVisible = ref({
-  lock: true,
-  name: true,
-  type: true,
-  date: true,
-  user: true,
-  actions: true,
-  notes: true,
-  ...(props.fields ?? {}),
+const fieldsVisible = computed(() => {
+  return {
+    lock: true,
+    name: true,
+    type: true,
+    date: true,
+    user: true,
+    actions: true,
+    notes: true,
+    ...props.fields,
+  };
 });
 const hover = ref(-1);
 
