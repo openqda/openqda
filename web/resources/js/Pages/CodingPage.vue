@@ -219,9 +219,12 @@ import Headline3 from '../Components/layout/Headline3.vue';
 import { useCodeTree } from './coding/tree/useCodeTree.js';
 
 const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
+
 //------------------------------------------------------------------------
 // SOURCES
 //------------------------------------------------------------------------
+
+// TODO move to composable!
 const sourceDocuments = ref(
   props.sources
     .filter((source) => {

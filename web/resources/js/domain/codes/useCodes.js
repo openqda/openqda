@@ -1,10 +1,11 @@
 import { usePage } from '@inertiajs/vue3';
-import { computed, reactive, toRefs } from 'vue';
+import { computed, reactive, toRaw, toRefs } from 'vue';
 import { Codebooks } from '../codebooks/Codebooks.js';
 import { Codes } from './Codes.js';
 import { Selections } from '../../Pages/coding/selections/Selections.js';
 import { CodeList } from './CodeList.js';
 import { createCodeSchema } from './createCodeSchema.js';
+import { Preferences } from '../user/Preferences.js';
 import { Notes } from '../notes/NoteStore.js';
 import { useUsers } from '../teams/useUsers.js';
 
@@ -15,9 +16,17 @@ const state = reactive({
 export const useCodes = () => {
   const { details } = toRefs(state);
   const page = usePage();
+  const {
+    allCodes,
+    codebooks,
+    projectId: rawProjectId,
+    project,
+    source,
+    notes,
+    preferences,
+  } = page.props;
   const { allUsers } = useUsers();
-  const { allCodes, codebooks, project, source, notes } = page.props;
-  const projectId = page.props.projectId ?? project.id;
+  const projectId = rawProjectId ?? project.id;
   const sourceId = source?.id;
   const key = sourceId ? `${projectId}-${sourceId}` : projectId;
   const codeStore = Codes.by(key);
@@ -32,8 +41,13 @@ export const useCodes = () => {
       results.added.push(...res.added);
       results.clean.push(...res.clean);
     };
+
     toResults(codebookStore.init(codebooks, notes));
-    toResults(codeStore.init(allCodes, notes));
+
+    const codebookVisibility = toRaw(preferences?.project?.codebooks);
+    toResults(
+      codeStore.init(allCodes, { notes, preferences: codebookVisibility })
+    );
     toResults(
       selectionStore.init(initialSelections, notes, (id) => {
         try {
@@ -269,7 +283,7 @@ export const useCodes = () => {
     selectionStore.observable.run('updated', [...updatedSelections.values()]);
   };
 
-  const toggleCode = (code) => {
+  const toggleCode = async (code) => {
     const active = !code.active;
     const codes = [];
     const addCode = (cd) => {
@@ -280,6 +294,13 @@ export const useCodes = () => {
     };
     addCode(code);
     activateCodes({ codes, active, withIntersections: true });
+
+    return Preferences.updateCodeVisibility({
+      projectId,
+      codebookId: code.codebook,
+      codeId: code.id,
+      visible: active,
+    });
   };
 
   const selections = computed(() => {

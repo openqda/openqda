@@ -7,6 +7,7 @@
           :project-id="props.projectId"
           @fileSelected="loadFileIntoEditor($event)"
           @documentDeleted="onDocumentDeleted"
+          @sortChanged="updateSourceSorting"
         />
         <div class="mt-auto">
           <Footer />
@@ -120,7 +121,7 @@
             :locked="editorSourceRef.locked"
             :viewerZoom="zoom"
             :useViewZoom="true"
-            @update:zoom="setZoom"
+            @update:zoom="(action) => setZoom(action, editorSourceRef.id)"
             @autosave="saveQuillContent"
           >
             <template #status>
@@ -193,6 +194,7 @@ import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
 import Footer from '../Layouts/Footer.vue';
 import { useZoom } from '../editor/useZoom.js';
+import { Preferences } from '../domain/user/Preferences.js';
 import { useNotes } from '../domain/notes/useNotes.js';
 import { useVariables } from '../domain/variables/useVariables.js';
 import SideOverlay from '../Components/layout/SideOverlay.vue';
@@ -246,6 +248,13 @@ const props = defineProps(['sources', 'newDocument', 'projectId', 'notes']);
 const documents = ref([]);
 const pageTitle = ref('Preparation');
 
+const updateSourceSorting = async (sortRules) => {
+  await Preferences.updateSourceSorter({
+    projectId: props.projectId,
+    sortRules,
+  });
+};
+
 watch(
   () => props.newDocument,
   (newValue) => {
@@ -294,7 +303,8 @@ const unlockSource = async () => {
 /*---------------------------------------------------------------------------*/
 // ZOOM
 /*---------------------------------------------------------------------------*/
-const { zoom, setZoom } = useZoom();
+const { getZoom, setZoom } = useZoom();
+const zoom = computed(() => getZoom(editorSourceRef.value?.id));
 
 /*---------------------------------------------------------------------------*/
 // EDITING

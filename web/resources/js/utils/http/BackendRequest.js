@@ -3,7 +3,8 @@ import axios from 'axios';
 /**
  * @typedef {object} BackendRequestOptions
  * @property url {string} the url, use {query} to add url query parameters
- * @property type {string} the request type (get, post etc.)
+ * @property method {string} the request type (get, post etc.)
+ * @property type {string} the request type (get, post etc.) (alias for method)
  * @property body {object?} a dictionary object for body parameters
  * @property query {object?} a dictionary object of query parameters
  * @property headers {object?} a dictionary object of additional request headers
@@ -20,9 +21,9 @@ class BackendRequest {
    * @param options {BackendRequestOptions}
    */
   constructor(options) {
-    const { url, type, body, query, headers, dry, ...rest } = options;
+    const { url, type, method, body, query, headers, dry, ...rest } = options;
     this.url = url;
-    this.type = type.toLowerCase();
+    this.type = (method ?? type).toLowerCase();
     this.body = body;
     this.query = query;
     this.response = null;

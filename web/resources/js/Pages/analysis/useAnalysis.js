@@ -20,8 +20,25 @@ const byName = createByPropertySorter('name');
 
 export const useAnalysis = () => {
   const page = usePage();
-  const { sources, codes, codebooks, project, notes: rawNotes } = page.props;
+  const {
+    sources,
+    codes,
+    codebooks,
+    project,
+    notes: rawNotes,
+    preferences,
+  } = page.props;
   const { allUsers } = useUsers();
+
+  // check source visibility from prefs
+  const sourceVisibility =
+    preferences?.project?.analysis?.visibility?.sources ?? {};
+  Object.entries(sourceVisibility).forEach(([sourceId, value]) => {
+    if (typeof value === 'boolean' && !state.checkedSources.has(sourceId)) {
+      state.checkedSources.set(sourceId, value);
+    }
+  });
+
   const notes = rawNotes.map((n) => {
     n.user = allUsers[n.creating_user_id];
     return n;
@@ -36,6 +53,7 @@ export const useAnalysis = () => {
     selection,
     selectionsLoaded,
   } = toRefs(state);
+
   const activeCodebooks = {};
   codebooks.forEach((cb) => {
     if (cb.active !== false) {

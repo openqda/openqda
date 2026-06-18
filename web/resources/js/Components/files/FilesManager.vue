@@ -48,7 +48,7 @@ import DropdownLink from '../DropdownLink.vue';
 /*---------------------------------------------------------------------------*/
 // DATA / PROPS
 /*---------------------------------------------------------------------------*/
-const emit = defineEmits(['fileSelected', 'documentDeleted']);
+const emit = defineEmits(['fileSelected', 'documentDeleted', 'sortChanged']);
 const props = defineProps({
   initialFile: {
     type: String,
@@ -499,6 +499,7 @@ async function fetchAndRenderDocument(document) {
       },
     ]"
     @select="fetchAndRenderDocument"
+    @sortChanged="emit('sortChanged', $event)"
   >
   </FilesList>
   <p v-if="!documents?.length" class="text-sm text-foreground/60">

@@ -32,18 +32,21 @@ export default defineConfig({
     server: {
         watch: {
             ignored: [
-                '.idea',
-                '.deploy',
-                'app/**',
-                'vendor/**',
-                'bootstrap/**',
-                'config/**',
-                'data/**',
-                'database/**',
-                'docker/**',
-                'routes/**',
-                'storage/**',
-                'stories/**'
+                '**/.idea',
+                '**/.deploy',
+                '**/app/**',
+                '**/vendor/**',
+                '**/bootstrap/**',
+                '**/config/**',
+                '**/data/**',
+                '**/database/**',
+                '**/docker/**',
+                '**/routes/**',
+                '**/storage/**',
+                '**/scripts/**',
+                '**/stories/**',
+                '**/node_modules/**',
+                '**/.git/**',
             ]
         }
     },

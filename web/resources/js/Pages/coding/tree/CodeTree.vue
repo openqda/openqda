@@ -6,6 +6,8 @@ import { attemptAsync } from '../../../Components/notification/attemptAsync';
 import CodeTreeItem from './CodeTreeItem.vue';
 import FormDialog from '../../../dialogs/FormDialog.vue';
 
+defineEmits(['update:modelValue', 'save-code-visibility']);
+
 const props = defineProps({
   codes: Array,
   codebook: Object,

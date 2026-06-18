@@ -7,6 +7,7 @@ use App\Http\Controllers\CodebookCodesController;
 use App\Http\Controllers\CodebookController;
 use App\Http\Controllers\CodingController;
 use App\Http\Controllers\NoteController;
+use App\Http\Controllers\PreferenceController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SelectionController;
 use App\Http\Controllers\SettingsController;
@@ -183,11 +184,16 @@ Route::middleware([
     Route::patch('settings/{setting}/value', [SettingsController::class, 'updateValue'])->name('settings.update-value');
 
     /**
+     * User Preferences
+     */
+    Route::put('/preferences/{project}/update', [PreferenceController::class, 'updateProjectPreference'])->name('preferences.update.project');
+    Route::put('/preferences/update', [PreferenceController::class, 'updateGlobalPreference'])->name('preferences.update.global');
+
+    /**
      * Variables
      */
     Route::post('/projects/{project}/variables', [VariableController::class, 'store'])->name('variables.store');
     Route::get('/projects/{project}/variables/{variable}', [VariableController::class, 'show'])->name('variables.show');
     Route::put('/projects/{project}/variables/{variable}', [VariableController::class, 'update'])->name('variables.update');
     Route::delete('/projects/{project}/variables/{variable}', [VariableController::class, 'destroy'])->name('variables.destroy');
-
 });

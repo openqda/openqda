@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -95,6 +96,14 @@ class User extends Authenticatable implements Auditable, MustVerifyEmail
     {
         return $this->hasMany(Setting::class, 'model_id')
             ->where('model_type', ModelType::User->value); // or Project->value
+    }
+
+    /**
+     * Get the user's preferences.
+     */
+    public function preferences(): HasOne
+    {
+        return $this->hasOne(UserPreference::class);
     }
 
     /**

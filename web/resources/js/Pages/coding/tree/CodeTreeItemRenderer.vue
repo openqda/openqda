@@ -39,6 +39,7 @@ const { createNote, createNoteSchema } = useNotes();
 const { collapsed, toggleCollapse } = useCodeTree();
 const { getMemberBy } = useUsers();
 const Selections = useSelections();
+const emit = defineEmits(['save-code-visibility']);
 
 const props = defineProps({
   code: Object,
@@ -129,6 +130,13 @@ const sortedNotes = computed(() => {
 //------------------------------------------------------------------------
 const toggling = reactive({});
 const handleCodeToggle = async (code) => {
+  const nextVisible = code.active === false;
+  emit('save-code-visibility', {
+    codebookId: code.codebook,
+    codeId: code.id,
+    visible: nextVisible,
+  });
+
   toggling[code.id] = true;
   await asyncTimeout(100);
   await attemptAsync(() => toggleCode(code));
