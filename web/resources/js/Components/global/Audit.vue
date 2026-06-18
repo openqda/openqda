@@ -322,8 +322,9 @@
 <script setup>
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { UserCircleIcon } from '@heroicons/vue/20/solid';
-import Checkbox from '../Checkbox.vue';
+import { debounce } from '../../utils/dom/debounce.js';
 import { useAudit } from '../../domain/audit/useAudit.js';
+import Checkbox from '../Checkbox.vue';
 
 const searchInput = ref(null);
 const props = defineProps({
@@ -378,19 +379,6 @@ function isJSON(str) {
   }
 }
 
-// Vanilla JS debounce
-function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
-}
-
 // Methods
 const toggleModelFilter = (type) => {
   if (filters.value.models.includes(type)) {
@@ -409,7 +397,7 @@ const handleDateChange = () => {
   fetchAudits(1); // Reset to page 1 on date change
 };
 
-const fetchAudits = async (page = 1) => {
+const fetchAudits = debounce(async (page = 1) => {
   try {
     isLoading.value = true;
     error.value = null;
@@ -439,7 +427,7 @@ const fetchAudits = async (page = 1) => {
   } finally {
     isLoading.value = false;
   }
-};
+}, 1000);
 
 const handleSearch = debounce(async () => {
   try {

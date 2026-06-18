@@ -38,11 +38,16 @@ export const useAudit = () => {
     });
     const success = response?.data?.success;
     if (!error && success) {
+      const auditsData = (
+        Array.isArray(response.data.audits.data)
+          ? response.data.audits.data
+          : Object.values(response.data.audits.data || {})
+      ).toSorted((a, b) => {
+        return b.created_at_timestamp - a.created_at_timestamp;
+      });
       state.audits = {
         ...response.data.audits,
-        data: Array.isArray(response.data.audits.data)
-          ? response.data.audits.data
-          : Object.values(response.data.audits.data || {}),
+        data: auditsData,
       };
       state.auditCounts = response.data.audit_counts;
       state.forProjectId = projectId;
