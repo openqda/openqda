@@ -452,6 +452,7 @@ const fetchAudits = debounce(async (page = 1) => {
     error.value = err.message || 'An error occurred while fetching audit data';
   } finally {
     isLoading.value = false;
+    isSearching.value = false;
   }
 }, 1000);
 
