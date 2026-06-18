@@ -191,6 +191,9 @@ class User extends Authenticatable implements Auditable, MustVerifyEmail
                 $variableAudits = $auditService->transformAudits($variableAuditsData, 'Variable', ['id', 'project_id', 'source_id']);
                 $allAudits = $allAudits->concat($variableAudits);
             }
+
+            // Audits for hard-deleted models (not reachable via relationships)
+            $allAudits = $allAudits->concat($auditService->collectOrphanedDeletedAudits($project));
         }
 
         $allAudits = $auditService->filterAudits($allAudits, $filters);
