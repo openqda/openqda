@@ -67,6 +67,8 @@ class AuditsController extends Controller
      */
     public function projectAudits(AuditFilterRequest $request, Project $project): JsonResponse
     {
+        $this->authorize('view', $project);
+
         try {
             $allAudits = $this->auditService->getProjectAudits($project);
             $filteredAudits = $this->auditService->filterAudits($allAudits, $request->getFilters());
