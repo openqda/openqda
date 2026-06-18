@@ -43,7 +43,9 @@
       </div>
 
       <!-- Date Filters -->
-      <div class="block md:flex justify-start gap-4 mb-4 my-6 md:my-4">
+      <div
+        class="block md:flex justify-start items-end gap-4 mb-4 my-6 md:my-4"
+      >
         <div>
           <label class="block text-sm font-medium text-gray-700">Before</label>
           <input
@@ -83,6 +85,7 @@
             />
           </div>
         </div>
+        <Button class="ms-auto" @click="exportAudit">Export Audit</Button>
       </div>
 
       <!-- Model Type Filters -->
@@ -322,8 +325,11 @@
 <script setup>
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { UserCircleIcon } from '@heroicons/vue/20/solid';
-import Checkbox from '../Checkbox.vue';
+import { debounce } from '../../utils/dom/debounce.js';
 import { useAudit } from '../../domain/audit/useAudit.js';
+import { useExport } from '../../exchange/useExport.js';
+import Checkbox from '../Checkbox.vue';
+import Button from '../interactive/Button.vue';
 
 const searchInput = ref(null);
 const props = defineProps({
@@ -334,7 +340,9 @@ const props = defineProps({
   context: String,
 });
 
-const { audits, auditCounts, loadAudits, forProjectId } = useAudit();
+const { audits, auditCounts, loadAudits, loadAllAudits, forProjectId } =
+  useAudit();
+const { exportAuditToCSV } = useExport();
 
 // Constants
 const modelTypes = [
@@ -368,6 +376,25 @@ const getModelCount = (type) => {
   return auditCounts.value[type] || 0;
 };
 
+const exportAudit = async () => {
+  try {
+    isLoading.value = true;
+    const {
+      success,
+      audits: allAudits,
+      error: exportError,
+    } = await loadAllAudits({ projectId: props.projectId });
+    if (!success || exportError) {
+      throw new Error('Failed to load audits for export');
+    }
+    await exportAuditToCSV({ audits: allAudits });
+  } catch (err) {
+    console.error('Error exporting audits:', err);
+  } finally {
+    isLoading.value = false;
+  }
+};
+
 // Utility functions
 function isJSON(str) {
   try {
@@ -376,19 +403,6 @@ function isJSON(str) {
   } catch {
     return false;
   }
-}
-
-// Vanilla JS debounce
-function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
 }
 
 // Methods
@@ -409,7 +423,7 @@ const handleDateChange = () => {
   fetchAudits(1); // Reset to page 1 on date change
 };
 
-const fetchAudits = async (page = 1) => {
+const fetchAudits = debounce(async (page = 1) => {
   try {
     isLoading.value = true;
     error.value = null;
@@ -438,8 +452,9 @@ const fetchAudits = async (page = 1) => {
     error.value = err.message || 'An error occurred while fetching audit data';
   } finally {
     isLoading.value = false;
+    isSearching.value = false;
   }
-};
+}, 1000);
 
 const handleSearch = debounce(async () => {
   try {
