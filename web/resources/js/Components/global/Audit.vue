@@ -43,7 +43,9 @@
       </div>
 
       <!-- Date Filters -->
-      <div class="block md:flex justify-start gap-4 mb-4 my-6 md:my-4">
+      <div
+        class="block md:flex justify-start items-end gap-4 mb-4 my-6 md:my-4"
+      >
         <div>
           <label class="block text-sm font-medium text-gray-700">Before</label>
           <input
@@ -83,6 +85,7 @@
             />
           </div>
         </div>
+        <Button class="ms-auto" @click="exportAudit">Export Audit</Button>
       </div>
 
       <!-- Model Type Filters -->
@@ -324,7 +327,9 @@ import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { UserCircleIcon } from '@heroicons/vue/20/solid';
 import { debounce } from '../../utils/dom/debounce.js';
 import { useAudit } from '../../domain/audit/useAudit.js';
+import { useExport } from '../../exchange/useExport.js';
 import Checkbox from '../Checkbox.vue';
+import Button from '../interactive/Button.vue';
 
 const searchInput = ref(null);
 const props = defineProps({
@@ -335,7 +340,9 @@ const props = defineProps({
   context: String,
 });
 
-const { audits, auditCounts, loadAudits, forProjectId } = useAudit();
+const { audits, auditCounts, loadAudits, loadAllAudits, forProjectId } =
+  useAudit();
+const { exportAuditToCSV } = useExport();
 
 // Constants
 const modelTypes = [
@@ -367,6 +374,25 @@ let searchTimeout = null;
 
 const getModelCount = (type) => {
   return auditCounts.value[type] || 0;
+};
+
+const exportAudit = async () => {
+  try {
+    isLoading.value = true;
+    const {
+      success,
+      audits: allAudits,
+      error: exportError,
+    } = await loadAllAudits({ projectId: props.projectId });
+    if (!success || exportError) {
+      throw new Error('Failed to load audits for export');
+    }
+    await exportAuditToCSV({ audits: allAudits });
+  } catch (err) {
+    console.error('Error exporting audits:', err);
+  } finally {
+    isLoading.value = false;
+  }
 };
 
 // Utility functions

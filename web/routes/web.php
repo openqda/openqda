@@ -88,10 +88,13 @@ Route::middleware([
     Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('project.destroy');
 
     // For homepage/user audits
-    Route::get('/audits', [AuditsController::class, 'index']);
+    // Route::get('/audits', [AuditsController::class, 'index']);
 
     // For project-specific audits
-    Route::get('/audits/{project}', [AuditsController::class, 'projectAudits']);
+    Route::get('/audits/{project}', [AuditsController::class, 'projectAudits'])->name('project.audit');
+
+    // Export all audits for a project as a flat list (used for CSV export)
+    Route::get('/audits/{project}/export', [AuditsController::class, 'projectAuditsAll'])->name('project.audit-export');
 
     /**
      * Coding - Codes

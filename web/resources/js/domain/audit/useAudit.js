@@ -57,10 +57,28 @@ export const useAudit = () => {
 
     return { success, response, error };
   };
+
+  /**
+   * Load all audits for a project as a flat list (no filters, no pagination).
+   * Used for CSV export.
+   */
+  const loadAllAudits = async ({ projectId }) => {
+    const url = route('project.audit-export', { project: projectId });
+    const { response, error } = await request({ url, type: 'get' });
+    const success = response?.data?.success;
+    const allAudits = success
+      ? Array.isArray(response.data.audits)
+        ? response.data.audits
+        : Object.values(response.data.audits || {})
+      : [];
+    return { success, audits: allAudits, error };
+  };
+
   return {
     audits,
     auditCounts,
     loadAudits,
+    loadAllAudits,
     forProjectId,
   };
 };

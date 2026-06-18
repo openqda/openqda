@@ -6,7 +6,7 @@ import { buildNotesCSV } from './buildNotesCSV.js';
 
 /**
  * Export hook for exporting project data.
- * @return {{exportToCSV: (function({contents: *, users: *}): Promise<void>), exportNotesToCSV: (function({notes: *, codes: *, sources: *, users: *}): Promise<void>)}}
+ * @return {{exportToCSV: (function({contents: *, users: *}): Promise<void>), exportNotesToCSV: (function({notes: *, codes: *, sources: *, users: *}): Promise<void>), exportAuditToCSV: (function({audits: *}): Promise<void>)}}
  */
 export const useExport = () => {
   const { project } = usePage().props;
@@ -16,7 +16,37 @@ export const useExport = () => {
     exportNotesToCSV: ({ notes, codes, sources, users }) =>
       exportNotesToCSV({ notes, codes, sources, project, users }),
     exportVariables,
+    exportAuditToCSV: ({ audits }) => exportAuditToCSV({ audits, project }),
   };
+};
+
+const exportAuditToCSV = ({ audits, project }) => {
+  const csv = createCSVBuilder({
+    header: [
+      'id',
+      'event',
+      'model',
+      'user',
+      'created_at',
+      'old_values',
+      'new_values',
+    ],
+  });
+  for (const audit of audits) {
+    csv.addRow([
+      audit.id ?? '',
+      audit.event ?? '',
+      audit.model ?? '',
+      audit.user_id ?? '',
+      audit.created_at ?? '',
+      JSON.stringify(audit.old_values ?? {}),
+      JSON.stringify(audit.new_values ?? {}),
+    ]);
+  }
+  const out = csv.build();
+  const date = new Date().toLocaleDateString().replace(/[_.:,\s]+/g, ' ');
+  const name = `OpenQDA ${project.name} Audit ${date}.csv`;
+  return saveTextFile({ text: out, name, type: 'text/csv' });
 };
 
 const exportNotesToCSV = ({ notes, codes, sources, project, users }) => {

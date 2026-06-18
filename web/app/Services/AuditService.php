@@ -44,6 +44,17 @@ class AuditService
     }
 
     /**
+     * Get all audits for a project as a flat list, without filtering or pagination.
+     * Reuses the same cache entry as getProjectAudits().
+     */
+    public function getAllProjectAudits(Project $project): Collection
+    {
+        return $this->getProjectAudits($project)
+            ->sortByDesc('created_at_timestamp')
+            ->values();
+    }
+
+    /**
      * Filter audits based on provided criteria.
      */
     public function filterAudits(Collection $audits, array $filters): Collection
