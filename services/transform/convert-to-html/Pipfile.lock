@@ -544,12 +544,12 @@
         },
         "pypdf": {
             "hashes": [
-                "sha256:111669eb6680c04495ae0c113a1476e3bf93a95761d23c7406b591c80a6490b1",
-                "sha256:67b2699357a1f3f4c945940ea80826349ee507c9e2577724a14b4941982c104d"
+                "sha256:c6e3f86afb625791510b02ad5480e94b63970bb957df75d44657c282ecc52224",
+                "sha256:f3cb822769725f1bac658c406cfc9460399043f3750c2d3e4650e0a85eacabd7"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.9'",
-            "version": "==6.12.2"
+            "version": "==6.13.3"
         },
         "python-dotenv": {
             "hashes": [
@@ -562,12 +562,12 @@
         },
         "python-multipart": {
             "hashes": [
-                "sha256:8408153d68a9773291fc1da39a8b85a50044bddbabd2dd72e9229776b7b15e28",
-                "sha256:fc631183bb13e56db3158a4909908dfb2e23565286744e798241e63750e5d680"
+                "sha256:be54b7f3fa167bb83e4fcd936b887b708f4e57fe75911c02aebf53efaf8d938e",
+                "sha256:ff6d3f776f16878c894e52e107296ffc890e913c611b1a4ec6c44e2821fe2e23"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.10'",
-            "version": "==0.0.31"
+            "version": "==0.0.32"
         },
         "pyyaml": {
             "hashes": [
