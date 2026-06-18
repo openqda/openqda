@@ -2,7 +2,11 @@
   <table :class="cn('w-full border-collapse', props.fixed && 'table-fixed')">
     <thead>
       <tr class="align-middle" :class="props.rowClass">
-        <th class="w-5" v-if="fieldsVisible.lock"></th>
+        <th class="w-5 text-start">
+          <button @click="search = !search">
+            <MagnifyingGlassIcon class="w-4 h-4" />
+          </button>
+        </th>
         <th
           v-for="field in headerFields.filter(
             (field) => fieldsVisible[field.key]
@@ -13,7 +17,35 @@
             cn('text-xs font-normal text-foreground/50 sm:pl-0', field.class)
           "
         >
+          <div
+            v-if="search && field.search"
+            class="flex items-center w-full pe-3 gap-1"
+          >
+            <input
+              placeholder="filter list..."
+              v-model="filter"
+              class="h-4 text-xs grow"
+              autofocus
+              @keydown="
+                (e) => {
+                  if (e.key === 'Escape') {
+                    search = false;
+                    filter = '';
+                  }
+                }
+              "
+            />
+            <button
+              @click="
+                search = false;
+                filter = '';
+              "
+            >
+              <XMarkIcon class="w-4 h-4" />
+            </button>
+          </div>
           <a
+            v-else
             href
             @click.prevent="() => sort(field.key)"
             :class="
@@ -36,6 +68,18 @@
               />
             </span>
           </a>
+        </th>
+        <th
+          v-for="extraField in extraFields"
+          :key="extraField.key"
+          :class="
+            cn(
+              'text-xs font-normal text-foreground/50 sm:pl-0',
+              extraField.class
+            )
+          "
+        >
+          <span>{{ extraField.label }}</span>
         </th>
         <th
           scope="col"
@@ -65,6 +109,7 @@
           )
         "
       >
+        <!-- locked status -->
         <td class="text-center" v-if="fieldsVisible.lock">
           <LockOpenIcon
             v-if="!document.variables?.isLocked"
@@ -75,63 +120,9 @@
             class="w-4 h-4 text-secondary/60"
           />
         </td>
-        <td
-          v-if="fieldsVisible.name"
-          :class="
-            cn(
-              'py-4 w-auto rounded-xl',
-              hover === index ? 'break-all' : 'truncate',
-              openMenuId === document.id ? 'font-semibold' : 'font-normal'
-            )
-          "
-          :colspan="hover === index ? (props.colspan ?? 5) : undefined"
-        >
-          <a
-            @mouseenter="focusOnHover && (hover = index)"
-            @mouseleave="focusOnHover && (hover = -1)"
-            @touchstart="focusOnHover && (hover = index)"
-            @touchend="focusOnHover && (hover = -1)"
-            @click="
-              document.converted &&
-              !document.selected &&
-              emit('select', document, index)
-            "
-            :title="
-              hover === index
-                ? 'File already open'
-                : `Open ${document.name} in editor`
-            "
-            :class="
-              cn(
-                'py-3 tracking-wide',
-                document.converted
-                  ? ''
-                  : 'cursor-not-allowed pointer-events-none',
-                !document.selected && 'cursor-pointer'
-              )
-            "
-          >
-            {{ document.name }}
-          </a>
-        </td>
 
-        <td class="py-2" v-if="fieldsVisible.type && hover !== index">
-          <!--
-                <div
-                  v-if="
-                    !document.isQueued &&
-                    !document.isUploading &&
-                    !document.converted &&
-                    !document.failed
-                  "
-                  title="There was an error during upload or conversion. Please retry or delete this file."
-                  class="inline-flex justify-center w-full p-1 clickable"
-                >
-                  <ExclamationTriangleIcon
-                    class="w-5 h-5 text-destructive! rounded-md font-semibold"
-                  />
-                </div>
-                -->
+        <!-- type -->
+        <td class="py-2" v-if="fieldsVisible.type">
           <div
             v-if="document.failed"
             title="There was an error during upload or conversion. Please retry or delete this file."
@@ -190,35 +181,103 @@
             />
           </div>
         </td>
+        <!-- name / title -->
+        <td
+          v-if="fieldsVisible.name"
+          :class="
+            cn(
+              'py-4 pe-1 w-auto rounded-xl',
+              hover === index
+                ? 'break-all'
+                : props.fullTitle !== true
+                  ? 'truncate'
+                  : '',
+              openMenuId === document.id ? 'font-semibold' : 'font-normal'
+            )
+          "
+          :colspan="hover === index ? (props.colspan ?? 5) : undefined"
+        >
+          <a
+            @mouseenter="focusOnHover && (hover = index)"
+            @mouseleave="focusOnHover && (hover = -1)"
+            @touchstart="focusOnHover && (hover = index)"
+            @touchend="focusOnHover && (hover = -1)"
+            @click="
+              document.converted &&
+              !document.selected &&
+              emit('select', document, index)
+            "
+            :title="
+              document.selected
+                ? 'File already open'
+                : `Open '${document.name}' in editor`
+            "
+            :class="
+              cn(
+                'py-3 tracking-wide',
+                document.converted
+                  ? ''
+                  : 'cursor-not-allowed pointer-events-none',
+                !document.selected && 'cursor-pointer'
+              )
+            "
+          >
+            {{ document.name }}
+          </a>
+        </td>
+
+        <!-- date -->
         <td
           class="py-2 text-start"
           v-if="fieldsVisible.date && hover !== index"
         >
           {{ document.date }}
         </td>
+
+        <!-- notes -->
+        <td class="py-2 text-start text-xs" v-if="hover !== index">
+          <div v-show="document.notes?.length" class="flex items-center gap-0">
+            <ChatBubbleLeftEllipsisIcon class="w-4 h-4" />
+            {{ document.notes?.length }}
+          </div>
+        </td>
+
+        <!-- by -->
         <td
           class="py-2 text-center tracking-wider"
           v-if="fieldsVisible.user && hover !== index"
         >
           <div>
             <ProfileImage
-              v-if="document.userPicture"
-              class="w-4 h-4"
               :name="document.user"
               :email="document.userEmail"
               :src="document.userPicture"
             />
           </div>
         </td>
+
+        <!-- extra fields -->
+        <td
+          v-for="extraField in extraFields"
+          :key="extraField.key"
+          v-if="hover !== index"
+          :class="cn(extraField.cellClass)"
+        >
+          <span>{{
+            extraField.resolve
+              ? extraField.resolve(document)
+              : document[extraField.key]
+          }}</span>
+        </td>
+
+        <!-- actions -->
         <td
           v-if="hover !== index"
           v-show="$props.actions?.length"
           class="py-2 text-center tracking-wider justify-center align-middle items-center relative"
         >
-          <span>
+          <button @click="toggleMenu(document.id)" title="Open actions menu">
             <EllipsisVerticalIcon
-              @click="toggleMenu(document.id)"
-              title="Open actions menu"
               :class="
                 cn(
                   'w-4 h-4 menu-toggle z-0',
@@ -226,7 +285,7 @@
                 )
               "
             ></EllipsisVerticalIcon>
-          </span>
+          </button>
           <div
             v-show="isMenuOpen(document.id)"
             v-click-outside="{ callback: handleOutsideClick }"
@@ -277,8 +336,13 @@ import {
   ChevronUpIcon,
   EllipsisVerticalIcon,
   LockClosedIcon,
+  MagnifyingGlassIcon,
+  XMarkIcon,
 } from '@heroicons/vue/20/solid/index.js';
-import { LockOpenIcon } from '@heroicons/vue/24/outline';
+import {
+  ChatBubbleLeftEllipsisIcon,
+  LockOpenIcon,
+} from '@heroicons/vue/24/outline';
 import {
   CloudArrowUpIcon,
   ClockIcon,
@@ -299,43 +363,68 @@ const props = defineProps([
   'rowClass',
   'fields',
   'fixed',
+  'notes',
   'colspan',
   'focusOnHover',
+  'fullTitle',
+  'extraFields',
 ]);
-const docs = computed(() =>
-  props.documents.filter(Boolean).toSorted((a, b) => {
-    for (const rule of sortRules.value) {
-      const aValue = a[rule.by] ?? a.variables?.[rule.by] ?? '';
-      const bValue = b[rule.by] ?? b.variables?.[rule.by] ?? '';
 
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
-        const comparison = aValue.localeCompare(bValue);
-        if (comparison !== 0) {
-          return rule.dir === 'asc' ? comparison : -comparison;
+const docs = computed(() =>
+  props.documents
+    .filter((doc) => {
+      if (!doc) return false;
+      if (search.value && filter.value?.length >= 2) {
+        return doc.name.toLowerCase().includes(filter.value.toLowerCase());
+      }
+      return true;
+    })
+    .map((doc) => {
+      doc.notes = (props.notes ?? [])
+        .filter((note) => note.type === 'source' && note.target === doc.id)
+        .map((n) => toRaw(n)); // prevent "proxy object could not be cloned error"
+      return doc;
+    })
+    .toSorted((a, b) => {
+      for (const rule of sortRules.value) {
+        const aValue = a[rule.by] ?? a.variables?.[rule.by] ?? '';
+        const bValue = b[rule.by] ?? b.variables?.[rule.by] ?? '';
+
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          const comparison = aValue.localeCompare(bValue);
+          if (comparison !== 0) {
+            return rule.dir === 'asc' ? comparison : -comparison;
+          }
+          continue; // If equal, move to next rule
         }
-        continue; // If equal, move to next rule
+
+        if (aValue < bValue) return rule.dir === 'asc' ? -1 : 1;
+        if (aValue > bValue) return rule.dir === 'asc' ? 1 : -1;
       }
 
-      if (aValue < bValue) return rule.dir === 'asc' ? -1 : 1;
-      if (aValue > bValue) return rule.dir === 'asc' ? 1 : -1;
-    }
-    return 0;
-  })
+      // fallback alphabetical asc
+      return a.name.localeCompare(b.name);
+    })
 );
+
+const filter = ref();
+const search = ref(false);
+
 const openMenuId = ref(null);
 const headerFields = ref([
+  {
+    label: null,
+    key: 'type',
+    title: 'Sort by type',
+    class: 'w-6',
+  },
   {
     label: 'File',
     key: 'name',
     pos: 'start',
     title: 'Sort by name',
     class: 'w-4/6 text-start',
-  },
-  {
-    label: 'Type',
-    key: 'type',
-    title: 'Sort by type',
-    class: 'w-1/5',
+    search: true,
   },
   {
     label: 'Date',
@@ -345,20 +434,29 @@ const headerFields = ref([
     class: 'w-2/6',
   },
   {
+    label: null,
+    key: 'notes',
+    title: 'Sort by notes count',
+    class: 'w-8',
+  },
+  {
     label: 'By',
     key: 'user',
     title: 'Sort by uploader',
     class: 'w-6',
   },
 ]);
-const fieldsVisible = ref({
-  lock: true,
-  name: true,
-  type: true,
-  date: true,
-  user: true,
-  actions: true,
-  ...(props.fields ?? {}),
+const fieldsVisible = computed(() => {
+  return {
+    lock: true,
+    name: true,
+    type: true,
+    date: true,
+    user: true,
+    actions: true,
+    notes: true,
+    ...props.fields,
+  };
 });
 const hover = ref(-1);
 

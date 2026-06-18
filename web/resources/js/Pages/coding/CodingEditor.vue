@@ -1,21 +1,27 @@
 <template>
   <div class="contents">
-    <!-- editor header with zoom controls -->
-    <div class="px-3 py-6 block md:flex items-center justify-between">
+    <!-- editor header with zoom controls, sticky on top -->
+    <div
+      class="sticky top-0 z-10 px-3 py-6 block shadow lg:shadow-none lg:flex items-center justify-between bg-surface"
+    >
       <Headline1 class="hidden md:block m-0">{{
         props.source?.name
       }}</Headline1>
+      <slot name="info" />
       <div class="flex gap-1 justify-end items-center">
         <Transition name="fade">
           <Button
-            v-if="range?.length"
+            v-if="!blocked && range?.length"
             variant="outline-secondary"
             @click="showContextMenu"
             class="hidden"
+            :data-x="rangeX"
+            :data-y="rangeY"
             >Menu</Button
           >
         </Transition>
         <Button
+          v-if="!blocked"
           variant="outline"
           class="p-1 md:p-2 rounded hover:bg-foreground/10 transition-colors"
           title="Zoom Out"
@@ -30,6 +36,7 @@
           </svg>
         </Button>
         <Button
+          v-if="!blocked"
           variant="outline"
           class="p-1 md:p-2 rounded hover:bg-foreground/10 transition-colors"
           title="Zoom In"
@@ -44,10 +51,14 @@
             <circle cx="9" cy="9" r="6"></circle>
           </svg>
         </Button>
+        <slot name="actions" />
       </div>
     </div>
     <!-- editor content -->
-    <div :style="zoomStyle" :class="cn('flex', loadingDocument && 'hidden')">
+    <div
+      :style="zoomStyle"
+      :class="cn('flex pb-24', loadingDocument && 'hidden')"
+    >
       <div id="lineNumber"></div>
       <div
         id="editor"
@@ -64,7 +75,7 @@
     >
       <Transition name="fade">
         <Button
-          v-if="range?.length"
+          v-if="!blocked && range?.length"
           variant="outline-secondary"
           @click="showContextMenu"
           class="inline-flex md:hidden"
@@ -137,10 +148,15 @@ const zoomStyle = computed(() => {
     width: z === 1 ? '100%' : `calc(100% / ${z})`,
   };
 });
-Quill.register('modules/lineNumber', LineNumber, true);
-Quill.register('modules/selectionHash', SelectionHash, true);
-Quill.register('modules/cursors', QuillCursors);
-Quill.register('modules/highlight', SelectionHighlightBG);
+const quillRegistryFlag = '__openqdaQuillModulesRegistered';
+
+if (!globalThis[quillRegistryFlag]) {
+  Quill.register('modules/lineNumber', LineNumber, true);
+  Quill.register('modules/selectionHash', SelectionHash, true);
+  Quill.register('modules/cursors', QuillCursors, true);
+  Quill.register('modules/highlight', SelectionHighlightBG, true);
+  globalThis[quillRegistryFlag] = true;
+}
 
 const props = defineProps({
   project: Object,
@@ -150,15 +166,19 @@ const props = defineProps({
   codes: Array,
   locked: Boolean,
   CanUnlock: Boolean,
+  blocked: Boolean,
 });
 const disposables = new Set();
 const contentHash = ref('');
 
 let quillInstance;
+const rangeX = ref(-1);
+const rangeY = ref(-1);
+
 onMounted(() => {
   quillInstance = new Quill('#editor', {
     theme: 'snow',
-    formats: formats.concat(['id', 'title', 'class']),
+    formats: formats.concat(['id', 'title', 'class', 'notes']),
     placeholder: 'Start writing or paste content...',
     modules: {
       syntax: false,
@@ -184,10 +204,19 @@ onMounted(() => {
    * Update selected range to shared state
    */
   quillInstance.on('selection-change', (data) => {
+    const selection = window.getSelection();
+    const parentNode = selection?.anchorNode?.parentElement;
+    if (parentNode) {
+      // get parent absolute position
+      const rect = parentNode.getBoundingClientRect();
+      rangeY.value = rect.top + window.scrollY + rect.height;
+      rangeX.value = rect.left + window.scrollX;
+    }
     const text = data ? quillInstance.getText(data) : '';
     setRange(data, text);
   });
   const hl = quillInstance.getModule('highlight');
+  const ln = quillInstance.getModule('lineNumber');
   window.quill = quillInstance;
 
   const disposeSelectionObserver = observe('store/selections', {
@@ -216,6 +245,32 @@ onMounted(() => {
   });
 
   disposables.add(disposeSelectionObserver);
+
+  // if we observe notes, we can trigger a re-render of the editor
+  // when notes are added or removed which is necessary to update the note markers in the editor
+  // and the line numbers
+  const selectionsByNotes = (notes) => {
+    const linkedSelections = [];
+    notes.forEach((note) => {
+      if (note.type === 'selection') {
+        const linked = selections.value.filter((sel) => sel.id === note.target);
+        linkedSelections.push(...linked);
+      }
+    });
+    return linkedSelections;
+  };
+  const notesObserver = observe('store/notes', {
+    added: (docs) => {
+      hl.add(selectionsByNotes(docs));
+      ln._update();
+    },
+    removed: (docs) => {
+      hl.removeAll(selectionsByNotes(docs));
+      hl.add(selectionsByNotes(docs));
+      ln._update();
+    },
+  });
+  disposables.add(notesObserver);
 
   const addSelections = (entries) => {
     hl.add(entries);
@@ -302,10 +357,11 @@ watch(selected, async ({ code }) => {
 
 // TODO move to useContextMenu
 const showContextMenu = (event) => {
-  if (event.shiftKey) {
+  if (event.shiftKey || props.blocked) {
     // Allow the browser's context menu to appear
     return;
   }
+
   const isMobile = event.pointerType === 'touch' || event.type === 'touchstart';
 
   event.preventDefault();
@@ -367,10 +423,17 @@ const showContextMenu = (event) => {
   //
   // // Force a slight layout update so we can measure the contextMenu's dimensions
   contextMenuElement.offsetHeight;
-  const offsetY =
-    event.clientY + contextMenuElement.offsetHeight > windowHeight
-      ? windowHeight - contextMenuElement.offsetHeight
-      : event.clientY + 20;
+  let offsetY;
+
+  if (isMobile) {
+    offsetY = event.target?.dataset?.y || 0;
+  } else {
+    offsetY =
+      event.clientY + contextMenuElement.offsetHeight > windowHeight
+        ? windowHeight - contextMenuElement.offsetHeight
+        : event.clientY + 20;
+  }
+
   //
   // if (event.clientY + contextMenuElement.offsetHeight > windowHeight) {
   //   // If the context menu would go out of bounds, adjust its top position
@@ -381,7 +444,7 @@ const showContextMenu = (event) => {
 
   contextMenu.open(null, {
     left: menuX,
-    top: isMobile ? 0 : offsetY,
+    top: offsetY,
     width: menuWidth,
     maxHeight: windowHeight < 720 ? windowHeight / 1.5 : windowHeight / 3,
   });
@@ -395,7 +458,6 @@ const contextMenuClosed = () => {
 
 defineExpose({ editorContent });
 </script>
-
 <style scoped>
 .ql-container.ql-snow {
   line-height: 18.4667;

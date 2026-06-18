@@ -40,7 +40,8 @@ Preferences.updateZoom = async ({ projectId, sourceId, level }) => {
       },
     },
   };
-  return router.put(endpoint(projectId), data, routeOptions);
+  const url = endpoint(projectId);
+  return router.put(url, data, routeOptions);
 };
 
 //update codebooks visibility

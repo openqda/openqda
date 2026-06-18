@@ -2,9 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Http\Controllers\SourceController;
+use App\Http\Middleware\VerifyCsrfToken;
 use App\Jobs\ConvertFileToHtmlJob;
 use App\Jobs\TranscriptionJob;
+use App\Models\Note;
 use App\Models\Project;
+use App\Models\Selection;
 use App\Models\Source;
 use App\Models\SourceStatus;
 use App\Models\User;
@@ -117,7 +121,7 @@ class SourceControllerTest extends TestCase
         // Act as the authenticated user and make the request
         $response = $this->actingAs($this->user)
             ->post(route('source.store'), [
-                'file' => new \Illuminate\Http\UploadedFile($filePath, $fileName, null, null, true),
+                'file' => new UploadedFile($filePath, $fileName, null, null, true),
                 'projectId' => $this->project->id,
             ]);
 
@@ -206,6 +210,122 @@ class SourceControllerTest extends TestCase
             'name' => 'isLocked',
             'boolean_value' => false,
         ]);
+    }
+
+    public function test_unlock_deletes_all_selections_for_source()
+    {
+        $source = Source::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $selections = Selection::factory()->count(3)->create([
+            'source_id' => $source->id,
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $this->actingAs($this->user)
+            ->post(route('source.unlock', ['sourceId' => $source->id]));
+
+        foreach ($selections as $selection) {
+            $this->assertDatabaseMissing('selections', ['id' => $selection->id]);
+        }
+    }
+
+    public function test_unlock_deletes_notes_linked_to_source_selections()
+    {
+        $source = Source::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $selection = Selection::factory()->create([
+            'source_id' => $source->id,
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $selectionNote = Note::factory()->create([
+            'project_id' => $this->project->id,
+            'type' => Note::SCOPE_SELECTION,
+            'target' => $selection->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $this->actingAs($this->user)
+            ->post(route('source.unlock', ['sourceId' => $source->id]));
+
+        $this->assertDatabaseMissing('notes', ['id' => $selectionNote->id]);
+    }
+
+    public function test_unlock_does_not_delete_notes_linked_to_source()
+    {
+        $source = Source::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $sourceNote = Note::factory()->create([
+            'project_id' => $this->project->id,
+            'type' => Note::SCOPE_SOURCE,
+            'target' => $source->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $this->actingAs($this->user)
+            ->post(route('source.unlock', ['sourceId' => $source->id]));
+
+        $this->assertDatabaseHas('notes', ['id' => $sourceNote->id]);
+    }
+
+    public function test_unlock_does_not_delete_unrelated_selections_or_notes()
+    {
+        $source = Source::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        // A note on the source being unlocked — must survive
+        $ownSourceNote = Note::factory()->create([
+            'project_id' => $this->project->id,
+            'type' => Note::SCOPE_SOURCE,
+            'target' => $source->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $otherSource = Source::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $otherSelection = Selection::factory()->create([
+            'source_id' => $otherSource->id,
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $otherSelectionNote = Note::factory()->create([
+            'project_id' => $this->project->id,
+            'type' => Note::SCOPE_SELECTION,
+            'target' => $otherSelection->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $otherSourceNote = Note::factory()->create([
+            'project_id' => $this->project->id,
+            'type' => Note::SCOPE_SOURCE,
+            'target' => $otherSource->id,
+            'creating_user_id' => $this->user->id,
+        ]);
+
+        $this->actingAs($this->user)
+            ->post(route('source.unlock', ['sourceId' => $source->id]));
+
+        $this->assertDatabaseHas('notes', ['id' => $ownSourceNote->id]);
+        $this->assertDatabaseHas('selections', ['id' => $otherSelection->id]);
+        $this->assertDatabaseHas('notes', ['id' => $otherSelectionNote->id]);
+        $this->assertDatabaseHas('notes', ['id' => $otherSourceNote->id]);
     }
 
     public function test_update_source_content()
@@ -420,7 +540,7 @@ class SourceControllerTest extends TestCase
 
         $rtf = UploadedFile::fake()->create(Str::random(6).'.md', 8, 'text/plain');
 
-        $response = $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
+        $response = $this->withoutMiddleware(VerifyCsrfToken::class)
             ->actingAs($this->user)
             ->post(route('source.store'), [
                 'file' => $rtf,
@@ -435,7 +555,7 @@ class SourceControllerTest extends TestCase
 
     public function test_convert_txt_to_html_converts_non_utf_content()
     {
-        $controller = app(\App\Http\Controllers\SourceController::class);
+        $controller = app(SourceController::class);
         $dir = storage_path('app/projects/'.$this->project->id.'/sources');
         if (! file_exists($dir)) {
             mkdir($dir, 0755, true);
@@ -452,7 +572,7 @@ class SourceControllerTest extends TestCase
 
     public function test_convert_txt_to_html_handles_missing_file()
     {
-        $controller = app(\App\Http\Controllers\SourceController::class);
+        $controller = app(SourceController::class);
         $missingPath = $this->testFilePath.'/missing.txt';
 
         $previousHandler = set_error_handler(fn () => true);
@@ -487,7 +607,7 @@ class SourceControllerTest extends TestCase
             'path' => $this->testFilePath.'/admin_panel_old.html',
         ]);
 
-        $response = $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
+        $response = $this->withoutMiddleware(VerifyCsrfToken::class)
             ->actingAs($this->user)
             ->post("/projects/{$this->project->id}/sources/{$source->id}/gethtmlcontent");
 
@@ -642,7 +762,7 @@ class SourceControllerTest extends TestCase
             'path' => $this->testFilePath.'/convert_me.html',
         ]);
 
-        $response = $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
+        $response = $this->withoutMiddleware(VerifyCsrfToken::class)
             ->actingAs($this->user)
             ->post("/projects/{$this->project->id}/sources/{$source->id}/gethtmlcontent");
 
@@ -666,7 +786,7 @@ class SourceControllerTest extends TestCase
         ]);
         file_put_contents($source->upload_path, '{\rtf1 deny}');
 
-        $response = $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class)
+        $response = $this->withoutMiddleware(VerifyCsrfToken::class)
             ->actingAs($unauthorized)
             ->post("/projects/{$this->project->id}/sources/{$source->id}/gethtmlcontent");
 
@@ -760,6 +880,77 @@ class SourceControllerTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertJson(['message' => 'Conversion has finished', 'status' => 'finished']);
+    }
+
+    // -------------------------------------------------------------------------
+    // Notes integration
+    // -------------------------------------------------------------------------
+
+    public function test_index_includes_project_and_source_notes_visible_to_all(): void
+    {
+        $other = User::factory()->create();
+        $note = Note::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $other->id,
+            'type' => 'project',
+            'scope' => Note::SCOPE_PROJECT,
+            'target' => (string) $this->project->id,
+            'visibility' => 1,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->get(route('source.index', ['project' => $this->project->id]));
+
+        $response->assertStatus(200)
+            ->assertInertia(fn ($page) => $page
+                ->component('PreparationPage')
+                ->has('notes', 1)
+                ->where('notes.0.id', $note->id)
+            );
+    }
+
+    public function test_index_includes_own_private_notes(): void
+    {
+        $note = Note::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $this->user->id,
+            'type' => 'source',
+            'scope' => Note::SCOPE_SOURCE,
+            'target' => '1',
+            'visibility' => 0,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->get(route('source.index', ['project' => $this->project->id]));
+
+        $response->assertStatus(200)
+            ->assertInertia(fn ($page) => $page
+                ->component('PreparationPage')
+                ->has('notes', 1)
+                ->where('notes.0.id', $note->id)
+            );
+    }
+
+    public function test_index_excludes_private_notes_from_others(): void
+    {
+        $other = User::factory()->create();
+        Note::factory()->create([
+            'project_id' => $this->project->id,
+            'creating_user_id' => $other->id,
+            'type' => 'project',
+            'scope' => Note::SCOPE_PROJECT,
+            'target' => (string) $this->project->id,
+            'visibility' => 0,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->get(route('source.index', ['project' => $this->project->id]));
+
+        $response->assertStatus(200)
+            ->assertInertia(fn ($page) => $page
+                ->component('PreparationPage')
+                ->has('notes', 0)
+            );
     }
 
     protected function tearDown(): void

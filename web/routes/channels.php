@@ -1,6 +1,7 @@
 <?php
 
 use App\Broadcasting\SourceConversionChannel;
+use App\Models\Team;
 use Illuminate\Support\Facades\Broadcast;
 
 /*
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
-Broadcast::channel('team.{team}', function ($user, \App\Models\Team $team) {
+Broadcast::channel('team.{team}', function ($user, Team $team) {
 
     if ($team->hasUser($user)) {
 

@@ -17,7 +17,7 @@ const state = reactive({
 export const useZoom = () => {
   const { projectId, preferences } = usePage().props;
   const { sources } = toRefs(state);
-  const prefs = preferences?.[0] ?? {};
+  const prefs = preferences ?? {};
 
   const getZoom = (sourceId) => {
     // prefer zoom levels set during this session (not saved to backend, resets on refresh)
@@ -25,7 +25,7 @@ export const useZoom = () => {
       return sources.value[sourceId];
     }
     // fall back to preferences from backend
-    return prefs.zoom?.source?.[sourceId] ?? DEFAULT_ZOOM;
+    return prefs.project?.zoom?.source?.[sourceId] ?? DEFAULT_ZOOM;
   };
 
   const setZoom = async (action, sourceId) => {
@@ -54,7 +54,6 @@ export const useZoom = () => {
 
     // Update backend preferences
     await Preferences.updateZoom({ projectId, sourceId, level: newZoom });
-
     // Update zoom without saving to localStorage (resets on refresh)
     state.sources[sourceId] = newZoom;
   };

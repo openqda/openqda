@@ -67,6 +67,8 @@ class AuditsController extends Controller
      */
     public function projectAudits(AuditFilterRequest $request, Project $project): JsonResponse
     {
+        $this->authorize('view', $project);
+
         try {
             $allAudits = $this->auditService->getProjectAudits($project);
             $filteredAudits = $this->auditService->filterAudits($allAudits, $request->getFilters());
@@ -81,6 +83,37 @@ class AuditsController extends Controller
 
         } catch (\Exception $e) {
             Log::error('Error fetching project audits', [
+                'project_id' => $project->id,
+                'user_id' => Auth::id(),
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => __('Unable to fetch project audit history. Please try again.'),
+            ], 500);
+        }
+    }
+
+    /**
+     * Retrieve all audits for a specific project as a flat list (no filters, no pagination).
+     * Intended for CSV export. The result is served from the same cache used by projectAudits().
+     */
+    public function projectAuditsAll(Project $project): JsonResponse
+    {
+        $this->authorize('view', $project);
+
+        try {
+            $audits = $this->auditService->getAllProjectAudits($project);
+
+            return response()->json([
+                'success' => true,
+                'audits' => $audits->values(),
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Error fetching project audits for export', [
                 'project_id' => $project->id,
                 'user_id' => Auth::id(),
                 'error' => $e->getMessage(),

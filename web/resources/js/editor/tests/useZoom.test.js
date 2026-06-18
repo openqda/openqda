@@ -8,15 +8,15 @@ vi.mock('@inertiajs/vue3', () => ({
   usePage: () => ({
     props: {
       projectId: 1,
-      preferences: [
-        {
+      preferences: {
+        project: {
           zoom: {
             source: {
               sourceA: 1.0,
             },
           },
         },
-      ],
+      },
     },
   }),
 }));

@@ -7,13 +7,22 @@
  *----------------------------------------------------------------------------*/
 import {
   ArrowPathRoundedSquareIcon,
+  ChevronDownIcon,
   CloudArrowUpIcon,
   DocumentArrowDownIcon,
   PlusIcon,
   PencilSquareIcon,
   XCircleIcon,
 } from '@heroicons/vue/24/solid';
-import { inject, onMounted, onUnmounted, reactive, ref, watch } from 'vue';
+import {
+  computed,
+  inject,
+  onMounted,
+  onUnmounted,
+  reactive,
+  ref,
+  watch,
+} from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import axios from 'axios';
 import FilesList from './FilesList.vue';
@@ -30,6 +39,11 @@ import { useFiles } from './useFiles.js';
 import { useConversion } from '../../live/useConversion.js';
 import { attemptAsync } from '../notification/attemptAsync.js';
 import { useDebug } from '../../utils/useDebug.js';
+import { useNotes } from '../../domain/notes/useNotes.js';
+import { useVariables } from '../../domain/variables/useVariables.js';
+import Dropdown from '../Dropdown.vue';
+import { cn } from '../../utils/css/cn.js';
+import DropdownLink from '../DropdownLink.vue';
 
 /*---------------------------------------------------------------------------*/
 // DATA / PROPS
@@ -41,6 +55,32 @@ const props = defineProps({
   },
   projectId: String,
 });
+
+const { notes } = useNotes();
+const { uniqueVariables } = useVariables();
+const selectedVariables = ref({});
+const hasVariables = computed(() => {
+  const keys = Object.keys(selectedVariables.value);
+  return keys.length > 0;
+});
+const selectVariable = (options) => {
+  if (selectedVariables.value[options.name]) {
+    delete selectedVariables.value[options.name];
+  } else {
+    const name = options.name;
+    selectedVariables.value[name] = {
+      label: options.name,
+      key: name,
+      resolve: (doc) => {
+        return doc.variables?.[name];
+      },
+      pos: 'center',
+      title: 'Sort by this variable',
+      class: 'w-1/6',
+      cellClass: 'text-center',
+    };
+  }
+};
 
 const { projectId } = props;
 const allSources = inject('sources');
@@ -277,6 +317,7 @@ function fileSelected(file) {
   const date = file.date;
   const user = file.user;
   const type = file.type;
+  const variables = file.variables;
 
   file.selected = true;
   emit('fileSelected', {
@@ -289,6 +330,7 @@ function fileSelected(file) {
     locked,
     CanUnlock,
     hasSelections,
+    variables,
   });
 }
 
@@ -297,9 +339,9 @@ async function fetchAndRenderDocument(document) {
     return;
   }
   try {
+    // TODO move into composable
     const response = await axios.get(`/files/${document.id}`);
     const fetchedDocument = response.data;
-    // Call fileSelected with the fetched document
     fileSelected(fetchedDocument);
   } catch (error) {
     console.error(error);
@@ -316,7 +358,7 @@ async function fetchAndRenderDocument(document) {
 }
 </script>
 <template>
-  <div class="flex items-center justify-start">
+  <div class="flex items-center justify-start gap-1 md:gap-3">
     <CreateDialog
       :schema="createSchema"
       class="w-full md:w-auto"
@@ -338,12 +380,43 @@ async function fetchAndRenderDocument(document) {
     </CreateDialog>
     <Button
       variant="outline-secondary"
-      class="rounded-xl ml-1 md:ml-3 w-full md:w-auto"
+      class="rounded-xl w-full md:w-auto"
       @click="importSchema = { foo: {} }"
     >
       <PlusIcon class="h-4 w-4 mr-2"></PlusIcon>
       <span>Import</span>
     </Button>
+    <Dropdown class="md:ms-auto" v-if="uniqueVariables?.length">
+      <template #trigger>
+        <button
+          :class="
+            cn(
+              'p-2 md:p-1 lg:p-0 m-0 text-sm text-foreground rounded hover:text-secondary hover:underline flex items-center gap-2'
+            )
+          "
+        >
+          <ChevronDownIcon class="w-3 h-3" />
+          <span>variables</span>
+        </button>
+      </template>
+      <template #content>
+        <div class="text-sm px-3 py-2 text-foreground/50">Variables</div>
+        <DropdownLink
+          as="button"
+          v-for="option in uniqueVariables"
+          :key="option.name"
+          @click.stop="selectVariable(option)"
+        >
+          <div class="flex items-center gap-2">
+            <input
+              type="checkbox"
+              :checked="!!selectedVariables[option.name]"
+            />
+            <span>{{ option.name }} ({{ option.type_of_variable }})</span>
+          </div>
+        </DropdownLink>
+      </template>
+    </Dropdown>
   </div>
   <WizardDialog
     :schema="importSchema"
@@ -352,12 +425,16 @@ async function fetchAndRenderDocument(document) {
     :accept="accept"
     :files-selected="importFiles"
   />
+
   <FilesList
     v-if="documents?.length"
     class="mt-5"
     :fixed="true"
     :focus-on-hover="true"
     :documents="documents"
+    :extraFields="hasVariables ? Object.values(selectedVariables) : undefined"
+    :fields="hasVariables ? { date: false, user: false } : undefined"
+    :notes="notes"
     :actions="[
       {
         id: 'retry-atrain',
@@ -425,9 +502,10 @@ async function fetchAndRenderDocument(document) {
     @sortChanged="emit('sortChanged', $event)"
   >
   </FilesList>
-  <p v-else class="text-sm text-foreground/60">
+  <p v-if="!documents?.length" class="text-sm text-foreground/60">
     You have not added any files. Best is to do it now.
   </p>
+
   <RenameDialog
     title="Rename File"
     :target="toRename"

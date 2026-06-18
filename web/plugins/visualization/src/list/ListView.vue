@@ -7,147 +7,551 @@
       @close="API.setShowMenu(false)"
     >
       <ul class="p-4 flex flex-col gap-4">
+        <li>
+          <label class="text-left text-xs font-medium uppercase w-full">
+            Group By
+          </label>
+          <select v-model="options.groupBy" class="w-full">
+            <option value="sources">Sources</option>
+            <option value="codes">Codes</option>
+          </select>
+        </li>
         <li class="flex justify-between items-center">
           <label class="text-left text-xs font-medium uppercase">
-            Show Sources with no Selections
+            Show {{ options.groupBy === 'sources' ? 'Sources' : 'Codes' }} with
+            no Selections
           </label>
           <input type="checkbox" v-model="options.showEmpty" />
         </li>
       </ul>
+
+      <Headline3 class="px-4">Show notes</Headline3>
+      <ul class="p-4 flex flex-col gap-4">
+        <li class="flex justify-between items-center">
+          <label class="text-left text-xs font-medium uppercase">
+            linked to sources
+          </label>
+          <input type="checkbox" v-model="options.showNotesSources" />
+        </li>
+        <li class="flex justify-between items-center">
+          <label class="text-left text-xs font-medium uppercase">
+            linked to codes
+          </label>
+          <input type="checkbox" v-model="options.showNotesCodes" />
+        </li>
+        <li class="flex justify-between items-center">
+          <label class="text-left text-xs font-medium uppercase">
+            to selections
+          </label>
+          <input type="checkbox" v-model="options.showNotesSelections" />
+        </li>
+      </ul>
     </component>
     <div class="block w-full">
+      <div class="flex justify-end gap-2 px-2 py-2 mb-2 border-b">
+        <button
+          @click="toggleAll(true)"
+          class="text-xs font-medium uppercase px-2 py-1 bg-foreground/10 hover:bg-foreground/20 rounded"
+        >
+          Expand All
+        </button>
+        <button
+          @click="toggleAll(false)"
+          class="text-xs font-medium uppercase px-2 py-1 bg-foreground/10 hover:bg-foreground/20 rounded"
+        >
+          Collapse All
+        </button>
+      </div>
       <ActivityIndicator v-if="rebuilding">
         Building list of selections...
       </ActivityIndicator>
-      <div
-        v-for="(source, index) in $props.sources"
-        :class="
-          API.cn(
-            'my-2 border-l',
-            hoverSources[source.id] ? 'border-l-secondary' : 'border-l-border'
-          )
-        "
-        :key="`${source.id}-${index}`"
-      >
+      <template v-if="options.groupBy === 'sources'">
         <div
-          v-if="
-            !!$props.checkedSources.get(source.id) &&
-            (codesList.get(source.id)?.length || options.showEmpty)
+          v-for="(source, index) in $props.sources"
+          :class="
+            API.cn(
+              'my-2 border-l',
+              hoverSources[source.id] ? 'border-l-secondary' : 'border-l-border'
+            )
           "
-          @mouseenter="hoverSources[source.id] = true"
-          @mouseleave="hoverSources[source.id] = false"
+          :key="`${source.id}-${index}`"
         >
-          <Headline3 class="ms-3 flex justify-between">
-            <button
-              class="flex items-center gap-1"
-              @click="
-                sourcesCollapsed[source.id] = !sourcesCollapsed[source.id]
-              "
-            >
-              <ChevronRightIcon
-                :class="
-                  API.cn(
-                    'w-4 h-4 transition-all duration-300 transform',
-                    sourcesCollapsed[source.id] && 'rotate-90'
-                  )
+          <div
+            v-if="
+              !!$props.checkedSources.get(source.id) &&
+              (codesList.get(source.id)?.length || options.showEmpty)
+            "
+            @mouseenter="hoverSources[source.id] = true"
+            @mouseleave="hoverSources[source.id] = false"
+          >
+            <Headline3 class="ms-3 flex justify-between">
+              <button
+                class="flex items-center gap-1"
+                @click="
+                  sourcesCollapsed[source.id] = !sourcesCollapsed[source.id]
                 "
-              />
-              <span>{{ source.name }}</span>
-            </button>
-            <button
-              title="Hide this source"
-              @click="$emit('remove', source.id)"
-            >
-              <XMarkIcon class="h-5 w-5" />
-            </button>
-          </Headline3>
-          <Collapse :when="sourcesCollapsed[source.id]">
-            <div v-if="sourcesCollapsed[source.id]">
-              <div
-                v-for="code in codesList.get(source.id)"
-                :key="code.id"
-                :style="{ borderColor: code.color }"
-                class="border ml-2 mt-3 rounded-sm"
               >
-                <div
-                  class="p-2 text-sm flex justify-between items-center"
-                  :style="{ backgroundColor: code.color }"
+                <ChevronRightIcon
+                  :class="
+                    API.cn(
+                      'w-4 h-4 transition-all duration-300 transform',
+                      sourcesCollapsed[source.id] && 'rotate-90'
+                    )
+                  "
+                />
+                <span>{{ source.name }}</span>
+              </button>
+
+              <span class="flex items-center gap-2">
+                <button
+                  v-if="options.showNotesSources && source.notes.length"
+                  class="flex items-center gap-1"
+                  @click="
+                    sourcesCollapsed[source.id] = true;
+                    notesCollaped[source.id] = !notesCollaped[source.id];
+                  "
                 >
-                  <button
-                    @click="
-                      codesCollapsed[`${source.id}-${code.id}`] =
-                        !codesCollapsed[`${source.id}-${code.id}`]
-                    "
-                    class="flex gap-1 items-center"
-                  >
-                    <ChevronRightIcon
-                      :class="
-                        API.cn(
-                          'w-4 h-4 transition-all duration-300 transform',
-                          codesCollapsed[`${source.id}-${code.id}`] &&
-                            'rotate-90'
-                        )
+                  <ChatBubbleLeftEllipsisIcon class="h-5 w-5" />
+                  <span>{{ source.notes.length }}</span>
+                </button>
+                <button
+                  title="Hide this source"
+                  @click="$emit('remove', source.id)"
+                >
+                  <XMarkIcon class="h-5 w-5" />
+                </button>
+              </span>
+            </Headline3>
+            <Collapse :when="sourcesCollapsed[source.id]">
+              <div v-if="sourcesCollapsed[source.id]">
+                <div
+                  v-if="options.showNotesSources && source.notes.length"
+                  class="border rounded ms-2"
+                >
+                  <div class="p-1 font-semibold">
+                    <button
+                      class="flex items-center gap-1"
+                      @click="
+                        notesCollaped[source.id] = !notesCollaped[source.id]
                       "
-                    />
-                    <span class="bg-surface px-1 rounded-sm">{{
-                      code.name
-                    }}</span>
-                  </button>
-                  <div class="flex items-center gap-1">
-                    <BarsArrowDownIcon class="h-5 w-5" />
-                    <span>{{
-                      selectionCounts[`${source.id}-${code.id}`] ?? 0
-                    }}</span>
-                  </div>
-                </div>
-                <Collapse :when="codesCollapsed[`${source.id}-${code.id}`]">
-                  <div v-if="codesCollapsed[`${source.id}-${code.id}`]">
-                    <div
-                      v-for="selection in code.text"
-                      :key="selection.source_id"
                     >
-                      <div
-                        v-if="source.id === selection.source_id"
-                        class="p-1 border-t"
-                        :style="{ borderTopColor: code.color }"
+                      <ChevronRightIcon
+                        :class="
+                          API.cn(
+                            'w-4 h-4 transition-all duration-300 transform',
+                            notesCollaped[source.id] && 'rotate-90'
+                          )
+                        "
+                      />
+                      <span>Notes linked to source</span>
+                    </button>
+                  </div>
+                  <Collapse :when="notesCollaped[source.id]">
+                    <div v-if="notesCollaped[source.id]" class="p-4">
+                      <NoteList
+                        :notes="source.notes"
+                        :target="source"
+                        type="source"
+                        :read-mode="true"
+                      />
+                    </div>
+                  </Collapse>
+                </div>
+                <div
+                  v-for="code in codesList.get(source.id)"
+                  :key="code.id"
+                  :style="{ borderColor: code.color }"
+                  class="border ml-2 mt-3 rounded-sm"
+                >
+                  <div
+                    class="p-2 text-sm flex justify-between items-center"
+                    :style="{ backgroundColor: code.color }"
+                  >
+                    <button
+                      @click="
+                        codesCollapsed[`${source.id}-${code.id}`] =
+                          !codesCollapsed[`${source.id}-${code.id}`]
+                      "
+                      class="flex gap-1 items-center"
+                    >
+                      <ChevronRightIcon
+                        :class="
+                          API.cn(
+                            'w-4 h-4 transition-all duration-300 transform',
+                            codesCollapsed[`${source.id}-${code.id}`] &&
+                              'rotate-90'
+                          )
+                        "
+                      />
+                      <span class="bg-surface px-1 rounded-sm">{{
+                        code.name
+                      }}</span>
+                    </button>
+                    <div class="flex items-center gap-1">
+                      <span
+                        v-if="options.showNotesCodes && code.notes.length"
+                        class="flex items-center gap-1"
                       >
-                        <div
-                          class="text-sm text-foreground min-w-[6rem] flex justify-between p-2"
+                        <button
+                          @click="
+                            codesCollapsed[`${source.id}-${code.id}`] = true;
+                            notesCollaped[code.id] = !notesCollaped[code.id];
+                          "
+                          class="flex items-center gap-1"
                         >
-                          <div class="font-mono">
-                            {{ selection.start }}:{{ selection.end }}
-                          </div>
-                          <span>
-                            <span>{{
-                              new Date(selection.updatedAt).toLocaleDateString()
-                            }}</span
-                            ><span>, </span>
-                            <span
-                              >by
-                              {{
-                                API.getMemberBy(selection.createdBy)?.name
-                              }}</span
-                            >
-                          </span>
+                          <ChatBubbleLeftEllipsisIcon class="h-5 w-5" />
+                          <span>{{ code.notes.length }}</span>
+                        </button>
+                      </span>
+                      <BarsArrowDownIcon class="h-5 w-5" />
+                      <span>{{
+                        selectionCounts[`${source.id}-${code.id}`] ?? 0
+                      }}</span>
+                    </div>
+                  </div>
+                  <Collapse :when="codesCollapsed[`${source.id}-${code.id}`]">
+                    <div v-if="codesCollapsed[`${source.id}-${code.id}`]">
+                      <div
+                        v-if="options.showNotesCodes && code.notes.length"
+                        class="ms-1"
+                      >
+                        <div class="p-1 font-semibold text-sm">
+                          <button
+                            class="flex items-center gap-1"
+                            @click="
+                              notesCollaped[code.id] = !notesCollaped[code.id]
+                            "
+                          >
+                            <ChevronRightIcon
+                              :class="
+                                API.cn(
+                                  'w-4 h-4 transition-all duration-300 transform',
+                                  notesCollaped[code.id] && 'rotate-90'
+                                )
+                              "
+                            />
+                            <span>Notes linked to code</span>
+                          </button>
                         </div>
-                        <div class="px-2 flex-grow overflow-x-scroll text-sm">
-                          {{ selection.text }}
+                        <Collapse :when="notesCollaped[code.id]">
+                          <div v-if="notesCollaped[code.id]" class="p-4">
+                            <NoteList
+                              :notes="code.notes"
+                              :target="code"
+                              type="code"
+                              :read-mode="true"
+                            />
+                          </div>
+                        </Collapse>
+                      </div>
+
+                      <div v-for="selection in code.text" :key="selection.id">
+                        <div
+                          v-if="source.id === selection.source_id"
+                          class="p-1 border-t"
+                          :style="{ borderTopColor: code.color }"
+                        >
+                          <div
+                            class="text-sm text-foreground min-w-[6rem] flex justify-between p-2"
+                          >
+                            <div class="font-mono">
+                              {{ selection.start }}:{{ selection.end }}
+                            </div>
+                            <span>
+                              <span>{{
+                                new Date(
+                                  selection.updatedAt
+                                ).toLocaleDateString()
+                              }}</span
+                              ><span>, </span>
+                              <span
+                                >by
+                                {{
+                                  API.getMemberBy(selection.createdBy)?.name
+                                }}</span
+                              >
+                            </span>
+                          </div>
+                          <div class="px-2 flex-grow overflow-x-scroll text-sm">
+                            {{ selection.text }}
+                          </div>
+
+                          <div
+                            v-if="
+                              options.showNotesSelections &&
+                              selection.notes.length
+                            "
+                            class="mt-2"
+                          >
+                            <div class="p-1 font-semibold text-sm">
+                              <button
+                                class="flex items-center gap-1"
+                                @click="
+                                  notesCollaped[selection.id] =
+                                    !notesCollaped[selection.id]
+                                "
+                              >
+                                <ChevronRightIcon
+                                  :class="
+                                    API.cn(
+                                      'w-4 h-4 transition-all duration-300 transform',
+                                      notesCollaped[selection.id] && 'rotate-90'
+                                    )
+                                  "
+                                />
+                                <span>Notes linked to selection</span>
+                              </button>
+                            </div>
+                            <Collapse :when="notesCollaped[selection.id]">
+                              <div
+                                v-if="notesCollaped[selection.id]"
+                                class="p-4"
+                              >
+                                <NoteList
+                                  v-if="selection.notes.length"
+                                  :notes="selection.notes"
+                                  :target="selection"
+                                  type="selection"
+                                  :read-mode="true"
+                                />
+                              </div>
+                            </Collapse>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </Collapse>
+                  </Collapse>
+                </div>
               </div>
+            </Collapse>
+            <div
+              v-if="!codesList.has(source.id)"
+              class="ml-2 mt-2 p-2 bg-foreground/10"
+            >
+              No selections found in this source
             </div>
-          </Collapse>
-          <div
-            v-if="!codesList.has(source.id)"
-            class="ml-2 mt-2 p-2 bg-silver-100"
-          >
-            No selections found in this source
           </div>
         </div>
-      </div>
+      </template>
+
+      <template v-if="options.groupBy === 'codes'">
+        <div
+          v-for="(code, index) in $props.codes"
+          :class="
+            API.cn(
+              'my-2 border-l',
+              hoverSources[code.id] ? 'border-l-secondary' : 'border-l-border'
+            )
+          "
+          :key="`${code.id}-${index}`"
+          :style="{ borderColor: code.color }"
+        >
+          <div
+            v-if="
+              !!$props.checkedCodes.get(code.id) &&
+              (sourcesList.get(code.id)?.length || options.showEmpty)
+            "
+            @mouseenter="hoverSources[code.id] = true"
+            @mouseleave="hoverSources[code.id] = false"
+          >
+            <Headline3
+              class="ms-3 flex justify-between"
+              :style="{ backgroundColor: code.color }"
+            >
+              <button
+                class="flex items-center gap-1 p-2 w-full text-left rounded"
+                @click="sourcesCollapsed[code.id] = !sourcesCollapsed[code.id]"
+              >
+                <ChevronRightIcon
+                  :class="
+                    API.cn(
+                      'w-4 h-4 transition-all duration-300 transform',
+                      sourcesCollapsed[code.id] && 'rotate-90'
+                    )
+                  "
+                />
+                <span class="bg-surface px-1 rounded-sm">{{ code.name }}</span>
+              </button>
+
+              <span class="flex items-center gap-2 p-2">
+                <button
+                  v-if="options.showNotesCodes && code.notes.length"
+                  class="flex items-center gap-1"
+                  @click="
+                    sourcesCollapsed[code.id] = true;
+                    notesCollaped[code.id] = !notesCollaped[code.id];
+                  "
+                >
+                  <ChatBubbleLeftEllipsisIcon class="h-5 w-5" />
+                  <span>{{ code.notes.length }}</span>
+                </button>
+                <button
+                  title="Hide this code"
+                  @click="$emit('remove', code.id)"
+                >
+                  <XMarkIcon class="h-5 w-5" />
+                </button>
+              </span>
+            </Headline3>
+            <Collapse :when="sourcesCollapsed[code.id]">
+              <div v-if="sourcesCollapsed[code.id]">
+                <div
+                  v-if="options.showNotesCodes && code.notes.length"
+                  class="border rounded ms-2"
+                >
+                  <div class="p-1 font-semibold">
+                    <button
+                      class="flex items-center gap-1"
+                      @click="notesCollaped[code.id] = !notesCollaped[code.id]"
+                    >
+                      <ChevronRightIcon
+                        :class="
+                          API.cn(
+                            'w-4 h-4 transition-all duration-300 transform',
+                            notesCollaped[code.id] && 'rotate-90'
+                          )
+                        "
+                      />
+                      <span>Notes linked to code</span>
+                    </button>
+                  </div>
+                  <Collapse :when="notesCollaped[code.id]">
+                    <div v-if="notesCollaped[code.id]" class="p-4">
+                      <NoteList
+                        :notes="code.notes"
+                        :target="code"
+                        type="code"
+                        :read-mode="true"
+                      />
+                    </div>
+                  </Collapse>
+                </div>
+
+                <div
+                  v-for="source in sourcesList.get(code.id)"
+                  :key="source.id"
+                  class="border ml-2 mt-3 rounded-sm"
+                >
+                  <div
+                    class="p-2 text-sm flex justify-between items-center bg-foreground/10"
+                  >
+                    <button
+                      @click="
+                        codesCollapsed[`${source.id}-${code.id}`] =
+                          !codesCollapsed[`${source.id}-${code.id}`]
+                      "
+                      class="flex gap-1 items-center font-bold"
+                    >
+                      <ChevronRightIcon
+                        :class="
+                          API.cn(
+                            'w-4 h-4 transition-all duration-300 transform',
+                            codesCollapsed[`${source.id}-${code.id}`] &&
+                              'rotate-90'
+                          )
+                        "
+                      />
+                      <span>{{ source.name }}</span>
+                    </button>
+                    <div class="flex items-center gap-1">
+                      <BarsArrowDownIcon class="h-5 w-5" />
+                      <span>{{
+                        selectionCounts[`${source.id}-${code.id}`] ?? 0
+                      }}</span>
+                    </div>
+                  </div>
+                  <Collapse :when="codesCollapsed[`${source.id}-${code.id}`]">
+                    <div v-if="codesCollapsed[`${source.id}-${code.id}`]">
+                      <div
+                        v-for="(selection, selIndex) in code.text"
+                        :key="`${selection.source_id}-${selIndex}`"
+                      >
+                        <div
+                          v-if="source.id === selection.source_id"
+                          class="p-1 border-t"
+                        >
+                          <div
+                            class="text-sm text-foreground min-w-[6rem] flex justify-between p-2"
+                          >
+                            <div class="font-mono">
+                              {{ selection.start }}:{{ selection.end }}
+                            </div>
+                            <span>
+                              <span>{{
+                                new Date(
+                                  selection.updatedAt
+                                ).toLocaleDateString()
+                              }}</span
+                              ><span>, </span>
+                              <span
+                                >by
+                                {{
+                                  API.getMemberBy(selection.createdBy)?.name
+                                }}</span
+                              >
+                            </span>
+                          </div>
+                          <div class="px-2 flex-grow overflow-x-scroll text-sm">
+                            {{ selection.text }}
+                          </div>
+
+                          <div
+                            v-if="
+                              options.showNotesSelections &&
+                              selection.notes.length
+                            "
+                            class="mt-2"
+                          >
+                            <div class="p-1 font-semibold text-sm">
+                              <button
+                                class="flex items-center gap-1"
+                                @click="
+                                  notesCollaped[selection.id] =
+                                    !notesCollaped[selection.id]
+                                "
+                              >
+                                <ChevronRightIcon
+                                  :class="
+                                    API.cn(
+                                      'w-4 h-4 transition-all duration-300 transform',
+                                      notesCollaped[selection.id] && 'rotate-90'
+                                    )
+                                  "
+                                />
+                                <span>Notes linked to selection</span>
+                              </button>
+                            </div>
+                            <Collapse :when="notesCollaped[selection.id]">
+                              <div
+                                v-if="notesCollaped[selection.id]"
+                                class="p-4"
+                              >
+                                <NoteList
+                                  v-if="selection.notes.length"
+                                  :notes="selection.notes"
+                                  :target="selection"
+                                  type="selection"
+                                  :read-mode="true"
+                                />
+                              </div>
+                            </Collapse>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Collapse>
+                </div>
+              </div>
+            </Collapse>
+            <div
+              v-if="!sourcesList.has(code.id)"
+              class="ml-2 mt-2 p-2 bg-foreground/10"
+            >
+              No selections found for this code
+            </div>
+          </div>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -159,7 +563,7 @@ import {
   ChevronRightIcon,
   XMarkIcon,
 } from '@heroicons/vue/24/solid';
-
+import { ChatBubbleLeftEllipsisIcon } from '@heroicons/vue/24/outline';
 defineEmits(['remove']);
 const props = defineProps([
   'sources',
@@ -171,17 +575,28 @@ const props = defineProps([
   'showMenu',
 ]);
 const codesList = ref(new Map());
+const sourcesList = ref(new Map());
 const API = inject('api');
-const { Headline3, ActivityIndicator, Collapse } = inject('components');
+const { Headline3, ActivityIndicator, Collapse, NoteList } =
+  inject('components');
 const rebuilding = ref(false);
 const options = ref({
+  groupBy: 'sources',
   showEmpty: false,
+  showNotesSources: false,
+  showNotesCodes: false,
+  showNotesSelections: false,
 });
 const sourcesCollapsed = ref({});
+const notesCollaped = ref({});
 const codesCollapsed = ref({});
 const selectionCounts = ref({});
 const hoverSources = ref({});
 const rebuildList = API.debounce(() => {
+  const sourcesById = new Map(
+    props.sources.map((source) => [source.id, source])
+  );
+
   props.sources.forEach((source) => {
     const codes = API.getCodesForSource(source);
     if (codes.length) {
@@ -198,6 +613,23 @@ const rebuildList = API.debounce(() => {
       codesList.value.delete(source.id);
     }
   });
+
+  sourcesList.value.clear();
+  props.codes.forEach((code) => {
+    const linkedSourcesMap = new Map();
+    (code.text ?? []).forEach((selection) => {
+      const source = sourcesById.get(selection.source_id);
+      if (source) {
+        linkedSourcesMap.set(source.id, source);
+      }
+    });
+    const linkedSources = Array.from(linkedSourcesMap.values());
+    if (linkedSources.length) {
+      sourcesList.value.set(code.id, linkedSources);
+    } else {
+      sourcesList.value.delete(code.id);
+    }
+  });
 }, 300);
 
 const runRebuilding = async () => {
@@ -206,6 +638,43 @@ const runRebuilding = async () => {
   rebuildList();
   await nextTick();
   rebuilding.value = false;
+};
+
+const toggleAll = (state) => {
+  if (options.value.groupBy === 'sources') {
+    props.sources.forEach((source) => {
+      sourcesCollapsed.value[source.id] = state;
+      if (source.notes?.length) {
+        notesCollaped.value[source.id] = state;
+      }
+
+      const codes = codesList.value.get(source.id) || [];
+      codes.forEach((code) => {
+        codesCollapsed.value[`${source.id}-${code.id}`] = state;
+        if (code.notes?.length) {
+          notesCollaped.value[code.id] = state;
+        }
+      });
+    });
+  } else {
+    props.codes.forEach((code) => {
+      sourcesCollapsed.value[code.id] = state;
+      if (code.notes?.length) {
+        notesCollaped.value[code.id] = state;
+      }
+
+      (code.text || []).forEach((selection) => {
+        if (selection.notes?.length) {
+          notesCollaped.value[selection.id] = state;
+        }
+      });
+
+      const sources = sourcesList.value.get(code.id) || [];
+      sources.forEach((source) => {
+        codesCollapsed.value[`${source.id}-${code.id}`] = state;
+      });
+    });
+  }
 };
 
 watch(props, runRebuilding, { deep: true });

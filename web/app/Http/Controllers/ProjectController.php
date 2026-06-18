@@ -7,10 +7,13 @@ use App\Http\Requests\ShowProjectRequest;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Project;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
+use Inertia\Response;
 use Laravel\Jetstream\Jetstream;
 
 class ProjectController extends Controller
@@ -18,7 +21,7 @@ class ProjectController extends Controller
     /**
      * Display all the projects
      *
-     * @return \Inertia\Response|never
+     * @return Response|never
      */
     public function index(Request $request)
     {
@@ -63,7 +66,7 @@ class ProjectController extends Controller
     /**
      * Update project attributes - description or name
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function updateProjectAttributes(UpdateProjectRequest $request, Project $project)
     {
@@ -88,7 +91,7 @@ class ProjectController extends Controller
      * Store a new project
      *
      * @param  Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function store(StoreProjectRequest $request)
     {
@@ -121,7 +124,7 @@ class ProjectController extends Controller
     /**
      * Show a particular project
      *
-     * @return \Inertia\Response
+     * @return Response
      */
     public function show(ShowProjectRequest $request, Project $project)
     {
@@ -230,7 +233,7 @@ class ProjectController extends Controller
      * Delete a project
      *
      * @param  Request  $request
-     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     * @return JsonResponse|RedirectResponse
      */
     public function destroy(DeleteProjectRequest $request, $projectId)
     {

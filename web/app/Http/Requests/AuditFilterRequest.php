@@ -13,7 +13,7 @@ class AuditFilterRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true; // Authorization handled by middleware
+        return true; // Authentication is enforced by the auth:sanctum middleware; resource-level authorization is handled in the controller.
     }
 
     /**
@@ -34,8 +34,10 @@ class AuditFilterRequest extends FormRequest
             'models' => 'sometimes|array',
             'models.*' => [
                 'string',
-                Rule::in(['Source', 'Selection', 'Code', 'Project', 'Codebook']),
+                Rule::in(['Source', 'Selection', 'Code', 'Project', 'Codebook', 'Note', 'Variable']),
             ],
+            'events' => 'sometimes|array',
+            'events.*' => 'string',
             'project_id' => 'sometimes|exists:projects,id',
         ];
     }
@@ -75,6 +77,7 @@ class AuditFilterRequest extends FormRequest
         return [
             'dates' => $this->getDateFilters(),
             'models' => $this->input('models', []),
+            'events' => $this->input('events', []),
             'query' => $this->input('query'),
             'per_page' => $this->input('per_page', config('audit.per_page', 20)),
             'project_id' => $this->input('project_id'),

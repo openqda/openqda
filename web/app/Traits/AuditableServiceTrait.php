@@ -2,11 +2,12 @@
 
 namespace App\Traits;
 
+use OwenIt\Auditing\Auditable;
 use OwenIt\Auditing\Models\Audit;
 
 trait AuditableServiceTrait
 {
-    use \OwenIt\Auditing\Auditable;
+    use Auditable;
 
     public function createAudit(string $event, array $newValues = []): void
     {

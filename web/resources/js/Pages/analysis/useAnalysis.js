@@ -4,6 +4,7 @@ import { debounce } from '../../utils/dom/debounce.js';
 import { unfoldCodes } from './unfoldCodes.js';
 import { createByPropertySorter } from '../../utils/array/createByPropertySorter.js';
 import { request } from '../../utils/http/BackendRequest.js';
+import { useUsers } from '../../domain/teams/useUsers.js';
 
 const state = reactive({
   checkedSources: new Map(),
@@ -18,7 +19,30 @@ const state = reactive({
 const byName = createByPropertySorter('name');
 
 export const useAnalysis = () => {
-  const { sources, codes, codebooks, project } = usePage().props;
+  const page = usePage();
+  const {
+    sources,
+    codes,
+    codebooks,
+    project,
+    notes: rawNotes,
+    preferences,
+  } = page.props;
+  const { allUsers } = useUsers();
+
+  // check source visibility from prefs
+  const sourceVisibility =
+    preferences?.project?.analysis?.visibility?.sources ?? {};
+  Object.entries(sourceVisibility).forEach(([sourceId, value]) => {
+    if (typeof value === 'boolean' && !state.checkedSources.has(sourceId)) {
+      state.checkedSources.set(sourceId, value);
+    }
+  });
+
+  const notes = rawNotes.map((n) => {
+    n.user = allUsers[n.creating_user_id];
+    return n;
+  });
   const projectId = String(project.id);
   const {
     hasSelections,
@@ -29,6 +53,7 @@ export const useAnalysis = () => {
     selection,
     selectionsLoaded,
   } = toRefs(state);
+
   const activeCodebooks = {};
   codebooks.forEach((cb) => {
     if (cb.active !== false) {
@@ -36,22 +61,47 @@ export const useAnalysis = () => {
     }
   });
 
+  const getToplevelCodes = (list) => {
+    const flagged = new Map();
+    for (const code of list) {
+      if (code.children?.length) {
+        for (const child of code.children) {
+          flagged.set(child.id, code.id);
+        }
+      }
+    }
+    for (const code of list) {
+      if (flagged.has(code.id)) {
+        code.parent = flagged.get(code.id);
+      }
+    }
+    return list.filter((code) => !code.parent);
+  };
+
+  const unfoldedCodes = unfoldCodes(codes);
+  const codeMap = new Map();
+  unfoldedCodes.forEach((code) => {
+    codeMap.set(code.id, code);
+  });
+  const topLevelCodes = getToplevelCodes(unfoldedCodes, codeMap);
   const allCodes = ref(
-    unfoldCodes(codes)
+    unfoldedCodes
       .filter((code) => activeCodebooks[code.codebook])
-      .sort(byName)
+      .toSorted(byName)
   );
 
   const allSources = ref(
     sources
       .map((source) => {
-        const isLocked = (source.variables ?? []).some(
-          ({ name, boolean_value }) =>
-            name === 'isLocked' && boolean_value === 1
-        );
+        const isLocked =
+          source.variables.isLocked ??
+          source.variables.some(
+            ({ name, boolean_value }) =>
+              name === 'isLocked' && boolean_value === 1
+          );
         const copy = { ...source };
         copy.date = new Date(source.updated_at).toLocaleDateString();
-        copy.variables = { isLocked };
+        copy.variables = copy.variables ?? { isLocked };
         copy.isConverting = false;
         copy.failed = false;
         copy.converted = true;
@@ -187,6 +237,7 @@ export const useAnalysis = () => {
   };
 
   return {
+    notes,
     checkedSources,
     checkedCodes,
     allCodesChecked,
@@ -199,6 +250,7 @@ export const useAnalysis = () => {
     checkSource,
     checkCode,
     codes: allCodes,
+    topLevelCodes,
     sources: allSources,
     checkedSourcesSize,
     checkedCodesSize,

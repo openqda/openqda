@@ -6,6 +6,8 @@ import { Selections } from '../../Pages/coding/selections/Selections.js';
 import { CodeList } from './CodeList.js';
 import { createCodeSchema } from './createCodeSchema.js';
 import { Preferences } from '../user/Preferences.js';
+import { Notes } from '../notes/NoteStore.js';
+import { useUsers } from '../teams/useUsers.js';
 
 const state = reactive({
   details: {}, // code ids
@@ -14,12 +16,23 @@ const state = reactive({
 export const useCodes = () => {
   const { details } = toRefs(state);
   const page = usePage();
-  const { allCodes, codebooks, projectId, source, preferences } = page.props;
+  const {
+    allCodes,
+    codebooks,
+    projectId: rawProjectId,
+    project,
+    source,
+    notes,
+    preferences,
+  } = page.props;
+  const { allUsers } = useUsers();
+  const projectId = rawProjectId ?? project.id;
   const sourceId = source?.id;
   const key = sourceId ? `${projectId}-${sourceId}` : projectId;
   const codeStore = Codes.by(key);
   const codebookStore = Codebooks.by(projectId);
   const selectionStore = Selections.by(key);
+  const noteStore = Notes.by(key);
 
   const initCoding = async () => {
     const initialSelections = source?.selections ?? [];
@@ -28,11 +41,15 @@ export const useCodes = () => {
       results.added.push(...res.added);
       results.clean.push(...res.clean);
     };
+
+    toResults(codebookStore.init(codebooks, notes));
+
     const codebookVisibility = toRaw(preferences?.project?.codebooks);
-    toResults(codebookStore.init(codebooks));
-    toResults(codeStore.init(allCodes, codebookVisibility));
     toResults(
-      selectionStore.init(initialSelections, (id) => {
+      codeStore.init(allCodes, { notes, preferences: codebookVisibility })
+    );
+    toResults(
+      selectionStore.init(initialSelections, notes, (id) => {
         try {
           return codeStore.entry(id);
         } catch (e) {
@@ -40,6 +57,7 @@ export const useCodes = () => {
         }
       })
     );
+    noteStore.init(notes, allUsers);
     return results;
   };
 
@@ -306,6 +324,8 @@ export const useCodes = () => {
         return codebookStore.observe(callbacks);
       case selectionStore.key:
         return selectionStore.observe(callbacks);
+      case noteStore.key:
+        return noteStore.observe(callbacks);
       default:
         throw new Error(`Unknown observe name: ${name}`);
     }

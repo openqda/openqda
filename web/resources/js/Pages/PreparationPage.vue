@@ -33,11 +33,92 @@
           </div>
         </div>
         <div v-show="editorSourceRef.selected === true" class="mt-0 md:mt-3">
+          <div
+            class="block lg:flex lg:justify-between items-center px-1 lg:px-3 py-3"
+          >
+            <Headline3
+              class="hidden lg:inline-block text-primary py-3 lg:py-0"
+              >{{ editorSourceRef.name }}</Headline3
+            >
+            <div class="flex gap-1 justify-center">
+              <Button
+                v-if="editorSourceRef"
+                @click="showOverlay('notes', true)"
+                :title="`Manage notes for source '${editorSourceRef?.name}'`"
+                variant="outline"
+              >
+                <ChatBubbleLeftEllipsisIcon class="w-4 h-4" />
+              </Button>
+              <Button
+                v-if="editorSourceRef"
+                @click="showOverlay('variables', true)"
+                :title="`Manage Variables for source '${editorSourceRef?.name}'`"
+                variant="outline"
+              >
+                <VariableIcon class="w-4 h-4" />
+              </Button>
+              <Button
+                v-if="editorSourceRef.locked"
+                variant="destructive"
+                @click="
+                  toConfirm({
+                    text: 'You are about to unlock this Source. This will remove all Selections that you or your team applied. You are then free to edit the Source and lock again for a new attempt of coding.',
+                    destructive: true,
+                    fn: unlockSource,
+                  })
+                "
+                class="px-1 mx-3 rounded-xl"
+              >
+                <LockOpenIcon class="w-4 h-4 me-1" />
+                <span>Unlock</span>
+              </Button>
+              <Button
+                v-if="
+                  !editorSourceRef.CanUnlock && !editorSourceRef.hasSelections
+                "
+                variant="outline-secondary"
+                title="Lock this source at its current state to start coding."
+                @click="
+                  toConfirm({
+                    text: 'You are about to lock this Source for coding. This will make future edits impossible unless you unlock it, which will remove all Selections you have made. Are you sure you want to lock the source and start coding?',
+                    destructive: false,
+                    fn: lockAndCode,
+                  })
+                "
+                class="px-1 py-2 rounded-lg w-auto"
+              >
+                <LockClosedIcon class="w-4 h-4 me-1" />
+                <span>Lock for coding</span>
+              </Button>
+              <Button
+                v-if="
+                  editorSourceRef.CanUnlock ||
+                  (!editorSourceRef.CanUnlock && editorSourceRef.hasSelections)
+                "
+                type="outline-secondary"
+                :icon="QrCodeIcon"
+                @click="codeThisFile"
+                class="px-1"
+              >
+                <DocumentTextIcon class="w-4 h-4 me-1" />
+                <span>Start Coding</span>
+              </Button>
+              <ConfirmDialog
+                :text="confirm.text"
+                :show="!!confirm.text"
+                :show-confirm="true"
+                :static="true"
+                :challenge="!!confirm.destructive"
+                :destructive="confirm.destructive"
+                @confirmed="onConfirm"
+                @cancelled="toConfirm(null)"
+              />
+            </div>
+          </div>
           <PreparationsEditor
             ref="editorComponent"
             :source="editorSourceRef.content"
             :locked="editorSourceRef.locked"
-            :CanUnlock="editorSourceRef.CanUnlock"
             :viewerZoom="zoom"
             :useViewZoom="true"
             @update:zoom="(action) => setZoom(action, editorSourceRef.id)"
@@ -58,61 +139,30 @@
                 </span>
               </div>
             </template>
-            <template #actions>
-              <div class="flex items-center gap-2 me-2">
-                <Button
-                  v-if="
-                    editorSourceRef.CanUnlock && !editorSourceRef.hasSelections
-                  "
-                  variant="outline-secondary"
-                  :icon="LockOpenIcon"
-                  @click="
-                    toConfirm({
-                      text: 'Are you sure you want to unlock the source? This will affect all codes and analysis, applied to this source.',
-                      fn: unlockSource,
-                    })
-                  "
-                  class="px-1 mx-3 rounded-xl"
-                  >Unlock
-                </Button>
-                <Button
-                  v-if="
-                    !editorSourceRef.CanUnlock && !editorSourceRef.hasSelections
-                  "
-                  variant="outline-secondary"
-                  :icon="LockClosedIcon"
-                  @click="
-                    toConfirm({
-                      text: 'Are you sure you want to lock the source and start coding?',
-                      fn: lockAndCode,
-                    })
-                  "
-                  class="px-1 py-2 mx-3 rounded-xl w-full md:w-auto"
-                  >Lock for coding
-                </Button>
-                <Button
-                  v-if="
-                    editorSourceRef.CanUnlock ||
-                    (!editorSourceRef.CanUnlock &&
-                      editorSourceRef.hasSelections)
-                  "
-                  type="outline-secondary"
-                  :icon="QrCodeIcon"
-                  @click="codeThisFile"
-                  class="px-1"
-                  >Code
-                </Button>
-                <ConfirmDialog
-                  :text="confirm.text"
-                  :show="!!confirm.text"
-                  :show-confirm="true"
-                  :static="true"
-                  @confirmed="onConfirm"
-                  @cancelled="toConfirm(null)"
-                />
-              </div>
-            </template>
           </PreparationsEditor>
+          <SideOverlay
+            v-if="editorSourceRef"
+            :title="overlayOptions[optionsType]?.label"
+            :show="showOptions"
+            @close="showOptions = false"
+          >
+            <div class="p-2" v-if="optionsType === 'notes'">
+              <Headline3 class="mb-2 p-2">
+                Notes linked to {{ editorSourceRef.name }}
+              </Headline3>
+              <NoteList
+                :notes="notesForSource"
+                :target="editorSourceRef"
+                type="source"
+              />
+            </div>
+            <div class="p-2" v-if="optionsType === 'variables'">
+              <Headline3 class="mb-2 p-2">
+                Variables linked to {{ editorSourceRef.name }}
+              </Headline3>
+              <VariablesList :source="editorSourceRef" />
+            </div>
+          </SideOverlay>
         </div>
       </div>
     </template>
@@ -125,11 +175,13 @@ import PreparationsEditor from '../editor/PreparationsEditor.vue';
 import FilesManager from '../Components/files/FilesManager.vue';
 import Button from '../Components/interactive/Button.vue';
 import {
+  ArrowPathIcon,
+  CheckIcon,
+  DocumentTextIcon,
   LockClosedIcon,
   LockOpenIcon,
   QrCodeIcon,
-  ArrowPathIcon,
-  CheckIcon,
+  VariableIcon,
 } from '@heroicons/vue/20/solid';
 import { router } from '@inertiajs/vue3';
 import { flashMessage } from '../Components/notification/flashMessage.js';
@@ -142,7 +194,32 @@ import Headline2 from '../Components/layout/Headline2.vue';
 import HelpResources from '../Components/HelpResources.vue';
 import Footer from '../Layouts/Footer.vue';
 import { useZoom } from '../editor/useZoom.js';
-import { Preferences } from '@/domain/user/Preferences.js';
+import { Preferences } from '../domain/user/Preferences.js';
+import { useNotes } from '../domain/notes/useNotes.js';
+import { useVariables } from '../domain/variables/useVariables.js';
+import SideOverlay from '../Components/layout/SideOverlay.vue';
+import NoteList from './coding/tree/NoteList.vue';
+import Headline3 from '../Components/layout/Headline3.vue';
+import { ChatBubbleLeftEllipsisIcon } from '@heroicons/vue/24/outline/index.js';
+import VariablesList from '../domain/variables/VariablesList.vue';
+
+/*---------------------------------------------------------------------------*/
+// NOTES AND VARIABLES
+/*---------------------------------------------------------------------------*/
+const overlayOptions = {
+  variables: {
+    label: 'Manage Source Variables',
+  },
+  notes: {
+    label: 'Manage Source Notes',
+  },
+};
+const showOptions = ref(false);
+const optionsType = ref('');
+const showOverlay = (type, value) => {
+  optionsType.value = type;
+  showOptions.value = value;
+};
 
 const editorSourceRef = ref({
   content: 'select to display',
@@ -155,8 +232,19 @@ const editorSourceRef = ref({
   charsXLine: 80,
 });
 
+const { notes: storedNotes, initNotes } = useNotes();
+const notesForSource = computed(() => {
+  if (!storedNotes?.value?.length || !editorSourceRef.value.id) {
+    return [];
+  }
+  return storedNotes.value.filter(
+    (note) => note.type === 'source' && note.target === editorSourceRef.value.id
+  );
+});
+
+const { initVariables } = useVariables();
 const editorComponent = ref();
-const props = defineProps(['sources', 'newDocument', 'projectId']);
+const props = defineProps(['sources', 'newDocument', 'projectId', 'notes']);
 const documents = ref([]);
 const pageTitle = ref('Preparation');
 
@@ -225,6 +313,8 @@ function loadFileIntoEditor(source) {
   if (!source?.content) {
     return;
   }
+
+  // TODO use spread operator appropriately
   editorSourceRef.value.content = source.content;
   editorSourceRef.value.selected = true;
   editorSourceRef.value.id = source.id;
@@ -234,6 +324,7 @@ function loadFileIntoEditor(source) {
   editorSourceRef.value.hasSelections = source.hasSelections;
   editorSourceRef.value.showLineNumbers = source.showLineNumbers ?? false;
   editorSourceRef.value.charsXLine = source.charsXLine;
+  editorSourceRef.value.variables = source.variables;
 
   const url = new URL(location.href);
   if (url.searchParams.get('file') !== source.id) {
@@ -290,6 +381,8 @@ onMounted(() => {
   const fileId = new URLSearchParams(window.location.search).get('file');
   const file = fileId && props.sources.find((f) => f.id === fileId);
   initialFile.value = file?.id ?? null;
+  initNotes();
+  initVariables();
 });
 
 provide('sources', props.sources ?? []);

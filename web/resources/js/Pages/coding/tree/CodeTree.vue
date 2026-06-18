@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { inject, ref, watch } from 'vue';
 import { useCodes } from '../../../domain/codes/useCodes';
 import { useCodebookOrder } from '../../../domain/codebooks/useCodebookOrder';
 import { attemptAsync } from '../../../Components/notification/attemptAsync';
-import { useCodeTree } from './useCodeTree';
 import CodeTreeItem from './CodeTreeItem.vue';
-import CodebookRenderer from './CodebookRenderer.vue';
 import FormDialog from '../../../dialogs/FormDialog.vue';
 
 defineEmits(['update:modelValue', 'save-code-visibility']);
@@ -13,10 +11,10 @@ defineEmits(['update:modelValue', 'save-code-visibility']);
 const props = defineProps({
   codes: Array,
   codebook: Object,
+  editable: Boolean,
 });
 
 const { observe, showDetails } = useCodes();
-const { sorting } = useCodeTree();
 //------------------------------------------------------------------------
 // CODEBOOKS
 //------------------------------------------------------------------------
@@ -25,12 +23,14 @@ const {
   getSortOrderBy,
   updateSortOrder,
 } = useCodebookOrder();
+const CodeBookRenderer = inject('codeBookRenderer');
 
 //------------------------------------------------------------------------
 // CODE LIST FOR DRAGGABLE
 //------------------------------------------------------------------------
 const bySortOrder = getSortOrderBy(props.codebook);
 const codeList = ref(props.codes ?? []);
+
 const sortCodes = (list = []) => {
   list.sort(bySortOrder);
   list.forEach((entry) => {
@@ -58,36 +58,32 @@ watch(
   { deep: true, immediate: true }
 );
 
-observe('store/codes', {
-  added: (docs) => {
-    docs.forEach((doc) => {
-      if (doc.codebook === props.codebook.id && !doc.parent) {
-        codeList.value.push(doc);
-      }
-    });
-  },
-  removed: (docs) => {
-    docs.forEach((doc) => {
-      if (doc.codebook === props.codebook.id) {
-        const index = codeList.value.findIndex((d) => d.id === doc.id);
-        if (index > -1) {
-          codeList.value.splice(index, 1);
+if (props.editable) {
+  observe('store/codes', {
+    added: (docs) => {
+      docs.forEach((doc) => {
+        if (doc.codebook === props.codebook.id && !doc.parent) {
+          codeList.value.push(doc);
         }
-      }
-    });
-  },
-});
+      });
+    },
+    removed: (docs) => {
+      docs.forEach((doc) => {
+        if (doc.codebook === props.codebook.id) {
+          const index = codeList.value.findIndex((d) => d.id === doc.id);
+          if (index > -1) {
+            codeList.value.splice(index, 1);
+          }
+        }
+      });
+    },
+  });
+}
 </script>
 
 <template>
   <div class="w-full">
-    <CodebookRenderer :codebook="codebook" :codes="codes" />
-    <p
-      v-if="sorting === codebook.id"
-      class="w-full text-end text-xs text-secondary"
-    >
-      Deactivate sorting before you continue with coding.
-    </p>
+    <CodeBookRenderer :codebook="codebook" :codes="codes" />
     <CodeTreeItem
       v-model="codeList"
       class="py-4"

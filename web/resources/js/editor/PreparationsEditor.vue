@@ -1,21 +1,22 @@
 <template>
   <!-- editor toolbar -->
-  <div
-    class="block xl:flex lg:justify-center sticky top-0 py-0 md:py-2 z-40 bg-surface mx-0 md:mx-2"
-  >
+  <div class="block sticky top-0 py-0 md:py-2 z-40 bg-surface mx-0 md:mx-2">
     <div
       id="toolbar"
-      class="rounded-none mb-3 xl:mb-0 lg:rounded-full border-2 bg-surface z-150 shadow-lg border-foreground/20 py-0 md:py-2 px-4 inline-flex text-foreground/60! text-center"
+      class="rounded-none mb-3 lg:rounded-md border-0 bg-surface z-150 shadow-lg border-foreground/20 py-0 md:py-2 px-4 inline-flex text-foreground/60! text-center"
     >
       <EditorToolbar :useViewZoom="useViewZoom" @update:zoom="onToolbarZoom" />
     </div>
-    <slot name="actions"></slot>
+    <div class="flex gap-2 items-center justify-center">
+      <slot name="actions"></slot>
+      <slot name="options"></slot>
+    </div>
   </div>
   <!-- editor content -->
   <div
     id="editorPane"
     :style="zoomStyle"
-    :class="cn('flex', loadingDocument && 'hidden')"
+    :class="cn('flex pb-24', loadingDocument && 'hidden')"
   >
     <div id="lineNumber"></div>
     <div id="editor" class="grow"></div>
@@ -64,7 +65,7 @@ import { SelectionHighlightBG } from '../Pages/coding/editor/SelectionHighlightB
 const props = defineProps({
   source: String,
   locked: Boolean,
-  CanUnlock: Boolean,
+  canUnlock: Boolean,
   viewerZoom: { type: Number, default: 1.0 },
   useViewZoom: { type: Boolean, default: true },
 });

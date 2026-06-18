@@ -4,7 +4,7 @@
 
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 ![This is a research software](https://img.shields.io/badge/research-software-blue?style=plastic)
-[![DOI](https://zenodo.org/badge/793524421.svg)](https://zenodo.org/doi/10.5281/zenodo.11195871)
+[![DOI](https://img.shields.io/badge/doi-10.5281%2Fzenodo.11195871-blue)](https://zenodo.org/doi/10.5281/zenodo.11195871)
 ![GitHub License](https://img.shields.io/github/license/openqda/openqda)
 [![Backend Tests](https://github.com/openqda/openqda/actions/workflows/backend_tests.yml/badge.svg)](https://github.com/openqda/openqda/actions/workflows/backend_tests.yml)
 [![Client Tests](https://github.com/openqda/openqda/actions/workflows/client_tests.yml/badge.svg)](https://github.com/openqda/openqda/actions/workflows/client_tests.yml)
@@ -67,13 +67,9 @@ Belli, A., Küster, J., Matayeva, L., Hohmann, F., Sinner, P., Krüger, G., Wolf
 The "aTrain" plugin for transcription is developed and licensed by Armin Haberl, Jürgen Fleiß,
 Dominik Kowald, Stefan Thalmann and is published under
 
-> Haberl, A., Fleiß, J., Kowald, D., Thalmann, S., 2023.
+> Haberl, A., Fleiß, J., Kowald, D., Thalmann, S., 2024.
 > “Take the aTrain. Introducing an Interface for the Accesible Transcription of Interviews.”,
-> University of Graz, School of Business, Economics and Social Sciences Working Paper 2023-02.
-
-Please note, that if you use the auto-transcription feature in OpenQDA then you must
-cite their work in your publication under certain conditions.
-Please [read their license](https://github.com/JuergenFleiss/aTrain/blob/main/LICENSE) for this.
+> Journal of Behavioral and Experimental Finance 41. https://doi.org/10.1016/j.jbef.2024.100891
 
 ## Roadmap
 

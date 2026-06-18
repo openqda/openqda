@@ -2,8 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Project;
 use App\Models\UserGlobalPreference;
 use App\Models\UserProjectPreference;
+use App\Services\ProjectTeamResolverService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -17,6 +19,11 @@ class HandleInertiaRequests extends Middleware
      * @var string
      */
     protected $rootView = 'app';
+
+    public function __construct(private readonly ProjectTeamResolverService $teamResolver)
+    {
+        // parent Inertia\Middleware has no constructor arguments
+    }
 
     /**
      * Determines the current asset version.
@@ -49,9 +56,14 @@ class HandleInertiaRequests extends Middleware
         // Now that we have the project ID, we can find the project and its team
         $team = null;
         if ($projectId && is_numeric($projectId)) {
-            $project = \App\Models\Project::find($projectId);
+            $project = Project::find($projectId);
             $team = $project?->team;
         }
+
+        // Due to the collaborative setting,
+        // we need to resolve the team and team members for nearly every request.
+        // If no team exists or the user is not part of any team, these will simply be null/empty.
+        ['team' => $team, 'teamMembers' => $teamMembers] = $this->teamResolver->resolveFromRequest($request);
 
         $privacyFile = resource_path('markdown/privacy.md');
         $termsFile = resource_path('markdown/terms.md');
@@ -70,17 +82,11 @@ class HandleInertiaRequests extends Middleware
             'projectId' => session('projectId'),
             'sharedTeam' => $team?->only('id', 'name'),
             'usersInPages' => [],
+            'teamMembers' => $teamMembers,
             // Lazily...
             'auth.user' => fn () => $request->user()
                 ? $request->user()->only('id', 'name', 'email', 'profile_photo_url', 'research_requested', 'research_consent', 'privacy_consent', 'terms_consent', 'email_verified_at')
                 : null,
-            /*
-              TODO: new structure
-              preferences => [
-                global => ... load from global pref table by user id,
-                project => ... load from project pref table by user id and project id if project id is in url
-              ]
-            */
             'preferences' => fn () => $request->user() ? [
                 'global' => UserGlobalPreference::where('user_id', $request->user()->id)->first(),
                 'project' => ($projectId && is_numeric($projectId))

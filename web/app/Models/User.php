@@ -9,12 +9,15 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Jetstream\HasTeams;
 use Laravel\Sanctum\HasApiTokens;
+use LaravelIdea\Helper\App\Models\_IH_Project_C;
 use OwenIt\Auditing\Auditable as AuditableTrait;
 use OwenIt\Auditing\Contracts\Auditable;
 
@@ -84,7 +87,7 @@ class User extends Authenticatable implements Auditable, MustVerifyEmail
         'remember_token',
     ];
 
-    public function projects(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function projects(): HasMany
     {
         return $this->hasMany(Project::class, 'creating_user_id');
     }
@@ -98,7 +101,7 @@ class User extends Authenticatable implements Auditable, MustVerifyEmail
     /**
      * Get the user's preferences.
      */
-    public function preferences(): \Illuminate\Database\Eloquent\Relations\HasOne
+    public function preferences(): HasOne
     {
         return $this->hasOne(UserPreference::class);
     }
@@ -106,7 +109,7 @@ class User extends Authenticatable implements Auditable, MustVerifyEmail
     /**
      * Get all projects where the user is part of the team or the creator.
      */
-    public function allRelatedProjects($withAudits = false): Collection|array|\LaravelIdea\Helper\App\Models\_IH_Project_C
+    public function allRelatedProjects($withAudits = false): Collection|array|_IH_Project_C
     {
         // Get the ids of all the teams the user belongs to
         $teamIds = $this->teams->pluck('id');
@@ -125,6 +128,8 @@ class User extends Authenticatable implements Auditable, MustVerifyEmail
                 'sources.audits',
                 'sources.selections.audits',
                 'codebooks.codes.audits',
+                'notes.audits',
+                'variables.audits',
             ]);
         }
 
@@ -181,6 +186,23 @@ class User extends Authenticatable implements Auditable, MustVerifyEmail
                     $allAudits = $allAudits->concat($codeAudits);
                 }
             }
+
+            // Transform note audits within the project
+            foreach ($project->notes as $note) {
+                $noteAuditsData = collect($note->audits);
+                $noteAudits = $auditService->transformAudits($noteAuditsData, 'Note', ['id', 'project_id', 'creating_user_id']);
+                $allAudits = $allAudits->concat($noteAudits);
+            }
+
+            // Transform variable audits within the project
+            foreach ($project->variables as $variable) {
+                $variableAuditsData = collect($variable->audits);
+                $variableAudits = $auditService->transformAudits($variableAuditsData, 'Variable', ['id', 'project_id', 'source_id']);
+                $allAudits = $allAudits->concat($variableAudits);
+            }
+
+            // Audits for hard-deleted models (not reachable via relationships)
+            $allAudits = $allAudits->concat($auditService->collectOrphanedDeletedAudits($project));
         }
 
         $allAudits = $auditService->filterAudits($allAudits, $filters);
@@ -188,7 +210,7 @@ class User extends Authenticatable implements Auditable, MustVerifyEmail
         return $allAudits->sortByDesc('created_at_timestamp')->values();
     }
 
-    public function codebooks(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function codebooks(): HasMany
     {
         return $this->hasMany(Codebook::class, 'creating_user_id');
     }
@@ -222,5 +244,15 @@ class User extends Authenticatable implements Auditable, MustVerifyEmail
                 'creatingUserEmail' => $codebook->creatingUser->email ?? '', // Include the creating user's email
             ];
         });
+    }
+
+    /**
+     * Overrides the default photo url which was sending requests to a foreign service.
+     *
+     * @return string
+     */
+    protected function defaultProfilePhotoUrl()
+    {
+        return '';
     }
 }
