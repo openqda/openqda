@@ -232,12 +232,6 @@ const sourceDocuments = ref(
     })
     .map((source) => {
       const copy = { ...source };
-      const isLocked =
-        copy.isLocked ??
-        source.variables?.isLocked ??
-        (source.variables ?? [])?.find(({ name }) => name === 'isLocked')
-          ?.boolean_value;
-      copy.variables = { isLocked: isLocked };
       copy.isConverting = false;
       copy.failed = false;
       copy.converted = true;

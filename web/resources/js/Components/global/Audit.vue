@@ -330,6 +330,7 @@ import { useAudit } from '../../domain/audit/useAudit.js';
 import { useExport } from '../../exchange/useExport.js';
 import Checkbox from '../Checkbox.vue';
 import Button from '../interactive/Button.vue';
+import { flashMessage } from '../notification/flashMessage.js';
 
 const searchInput = ref(null);
 const props = defineProps({
@@ -385,11 +386,12 @@ const exportAudit = async () => {
       error: exportError,
     } = await loadAllAudits({ projectId: props.projectId });
     if (!success || exportError) {
-      throw new Error('Failed to load audits for export');
+      throw exportError ?? new Error('Failed to load audits for export');
     }
     await exportAuditToCSV({ audits: allAudits });
   } catch (err) {
     console.error('Error exporting audits:', err);
+    flashMessage(err.message, { type: 'error' });
   } finally {
     isLoading.value = false;
   }
@@ -450,6 +452,7 @@ const fetchAudits = debounce(async (page = 1) => {
   } catch (err) {
     console.error('Error fetching audits:', err);
     error.value = err.message || 'An error occurred while fetching audit data';
+    flashMessage(err.value, { type: 'error' });
   } finally {
     isLoading.value = false;
     isSearching.value = false;
@@ -457,12 +460,9 @@ const fetchAudits = debounce(async (page = 1) => {
 }, 1000);
 
 const handleSearch = debounce(async () => {
-  try {
-    isSearching.value = true;
-    await fetchAudits(1);
-  } finally {
-    isSearching.value = false;
-  }
+  isSearching.value = true;
+  await fetchAudits(1);
+  isSearching.value = false;
 }, 300);
 
 const changePage = (page) => {
