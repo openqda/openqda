@@ -87,6 +87,8 @@ class AuditService
                 'id' => $audit->id,
                 'event' => $audit->event,
                 'model' => $model,
+                'target_id' => $audit->auditable_id,
+                'target_name' => $audit->auditable_name,
                 'user_id' => optional($audit->user)->email,
                 'user_profile_picture' => optional($audit->user)->profile_photo_url,
                 'created_at' => $createdAt->format(config('audit.date_format')),
@@ -209,7 +211,7 @@ class AuditService
 
         return $allAudits
             ->filter()
-            // ->sortByDesc('created_at_timestamp')
+            ->sortByDesc('created_at_timestamp')
             ->values();
     }
 
