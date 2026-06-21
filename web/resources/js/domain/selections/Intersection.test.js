@@ -1,17 +1,11 @@
 import { describe, expect } from 'vitest';
 import { Intersections } from './Intersections.js';
-import { performance } from 'node:perf_hooks';
 
 const run = ({ selections, expected, debug }) => {
   const actual = Intersections.from(selections, debug);
   expect(actual).toEqual(expected);
 };
 const set = (...args) => args;
-function getRandomIntInclusive(min, max) {
-  const minCeiled = Math.ceil(min);
-  const maxFloored = Math.floor(max);
-  return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled); // The maximum is inclusive and the minimum is inclusive
-}
 
 describe('Intersection', () => {
   describe('basic', () => {
