@@ -29,7 +29,7 @@ const style = {
       default: 'bg-primary text-primary-foreground hover:bg-primary/70',
       secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/70',
       destructive:
-        'bg-transparent text-destructive border border-destructive hover:bg-destructive/90 hover:text-destructive-foreground',
+        'bg-destructive text-destructive-foreground border border-destructive hover:bg-destructive/70 hover:text-destructive-foreground',
       confirmative:
         'bg-confirmative text-confirmative-foreground hover:bg-confirmative/90',
       outline:

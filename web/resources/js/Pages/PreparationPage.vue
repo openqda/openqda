@@ -62,8 +62,9 @@
                 variant="destructive"
                 @click="
                   toConfirm({
-                    text: 'You are about to unlock this Source. This will remove all Selections that you or your team applied. You are then free to edit the Source and lock again for a new attempt of coding.',
+                    text: 'You are about to unlock this Source. This will remove all Selections that you or your team members applied to it. You are then free to edit the Source and lock again for a new attempt of coding. In the future we will provide ways that let you decide, whether edits should update or discard Selections.',
                     destructive: true,
+                    fatal: true,
                     fn: unlockSource,
                   })
                 "
@@ -110,6 +111,7 @@
                 :static="true"
                 :challenge="!!confirm.destructive"
                 :destructive="confirm.destructive"
+                :fatal="!!confirm.fatal"
                 @confirmed="onConfirm"
                 @cancelled="toConfirm(null)"
               />
