@@ -14,6 +14,7 @@ import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline/index.js';
 import { Preferences } from '../../domain/user/Preferences.js';
 import { attemptAsync } from '../../Components/notification/attemptAsync.js';
 // import '../../Pages/Profile/Partials/TwoFactorAuthenticationForm.vue';
+import { router } from '@inertiajs/vue3';
 
 const { userIsVerified } = useUsers();
 
@@ -25,6 +26,10 @@ defineProps({
 const onThemeChange = async (theme) => {
   await attemptAsync(() => Preferences.updateTheme({ theme }));
 };
+
+const onLogout = () => {
+  router.post(route('logout'));
+}
 </script>
 
 <template>
