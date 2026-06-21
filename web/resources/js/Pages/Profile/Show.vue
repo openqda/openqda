@@ -29,7 +29,7 @@ const onThemeChange = async (theme) => {
 
 const onLogout = () => {
   router.post(route('logout'));
-}
+};
 </script>
 
 <template>

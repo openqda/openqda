@@ -4,7 +4,6 @@ import { randomString } from '../utils/random/randomString';
 import DialogBase from './DialogBase.vue';
 import { ref, watch } from 'vue';
 import TextInput from '../form/TextInput.vue';
-import Headline3 from '../Components/layout/Headline3.vue';
 
 const emit = defineEmits(['confirmed', 'cancelled']);
 const open = ref(false);
@@ -34,7 +33,7 @@ const props = defineProps({
   fatal: {
     type: Boolean,
     default: false,
-  }
+  },
 });
 
 watch(
@@ -85,7 +84,10 @@ const cancel = () => {
     <template #body>
       <p>{{ props.text }}</p>
       <slot name="info"></slot>
-      <div v-if="currentChallenge.length && (!fatal || confirmedFatal)" class="w-100 text-center my-4">
+      <div
+        v-if="currentChallenge.length && (!fatal || confirmedFatal)"
+        class="w-100 text-center my-4"
+      >
         <div
           class="w-full text-center font-semibold font-mono tracking-widest text-foreground"
         >
@@ -104,9 +106,18 @@ const cancel = () => {
     </template>
     <template #footer>
       <div v-if="fatal && !confirmedFatal" class="py-3">
-        <span class="!text-destructive bg-surface font-semibold px-1">This action can be fatal!</span>
-        <p class="py-3">Heads up! Did you understood the consequences, mentioned above?</p>
-        <Button variant="destructive" class="block w-full text-destructive-foreground !text-lg font-semibold" size="lg" @click="confirmedFatal = true">
+        <span class="!text-destructive bg-surface font-semibold px-1"
+          >This action can be fatal!</span
+        >
+        <p class="py-3">
+          Heads up! Did you understood the consequences, mentioned above?
+        </p>
+        <Button
+          variant="destructive"
+          class="block w-full text-destructive-foreground !text-lg font-semibold"
+          size="lg"
+          @click="confirmedFatal = true"
+        >
           I understand and want to proceed
         </Button>
       </div>

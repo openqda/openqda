@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { inject, ref } from 'vue';
-import { ExclamationTriangleIcon, PencilIcon, PlusIcon } from '@heroicons/vue/20/solid';
+import {
+  ExclamationTriangleIcon,
+  PencilIcon,
+  PlusIcon,
+} from '@heroicons/vue/20/solid';
 import RenameDialog from '../../dialogs/RenameDialog.vue';
 import InputLabel from '../../form/InputLabel.vue';
 import Button from '../../Components/interactive/Button.vue';
@@ -133,17 +137,17 @@ const deleteProject = async () => {
           class="flex justify-between py-2 text-foreground/80 tracking-wide"
         >
           <div class="grow">
-          No sources have been added to this project yet. Go to
-          <Link :href="route('source.index', project?.id)" class="underline"
-            >the preparations page</Link
-          >
-          to create or import new Sources.
+            No sources have been added to this project yet. Go to
+            <Link :href="route('source.index', project?.id)" class="underline"
+              >the preparations page</Link
+            >
+            to create or import new Sources.
           </div>
           <Link :href="route('source.index', project?.id)">
             <Button variant="outline-secondary" class="flex gap-1 items-center">
               <PlusIcon class="w-4 h-4" />
-            <span>Create Sources</span>
-          </Button>
+              <span>Create Sources</span>
+            </Button>
           </Link>
         </li>
       </ul>
