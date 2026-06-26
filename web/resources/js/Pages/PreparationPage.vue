@@ -62,7 +62,7 @@
                 variant="destructive"
                 @click="
                   toConfirm({
-                    text: 'You are about to unlock this Source. This will remove all Selections that you or your team members applied to it. You are then free to edit the Source and lock again for a new attempt of coding. In the future we will provide ways that let you decide, whether edits should update or discard Selections.',
+                    text: 'You are about to UNLOCK this source. Right now this will REMOVE ALL SELECTIONS that you or your team members applied to it. You can then edit the source and START OVER your CODING process (we are working on changing that in a future version of OpenQDA). This action will DELETE ALL SELECTIONS (\'CODINGS\') in your source',
                     destructive: true,
                     fatal: true,
                     fn: unlockSource,
