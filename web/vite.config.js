@@ -32,6 +32,11 @@ export default defineConfig({
     server: {
         watch: {
             ignored: [
+                '**/node_modules/**',
+                '**/dist/**',
+                '**/.laravel/**',
+                '**/.deploy/**',
+                '**/.phpunit.cache/**',
                 '**/.idea',
                 '**/.deploy',
                 '**/app/**',
