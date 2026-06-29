@@ -22,6 +22,7 @@ const props = defineProps({
   },
   title: { type: String, required: false },
   schema: Object,
+  static: { type: Boolean, required: false, default: false },
 });
 
 const emit = defineEmits(['renamed', 'cancelled', 'close']);
@@ -110,7 +111,11 @@ const cancel = () => {
 </script>
 
 <template>
-  <DialogBase :title="props.title ?? 'Rename'" :show="open">
+  <DialogBase
+    :title="props.title ?? 'Rename'"
+    :show="open"
+    :static="props.static"
+  >
     <template #body>
       <TextInput
         v-model="newName"

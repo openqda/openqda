@@ -353,6 +353,7 @@ const { range } = useRange();
             </DropdownLink>
             <DropdownLink as="button">
               <FormDialog
+                :static="true"
                 :schema="createNewCodeSchema"
                 :title="`Create a subcode for ${code.name}`"
                 :submit="createCodeHandler"
@@ -371,6 +372,7 @@ const { range } = useRange();
             <DropdownLink as="button">
               <FormDialog
                 :schema="createNewNoteSchema"
+                :static="true"
                 :title="`Create a new note for ${code.name}`"
                 :submit="
                   (data) =>

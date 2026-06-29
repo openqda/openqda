@@ -364,6 +364,7 @@ async function fetchAndRenderDocument(document) {
       class="w-full md:w-auto"
       title="Create new file"
       :submit="onCreateSubmit"
+      :static="true"
       @created="onCreated"
       @cancelled="createSchema = null"
     >
@@ -509,6 +510,7 @@ async function fetchAndRenderDocument(document) {
   <RenameDialog
     title="Rename File"
     :target="toRename"
+    :static="true"
     :submit="
       ({ id, name }) =>
         request({ type: 'POST', url: `/sources/${id}`, body: { name } })
@@ -518,6 +520,7 @@ async function fetchAndRenderDocument(document) {
   />
   <DeleteDialog
     :target="toDelete"
+    :static="false"
     :submit="deleteDocument"
     challenge="random"
     @cancelled="toDelete = null"

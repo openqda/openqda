@@ -12,6 +12,7 @@
           <CreateDialog
             ref="createDialogRef"
             :schema="createNewCodeSchema"
+            :static="true"
             :title="`Create a new ${codesView === 'codes' ? 'Code' : 'Codebook'}`"
             :submit="createCodeHandler"
             @cancelled="unsetInvivoText"
@@ -34,6 +35,7 @@
           <CreateDialog
             :title="`Edit ${editTarget?.name}`"
             :schema="editSchema"
+            :static="true"
             buttonTitle="Update code"
             :submit="updateCode"
             :show="!!editSchema"
@@ -42,6 +44,7 @@
           <DeleteDialog
             :title="`Permanently delete ${deleteTarget?.name}`"
             :target="deleteTarget"
+            :static="false"
             :challenge="deleteChallenge"
             :message="deleteMessage"
             :submit="deleteCode"
@@ -111,6 +114,7 @@
             </Button>
             <CreateDialog
               v-if="!sorting"
+              :static="true"
               :schema="createNewCodeSchema"
               :title="`Create a new ${hasSelectedRange ? 'In-Vivo Code' : 'Code'}`"
               :submit="createCodeHandler"

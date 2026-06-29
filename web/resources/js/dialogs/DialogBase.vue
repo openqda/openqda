@@ -19,7 +19,7 @@ defineProps({
   title: String,
   description: { type: String, formType: 'textarea', required: false },
   show: { type: Boolean, required: false },
-  static: { type: Boolean, required: false },
+  static: { type: Boolean, required: false, default: false },
   showCloseButton: { type: Boolean, required: false },
   destructive: { type: Boolean, required: false },
 });
