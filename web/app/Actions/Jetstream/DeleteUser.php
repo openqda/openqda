@@ -38,9 +38,9 @@ class DeleteUser implements DeletesUsers
      */
     public function delete(User $user): void
     {
-
+        $team_id = $user->personalTeam()?->id;
         // Check if the user owns any non-personal teams that have users
-        if ($user->ownedTeams()->where('id', '!=', $user->personalTeam()->id)->has('users')->exists()) {
+        if ($user->ownedTeams()->where('id', '!=', $team_id)->has('users')->exists()) {
             throw new Exception('User owns teams with users');
         }
 
@@ -98,28 +98,33 @@ class DeleteUser implements DeletesUsers
                      */
                     $codebooks = $project->codebooks()->where('creating_user_id', $user->id)->get();
                     $codebooks->each(function ($codebook) use ($newOwnerId) {
+                        // TODO: check if this really makes sense!
                         $codebook->creating_user_id = $newOwnerId;
                         $codebook->save();
                     });
 
                     $createdSources = $project->sources()->where('creating_user_id', $user->id)->get();
                     $createdSources->each(function ($source) use ($newOwnerId) {
+                        // TODO: check if this really makes sense!
                         $source->creating_user_id = $newOwnerId;
                         $source->save();
                     });
                     $modifiedSources = $project->sources()->where('modifying_user_id', $user->id)->get();
                     $modifiedSources->each(function ($source) use ($newOwnerId) {
+                        // TODO: check if this really makes sense!
                         $source->modifying_user_id = $newOwnerId;
                         $source->save();
                     });
 
                     $createdSelections = $project->selections()->where('creating_user_id', $user->id)->get();
                     $createdSelections->each(function ($selection) use ($newOwnerId) {
+                        // TODO: check if this really makes sense!
                         $selection->creating_user_id = $newOwnerId;
                         $selection->save();
                     });
                     $modifiedSelections = $project->selections()->where('modifying_user_id', $user->id)->get();
                     $modifiedSelections->each(function ($selection) use ($newOwnerId) {
+                        // TODO: check if this really makes sense!
                         $selection->modifying_user_id = $newOwnerId;
                         $selection->save();
                     });
@@ -187,6 +192,8 @@ class DeleteUser implements DeletesUsers
             // Assuming you've moved the delete logic to a service
             app('App\Services\SourceService')->destroySource($source->id);
         }
+
+        $project->sources()->forceDelete();
         $project->conditionallyPreventEvent = true;
         $project->forceDelete();
     }
