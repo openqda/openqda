@@ -27,10 +27,12 @@ class Variable extends Model implements Auditable
         'integer_value',
         'float_value',
         'date_value',
+        'datetime_value',
     ];
 
     protected $casts = [
         'date_value' => 'datetime',
+        'datetime_value' => 'datetime',
     ];
 
     /**

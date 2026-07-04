@@ -26,7 +26,7 @@ export const useVariables = () => {
     const all = store.all();
     const map = {};
     for (const variable of all) {
-      if (!map[variable.name]) {
+      if (!map[variable.name] && variable.name !== 'isLocked') {
         map[variable.name] = {
           name: variable.name,
           description: variable.description,
@@ -104,6 +104,39 @@ export const useVariables = () => {
     return { response, error };
   };
 
+  const transformVariableValue = (value, type) => {
+    switch (type) {
+      case 'date':
+        return new Date(value).toLocaleDateString();
+      case 'datetime':
+        return new Date(value).toLocaleString();
+      case 'boolean':
+        if (value === 'true') return true;
+        if (value === 'false') return false;
+        return Boolean(value).toLocaleString();
+      case 'integer':
+        return Number(value).toFixed();
+      case 'float':
+        return Number(value);
+      case 'text':
+      default:
+        return String(value);
+    }
+  };
+
+  const toFormInputValue = (value, type) => {
+    switch (type) {
+      case 'date':
+        return toDatetimeLocalValue(new Date(value));
+      case 'datetime':
+        return toDatetimeLocalValue(new Date(value), true);
+      case 'boolean':
+        return value ? 'true' : 'false';
+      default:
+        return value;
+    }
+  };
+
   return {
     createVariable,
     deleteVariable,
@@ -111,7 +144,28 @@ export const useVariables = () => {
     initVariables,
     uniqueVariables,
     updateVariable,
+    transformVariableValue,
+    toFormInputValue,
   };
+};
+
+const toDatetimeLocalValue = (date, withTime) => {
+  const d = date instanceof Date ? date : new Date(date);
+
+  const pad = (n) => String(n).padStart(2, '0');
+
+  const yyyy = d.getFullYear();
+  const MM = pad(d.getMonth() + 1);
+  const dd = pad(d.getDate());
+
+  if (!withTime) {
+    return `${yyyy}-${MM}-${dd}`;
+  }
+
+  const hh = pad(d.getHours());
+  const mm = pad(d.getMinutes());
+
+  return `${yyyy}-${MM}-${dd}T${hh}:${mm}`;
 };
 
 const Variables = createStoreRepository({

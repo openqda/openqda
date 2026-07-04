@@ -44,6 +44,7 @@ import { useVariables } from '../../domain/variables/useVariables.js';
 import Dropdown from '../Dropdown.vue';
 import { cn } from '../../utils/css/cn.js';
 import DropdownLink from '../DropdownLink.vue';
+import { isDefined } from '../../utils/isDefined.js';
 
 /*---------------------------------------------------------------------------*/
 // DATA / PROPS
@@ -57,7 +58,7 @@ const props = defineProps({
 });
 
 const { notes } = useNotes();
-const { uniqueVariables } = useVariables();
+const { uniqueVariables, transformVariableValue } = useVariables();
 const selectedVariables = ref({});
 const hasVariables = computed(() => {
   const keys = Object.keys(selectedVariables.value);
@@ -68,11 +69,15 @@ const selectVariable = (options) => {
     delete selectedVariables.value[options.name];
   } else {
     const name = options.name;
+    const variableDef = uniqueVariables.value.find((v) => v.name === name);
+    const type = variableDef?.type_of_variable;
     selectedVariables.value[name] = {
       label: options.name,
       key: name,
       resolve: (doc) => {
-        return doc.variables?.[name];
+        const val = doc.variables?.[name];
+        if (!isDefined(val)) return '';
+        return transformVariableValue(val, type);
       },
       pos: 'center',
       title: 'Sort by this variable',

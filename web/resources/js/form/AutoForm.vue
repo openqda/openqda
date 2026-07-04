@@ -69,8 +69,13 @@ const validateForm = (e) => {
   const data = [...formData.entries()];
   const validation = {};
   let isValid = true;
-  data.forEach(([key, value]) => {
+  data.forEach(([key, val]) => {
     const schema = fields.value.find((s) => s.data.name === key);
+    let transform = (x) => x;
+    if (schema.data.transform?.out) {
+      transform = schema.data.transform?.out;
+    }
+    const value = transform(val, formData);
     const result = schema.data.validate(key, value);
     // result: key, value, valid, error
     validation[key] = result;

@@ -18,27 +18,37 @@ const props = defineProps({
   projectVariables: Array,
 });
 
-const { createVariable, deleteVariable, updateVariable, uniqueVariables } =
-  useVariables();
+const {
+  createVariable,
+  deleteVariable,
+  updateVariable,
+  uniqueVariables,
+  transformVariableValue,
+  toFormInputValue,
+} = useVariables();
+
 const variableValue = (variable) => {
   const prefix = variable.type_of_variable;
   const key = `${prefix}_value`;
-  return variable[key];
+  const value = variable[key];
+  return transformVariableValue(value, prefix);
 };
 
 const variables = computed(() => {
   const current = props.source?.variables ?? [];
-  return Object.values(uniqueVariables.value).map((variable) => {
-    const found = Array.isArray(current)
-      ? current.find((v) => v.name === variable.name)
-      : current[variable.name];
-    const hasOwn = !!found;
-    return {
-      ...variable,
-      ...found,
-      hasOwn,
-    };
-  });
+  return Object.values(uniqueVariables.value)
+    .filter((v) => v.name !== 'isLocked')
+    .map((variable) => {
+      const found = Array.isArray(current)
+        ? current.find((v) => v.name === variable.name)
+        : current[variable.name];
+      const hasOwn = !!found;
+      return {
+        ...variable,
+        ...found,
+        hasOwn,
+      };
+    });
 });
 const form = ref();
 const forms = {
@@ -63,7 +73,8 @@ const forms = {
             { value: 'text', label: 'Text' },
             { value: 'date', label: 'Date' },
             { value: 'datetime', label: 'Date-Time' },
-            { value: 'float', label: 'Number' },
+            { value: 'integer', label: 'Integer' },
+            { value: 'float', label: 'Floating-Point Number' },
           ],
         },
         description: {
@@ -77,19 +88,34 @@ const forms = {
           type: String,
           autofocus: !!doc.name,
           defaultValue: (formData) => {
-            if (!formData) return defaultValue ?? undefined;
-            return formData.get('value') ?? undefined;
+            if (isDefined(defaultValue)) {
+              return toFormInputValue(defaultValue, defaultType);
+            }
+            if (formData) {
+              return toFormInputValue(
+                formData.get('value'),
+                formData.get('type') ?? defaultType
+              );
+            }
+          },
+          options: (formData) => {
+            const type = formData ? formData.get('type') : doc.type_of_variable;
+            if (type === 'boolean')
+              return [
+                { value: 'true', label: 'true' },
+                { value: 'false', label: 'false' },
+              ];
           },
           formType: (formData) => {
-            if (!formData) return 'text';
-            const type = formData.get('type');
+            const type = formData ? formData.get('type') : doc.type_of_variable;
+            if (!type) return 'text';
             switch (type) {
               case 'date':
                 return 'date';
               case 'datetime':
                 return 'datetime-local';
               case 'boolean':
-                return 'checkbox';
+                return 'select';
               case 'integer':
               case 'float':
                 return 'number';
@@ -97,6 +123,13 @@ const forms = {
               default:
                 return 'text';
             }
+          },
+          transform: {
+            out: (value, formData) => {
+              if (!formData) return value;
+              const type = formData.get('type');
+              return transformVariableValue(value, type);
+            },
           },
         },
       };
@@ -180,7 +213,11 @@ const setForm = (options) => {
 const submitForm = async (data) => {
   const type = form.value.type;
   const { submit } = forms[type];
-  const fn = () => submit.fn({ source: props.source, ...data });
+  const fn = () => {
+    const args = { source: props.source, ...data };
+    args.value = transformVariableValue(args.value, args.type);
+    return submit.fn(args);
+  };
   await attemptAsync(fn, submit.successMessage);
   setForm(null);
 };

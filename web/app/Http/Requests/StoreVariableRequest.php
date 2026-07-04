@@ -50,7 +50,7 @@ class StoreVariableRequest extends FormRequest
 
             'type_of_variable' => [
                 'required',
-                Rule::in(['text', 'boolean', 'integer', 'float', 'data', 'datetime']),
+                Rule::in(['text', 'boolean', 'integer', 'float', 'date', 'datetime']),
             ],
 
             'description' => 'nullable|string',

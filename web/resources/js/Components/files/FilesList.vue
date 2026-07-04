@@ -149,9 +149,17 @@
           <div
             v-else-if="document.converting || !document.converted"
             class="inline-flex justify-center w-full p-1"
-            :title="`Converting file in the background${conversionState(document)}. You may safely leave the page and come back later.`"
+            :title="
+              document.variables.transcription_job_status === 'failed'
+                ? 'Conversion job has failed. Please delete this file and retry or contact support.'
+                : `Converting file in the background${conversionState(document)}. You may safely leave the page and come back later.`
+            "
           >
-            <div class="animate-spin">
+            <BoltIcon
+              v-if="document.variables.transcription_job_status === 'failed'"
+              class="w-5 h-5 text-destructive"
+            />
+            <div class="animate-spin" v-else>
               <ArrowPathIcon class="w-5 h-5 text-secondary" />
             </div>
           </div>
@@ -331,6 +339,7 @@
 
 import {
   ArrowPathIcon,
+  BoltIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   EllipsisVerticalIcon,
