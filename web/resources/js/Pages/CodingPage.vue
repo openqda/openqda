@@ -106,11 +106,19 @@
             </Transition>
             <Button
               v-if="props.source && !sorting"
-              @click="showSourceNotes = true"
+              @click="showOverlay('notes', true)"
               :title="`Manage notes for source '${props.source?.name}'`"
               variant="outline"
             >
               <ChatBubbleLeftEllipsisIcon class="w-4 h-4" />
+            </Button>
+            <Button
+              v-if="props.source"
+              @click="showOverlay('variables', true)"
+              :title="`Manage Variables for source '${props.source.name}'`"
+              variant="outline"
+            >
+              <VariableIcon class="w-4 h-4" />
             </Button>
             <CreateDialog
               v-if="!sorting"
@@ -139,11 +147,11 @@
         </CodingEditor>
         <SideOverlay
           v-if="props.source"
-          title="Manage Notes"
-          :show="showSourceNotes"
-          @close="showSourceNotes = false"
+          :title="overlayOptions[optionsType]?.label"
+          :show="showOptions"
+          @close="showOptions = false"
         >
-          <div class="p-2">
+          <div class="p-2" v-if="optionsType === 'notes'">
             <Headline3 class="mb-2 p-2"
               >Notes linked to {{ props.source.name }}</Headline3
             >
@@ -152,6 +160,12 @@
               :target="props.source"
               type="source"
             />
+          </div>
+          <div class="p-2" v-if="optionsType === 'variables'">
+            <Headline3 class="mb-2 p-2">
+              Variables linked to {{ props.source.name }}
+            </Headline3>
+            <VariablesList :source="props.source" />
           </div>
         </SideOverlay>
       </div>
@@ -178,7 +192,10 @@
 
 <script setup>
 import { PlusIcon } from '@heroicons/vue/24/solid';
-import { ChatBubbleLeftEllipsisIcon } from '@heroicons/vue/24/outline';
+import {
+  ChatBubbleLeftEllipsisIcon,
+  VariableIcon,
+} from '@heroicons/vue/24/outline';
 import {
   computed,
   onMounted,
@@ -221,6 +238,8 @@ import SideOverlay from '../Components/layout/SideOverlay.vue';
 import NoteList from './coding/tree/NoteList.vue';
 import Headline3 from '../Components/layout/Headline3.vue';
 import { useCodeTree } from './coding/tree/useCodeTree.js';
+import VariablesList from '../domain/variables/VariablesList.vue';
+import { useVariables } from '../domain/variables/useVariables.js';
 
 const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
 
@@ -338,11 +357,12 @@ const createCodeHandler = async (formData) => {
 
 const { sorting, setSorting } = useCodeTree();
 
-//------------------------------------------------------------------------
-// NOTES
-//------------------------------------------------------------------------
+/*---------------------------------------------------------------------------*/
+// NOTES AND VARIABLES
+/*---------------------------------------------------------------------------*/
 const { initNotes, notes: storedNotes } = useNotes();
-const showSourceNotes = ref(false);
+const { initVariables } = useVariables();
+
 const notesForSource = computed(() => {
   if (!storedNotes?.value?.length || !props.source?.id) {
     return [];
@@ -351,6 +371,21 @@ const notesForSource = computed(() => {
     (note) => note.type === 'source' && note.target === props.source.id
   );
 });
+
+const overlayOptions = {
+  variables: {
+    label: 'Manage Source Variables',
+  },
+  notes: {
+    label: 'Manage Source Notes',
+  },
+};
+const showOptions = ref(false);
+const optionsType = ref('');
+const showOverlay = (type, value) => {
+  optionsType.value = type;
+  showOptions.value = value;
+};
 
 //------------------------------------------------------------------------
 // CLEANUP
@@ -385,6 +420,7 @@ onMounted(async () => {
   codingInitialized.value = true;
 
   initNotes();
+  initVariables();
 });
 
 onBeforeUnmount(() => {
