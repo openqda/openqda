@@ -32,13 +32,14 @@ export default defineConfig({
     server: {
         watch: {
             ignored: [
-                '**/node_modules/**',
-                '**/dist/**',
                 '**/.laravel/**',
                 '**/.deploy/**',
                 '**/.phpunit.cache/**',
                 '**/.idea',
                 '**/.deploy',
+                '**/.git/**',
+                '**/dist/**',
+                '**/node_modules/**',
                 '**/app/**',
                 '**/vendor/**',
                 '**/bootstrap/**',
@@ -50,27 +51,33 @@ export default defineConfig({
                 '**/storage/**',
                 '**/scripts/**',
                 '**/stories/**',
-                '**/node_modules/**',
-                '**/.git/**',
             ]
         }
     },
     test: {
         include: ['resources/js/**/*.{test,spec}.?(c|m)[jt]s?(x)'],
         exclude: [
-            '**/node_modules/**',
-            'public/',
-            '**/dist/**',
             '**/cypress/**',
             '**/.{idea,git,cache,output,temp}/**',
-            'stories',
-            '.storybook',
-            'app/',
-            'bootstrap/',
-            'config/',
-            'database/',
-            'routes/',
-            '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*'],
+            '**/stories/**',
+            '**/.storybook/**',
+            '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
+            '**/dist/**',
+            '**/node_modules/**',
+            '**/app/**',
+            '**/bootstrap/**',
+            '**/config/**',
+            '**/coverage/**',
+            '**/data/**',
+            '**/database/**',
+            '**/docker/**',
+            '**/routes/**',
+            '**/storage/**',
+            '**/scripts/**',
+            '**/stories/**',
+            '**/vendor/**',
+        ],
+
         // enable jest-like global test APIs
         globals: true,
         // simulate DOM with happy-dom

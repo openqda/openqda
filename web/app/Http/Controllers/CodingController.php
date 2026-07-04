@@ -11,6 +11,7 @@ use App\Models\Codebook;
 use App\Models\Note;
 use App\Models\Project;
 use App\Models\Source;
+use App\Models\Variable;
 use App\Traits\BuildsNestedCode;
 use App\Traits\SourceExists;
 use App\Traits\ValidatesStoragePath;
@@ -165,6 +166,7 @@ class CodingController extends Controller
             'codebooks' => $codebooks,
             'allCodes' => $allCodes,
             'projectId' => $projectId,
+            'variables' => Variable::where('project_id', $projectId)->get(),
             'notes' => $notes,
         ]);
     }

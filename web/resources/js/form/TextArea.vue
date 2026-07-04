@@ -77,6 +77,7 @@ const resolveText = variantAuthority(textStyle);
         props.validation?.valid === false && 'border-destructive'
       )
     "
+    v-bind="$attrs"
     v-model="value"
   ></textarea>
   <InputError v-for="error in errors" :key="error" :message="error" />

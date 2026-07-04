@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { PencilIcon, PlusIcon, TrashIcon } from '@heroicons/vue/20/solid';
+import {
+  InformationCircleIcon,
+  PencilIcon,
+  PlusIcon,
+  TrashIcon,
+} from '@heroicons/vue/20/solid';
 import Button from '../../Components/interactive/Button.vue';
 import { computed, ref } from 'vue';
 import AutoForm from '../../form/AutoForm.vue';
@@ -71,7 +76,28 @@ const forms = {
         value: {
           type: String,
           autofocus: !!doc.name,
-          defaultValue,
+          defaultValue: (formData) => {
+            if (!formData) return defaultValue ?? undefined;
+            return formData.get('value') ?? undefined;
+          },
+          formType: (formData) => {
+            if (!formData) return 'text';
+            const type = formData.get('type');
+            switch (type) {
+              case 'date':
+                return 'date';
+              case 'datetime':
+                return 'datetime-local';
+              case 'boolean':
+                return 'checkbox';
+              case 'integer':
+              case 'float':
+                return 'number';
+              case 'text':
+              default:
+                return 'text';
+            }
+          },
         },
       };
     },
@@ -234,6 +260,7 @@ const submitForm = async (data) => {
         @submit="submitForm"
         :show-cancel="false"
         :show-submit="false"
+        :reactive="true"
       />
       <div class="flex justify-between items-center">
         <Button variant="outline" @click.stop="setForm(null)"> Cancel </Button>
@@ -245,6 +272,17 @@ const submitForm = async (data) => {
           {{ form.submit.label }}
         </Button>
       </div>
+    </div>
+    <div class="mt-5 border rounded border-input">
+      <div class="flex gap-1 items-center p-2">
+        <InformationCircleIcon class="w-4 h-4 text-secondary" />
+        <span>Please note</span>
+      </div>
+      <p class="text-sm text-foreground/80 p-2">
+        Once you created a new Variable, its "name", "type", and "description"
+        are fixed and you can only change their "value". We will support
+        cross-Source Variable editing in a future release.
+      </p>
     </div>
   </div>
 </template>
