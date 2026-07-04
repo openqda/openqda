@@ -151,10 +151,9 @@
             class="inline-flex justify-center w-full p-1"
             :title="`Converting file in the background${conversionState(document)}. You may safely leave the page and come back later.`"
           >
-            <div class="animate-spin mr-1">
-              <ArrowPathIcon class="w-5 h-5 text-secondary"></ArrowPathIcon>
+            <div class="animate-spin">
+              <ArrowPathIcon class="w-5 h-5 text-secondary" />
             </div>
-            Converting
           </div>
           <div
             v-else-if="!document.exists"
