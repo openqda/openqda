@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
@@ -98,6 +99,14 @@ class User extends Authenticatable implements Auditable, MustVerifyEmail
     }
 
     /**
+     * Get the user's preferences.
+     */
+    public function preferences(): HasOne
+    {
+        return $this->hasOne(UserPreference::class);
+    }
+
+    /**
      * Get all projects where the user is part of the team or the creator.
      */
     public function allRelatedProjects($withAudits = false): Collection|array|_IH_Project_C
@@ -119,6 +128,8 @@ class User extends Authenticatable implements Auditable, MustVerifyEmail
                 'sources.audits',
                 'sources.selections.audits',
                 'codebooks.codes.audits',
+                'notes.audits',
+                'variables.audits',
             ]);
         }
 
@@ -175,6 +186,23 @@ class User extends Authenticatable implements Auditable, MustVerifyEmail
                     $allAudits = $allAudits->concat($codeAudits);
                 }
             }
+
+            // Transform note audits within the project
+            foreach ($project->notes as $note) {
+                $noteAuditsData = collect($note->audits);
+                $noteAudits = $auditService->transformAudits($noteAuditsData, 'Note', ['id', 'project_id', 'creating_user_id']);
+                $allAudits = $allAudits->concat($noteAudits);
+            }
+
+            // Transform variable audits within the project
+            foreach ($project->variables as $variable) {
+                $variableAuditsData = collect($variable->audits);
+                $variableAudits = $auditService->transformAudits($variableAuditsData, 'Variable', ['id', 'project_id', 'source_id']);
+                $allAudits = $allAudits->concat($variableAudits);
+            }
+
+            // Audits for hard-deleted models (not reachable via relationships)
+            $allAudits = $allAudits->concat($auditService->collectOrphanedDeletedAudits($project));
         }
 
         $allAudits = $auditService->filterAudits($allAudits, $filters);

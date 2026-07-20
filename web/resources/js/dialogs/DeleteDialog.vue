@@ -21,6 +21,7 @@ const props = defineProps({
   challenge: { type: String, required: false },
   dependants: { type: Array, required: false },
   message: String,
+  static: { type: Boolean, required: false, default: false },
 });
 
 const currentChallenge = ref(null);
@@ -115,7 +116,7 @@ const cancel = () => {
 </script>
 
 <template>
-  <DialogBase :show="open">
+  <DialogBase :show="open" :static="props.static ?? false">
     <template #title>
       <div v-if="props.message" class="py-6 font-normal">
         <Headline3

@@ -7,12 +7,14 @@ import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout.vue';
 import InputLabel from '../../form/InputLabel.vue';
 import ThemeSwitch from '../../theme/ThemeSwitch.vue';
 import Button from '../../Components/interactive/Button.vue';
-import { router } from '@inertiajs/vue3';
 import BaseContainer from '../../Layouts/BaseContainer.vue';
 import LegalForm from './Partials/LegalForm.vue';
 import { useUsers } from '../../domain/teams/useUsers.js';
 import { ExclamationTriangleIcon } from '@heroicons/vue/24/outline/index.js';
+import { Preferences } from '../../domain/user/Preferences.js';
+import { attemptAsync } from '../../Components/notification/attemptAsync.js';
 // import '../../Pages/Profile/Partials/TwoFactorAuthenticationForm.vue';
+import { router } from '@inertiajs/vue3';
 
 const { userIsVerified } = useUsers();
 
@@ -21,9 +23,13 @@ defineProps({
   sessions: Array,
 });
 
-function onLogout() {
+const onThemeChange = async (theme) => {
+  await attemptAsync(() => Preferences.updateTheme({ theme }));
+};
+
+const onLogout = () => {
   router.post(route('logout'));
-}
+};
 </script>
 
 <template>
@@ -53,7 +59,7 @@ function onLogout() {
         </form>
         <div class="flex justify-between py-4 border-b border-foreground/10">
           <InputLabel> Theme </InputLabel>
-          <ThemeSwitch />
+          <ThemeSwitch @change="onThemeChange" />
         </div>
 
         <UpdateProfileInformationForm

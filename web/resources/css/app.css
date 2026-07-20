@@ -99,10 +99,10 @@
         --surface-foreground: 0 0 0;
 
         --confirmative: 76 172 74;
-        --confirmative-foreground: 0 0 0;
+        --confirmative-foreground: 243 243 244;
 
         --destructive: 220 103 103;
-        --destructive-foreground: 0 0 0;
+        --destructive-foreground: 243 243 244;
 
         --border: 243 243 244;
         --input: 243 243 244;

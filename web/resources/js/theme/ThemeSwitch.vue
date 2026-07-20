@@ -4,6 +4,8 @@ import { Theme } from './Theme.js';
 import { SunIcon, MoonIcon } from '@heroicons/vue/24/outline';
 import { onMounted, ref } from 'vue';
 
+const emit = defineEmits(['change']);
+
 const current = ref(null);
 const isDark = ref(false);
 defineProps({
@@ -17,13 +19,14 @@ onMounted(() => {
   isDark.value = currentTheme === Theme.DARK;
 });
 
-const toggleTheme = (e) => {
+const toggleTheme = async (e) => {
   e.preventDefault();
   e.stopPropagation();
   const newTheme = Theme.is(Theme.LIGHT) ? Theme.DARK : Theme.LIGHT;
-  Theme.update(newTheme);
+  await Theme.update(newTheme);
   current.value = newTheme;
   isDark.value = newTheme === Theme.DARK;
+  emit('change', newTheme);
 };
 </script>
 
@@ -34,7 +37,12 @@ const toggleTheme = (e) => {
     class="bg-foreground/10 relative inline-flex h-6 w-12 items-center rounded-full border-2 border-foreground/20"
     :v-model="isDark"
   >
-    <span class="sr-only">{ current ? 'Dark mode' : 'Light mode' }</span>
+    <span
+      role="contentinfo"
+      :data-current="isDark ? 'dark' : 'light'"
+      class="sr-only"
+      >{ current ? 'Dark mode' : 'Light mode' }</span
+    >
     <span
       :class="isDark ? 'translate-x-6' : 'translate-x-[1.5]'"
       class="h-5 w-5 inline-flex justify-center items-center transform rounded-full bg-surface duration-200 ease-in-out"

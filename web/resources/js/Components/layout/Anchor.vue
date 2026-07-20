@@ -3,7 +3,7 @@
     :href="props.href"
     referrerpolicy="no-referrer"
     :target="props.external ? '_blank' : undefined"
-    class="hover:text-porsche-400 hover:underline rounded-md focus:outline-hidden focus:ring-1 focus:ring-offset-3 focus:ring-porsche-400 focus:text-porsche-400 inline-block"
+    class="hover:text-primary hover:underline rounded-md focus:outline-hidden focus:ring-1 focus:ring-offset-3 focus:ring-primary focus:text-foreground inline-block"
   >
     <span class="flex flex-row items-center">
       <slot></slot>

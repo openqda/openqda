@@ -2,6 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Project;
+use App\Models\UserGlobalPreference;
+use App\Models\UserProjectPreference;
 use App\Services\ProjectTeamResolverService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -39,6 +42,24 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        // Get the current URL
+        $currentUrl = $request->fullUrl();
+
+        // Parse the URL to get the path segments
+        $path = parse_url($currentUrl, PHP_URL_PATH);
+        $segments = explode('/', $path);
+
+        // Find the project ID segment in the URL - assuming the URL structure is fixed
+        $projectIdIndex = array_search('projects', $segments) + 1;
+        $projectId = $segments[$projectIdIndex] ?? null;
+
+        // Now that we have the project ID, we can find the project and its team
+        $team = null;
+        if ($projectId && is_numeric($projectId)) {
+            $project = Project::find($projectId);
+            $team = $project?->team;
+        }
+
         // Due to the collaborative setting,
         // we need to resolve the team and team members for nearly every request.
         // If no team exists or the user is not part of any team, these will simply be null/empty.
@@ -66,7 +87,14 @@ class HandleInertiaRequests extends Middleware
             'auth.user' => fn () => $request->user()
                 ? $request->user()->only('id', 'name', 'email', 'profile_photo_url', 'research_requested', 'research_consent', 'privacy_consent', 'terms_consent', 'email_verified_at')
                 : null,
-
+            'preferences' => fn () => $request->user() ? [
+                'global' => UserGlobalPreference::where('user_id', $request->user()->id)->first(),
+                'project' => ($projectId && is_numeric($projectId))
+                    ? UserProjectPreference::where('user_id', $request->user()->id)
+                        ->where('project_id', (int) $projectId)
+                        ->first()
+                    : null,
+            ] : null,
         ], [
             'shouldInterpolate' => true,
         ]);

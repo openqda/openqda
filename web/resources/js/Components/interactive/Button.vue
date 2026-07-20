@@ -23,13 +23,13 @@ import { variantAuthority } from '../../utils/css/variantAuthority.js';
 
 const style = {
   class:
-    'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+    'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed',
   variants: {
     variant: {
       default: 'bg-primary text-primary-foreground hover:bg-primary/70',
       secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/70',
       destructive:
-        'bg-transparent text-destructive border border-destructive hover:bg-destructive/90 hover:text-destructive-foreground',
+        'bg-destructive text-destructive-foreground border border-destructive hover:bg-destructive/70 hover:text-destructive-foreground',
       confirmative:
         'bg-confirmative text-confirmative-foreground hover:bg-confirmative/90',
       outline:

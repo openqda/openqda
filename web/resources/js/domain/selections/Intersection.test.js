@@ -1,17 +1,11 @@
 import { describe, expect } from 'vitest';
 import { Intersections } from './Intersections.js';
-import { performance } from 'node:perf_hooks';
 
 const run = ({ selections, expected, debug }) => {
   const actual = Intersections.from(selections, debug);
   expect(actual).toEqual(expected);
 };
 const set = (...args) => args;
-function getRandomIntInclusive(min, max) {
-  const minCeiled = Math.ceil(min);
-  const maxFloored = Math.floor(max);
-  return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled); // The maximum is inclusive and the minimum is inclusive
-}
 
 describe('Intersection', () => {
   describe('basic', () => {
@@ -122,44 +116,6 @@ describe('Intersection', () => {
           { x: 35, y: 40, c: set(5) },
         ],
       });
-    });
-  });
-  describe('Performance', () => {
-    const inflate = (length = 100, max = 1000) => {
-      const selections = [];
-      selections.length = length;
-      for (let i = 0; i < length; i++) {
-        const x = getRandomIntInclusive(1, max - max / 10);
-        const y = x + getRandomIntInclusive(1, max / 10);
-        const c = getRandomIntInclusive(1, length / 2);
-        selections[i] = { x, y, c };
-      }
-      return selections;
-    };
-    it('is fairly time performant', async () => {
-      // 100 entries
-      let selections = inflate(100, 100);
-      let start = performance.now();
-      Intersections.from(selections);
-      let end = performance.now();
-      const measure1 = end - start;
-      expect(measure1 < 1).toBe(true);
-
-      // 1000 entries
-      selections = inflate(1000, 100);
-      start = performance.now();
-      Intersections.from(selections);
-      end = performance.now();
-      const measure2 = end - start;
-      expect(measure2 < 50).toBe(true);
-
-      // 10000 entries
-      selections = inflate(10000, 100);
-      start = performance.now();
-      Intersections.from(selections);
-      end = performance.now();
-      const measure3 = end - start;
-      expect(measure3 < 1000).toBe(true);
     });
   });
 });

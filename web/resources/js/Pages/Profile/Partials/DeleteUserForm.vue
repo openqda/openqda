@@ -2,13 +2,12 @@
 import { onMounted, ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import ActionSection from '../../../Components/ActionSection.vue';
-import DangerButton from '../../../Components/DangerButton.vue';
-import DialogModal from '../../../Components/DialogModal.vue';
 import InputError from '../../../form/InputError.vue';
-import SecondaryButton from '../../..//Components/SecondaryButton.vue';
 import InputField from '../../../form/InputField.vue';
 import { request } from '../../../utils/http/BackendRequest.js';
 import { useUsers } from '../../../domain/teams/useUsers.js';
+import Button from '../../../Components/interactive/Button.vue';
+import DialogBase from '../../../dialogs/DialogBase.vue';
 
 const confirmingUserDeletion = ref(false);
 const passwordInput = ref(null);
@@ -99,19 +98,25 @@ const closeModal = () => {
       </div>
 
       <div class="mt-5">
-        <DangerButton
+        <Button
+          variant="destructive"
           @click="confirmUserDeletion"
           :disabled="ownTeams.length > 0 || loading"
         >
           Delete Account
-        </DangerButton>
+        </Button>
       </div>
 
       <!-- Delete Account Confirmation Modal -->
-      <DialogModal :show="confirmingUserDeletion" @close="closeModal">
+      <DialogBase
+        :show="confirmingUserDeletion"
+        @close="closeModal"
+        :static="false"
+        :destructive="true"
+      >
         <template #title> Delete Account </template>
 
-        <template #content>
+        <template #body>
           Are you sure you want to delete your account? Once your account is
           deleted, all of its resources and data will be permanently deleted.
           Please enter your password to confirm you would like to permanently
@@ -133,18 +138,19 @@ const closeModal = () => {
         </template>
 
         <template #footer>
-          <SecondaryButton @click="closeModal"> Cancel </SecondaryButton>
-
-          <DangerButton
-            class="ml-3"
-            :class="{ 'opacity-25': form.processing }"
-            :disabled="form.processing"
-            @click="deleteUser"
-          >
-            Delete Account
-          </DangerButton>
+          <div class="flex w-full justify-between items-center">
+            <Button variant="outline" @click="closeModal"> Cancel </Button>
+            <Button
+              variant="destructive"
+              :class="{ 'opacity-25': form.processing }"
+              :disabled="form.processing"
+              @click="deleteUser"
+            >
+              Delete Account
+            </Button>
+          </div>
         </template>
-      </DialogModal>
+      </DialogBase>
     </template>
   </ActionSection>
 </template>

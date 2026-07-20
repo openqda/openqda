@@ -129,6 +129,14 @@ class Project extends Model implements Auditable
         return $this->hasMany(Note::class, 'project_id');
     }
 
+    /**
+     * Get all variables related to this project.
+     */
+    public function variables()
+    {
+        return $this->hasMany(Variable::class, 'project_id');
+    }
+
     public function getAllCodesAttribute()
     {
         $codes = collect();  // Create an empty collection

@@ -7,10 +7,11 @@
       <Headline1 class="hidden md:block m-0">{{
         props.source?.name
       }}</Headline1>
+      <slot name="info" />
       <div class="flex gap-1 justify-end items-center">
         <Transition name="fade">
           <Button
-            v-if="range?.length"
+            v-if="!blocked && range?.length"
             variant="outline-secondary"
             @click="showContextMenu"
             class="hidden"
@@ -20,10 +21,11 @@
           >
         </Transition>
         <Button
+          v-if="!blocked"
           variant="outline"
           class="p-1 md:p-2 rounded hover:bg-foreground/10 transition-colors"
           title="Zoom Out"
-          @click="setZoom('decrease')"
+          @click="setZoom('decrease', props.source?.id)"
         >
           <svg
             viewBox="0 0 18 18"
@@ -34,10 +36,11 @@
           </svg>
         </Button>
         <Button
+          v-if="!blocked"
           variant="outline"
           class="p-1 md:p-2 rounded hover:bg-foreground/10 transition-colors"
           title="Zoom In"
-          @click="setZoom('increase')"
+          @click="setZoom('increase', props.source?.id)"
         >
           <svg
             viewBox="0 0 18 18"
@@ -52,7 +55,10 @@
       </div>
     </div>
     <!-- editor content -->
-    <div :style="zoomStyle" :class="cn('flex', loadingDocument && 'hidden')">
+    <div
+      :style="zoomStyle"
+      :class="cn('flex pb-24', loadingDocument && 'hidden')"
+    >
       <div id="lineNumber"></div>
       <div
         id="editor"
@@ -69,7 +75,7 @@
     >
       <Transition name="fade">
         <Button
-          v-if="range?.length"
+          v-if="!blocked && range?.length"
           variant="outline-secondary"
           @click="showContextMenu"
           class="inline-flex md:hidden"
@@ -131,7 +137,8 @@ const { selected, createSelection, markToDelete } = useSelections();
 const { observe, selections, selectionsByIndex } = useCodes();
 const { prevRange, setRange, range } = useRange();
 const { setInstance, dispose } = useCodingEditor();
-const { zoom, setZoom } = useZoom();
+const { getZoom, setZoom } = useZoom();
+const zoom = computed(() => getZoom(props.source?.id));
 
 const zoomStyle = computed(() => {
   const z = zoom.value || 1.0;
@@ -159,6 +166,7 @@ const props = defineProps({
   codes: Array,
   locked: Boolean,
   CanUnlock: Boolean,
+  blocked: Boolean,
 });
 const disposables = new Set();
 const contentHash = ref('');
@@ -291,8 +299,7 @@ onMounted(() => {
 
 watch(
   () => props.source,
-  async (newValue /*, oldValue*/) => {
-    //quillInstance.setText(newValue)
+  async (newValue /*, oldValue */) => {
     loadingDocument.value = true;
     await asyncTimeout(300);
     quillInstance.clipboard.dangerouslyPasteHTML(newValue.content);
@@ -350,7 +357,7 @@ watch(selected, async ({ code }) => {
 
 // TODO move to useContextMenu
 const showContextMenu = (event) => {
-  if (event.shiftKey) {
+  if (event.shiftKey || props.blocked) {
     // Allow the browser's context menu to appear
     return;
   }

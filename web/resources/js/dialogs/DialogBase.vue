@@ -7,7 +7,7 @@ import {
   TransitionChild,
 } from '@headlessui/vue';
 import { XMarkIcon } from '@heroicons/vue/24/solid';
-
+import { cn } from '../utils/css/cn';
 /*-----------------------------------------------------------------------------
  | This is styled version of the headlessui dialog component using our theme
  | variables and conventions.
@@ -19,8 +19,9 @@ defineProps({
   title: String,
   description: { type: String, formType: 'textarea', required: false },
   show: { type: Boolean, required: false },
-  static: { type: Boolean, required: false },
+  static: { type: Boolean, required: false, default: false },
   showCloseButton: { type: Boolean, required: false },
+  destructive: { type: Boolean, required: false },
 });
 const emit = defineEmits(['close']);
 const close = () => {
@@ -70,7 +71,10 @@ const close = () => {
                       as="h3"
                       class="text-base font-semibold leading-6 text-foreground flex justify-between items-center"
                     >
-                      <span class="grow">{{ title }}<slot name="title" /></span>
+                      <span
+                        :class="cn('grow', destructive && 'text-destructive')"
+                        >{{ title }}<slot name="title"
+                      /></span>
                       <span v-if="showCloseButton">
                         <button
                           @click="close"

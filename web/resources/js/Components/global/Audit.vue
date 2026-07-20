@@ -1,9 +1,9 @@
 <template>
-  <div class="flow-root w-full ml-auto mr-auto">
+  <div class="flow-root w-full ml-auto mr-auto pb-16">
     <div class="pb-1.5 mt-2 rounded-md">
       <!-- Search Input with loading indicator -->
       <div class="flex items-center gap-x-1.5 mb-2 relative my-6 md:my-0">
-        <input
+        <TextInput
           v-model="filters.query"
           ref="searchInput"
           placeholder="Search..."
@@ -12,7 +12,6 @@
           id="searchQuery"
           @input="handleSearch"
           :disabled="isLoading"
-          class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-xs ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
         />
         <!-- Search loading indicator -->
         <div
@@ -20,7 +19,7 @@
           class="absolute right-3 top-1/2 transform -translate-y-1/2"
         >
           <svg
-            class="animate-spin h-4 w-4 text-gray-500"
+            class="animate-spin h-4 w-4 text-foreground/50"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -43,46 +42,51 @@
       </div>
 
       <!-- Date Filters -->
-      <div class="block md:flex justify-start gap-4 mb-4 my-6 md:my-4">
+      <div
+        class="block md:flex justify-start items-end gap-4 mb-4 my-6 md:my-4"
+      >
         <div>
-          <label class="block text-sm font-medium text-gray-700">Before</label>
-          <input
+          <label class="block text-sm font-medium text-foreground/80"
+            >Before</label
+          >
+          <TextInput
             type="date"
             v-model="filters.before_date"
             @change="handleDateChange"
             :disabled="isLoading"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-xs disabled:bg-gray-100"
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700">After</label>
-          <input
+          <label class="block text-sm font-medium text-foreground/80"
+            >After</label
+          >
+          <TextInput
             type="date"
             v-model="filters.after_date"
             @change="handleDateChange"
             :disabled="isLoading"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-xs disabled:bg-gray-100"
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700">Between</label>
+          <label class="block text-sm font-medium text-foreground/80"
+            >Between</label
+          >
           <div class="flex gap-2">
-            <input
+            <TextInput
               type="date"
               v-model="filters.start_date"
               @change="handleDateChange"
               :disabled="isLoading"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-xs disabled:bg-gray-100"
             />
-            <input
+            <TextInput
               type="date"
               v-model="filters.end_date"
               @change="handleDateChange"
               :disabled="isLoading"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-xs disabled:bg-gray-100"
             />
           </div>
         </div>
+        <Button class="ms-auto" @click="exportAudit">Export Audit</Button>
       </div>
 
       <!-- Model Type Filters -->
@@ -90,7 +94,7 @@
         <label
           v-for="type in modelTypes"
           :key="type"
-          class="flex items-center my-4 md:my-0"
+          class="flex items-center gap-1 my-4 md:my-0"
           :class="{ 'opacity-50': isLoading }"
         >
           <Checkbox
@@ -102,7 +106,7 @@
           />
 
           {{ type }}
-          <span class="text-xs text-gray-500">
+          <span class="text-xs text-foreground/50">
             ({{ getModelCount(type) }})
           </span>
         </label>
@@ -113,10 +117,10 @@
       <!-- Loading overlay -->
       <div
         v-if="isLoading"
-        class="absolute inset-0 bg-white/50 flex items-center justify-center z-10"
+        class="absolute inset-0 bg-surface/50 flex items-center justify-center z-10"
       >
         <svg
-          class="animate-spin h-8 w-8 text-cerulean-600"
+          class="animate-spin h-8 w-8 text-primary"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
@@ -155,28 +159,30 @@
                       v-if="audit.user_profile_picture"
                       class="flex text-sm relative overflow-hidden transition w-8 h-8 border-2 border-transparent focus:outline-hidden focus:border-gray-300"
                     >
-                      <img
-                        class="object-cover w-full h-auto rounded-full"
+                      <ProfileImage
                         :src="audit.user_profile_picture"
-                        :alt="audit.user_id"
+                        alt="profile image"
                       />
                     </div>
                     <UserCircleIcon
                       v-else
-                      class="h-5 w-5 text-gray-500"
+                      class="h-5 w-5 text-foreground/80"
                       aria-hidden="true"
                     />
                   </div>
                 </div>
               </div>
               <div class="min-w-0 flex-1 py-1">
-                <div class="text-sm text-gray-500">
-                  <span class="font-medium text-gray-900">
+                <div class="text-sm text-foreground/60">
+                  <span class="font-semibold text-foreground">
                     {{ audit.user_id }}
                   </span>
                   performed at {{ audit.created_at }}
                 </div>
-                <div class="mt-2 text-sm text-gray-700">
+                <div class="mt-2 text-sm text-foreground/80">
+                  <div class="block w-full font-semibold">
+                    {{ audit.model }}: {{ audit.event }}
+                  </div>
                   <ul>
                     <template v-if="audit.event !== 'deleted'">
                       <li v-for="(value, key) in audit.new_values" :key="key">
@@ -190,7 +196,7 @@
                           ></span>
                           <span v-else
                             >Created
-                            <span class="font-semibold text-porsche-400">{{
+                            <span class="font-semibold text-foreground">{{
                               audit.model
                             }}</span>
                             with
@@ -273,7 +279,13 @@
                       </li>
                     </template>
                     <template v-else-if="audit.event === 'deleted'">
-                      <li>{{ audit.old_values.name }} was deleted</li>
+                      <li>
+                        <span class="font-semibold">{{ audit.model }}</span>
+                        <span
+                          >{{ audit.name ?? audit.old_values.name }} was
+                          deleted</span
+                        >
+                      </li>
                     </template>
                   </ul>
                 </div>
@@ -289,31 +301,21 @@
           class="flex items-center justify-between"
           :class="{ 'opacity-50': isLoading }"
         >
-          <button
+          <Button
             :disabled="audits.current_page === 1 || isLoading"
             @click="changePage(audits.current_page - 1)"
-            class="px-3 py-1 rounded-md bg-white border"
-            :class="{
-              'opacity-50 cursor-not-allowed':
-                audits.current_page === 1 || isLoading,
-            }"
           >
             Previous
-          </button>
+          </Button>
           <span class="mx-4">
             Page {{ audits.current_page }} of {{ audits.last_page }}
           </span>
-          <button
+          <Button
             :disabled="audits.current_page === audits.last_page || isLoading"
             @click="changePage(audits.current_page + 1)"
-            class="px-3 py-1 rounded-md bg-white border"
-            :class="{
-              'opacity-50 cursor-not-allowed':
-                audits.current_page === audits.last_page || isLoading,
-            }"
           >
             Next
-          </button>
+          </Button>
         </nav>
       </div>
     </div>
@@ -322,8 +324,14 @@
 <script setup>
 import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { UserCircleIcon } from '@heroicons/vue/20/solid';
-import Checkbox from '../Checkbox.vue';
+import { debounce } from '../../utils/dom/debounce.js';
 import { useAudit } from '../../domain/audit/useAudit.js';
+import { useExport } from '../../exchange/useExport.js';
+import Checkbox from '../Checkbox.vue';
+import Button from '../interactive/Button.vue';
+import { flashMessage } from '../notification/flashMessage.js';
+import ProfileImage from '../user/ProfileImage.vue';
+import TextInput from '../../form/TextInput.vue';
 
 const searchInput = ref(null);
 const props = defineProps({
@@ -334,10 +342,20 @@ const props = defineProps({
   context: String,
 });
 
-const { audits, auditCounts, loadAudits, forProjectId } = useAudit();
+const { audits, auditCounts, loadAudits, loadAllAudits, forProjectId } =
+  useAudit();
+const { exportAuditToCSV } = useExport();
 
 // Constants
-const modelTypes = ['Source', 'Selection', 'Code', 'Project', 'Codebook'];
+const modelTypes = [
+  'Source',
+  'Selection',
+  'Code',
+  'Project',
+  'Codebook',
+  'Note',
+  'Variable',
+];
 const PER_PAGE = 20;
 
 // State
@@ -360,6 +378,26 @@ const getModelCount = (type) => {
   return auditCounts.value[type] || 0;
 };
 
+const exportAudit = async () => {
+  try {
+    isLoading.value = true;
+    const {
+      success,
+      audits: allAudits,
+      error: exportError,
+    } = await loadAllAudits({ projectId: props.projectId });
+    if (!success || exportError) {
+      throw exportError ?? new Error('Failed to load audits for export');
+    }
+    await exportAuditToCSV({ audits: allAudits });
+  } catch (err) {
+    console.error('Error exporting audits:', err);
+    flashMessage(err.message, { type: 'error' });
+  } finally {
+    isLoading.value = false;
+  }
+};
+
 // Utility functions
 function isJSON(str) {
   try {
@@ -368,19 +406,6 @@ function isJSON(str) {
   } catch {
     return false;
   }
-}
-
-// Vanilla JS debounce
-function debounce(func, wait) {
-  let timeout;
-  return function executedFunction(...args) {
-    const later = () => {
-      clearTimeout(timeout);
-      func(...args);
-    };
-    clearTimeout(timeout);
-    timeout = setTimeout(later, wait);
-  };
 }
 
 // Methods
@@ -401,11 +426,11 @@ const handleDateChange = () => {
   fetchAudits(1); // Reset to page 1 on date change
 };
 
-const fetchAudits = async (page = 1) => {
+const fetchAudits = debounce(async (page = 1) => {
+  const wasSearchFocused = document.activeElement === searchInput.value;
   try {
     isLoading.value = true;
     error.value = null;
-    const wasSearchFocused = document.activeElement === searchInput.value;
     const {
       success,
       response,
@@ -418,6 +443,13 @@ const fetchAudits = async (page = 1) => {
     if (!success || loadError) {
       throw new Error(response.data.message || 'Failed to fetch audits');
     }
+  } catch (err) {
+    console.error('Error fetching audits:', err);
+    error.value = err.message || 'An error occurred while fetching audit data';
+    flashMessage(err.value, { type: 'error' });
+  } finally {
+    isLoading.value = false;
+    isSearching.value = false;
 
     // After successful fetch, restore focus if it was on search
     if (wasSearchFocused) {
@@ -425,22 +457,14 @@ const fetchAudits = async (page = 1) => {
         searchInput.value?.focus();
       });
     }
-  } catch (err) {
-    console.error('Error fetching audits:', err);
-    error.value = err.message || 'An error occurred while fetching audit data';
-  } finally {
-    isLoading.value = false;
   }
-};
+}, 1000);
 
 const handleSearch = debounce(async () => {
-  try {
-    isSearching.value = true;
-    await fetchAudits(1);
-  } finally {
-    isSearching.value = false;
-  }
-}, 300);
+  isSearching.value = true;
+  await fetchAudits(1);
+  isSearching.value = false;
+}, 100);
 
 const changePage = (page) => {
   if (!isLoading.value) {

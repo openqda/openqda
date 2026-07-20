@@ -12,5 +12,7 @@ import { twMerge } from 'tailwind-merge';
  * @return {string}
  */
 export const cn = (...inputs) => {
-  return twMerge(clsx(inputs));
+  const clsxResult = clsx(inputs);
+  const uniqueClasses = new Set(clsxResult.split(' '));
+  return twMerge([...uniqueClasses].join(' '));
 };

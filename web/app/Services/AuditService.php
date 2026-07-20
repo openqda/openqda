@@ -2,12 +2,19 @@
 
 namespace App\Services;
 
+use App\Models\Code;
+use App\Models\Note;
 use App\Models\Project;
+use App\Models\Selection;
+use App\Models\Source;
+use App\Models\Team;
+use App\Models\Variable;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use OwenIt\Auditing\Models\Audit;
 
 /**
  * Class AuditService
@@ -37,6 +44,17 @@ class AuditService
     }
 
     /**
+     * Get all audits for a project as a flat list, without filtering or pagination.
+     * Reuses the same cache entry as getProjectAudits().
+     */
+    public function getAllProjectAudits(Project $project): Collection
+    {
+        return $this->getProjectAudits($project)
+            ->sortByDesc('created_at_timestamp')
+            ->values();
+    }
+
+    /**
      * Filter audits based on provided criteria.
      */
     public function filterAudits(Collection $audits, array $filters): Collection
@@ -48,9 +66,12 @@ class AuditService
             $matchesModel = empty($filters['models']) ||
                 in_array($audit['model'], $filters['models']);
 
+            $matchesEvent = empty($filters['events']) ||
+                in_array($audit['event'], $filters['events']);
+
             $matchesDateRange = $this->auditMatchesDateRange($audit, $filters);
 
-            return $matchesQuery && $matchesModel && $matchesDateRange;
+            return $matchesQuery && $matchesModel && $matchesEvent && $matchesDateRange;
         });
     }
 
@@ -66,6 +87,8 @@ class AuditService
                 'id' => $audit->id,
                 'event' => $audit->event,
                 'model' => $model,
+                'target_id' => $audit->auditable_id,
+                'target_name' => $audit->auditable_name,
                 'user_id' => optional($audit->user)->email,
                 'user_profile_picture' => optional($audit->user)->profile_photo_url,
                 'created_at' => $createdAt->format(config('audit.date_format')),
@@ -147,7 +170,49 @@ class AuditService
             }
         }
 
-        return $allAudits->filter()->sortByDesc('created_at_timestamp')->values();
+        // Note audits
+        foreach ($project->notes as $note) {
+            $allAudits = $allAudits->concat(
+                $this->transformAudits(
+                    $note->audits,
+                    'Note',
+                    ['id', 'project_id', 'creating_user_id']
+                )
+            );
+        }
+
+        // Variable audits
+        foreach ($project->variables as $variable) {
+            $allAudits = $allAudits->concat(
+                $this->transformAudits(
+                    $variable->audits,
+                    'Variable',
+                    ['id', 'project_id', 'source_id', 'guid']
+                )
+            );
+        }
+
+        // Team audits (store, update, destroy, makeOwner)
+        if ($project->team_id) {
+            $team = Team::withTrashed()->find($project->team_id);
+            if ($team) {
+                $allAudits = $allAudits->concat(
+                    $this->transformAudits(
+                        $team->audits,
+                        'Project',
+                        ['id', 'personal_team']
+                    )
+                );
+            }
+        }
+
+        // Audits for hard-deleted models (not reachable via relationships)
+        $allAudits = $allAudits->concat($this->collectOrphanedDeletedAudits($project));
+
+        return $allAudits
+            ->filter()
+            ->sortByDesc('created_at_timestamp')
+            ->values();
     }
 
     /**
@@ -210,5 +275,70 @@ class AuditService
 
             return $audit;
         });
+    }
+
+    /**
+     * Collect audit records for hard-deleted models that are no longer reachable
+     * via Eloquent relationships. The owenIt/auditing package persists audit rows
+     * (including the 'deleted' event) in the audits table even after the auditable
+     * model is removed from the database, so we query the audits table directly.
+     */
+    public function collectOrphanedDeletedAudits(Project $project): Collection
+    {
+        $allAudits = collect();
+
+        // Models that carry project_id directly as an attribute
+        $modelMap = [
+            Source::class => [
+                'label' => 'Source',
+                'except' => ['id', 'project_id', 'creating_user_id'],
+                'existingIds' => $project->sources->pluck('id'),
+            ],
+            Note::class => [
+                'label' => 'Note',
+                'except' => ['id', 'project_id', 'creating_user_id'],
+                'existingIds' => $project->notes->pluck('id'),
+            ],
+            Variable::class => [
+                'label' => 'Variable',
+                'except' => ['id', 'project_id', 'source_id', 'guid'],
+                'existingIds' => $project->variables->pluck('id'),
+            ],
+            Selection::class => [
+                'label' => 'Selection',
+                'except' => ['id', 'source_id', 'creating_user_id', 'project_id', 'start_position', 'end_position'],
+                'existingIds' => $project->sources->flatMap->selections->pluck('id'),
+            ],
+        ];
+
+        foreach ($modelMap as $modelClass => $config) {
+            $orphans = Audit::where('auditable_type', $modelClass)
+                ->where('event', 'deleted')
+                ->whereNotIn('auditable_id', $config['existingIds'])
+                ->where('old_values->project_id', $project->id)
+                ->get();
+
+            $allAudits = $allAudits->concat(
+                $this->transformAudits($orphans, $config['label'], $config['except'])
+            );
+        }
+
+        // Code: project relation is indirect via codebook_id
+        $codebookIds = $project->codebooks->pluck('id');
+        $existingCodeIds = $project->codebooks->flatMap->codes->pluck('id');
+
+        foreach ($codebookIds as $codebookId) {
+            $orphans = Audit::where('auditable_type', Code::class)
+                ->where('event', 'deleted')
+                ->whereNotIn('auditable_id', $existingCodeIds)
+                ->where('old_values->codebook_id', $codebookId)
+                ->get();
+
+            $allAudits = $allAudits->concat(
+                $this->transformAudits($orphans, 'Code', ['id', 'codebook_id', 'creating_user_id'])
+            );
+        }
+
+        return $allAudits;
     }
 }

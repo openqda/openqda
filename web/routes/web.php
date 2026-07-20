@@ -7,12 +7,14 @@ use App\Http\Controllers\CodebookCodesController;
 use App\Http\Controllers\CodebookController;
 use App\Http\Controllers\CodingController;
 use App\Http\Controllers\NoteController;
+use App\Http\Controllers\PreferenceController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SelectionController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\SourceController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserNavigationController;
+use App\Http\Controllers\VariableController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -87,10 +89,13 @@ Route::middleware([
     Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('project.destroy');
 
     // For homepage/user audits
-    Route::get('/audits', [AuditsController::class, 'index']);
+    // Route::get('/audits', [AuditsController::class, 'index']);
 
     // For project-specific audits
-    Route::get('/audits/{project}', [AuditsController::class, 'projectAudits']);
+    Route::get('/audits/{project}', [AuditsController::class, 'projectAudits'])->name('project.audit');
+
+    // Export all audits for a project as a flat list (used for CSV export)
+    Route::get('/audits/{project}/export', [AuditsController::class, 'projectAuditsAll'])->name('project.audit-export');
 
     /**
      * Coding - Codes
@@ -178,4 +183,17 @@ Route::middleware([
     Route::resource('settings', SettingsController::class);
     Route::patch('settings/{setting}/value', [SettingsController::class, 'updateValue'])->name('settings.update-value');
 
+    /**
+     * User Preferences
+     */
+    Route::put('/preferences/{project}/update', [PreferenceController::class, 'updateProjectPreference'])->name('preferences.update.project');
+    Route::put('/preferences/update', [PreferenceController::class, 'updateGlobalPreference'])->name('preferences.update.global');
+
+    /**
+     * Variables
+     */
+    Route::post('/projects/{project}/variables', [VariableController::class, 'store'])->name('variables.store');
+    Route::get('/projects/{project}/variables/{variable}', [VariableController::class, 'show'])->name('variables.show');
+    Route::put('/projects/{project}/variables/{variable}', [VariableController::class, 'update'])->name('variables.update');
+    Route::delete('/projects/{project}/variables/{variable}', [VariableController::class, 'destroy'])->name('variables.destroy');
 });

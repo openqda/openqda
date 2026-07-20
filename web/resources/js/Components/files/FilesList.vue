@@ -2,7 +2,11 @@
   <table :class="cn('w-full border-collapse', props.fixed && 'table-fixed')">
     <thead>
       <tr class="align-middle" :class="props.rowClass">
-        <th class="w-5" v-if="fieldsVisible.lock"></th>
+        <th class="w-5 text-start">
+          <button @click="search = !search">
+            <MagnifyingGlassIcon class="w-4 h-4" />
+          </button>
+        </th>
         <th
           v-for="field in headerFields.filter(
             (field) => fieldsVisible[field.key]
@@ -13,7 +17,35 @@
             cn('text-xs font-normal text-foreground/50 sm:pl-0', field.class)
           "
         >
+          <div
+            v-if="search && field.search"
+            class="flex items-center w-full pe-3 gap-1"
+          >
+            <input
+              placeholder="filter list..."
+              v-model="filter"
+              class="h-4 text-xs grow"
+              autofocus
+              @keydown="
+                (e) => {
+                  if (e.key === 'Escape') {
+                    search = false;
+                    filter = '';
+                  }
+                }
+              "
+            />
+            <button
+              @click="
+                search = false;
+                filter = '';
+              "
+            >
+              <XMarkIcon class="w-4 h-4" />
+            </button>
+          </div>
           <a
+            v-else
             href
             @click.prevent="() => sort(field.key)"
             :class="
@@ -28,14 +60,26 @@
             <span>
               <ChevronUpIcon
                 class="h-4 w-4 text-foreground/50"
-                v-if="sorter.key === field.key && sorter.ascending === true"
+                v-if="getSortDirection(field.key) === 'asc'"
               />
               <ChevronDownIcon
                 class="h-4 w-4 text-foreground/50"
-                v-if="sorter.key === field.key && sorter.ascending === false"
+                v-if="getSortDirection(field.key) === 'desc'"
               />
             </span>
           </a>
+        </th>
+        <th
+          v-for="extraField in extraFields"
+          :key="extraField.key"
+          :class="
+            cn(
+              'text-xs font-normal text-foreground/50 sm:pl-0',
+              extraField.class
+            )
+          "
+        >
+          <span>{{ extraField.label }}</span>
         </th>
         <th
           scope="col"
@@ -78,7 +122,7 @@
         </td>
 
         <!-- type -->
-        <td class="py-2" v-if="fieldsVisible.type && hover !== index">
+        <td class="py-2" v-if="fieldsVisible.type">
           <div
             v-if="document.failed"
             title="There was an error during upload or conversion. Please retry or delete this file."
@@ -105,12 +149,19 @@
           <div
             v-else-if="document.converting || !document.converted"
             class="inline-flex justify-center w-full p-1"
-            :title="`Converting file in the background${conversionState(document)}. You may safely leave the page and come back later.`"
+            :title="
+              document.variables.transcription_job_status === 'failed'
+                ? 'Conversion job has failed. Please delete this file and retry or contact support.'
+                : `Converting file in the background${conversionState(document)}. You may safely leave the page and come back later.`
+            "
           >
-            <div class="animate-spin mr-1">
-              <ArrowPathIcon class="w-5 h-5 text-secondary"></ArrowPathIcon>
+            <BoltIcon
+              v-if="document.variables.transcription_job_status === 'failed'"
+              class="w-5 h-5 text-destructive"
+            />
+            <div class="animate-spin" v-else>
+              <ArrowPathIcon class="w-5 h-5 text-secondary" />
             </div>
-            Converting
           </div>
           <div
             v-else-if="!document.exists"
@@ -164,9 +215,9 @@
               emit('select', document, index)
             "
             :title="
-              hover === index
+              document.selected
                 ? 'File already open'
-                : `Open ${document.name} in editor`
+                : `Open '${document.name}' in editor`
             "
             :class="
               cn(
@@ -210,6 +261,20 @@
               :src="document.userPicture"
             />
           </div>
+        </td>
+
+        <!-- extra fields -->
+        <td
+          v-for="extraField in extraFields"
+          :key="extraField.key"
+          v-if="hover !== index"
+          :class="cn(extraField.cellClass)"
+        >
+          <span>{{
+            extraField.resolve
+              ? extraField.resolve(document)
+              : document[extraField.key]
+          }}</span>
         </td>
 
         <!-- actions -->
@@ -274,10 +339,13 @@
 
 import {
   ArrowPathIcon,
+  BoltIcon,
   ChevronDownIcon,
   ChevronUpIcon,
   EllipsisVerticalIcon,
   LockClosedIcon,
+  MagnifyingGlassIcon,
+  XMarkIcon,
 } from '@heroicons/vue/20/solid/index.js';
 import {
   ChatBubbleLeftEllipsisIcon,
@@ -296,7 +364,7 @@ import { vClickOutside } from '../../utils/vue/clickOutsideDirective.js';
 import { cn } from '../../utils/css/cn.js';
 import ProfileImage from '../user/ProfileImage.vue';
 
-const emit = defineEmits(['select', 'delete']);
+const emit = defineEmits(['select', 'delete', 'sortChanged']);
 const props = defineProps([
   'documents',
   'actions',
@@ -307,16 +375,49 @@ const props = defineProps([
   'colspan',
   'focusOnHover',
   'fullTitle',
+  'extraFields',
 ]);
-const docs = computed(() => {
-  return props.documents.filter(Boolean).map((doc) => {
-    doc.notes = (props.notes ?? [])
-      .filter((note) => note.type === 'source' && note.target === doc.id)
-      .map((n) => toRaw(n)); // prevent "proxy object could not be cloned error"
-    return doc;
-  });
-});
-const sorter = ref({ key: null, ascending: false });
+
+const docs = computed(() =>
+  props.documents
+    .filter((doc) => {
+      if (!doc) return false;
+      if (search.value && filter.value?.length >= 2) {
+        return doc.name.toLowerCase().includes(filter.value.toLowerCase());
+      }
+      return true;
+    })
+    .map((doc) => {
+      doc.notes = (props.notes ?? [])
+        .filter((note) => note.type === 'source' && note.target === doc.id)
+        .map((n) => toRaw(n)); // prevent "proxy object could not be cloned error"
+      return doc;
+    })
+    .toSorted((a, b) => {
+      for (const rule of sortRules.value) {
+        const aValue = a[rule.by] ?? a.variables?.[rule.by] ?? '';
+        const bValue = b[rule.by] ?? b.variables?.[rule.by] ?? '';
+
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          const comparison = aValue.localeCompare(bValue);
+          if (comparison !== 0) {
+            return rule.dir === 'asc' ? comparison : -comparison;
+          }
+          continue; // If equal, move to next rule
+        }
+
+        if (aValue < bValue) return rule.dir === 'asc' ? -1 : 1;
+        if (aValue > bValue) return rule.dir === 'asc' ? 1 : -1;
+      }
+
+      // fallback alphabetical asc
+      return a.name.localeCompare(b.name);
+    })
+);
+
+const filter = ref();
+const search = ref(false);
+
 const openMenuId = ref(null);
 const headerFields = ref([
   {
@@ -331,6 +432,7 @@ const headerFields = ref([
     pos: 'start',
     title: 'Sort by name',
     class: 'w-4/6 text-start',
+    search: true,
   },
   {
     label: 'Date',
@@ -352,15 +454,17 @@ const headerFields = ref([
     class: 'w-6',
   },
 ]);
-const fieldsVisible = ref({
-  lock: true,
-  name: true,
-  type: true,
-  date: true,
-  user: true,
-  actions: true,
-  notes: true,
-  ...(props.fields ?? {}),
+const fieldsVisible = computed(() => {
+  return {
+    lock: true,
+    name: true,
+    type: true,
+    date: true,
+    user: true,
+    actions: true,
+    notes: true,
+    ...props.fields,
+  };
 });
 const hover = ref(-1);
 
@@ -431,16 +535,28 @@ function isMenuOpen(id) {
   return openMenuId.value === id;
 }
 
-function sort(name) {
-  // new keys always sort ascending,
-  // existing keys will toggle
-  sorter.value.ascending =
-    sorter.value.key === name ? !sorter.value.ascending : true;
-  sorter.value.key = name;
-  docs.value.sort((a, b) => {
-    const value = String(a[name]).localeCompare(String(b[name]));
-    return sorter.value.ascending ? value : value * -1;
-  });
+const sortRules = ref([]);
+
+function getSortDirection(key) {
+  return sortRules.value.find((r) => r.by === key)?.dir ?? null;
+}
+
+function sort(key) {
+  const existingIndex = sortRules.value.findIndex((r) => r.by === key);
+
+  if (existingIndex !== -1) {
+    // Toggle direction
+    sortRules.value[existingIndex].dir =
+      sortRules.value[existingIndex].dir === 'asc' ? 'desc' : 'asc';
+  } else {
+    // Add new rule at end (lower priority)
+    sortRules.value.push({
+      by: key,
+      dir: 'asc',
+    });
+  }
+
+  emit('sortChanged', [...toRaw(sortRules.value)]);
 }
 </script>
 <style scoped>

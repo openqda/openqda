@@ -5,10 +5,14 @@
         <ActivityIndicator v-if="!codingInitialized">
           Loading codes and selections...
         </ActivityIndicator>
-        <div v-else class="inline md:flex items-center justify-between mb-4">
+        <div
+          v-else-if="!sorting"
+          class="sticky top-0 z-10 block lg:flex items-center justify-between bg-surface mb-4 py-3"
+        >
           <CreateDialog
             ref="createDialogRef"
             :schema="createNewCodeSchema"
+            :static="true"
             :title="`Create a new ${codesView === 'codes' ? 'Code' : 'Codebook'}`"
             :submit="createCodeHandler"
             @cancelled="unsetInvivoText"
@@ -31,6 +35,7 @@
           <CreateDialog
             :title="`Edit ${editTarget?.name}`"
             :schema="editSchema"
+            :static="true"
             buttonTitle="Update code"
             :submit="updateCode"
             :show="!!editSchema"
@@ -39,6 +44,7 @@
           <DeleteDialog
             :title="`Permanently delete ${deleteTarget?.name}`"
             :target="deleteTarget"
+            :static="false"
             :challenge="deleteChallenge"
             :message="deleteMessage"
             :submit="deleteCode"
@@ -54,12 +60,13 @@
         <CodeTree
           v-for="codebook in codebooks"
           :key="codebook.id"
+          :editable="true"
           :codebook="codebook"
           :codes="codes.filter((code) => code.codebook === codebook.id)"
           v-if="codesView === 'codes'"
         />
         <FilesList
-          v-if="codesView === 'sources'"
+          v-if="codesView === 'sources' && sourceDocuments?.length"
           :documents="sourceDocuments"
           :fixed="true"
           :focus-on-hover="true"
@@ -70,11 +77,11 @@
           v-if="codesView === 'sources' && !sourceDocuments?.length"
           class="p-3 text-foreground/60"
         >
-          No other sources locked for coding. Go to
-          <Link :href="route('source.index', projectId)"
-            >the preparations page</Link
-          >
-          to edit and lock sources for coding.
+          There are no Sources available. Go to
+          <Link :href="route('source.index', projectId)">
+            the preparations page
+          </Link>
+          to create, edit and lock sources for coding.
         </p>
         <div class="mt-auto">
           <Footer />
@@ -82,23 +89,40 @@
       </BaseContainer>
     </template>
     <template #main>
-      <div v-if="$props.source">
+      <div v-if="$props.source" class="relative">
         <CodingEditor
+          :blocked="sorting"
           :project="{ id: props.projectId }"
           :source="$props.source"
           :codes="$props.allCodes"
           class="overflow-y-auto overflow-x-hidden w-full h-full"
         >
           <template #actions>
+            <Transition name="fade">
+              <span v-if="sorting" class="text-sm text-foreground/80">
+                Coding is blocked while sorting.
+                <Button @click="setSorting(null)"> End sorting codes </Button>
+              </span>
+            </Transition>
             <Button
-              v-if="props.source"
-              @click="showSourceNotes = true"
+              v-if="props.source && !sorting"
+              @click="showOverlay('notes', true)"
               :title="`Manage notes for source '${props.source?.name}'`"
               variant="outline"
             >
               <ChatBubbleLeftEllipsisIcon class="w-4 h-4" />
             </Button>
+            <Button
+              v-if="props.source"
+              @click="showOverlay('variables', true)"
+              :title="`Manage Variables for source '${props.source.name}'`"
+              variant="outline"
+            >
+              <VariableIcon class="w-4 h-4" />
+            </Button>
             <CreateDialog
+              v-if="!sorting"
+              :static="true"
               :schema="createNewCodeSchema"
               :title="`Create a new ${hasSelectedRange ? 'In-Vivo Code' : 'Code'}`"
               :submit="createCodeHandler"
@@ -123,11 +147,11 @@
         </CodingEditor>
         <SideOverlay
           v-if="props.source"
-          title="Manage Notes"
-          :show="showSourceNotes"
-          @close="showSourceNotes = false"
+          :title="overlayOptions[optionsType]?.label"
+          :show="showOptions"
+          @close="showOptions = false"
         >
-          <div class="p-2">
+          <div class="p-2" v-if="optionsType === 'notes'">
             <Headline3 class="mb-2 p-2"
               >Notes linked to {{ props.source.name }}</Headline3
             >
@@ -136,6 +160,12 @@
               :target="props.source"
               type="source"
             />
+          </div>
+          <div class="p-2" v-if="optionsType === 'variables'">
+            <Headline3 class="mb-2 p-2">
+              Variables linked to {{ props.source.name }}
+            </Headline3>
+            <VariablesList :source="props.source" />
           </div>
         </SideOverlay>
       </div>
@@ -162,10 +192,23 @@
 
 <script setup>
 import { PlusIcon } from '@heroicons/vue/24/solid';
-import { ChatBubbleLeftEllipsisIcon } from '@heroicons/vue/24/outline';
-import { computed, onMounted, ref, useTemplateRef, watch } from 'vue';
+import {
+  ChatBubbleLeftEllipsisIcon,
+  VariableIcon,
+} from '@heroicons/vue/24/outline';
+import {
+  computed,
+  onMounted,
+  ref,
+  useTemplateRef,
+  watch,
+  provide,
+  onBeforeUnmount,
+} from 'vue';
 import AuthenticatedLayout from '../Layouts/AuthenticatedLayout.vue';
 import CodeTree from './coding/tree/CodeTree.vue';
+import CodeTreeItemRenderer from './coding/tree/CodeTreeItemRenderer.vue';
+import CodebookRenderer from './coding/tree/CodebookRenderer.vue';
 import CodingEditor from './coding/CodingEditor.vue';
 import BaseContainer from '../Layouts/BaseContainer.vue';
 import ResponsiveTabList from '../Components/lists/ResponsiveTabList.vue';
@@ -194,40 +237,41 @@ import { useNotes } from '../domain/notes/useNotes.js';
 import SideOverlay from '../Components/layout/SideOverlay.vue';
 import NoteList from './coding/tree/NoteList.vue';
 import Headline3 from '../Components/layout/Headline3.vue';
+import { useCodeTree } from './coding/tree/useCodeTree.js';
+import VariablesList from '../domain/variables/VariablesList.vue';
+import { useVariables } from '../domain/variables/useVariables.js';
 
 const props = defineProps(['source', 'sources', 'allCodes', 'projectId']);
+
 //------------------------------------------------------------------------
 // SOURCES
 //------------------------------------------------------------------------
+
+// TODO move to composable!
 const sourceDocuments = ref(
   props.sources
     .filter((source) => {
-      if (source.id === props.source?.id) return false;
-      if (source.isLocked) return true;
-
-      // backwards compatibility: check raw variables array
-      // TODO: remove 1.2.0
-      if (Array.isArray(source.variables)) {
-        return (source.variables ?? []).find(
-          ({ name, boolean_value }) =>
-            name === 'isLocked' && boolean_value === 1
-        );
-      } else {
-        return !!source.variables?.isLocked;
-      }
+      return props.source?.id && source.id !== props.source?.id;
     })
     .map((source) => {
       const copy = { ...source };
-      copy.date = new Date(source.updated_at).toLocaleDateString();
-      copy.variables = { isLocked: true };
       copy.isConverting = false;
       copy.failed = false;
       copy.converted = true;
       return copy;
     })
+    .toSorted((a, b) => a.name.localeCompare(b.name))
 );
+
 const switchFile = (file) => {
-  router.get(route('source.code', file.id));
+  if (file.variables?.isLocked) {
+    return router.get(route('source.code', file.id));
+  } else {
+    const projectId = props.projectId ?? props.project?.id;
+    const url = new URL(route('source.index', projectId));
+    url.searchParams.set('file', file.id);
+    return router.get(url.toString());
+  }
 };
 //------------------------------------------------------------------------
 // GENERIC EDIT DIALOG
@@ -270,6 +314,8 @@ const codesTabs = [
   { value: 'cleanup', label: 'Cleanup' },
 ];
 const codesView = ref(codesTabs[0].value);
+provide('codeTreeItemRenderer', CodeTreeItemRenderer);
+provide('codeBookRenderer', CodebookRenderer);
 
 // IN-VIVO CODE CREATION
 const createDialogRef = useTemplateRef('createDialogRef');
@@ -309,11 +355,14 @@ const createCodeHandler = async (formData) => {
   return code;
 };
 
-//------------------------------------------------------------------------
-// NOTES
-//------------------------------------------------------------------------
+const { sorting, setSorting } = useCodeTree();
+
+/*---------------------------------------------------------------------------*/
+// NOTES AND VARIABLES
+/*---------------------------------------------------------------------------*/
 const { initNotes, notes: storedNotes } = useNotes();
-const showSourceNotes = ref(false);
+const { initVariables } = useVariables();
+
 const notesForSource = computed(() => {
   if (!storedNotes?.value?.length || !props.source?.id) {
     return [];
@@ -322,6 +371,21 @@ const notesForSource = computed(() => {
     (note) => note.type === 'source' && note.target === props.source.id
   );
 });
+
+const overlayOptions = {
+  variables: {
+    label: 'Manage Source Variables',
+  },
+  notes: {
+    label: 'Manage Source Notes',
+  },
+};
+const showOptions = ref(false);
+const optionsType = ref('');
+const showOverlay = (type, value) => {
+  optionsType.value = type;
+  showOptions.value = value;
+};
 
 //------------------------------------------------------------------------
 // CLEANUP
@@ -356,6 +420,11 @@ onMounted(async () => {
   codingInitialized.value = true;
 
   initNotes();
+  initVariables();
+});
+
+onBeforeUnmount(() => {
+  setSorting(null);
 });
 
 const onSourceSelected = (file) => {
