@@ -40,3 +40,9 @@ web/resources/markdown/imprint.md
 web/resources/markdown/faq.md
 
 .claude
+
+# macOS files
+.DS_Store
+
+# installation temp files
+docker-compose.backup
