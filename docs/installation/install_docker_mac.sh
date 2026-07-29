@@ -5,8 +5,8 @@
 # REMOVE USELESS LINE ENDINGS WITH
 # sed -i '' $'s/\r$//' this_install_script.sh
 #
-SCRIPT_VERSION="1.0"
-SCRIPT_BUILD="65"
+SCRIPT_VERSION="1.1"
+SCRIPT_BUILD="75"
 SCRIPT_SELF="${0}"
 SCRIPT_HOME="$(pwd)"
 SCRIPT_BASE_NAME=$(basename "$0")
@@ -22,6 +22,7 @@ SCRIPT_ENV=".env"
 SCRIPT_USE_COLOR=1
 SCRIPT_EXECUTE_AUTOINSTALL=0
 SCRIPT_USE_DEFAULTS=0
+SCRIPT_USE_WELCOME=0
 SCRIPT_PID_FRONTEND=0
 SCRIPT_ALTCHA_HMAC_KEY="<your-hmac-key>"
 SCRIPT_DB_PASSWORD_MYSQL="<db-password-mysql>"
@@ -60,46 +61,96 @@ log() {
 		COLR="" # CONTAINTS THE ESCAPE SEQUENCE FOR SETTING TERMINAL COLOR MODE
 		LFD=""  # ADDS OPTIONAL LINEFEED AT BEFORE AND AFTER OUTPUT CONTENT
 		SPC=""  # ADDITIONAL SPACES ADDED BEFORE AND AFTER
+		ESC="\033" # ESCAPE CODE
+		FG_BLACK="30"
+		FG_RED="31"
+		FG_GREEN="32"
+		FG_YELLOW="33"
+		FG_BLUE="34"
+		FG_PURPLE="35"
+		FG_CYAN="36"
+		FG_WHITE="37"
+		FGH_BLACK="90"
+		FGH_RED="91"
+		FGH_GREEN="92"
+		FGH_YELLOW="93"
+		FGH_BLUE="94"
+		FGH_PURPLE="95"
+		FGH_CYAN="96"
+		FGH_WHITE="97"
+		BG_BLACK="40"
+		BG_RED="41"
+		BG_GREEN="42"
+		BG_YELLOW="43"
+		BG_BLUE="44"
+		BG_PURPLE="45"
+		BG_CYAN="46"
+		BG_WHITE="47"
+		BGH_BLACK="100"
+		BGH_RED="101"
+		BGH_GREEN="102"
+		BGH_YELLOW="103"
+		BGH_BLUE="104"
+		BGH_PURPLE="105"
+		BGH_CYAN="106"
+		BGH_WHITE="107"
+		RESET=0
+		BOLD=1
+		DIMMED=2
+		ITALIC=3
+		UNDERLINE=4
+		BLINK=5
+		INVERSE=6
+		STRIKE=8
 		case $1 in
-		"red") COLR="\033[31m" ;;
-		"red-b") COLR="\033[1;5;31m" ;; # -b APPENDED WILL MAKE COLOR BLINK & BOLD
-		"green") COLR="\033[32m" ;;
-		"green-b") COLR="\033[1;5;32m" ;;
-		"yellow") COLR="\033[33m" ;;
-		"yellow-b") COLR="\033[1;5;33m" ;;
-		"blue") COLR="\033[34m" ;;
-		"blue-b") COLR="\033[1;5;34m" ;;
-		"purple") COLR="\033[35m" ;;
-		"purple-b") COLR="\033[1;5;35m" ;;
-		"cyan") COLR="\033[36m" ;;
-		"cyan-b") COLR="\033[1;5;36m" ;;
-		"white") COLR="\033[37m" ;;
-		"white-b") COLR="\033[1;5;37m" ;;
-		"grey") COLR="\033[2;37m" ;;
-		"grey-b") COLR="\033[2;5;37m" ;;
-		"black") COLR="\033[30m" ;;
-		"black-b") COLR="\033[1;5;30m" ;;
-		"ok") COLR="\033[0;42;30m";LFD="\n";SPC="   " ;; # ok, attn, warn, info, hint & fatal USE INVERSE COLORED BACKGROUND
-		"ok-b") COLR="\033[0;5;42;30m";LFD="\n";SPC="   " ;;
-		"hint") COLR="\033[0;47;30m";LFD="\n";SPC="   " ;;
-		"hint-b") COLR="\033[0;5;47;30m";LFD="\n";SPC="   " ;;
-		"attn") COLR="\033[0;43;30m";LFD="\n";SPC="   " ;;
-		"attn-b") COLR="\033[0;5;43;30m";LFD="\n";SPC="   " ;;
-		"warn") COLR="\033[0;41;30m";LFD="\n";SPC="   " ;;
-		"warn-c") COLR="\033[0;41;30m";LFD="";SPC="   " ;;
-		"warn-b") COLR="\033[0;5;41;37m";LFD="\n";SPC="   " ;;
-		"info") COLR="\033[0;44;37m";LFD="\n";SPC="   " ;;
-		"info-b") COLR="\033[0;5;44;37m";LFD="\n";SPC="   " ;;
-		"fatal") COLR="\033[0;45;30m";LFD="\n";SPC="   " ;;
-		"fatal-b") COLR="\033[0;5;45;30m";LFD="\n";SPC="   " ;;
+		"red") COLR="${ESC}[${FG_RED}" ;;
+		"red-h") COLR="${ESC}[${FGH_RED}" ;;
+		"red-b") COLR="${ESC}[${BOLD};${BLINK};${FG_RED}" ;; # -b APPENDED WILL MAKE COLOR BLINK & BOLD
+		"green") COLR="${ESC}[${FG_GREEN}" ;;
+		"green-h") COLR="${ESC}[${FGH_GREEN}" ;;
+		"green-b") COLR="${ESC}[${BOLD};${BLINK};${FG_GREEN}" ;;
+		"yellow") COLR="${ESC}[${FG_YELLOW}" ;;
+		"yellow-h") COLR="${ESC}[${FGH_YELLOW}" ;;
+		"yellow-b") COLR="${ESC}[${BOLD};${BLINK};${FG_YELLOW}" ;;
+		"blue") COLR="${ESC}[${FG_BLUE}" ;;
+		"blue-h") COLR="${ESC}[${FGH_BLUE}" ;;
+		"blue-b") COLR="${ESC}[${BOLD};${BLINK};${FG_BLUE}" ;;
+		"purple") COLR="${ESC}[${FG_PURPLE}" ;;
+		"purple-h") COLR="${ESC}[${FGH_PURPLE}" ;;
+		"purple-b") COLR="${ESC}[${BOLD};${BLINK};${FG_PURPLE}" ;;
+		"cyan") COLR="${ESC}[${FG_CYAN}" ;;
+		"cyan-h") COLR="${ESC}[${FGH_CYAN}" ;;
+		"cyan-b") COLR="${ESC}[${BOLD};${BLINK};${FG_CYAN}" ;;
+		"white") COLR="${ESC}[${FG_WHITE}" ;;
+		"white-h") COLR="${ESC}[${FGH_WHITE}" ;;
+		"white-b") COLR="${ESC}[${BOLD};${BLINK};${FG_WHITE}" ;;
+		"grey") COLR="${ESC}[${DIMMED};${FG_WHITE}" ;;
+		"grey-h") COLR="${ESC}[${DIMMED};${FGH_WHITE}" ;;
+		"grey-b") COLR="${ESC}[${DIMMED};${BLINK};${FG_WHITE}" ;;
+		"black") COLR="${ESC}[${FG_BLACK}" ;;
+		"black-h") COLR="${ESC}[${FGH_BLACK}" ;;
+		"black-b") COLR="${ESC}[${BOLD};${BLINK};${FG_BLACK}" ;;
+		"ok") COLR="${ESC}[0;${BGH_GREEN};${FG_BLACK}";LFD="\n";SPC="   " ;; # ok, attn, warn, info, hint & fatal USE INVERSE COLORED BACKGROUND
+		"ok-b") COLR="${ESC}[0;${BLINK};${BG_GREEN};${FG_BLACK}";LFD="\n";SPC="   " ;;
+		"hint") COLR="${ESC}[0;${BG_WHITE};${FG_BLACK}";LFD="\n";SPC="   " ;;
+		"hint-b") COLR="${ESC}[0;${BLINK};${BG_WHITE};${FG_BLACK}";LFD="\n";SPC="   " ;;
+		"attn") COLR="${ESC}[0;${BGH_YELLOW};${FG_BLACK}";LFD="\n";SPC="   " ;;
+		"attn-b") COLR="${ESC}[0;${BLINK};${BGH_YELLOW};${FG_BLACK}";LFD="\n";SPC="   " ;;
+		"warn") COLR="${ESC}[0;${BGH_RED};${FG_BLACK}";LFD="\n";SPC="   " ;;
+		"warn-c") COLR="${ESC}[0;${BG_RED};${FG_BLACK}";LFD="";SPC="   " ;;
+		"warn-b") COLR="${ESC}[0;${BLINK};${BG_RED};${FG_WHITE}";LFD="\n";SPC="   " ;;
+		"info") COLR="${ESC}[0;${BG_BLUE};${FG_WHITE}";LFD="\n";SPC="   " ;;
+		"info-b") COLR="${ESC}[0;${BLINK};${BG_BLUE};${FG_WHITE}";LFD="\n";SPC="   " ;;
+		"fatal") COLR="${ESC}[0;${BGH_PURPLE};${FG_BLACK}";LFD="\n";SPC="   " ;;
+		"fatal-b") COLR="${ESC}[0;${BLINK};${BG_PURPLE};${FG_BLACK}";LFD="\n";SPC="   " ;;
 		*)
 			echo -e "$1"
 			return
 			;; # IF ONLY CONTENT AS ARGUMENT AND NO COLOR INFO
 		esac
-		RST="\033[0m"                                     # RESETS ALL COLOR MODES ACTIVATED
+		RST="${ESC}[${RESET}m"                                 # RESETS ALL COLOR MODES ACTIVATED
 		if [[ $SCRIPT_USE_COLOR -eq 1 ]]; then
-			echo -e "${LFD}${COLR}${SPC}$2${SPC}${RST}${LFD}" # ECHOS SECOND ARGUMENT PASSED IN WITH COLOR FROM ARG 1
+			echo -e "${LFD}${COLR}m${SPC}$2${SPC}${RST}${LFD}" # ECHOS SECOND ARGUMENT PASSED IN WITH COLOR FROM ARG 1
 		else
 			echo -e "${LFD}${SPC}$2${SPC}${LFD}"
 		fi
@@ -117,8 +168,9 @@ script_ctrlc() {
 # HELPER TO EXIT THE NICE WAY WITH AN ERROR
 script_error() {
 	log ""
+	SCRIPT_ERROR_CODE=$?
 	log warn "ERROR"
-	log "SCRIPT FAILED TO EXECUTE SUCCESSFULLY. SEE ERROR ABOVE."
+	log "SCRIPT FAILED TO EXECUTE SUCCESSFULLY. SEE ERROR ABOVE. CODE ${SCRIPT_ERROR_CODE}"
 	log info "*** GOOD BYE! (ERROR) ***"
 }
 
@@ -127,19 +179,24 @@ script_abort() {
 	log ""
 	log warn "ABORTED"
 	log info "*** GOOD BYE! (EXITING) ***"
-	exit 1
+	exit 2
 }
 
 # HELPER TO EXIT THE SCRIPT PROGRAMMATICALLY
 script_exit() {
 	log ""
 	log "SCRIPT EXIT BY USER."
+	# log info "*** ${SCRIPT_NAME} INSTALL COMPLETE - VERSION ${SCRIPT_VERSION} BUILD ${SCRIPT_BUILD} ***"
 	log info "*** GOOD BYE! (EXITING) ***"
 	exit 0
 }
 
 # HELPER TO KILL ALL STARTED SUBPROCESSES BEFORE EXITING SCRIPT
 script_kill() {
+	SCRIPT_ERROR_CODE=$?
+	if [[ $SCRIPT_ERROR_CODE -gt 0 ]]; then
+		log warn "SCRIPT BAILED DUE TO LAST OPERATION RETURNED ERROR(S) OF CODE ${SCRIPT_ERROR_CODE}"
+	fi
 	log fatal "EXIT: TERMINATED ALL SUB-/BACKGROUND-PROCESSES, STARTED IN CONTEXT OF THE SCRIPT."
 	# THIS WILL KILL ALL BACKGROUND JOBS STARTED IN CONTEXT OF THIS SCRIPT
 	kill 0
@@ -331,9 +388,9 @@ exec_welcome_short() {
 	log white "If this is your first run of this script, please do"
 	log white "the following in the following order:"
 	log
-	log cyan "1. Check Tooling"
+	log cyan-h "1. Check Tooling"
 	log cyan "2. Configure Environment"
-	log cyan "3. Install & First Run"
+	log cyan-h "3. Install & First Run"
 	log cyan "4. Start Frontend"
 	log
 	log red-b "OR"
@@ -359,10 +416,10 @@ exec_welcome_screen() {
 	# CHECK IF WE RUN FROM WITHIN WEB FOLDER
 	if [[ ${PWD##*/} != "${SCRIPT_WEB_DIR}" ]]; then
 	log warn "ERROR"
-	log red "THIS SCRIPT NEEDS TO RUN FROM WITHIN THE 'web' DIRECTORY."
+	log red "THIS SCRIPT NEEDS TO RUN FROM WITHIN THE '${SCRIPT_WEB_DIR}' DIRECTORY."
 	script_abort
 	else
-	log green "RUNNING INSIDE OF WEB DIRECTORY"
+	log green "RUNNING INSIDE OF '${SCRIPT_WEB_DIR}' DIRECTORY"
 	log ok "OK"
 	fi
 }
@@ -418,6 +475,9 @@ done
 
 # ACTIVATE AUTOKILL OF PROCESSES STARTED WITHIN CONTEXT OF THIS SCRIPT
 trap "script_kill" EXIT
+##
+# FIRST LOGO DISPLAYED
+##
 exec_logo_launch
 
 # DISALLOW THIS TO BE RUN AS ROOT USER
@@ -439,7 +499,9 @@ if [[ $UID -eq 0 ]]; then
 	script_abort
 fi
 
-
+##
+# FIRST WELCOME DISPLAYED
+##
 exec_welcome_screen
 
 ##
@@ -448,7 +510,7 @@ exec_welcome_screen
 
 exec_check_tooling() {
 	exec_logo_launch
-	exec_welcome_short
+	SCRIPT_USE_WELCOME=1
 	# CHECK IF NEEDED HELPER TOOLS ARE INSTALLED & AVAILABLE
 	log info "INSTALLER: CHECKING INSTALLED HELPER TOOLS"
 	probe_docker;
@@ -467,7 +529,6 @@ exec_check_tooling() {
 
 exec_start_backend() {
 	exec_logo_launch
-	exec_welcome_short
     # LAUNCHING BACKEND
     log info "INSTALLER: STARTING BACKEND"
     log
@@ -486,7 +547,6 @@ exec_start_backend() {
 
 exec_stop_backend() {
 	exec_logo_launch
-	exec_welcome_short
     # TERMINATING BACKEND
     log info "INSTALLER: STOPPING BACKEND"
     log
@@ -525,7 +585,7 @@ exec_is_backend_up() {
 
 exec_start_frontend() {
 	exec_logo_launch
-	exec_welcome_short
+	SCRIPT_USE_WELCOME=1
 	log info "INSTALLER: STARTING FRONTEND"
 	log
 	log cyan "CHECKING IF BACKEND IS UP AND RUNNING..."
@@ -564,7 +624,6 @@ exec_start_frontend() {
 
 exec_stop_frontend() {
 	exec_logo_launch
-	exec_welcome_short
 	log info "INSTALLER: STOPPING FRONTEND"
 	log
 	log cyan "CHECKING IF FRONTEND IS RUNNING..."
@@ -700,7 +759,7 @@ exec_prepare_docker_compose() {
 
 exec_configure_env() {
 	exec_logo_launch
-	exec_welcome_short
+	SCRIPT_USE_WELCOME=1
 	log info "INSTALLER: CONFIGURING ENVIRONMENT"
 	log
 	# BYPASS QUESTIONS IN AUTO-INSTALL MODE
@@ -752,7 +811,6 @@ exec_configure_env() {
 
 exec_clean_containers() {
 	exec_logo_launch
-	exec_welcome_short
 	log info "INSTALLER: CLEAR/DELETE INSTALLED CONTAINERS"
 	log
 	log white "This operation will stop the running ${SCRIPT_PRODUCT_NAME}"
@@ -788,7 +846,7 @@ exec_clean_containers() {
 
 exec_install_and_firstrun() {
 	exec_logo_launch
-	exec_welcome_short
+	SCRIPT_USE_WELCOME=1
 	log info "INSTALLER: INSTALL CONTAINERS & FIRST INIT RUN"
 	log
 	log white "This will create & run a LARAVEL container image,"
@@ -868,7 +926,6 @@ exec_install_and_firstrun() {
 
 exec_test_backend() {
 	exec_logo_launch
-	exec_welcome_short
 	log info "INSTALLER: TESTING SYSTEM SETUP"
 	log red "<NOT YET IMPLEMENTED>"
 	log warn "ERROR"
@@ -876,7 +933,6 @@ exec_test_backend() {
 
 exec_test_pre_commit() {
 	exec_logo_launch
-	exec_welcome_short
 	log info "INSTALLER: TESTING CODE QUALITY / COMPLIANCE"
 	log cyan "RUNNING PINT (PHP-CS-Fixer) ..."
 	./vendor/bin/pint -vv --test
@@ -891,7 +947,6 @@ exec_test_pre_commit() {
 
 exec_zap_docker() {
 	exec_logo_launch
-	exec_welcome_short
 	log info "INSTALLER: ZAPPING & HARD RESETTING DOCKER ENGINE"
 	# ASK
 	log warn " WANT TO REALLY ZAP & HARD-RESET (DANGER!!) DOCKER ENGINE? "
@@ -927,7 +982,6 @@ exec_zap_docker() {
 
 exec_shell_check() {
 	exec_logo_launch
-	exec_welcome_short
 	log info "INSTALLER: CHECKING SHELL SCRIPTS IN PROJECT"
 	log
 	log white "Following operation checks if all shell-Scripts in the"
@@ -936,11 +990,11 @@ exec_shell_check() {
 	log
 	log hint "${SCRIPT_PRESS_ANY_KEY}"
 	read -r -n 1
-	log cyan "SEARCHING FILES IN PROJECT ROOT DIR ..."
-	find .. -type f -name '*.sh'
+	log cyan "SEARCHING FILES IN PROJECT ROOT DIR (EXCLUDING vendor) ..."
+	find .. -path '*/vendor' -prune -o -type f -name '*.sh' -print
 	log
-	log cyan "RUNNING SHELLCHECK ON FOUND FILES ..."
-	find .. -type f -name '*.sh' -print0 | xargs -0 shellcheck
+	log cyan "RUNNING SHELLCHECK ON FOUND FILES (EXCLUDING vendor) ..."
+	find .. -path '*/vendor' -prune -o -type f -name '*.sh' -print0 | xargs -0 shellcheck
 	log ok "OK"
 }
 
@@ -976,19 +1030,19 @@ exec_auto_installation() {
 }
 
 exec_print_menu() {
-  log attn "  FUNCTION MENU  "
-  log white " 1) Check Tooling"
-  log white " 2) Configure Environment"
-  log white " 3) Install & First Run"
-  log white " 4) Start Frontend"
-  log white " 5) Start Backend"
-  log white " 6) Stop Backend"
-  log white " 7) Clean Containers"
-  log white " 8) Pre-Commit Code Testing"
-  log white " 9) Shellcheck Scripts"
-  log white "10) Docker ZAPPING!!!"
-  log white " 0) EXIT/QUIT"
-  log attn "(CHOOSE AN OPTION)"  
+  log attn "    FUNCTION MENU    "
+  log white-h " 1 — Check Tooling"
+  log white " 2 — Configure Environment"
+  log white-h " 3 — Install & First Run"
+  log white " 4 — Start Frontend"
+  log white-h " 5 — Start Backend"
+  log white " 6 — Stop Backend"
+  log white-h " 7 — Clean Containers"
+  log white " 8 — Pre-Commit Code Testing"
+  log white-h " 9 — Shellcheck Scripts"
+  log white "10 — Docker ZAPPING!!!"
+  log white-h " 0 — EXIT/QUIT"
+  log attn "  (CHOOSE AN OPTION)  "  
 }
 
 ##
@@ -998,10 +1052,16 @@ exec_print_menu() {
 if [[ SCRIPT_EXECUTE_AUTOINSTALL -eq 0 ]]; then
 	while true; do
 	exec_print_menu
+	echo -n " > "
 	read -r choice_raw
 	if [[ -z "$choice_raw" ]]; then
 		exec_logo_launch
-		exec_welcome_short
+		if [[ $SCRIPT_USE_WELCOME -gt 0 ]]; then
+			exec_welcome_short
+			SCRIPT_USE_WELCOME=0
+		else
+			SCRIPT_USE_WELCOME=1
+		fi
 		continue
 	fi
 
@@ -1042,9 +1102,3 @@ if [[ $SCRIPT_SHOULD_COLLAB -gt 0 ]]; then
 else
     log red "WE DO *NOT* LAUNCH COLLABORATION SERVICES."
 fi
-
-
-# ALL DONE
-log info "*** ${SCRIPT_NAME} INSTALL COMPLETE - VERSION ${SCRIPT_VERSION} BUILD ${SCRIPT_BUILD} ***"
-log info "*** GOOD BYE! ***"
-log
