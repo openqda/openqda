@@ -59,3 +59,25 @@ keywords:
   - University of Bremen
 license: AGPL-3.0
 date-released: '2024-05-01'
+legacy-authors:
+  - given-names: Alessandro
+    family-names: Belli
+    email: belli@uni-bremen.de
+    affiliation: 'ZeMKI, University of Bremen'
+    orcid: 'https://orcid.org/0000-0002-7292-8321'
+  - given-names: Gino
+    family-names: Krüger
+    email: gikrueger@uni-bremen.de
+    affiliation: 'ZeMKI, University of Bremen'
+    orcid: 'https://orcid.org/0000-0001-7150-6963'
+  - given-names: Gino
+    family-names: Krüger
+    email: gikrueger@uni-bremen.de
+    affiliation: 'ZeMKI, University of Bremen'
+    orcid: 'https://orcid.org/0000-0001-7150-6963'
+  - given-names: Sharmen Shobnom
+    family-names: Desha
+    affiliation: 'University of Bremen'
+  - given-names: Leila
+    family-names: Matayeva
+    affiliation: 'University of Bremen'
