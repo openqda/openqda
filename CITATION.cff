@@ -28,6 +28,10 @@ authors:
     email: sinner@uni-bremen.de
     affiliation: 'ZeMKI, University of Bremen'
     orcid: 'https://orcid.org/0000-0001-8273-1664'
+  - given-names: Helge
+    family-names: Städtler
+    email: hstaedtl@uni-bremen.de
+    affiliation: 'ZeMKI, University of Bremen'
   - given-names: Karsten
     family-names: Wolf
     name-particle: D.
@@ -41,8 +45,8 @@ identifiers:
 repository-code: 'https://github.com/openqda/openqda'
 url: 'https://openqda.org'
 abstract: >-
-  An open, web-based, collaborative and extensible software
-  for qualitative data analysis.
+  An open, collaborative and extensible software for
+  qualitative data analysis.
 keywords:
   - qda
   - caqdas
