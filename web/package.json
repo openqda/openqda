@@ -3,7 +3,7 @@
   "type": "module",
   "version": "1.0.8",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --clearScreen false",
     "build": "vite build",
     "test:unit": "vitest --coverage --ui",
     "ci:unit": "LARAVEL_BYPASS_ENV_CHECK=1 CI=1 vitest --run --watch=false",
