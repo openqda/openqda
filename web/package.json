@@ -1,6 +1,7 @@
 {
   "private": true,
   "type": "module",
+  "version": "1.0.8",
   "scripts": {
     "dev": "vite --clearScreen false",
     "build": "vite build",
