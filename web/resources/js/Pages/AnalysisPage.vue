@@ -472,6 +472,13 @@ const _exportData = async () => {
   }
   await asyncTimeout(1000);
   const contents = selection.value;
+  let count = 0
+  contents.forEach(content => {
+    content.codes.forEach(code => {
+      count += code.segments.length;
+    })
+  })
+  console.debug({ count })
   const users = allUsers;
   await exportToCSV({ contents, users });
 };
