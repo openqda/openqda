@@ -172,7 +172,7 @@ export const useAnalysis = () => {
             };
 
             code.text.forEach((text) => {
-              if (text.source_id === file.id) {
+              if (text.source_id === file.id && !current.segments.find(s => s.id == text.id)) {
                 current.segments.push(text);
               }
             });
@@ -195,6 +195,7 @@ export const useAnalysis = () => {
       }
     });
 
+    state.selection = values;
     selection.value = values;
     hasSelections.value = values.length > 0;
   }, 500);
@@ -212,6 +213,7 @@ export const useAnalysis = () => {
       throw new Error(`[${response.status}]: Failed to load selections`);
     }
     const { selections } = response.data;
+
     selections.forEach((selection) => {
       const { code_id } = selection;
       (allCodes.value ?? []).forEach((code) => {
@@ -219,7 +221,9 @@ export const useAnalysis = () => {
           if (!Array.isArray(code.text)) {
             code.text = [];
           }
-          code.text.push(toSelection(selection));
+          if (!code.text.find(s => s.id == selection.id)) {
+            code.text.push(toSelection(selection));
+          }
         }
       });
     });
